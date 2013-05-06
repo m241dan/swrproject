@@ -2110,7 +2110,8 @@ struct char_data
    short defposition;
    short height;
    short weight;
-   short armor;
+   short armor; //Global Armor Apply
+   short evasion; //Chance to Evade
    short wimpy;
    int deaf;
    short perm_str;
