@@ -352,7 +352,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "MGlory       %d\n", ch->pcdata->quest_accum );
    fprintf( fp, "Hitroll      %d\n", ch->hitroll );
    fprintf( fp, "Damroll      %d\n", ch->damroll );
-   fprintf( fp, "Armor        %d\n", ch->armor );
+   fprintf( fp, "Evasion      %d\n", ch->evasion );
    if( ch->wimpy )
       fprintf( fp, "Wimpy        %d\n", ch->wimpy );
    if( ch->deaf )
@@ -940,7 +940,6 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             KEY( "Act", ch->act, fread_number( fp ) );
             KEY( "AffectedBy", ch->affected_by, fread_number( fp ) );
             KEY( "Alignment", ch->alignment, fread_number( fp ) );
-            KEY( "Armor", ch->armor, fread_number( fp ) );
 
             if( !str_cmp( word, "Addiction" ) )
             {
@@ -1521,6 +1520,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                return;
             }
             KEY( "Email", ch->pcdata->email, fread_string_nohash( fp ) );
+            KEY( "Evasion", ch->evasion, fread_number( fp ) );
             break;
 
          case 'T':

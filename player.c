@@ -64,8 +64,8 @@ void do_score( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Race: %3d year old %-10.10s                Log In:  %s\r",
               get_age( ch ), capitalize( get_race( ch ) ), ctime( &( ch->logon ) ) );
 
-   ch_printf( ch, "Hitroll: %-2.2d  Damroll: %-2.2d   Armor: %-4d        Saved:  %s\r",
-              GET_HITROLL( ch ), GET_DAMROLL( ch ), GET_AC( ch ), ch->save_time ? ctime( &( ch->save_time ) ) : "no\n" );
+   ch_printf( ch, "Hitroll: %-2.2d  Damroll: %-2.2d   Evasion: %-4d        Saved:  %s\r",
+              GET_HITROLL( ch ), GET_DAMROLL( ch ), GET_EVASION( ch ), ch->save_time ? ctime( &( ch->save_time ) ) : "no\n" );
 
    ch_printf( ch, "Align: %-5d    Wimpy: %-3d                    Time:   %s\r",
               ch->alignment, ch->wimpy, ctime( &current_time ) );
@@ -368,8 +368,8 @@ const char *tiny_affect_loc_name( int location )
          return " GOLD ";
       case APPLY_EXP:
          return " EXP  ";
-      case APPLY_AC:
-         return " AC   ";
+      case APPLY_EVASION:
+         return " EV   ";
       case APPLY_HITROLL:
          return " HITRL";
       case APPLY_DAMROLL:
@@ -646,33 +646,7 @@ void do_oldscore( CHAR_DATA * ch, const char *argument )
    }
 
    if( ch->top_level >= 25 )
-      ch_printf( ch, "AC: %d.  ", GET_AC( ch ) );
-
-   send_to_char( "You are ", ch );
-   if( GET_AC( ch ) >= 101 )
-      send_to_char( "WORSE than naked!\r\n", ch );
-   else if( GET_AC( ch ) >= 80 )
-      send_to_char( "naked.\r\n", ch );
-   else if( GET_AC( ch ) >= 60 )
-      send_to_char( "wearing clothes.\r\n", ch );
-   else if( GET_AC( ch ) >= 40 )
-      send_to_char( "slightly armored.\r\n", ch );
-   else if( GET_AC( ch ) >= 20 )
-      send_to_char( "somewhat armored.\r\n", ch );
-   else if( GET_AC( ch ) >= 0 )
-      send_to_char( "armored.\r\n", ch );
-   else if( GET_AC( ch ) >= -20 )
-      send_to_char( "well armored.\r\n", ch );
-   else if( GET_AC( ch ) >= -40 )
-      send_to_char( "strongly armored.\r\n", ch );
-   else if( GET_AC( ch ) >= -60 )
-      send_to_char( "heavily armored.\r\n", ch );
-   else if( GET_AC( ch ) >= -80 )
-      send_to_char( "superbly armored.\r\n", ch );
-   else if( GET_AC( ch ) >= -100 )
-      send_to_char( "divinely armored.\r\n", ch );
-   else
-      send_to_char( "invincible!\r\n", ch );
+      ch_printf( ch, "Evasion: %d.  \r\n", GET_EVASION( ch ) );
 
    if( ch->top_level >= 15 )
       ch_printf( ch, "Hitroll: %d  Damroll: %d.\r\n", GET_HITROLL( ch ), GET_DAMROLL( ch ) );

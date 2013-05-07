@@ -236,7 +236,7 @@ int get_exp_worth( CHAR_DATA * ch )
 
    wexp = ch->skill_level[COMBAT_ABILITY] * ch->top_level * 50;
    wexp += ch->max_hit * 2;
-   wexp -= ( ch->armor - 50 ) * 2;
+   wexp -= ( ch->evasion - 50 ) * 2;
    wexp += ( ch->barenumdie * ch->baresizedie + GET_DAMROLL( ch ) ) * 50;
    wexp += GET_HITROLL( ch ) * ch->top_level * 10;
    if( IS_AFFECTED( ch, AFF_SANCTUARY ) )
@@ -679,8 +679,8 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
          break;
       case APPLY_EXP:
          break;
-      case APPLY_AC:
-         ch->armor += mod;
+      case APPLY_EVASION:
+         ch->evasion += mod;
          break;
       case APPLY_HITROLL:
          ch->hitroll += mod;
@@ -1193,7 +1193,7 @@ void obj_from_char( OBJ_DATA * obj )
 /*
  * Find the ac value of an obj, including position effect.
  */
-int apply_ac( OBJ_DATA * obj, int iWear )
+int apply_evasion( OBJ_DATA * obj, int iWear )
 {
    if( obj->item_type != ITEM_ARMOR )
       return 0;
@@ -1305,7 +1305,7 @@ void equip_char( CHAR_DATA * ch, OBJ_DATA * obj, int iWear )
       return;
    }
 
-   ch->armor -= apply_ac( obj, iWear );
+   ch->evasion -= apply_evasion( obj, iWear );
    obj->wear_loc = iWear;
 
    ch->carry_number -= get_obj_number( obj );
@@ -1342,7 +1342,7 @@ void unequip_char( CHAR_DATA * ch, OBJ_DATA * obj )
    if( IS_SET( obj->extra_flags, ITEM_MAGIC ) )
       ch->carry_weight += get_obj_weight( obj );
 
-   ch->armor += apply_ac( obj, obj->wear_loc );
+   ch->evasion += apply_evasion( obj, obj->wear_loc );
    obj->wear_loc = -1;
 
    for( paf = obj->pIndexData->first_affect; paf; paf = paf->next )
@@ -2546,8 +2546,8 @@ const char *affect_loc_name( int location )
          return "gold";
       case APPLY_EXP:
          return "experience";
-      case APPLY_AC:
-         return "armor class";
+      case APPLY_EVASION:
+         return "evasion";
       case APPLY_HITROLL:
          return "hit roll";
       case APPLY_DAMROLL:
@@ -3151,7 +3151,7 @@ void clean_mob( MOB_INDEX_DATA * mob )
    mob->affected_by = 0;
    mob->alignment = 0;
    mob->mobthac0 = 0;
-   mob->ac = 0;
+   mob->evasion = 0;
    mob->hitnodice = 0;
    mob->hitsizedice = 0;
    mob->hitplus = 0;
@@ -3207,7 +3207,7 @@ void fix_char( CHAR_DATA * ch )
    ch->hit = UMAX( 1, ch->hit );
    ch->mana = UMAX( 1, ch->mana );
    ch->move = UMAX( 1, ch->move );
-   ch->armor = 100;
+   ch->evasion = 100;
    ch->mod_str = 0;
    ch->mod_dex = 0;
    ch->mod_wis = 0;

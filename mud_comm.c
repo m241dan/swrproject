@@ -144,8 +144,8 @@ void do_mpstat( CHAR_DATA * ch, const char *argument )
               victim->hit, victim->max_hit, victim->mana, victim->max_mana, victim->move, victim->max_move );
 
    ch_printf( ch,
-              "Lv: %d.  Align: %d.  AC: %d.  Credits: %d.\r\n",
-              victim->top_level, victim->alignment, GET_AC( victim ), victim->gold );
+              "Lv: %d.  Align: %d.  Evasion: %d.  Credits: %d.\r\n",
+              victim->top_level, victim->alignment, GET_EVASION( victim ), victim->gold );
 
    for( mprg = victim->pIndexData->mudprogs; mprg; mprg = mprg->next )
       ch_printf( ch, "%s>%s %s\r\n%s\r\n", ( mprg->fileprog ? "(FILEPROG) " : "" ),

@@ -2296,7 +2296,7 @@ void do_stun( CHAR_DATA * ch, const char *argument )
       if( !IS_AFFECTED( victim, AFF_PARALYSIS ) )
       {
          af.type = gsn_stun;
-         af.location = APPLY_AC;
+         af.location = APPLY_EVASION;
          af.modifier = 20;
          af.duration = 3;
          af.bitvector = AFF_PARALYSIS;

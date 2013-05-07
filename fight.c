@@ -758,7 +758,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    thac0_00 = 20;
    thac0_32 = 10;
    thac0 = interpolate( ch->skill_level[COMBAT_ABILITY], thac0_00, thac0_32 ) - GET_HITROLL( ch );
-   victim_ac = ( int )( GET_AC( victim ) / 10 );
+   victim_ac = ( int )( GET_EVASION( victim ) / 10 );
 
    /*
     * if you can't see what's coming... 
@@ -967,7 +967,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
             if( !IS_AFFECTED( victim, AFF_PARALYSIS ) )
             {
                af.type = gsn_stun;
-               af.location = APPLY_AC;
+               af.location = APPLY_EVASION;
                af.modifier = 20;
                af.duration = 7;
                af.bitvector = AFF_PARALYSIS;

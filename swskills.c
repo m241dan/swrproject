@@ -2731,7 +2731,7 @@ void add_reinforcements( CHAR_DATA * ch )
             mob[mob_cnt]->skill_level[ability] = mob[mob_cnt]->top_level;
          mob[mob_cnt]->hit = mob[mob_cnt]->top_level * 15;
          mob[mob_cnt]->max_hit = mob[mob_cnt]->hit;
-         mob[mob_cnt]->armor = ( short )( LEVEL_HERO - mob[mob_cnt]->top_level * 2.5 );
+         mob[mob_cnt]->evasion = ( short )( LEVEL_HERO - mob[mob_cnt]->top_level * 2.5 );
          mob[mob_cnt]->damroll = mob[mob_cnt]->top_level / 5;
          mob[mob_cnt]->hitroll = mob[mob_cnt]->top_level / 5;
          if( ( pObjIndex = get_obj_index( OBJ_VNUM_BLASTECH_E11 ) ) != NULL )
@@ -2771,7 +2771,7 @@ void add_reinforcements( CHAR_DATA * ch )
          mob->skill_level[ability] = mob->top_level;
       mob->hit = mob->top_level * 15;
       mob->max_hit = mob->hit;
-      mob->armor = ( short )( LEVEL_HERO - mob->top_level * 2.5 );
+      mob->evasion = ( short )( LEVEL_HERO - mob->top_level * 2.5 );
       mob->damroll = mob->top_level / 5;
       mob->hitroll = mob->top_level / 5;
       if( ( pObjIndex = get_obj_index( OBJ_VNUM_BLASTECH_E11 ) ) != NULL )

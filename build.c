@@ -1421,18 +1421,13 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !str_cmp( arg2, "armor" ) )
+   if( !str_cmp( arg2, "evasion" ) )
    {
       if( !can_mmodify( ch, victim ) )
          return;
-      if( value < -300 || value > 300 )
-      {
-         send_to_char( "AC range is -300 to 300.\r\n", ch );
-         return;
-      }
-      victim->armor = value;
+      victim->evasion = value;
       if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
-         victim->pIndexData->ac = value;
+         victim->pIndexData->evasion = value;
       return;
    }
 
@@ -1457,13 +1452,13 @@ void do_mset( CHAR_DATA * ch, const char *argument )
             victim->skill_level[ability] = value;
       }
       victim->top_level = value;
-      victim->armor = ( int )( LEVEL_HERO - value * 2.5 );
+      victim->evasion = ( int )( LEVEL_HERO - value * 2.5 );
       victim->hitroll = value / 5;
       victim->damroll = value / 5;
       if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
       {
          victim->pIndexData->level = value;
-         victim->pIndexData->ac = ( int )( 100 - value * 2.5 );
+         victim->pIndexData->evasion = ( int )( 100 - value * 2.5 );
          victim->pIndexData->hitroll = victim->hitroll;
          victim->pIndexData->damroll = victim->damroll;
       }
@@ -5725,7 +5720,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    if( pMobIndex->affected_by )
       fprintf( fpout, "Affected   %s~\n", flag_string( pMobIndex->affected_by, a_flags ) );
    fprintf( fpout, "Stats1     %d %d %d %d %d %d\n", pMobIndex->alignment, pMobIndex->level, pMobIndex->mobthac0,
-            pMobIndex->ac, pMobIndex->gold, pMobIndex->exp );
+            pMobIndex->evasion, pMobIndex->gold, pMobIndex->exp );
    fprintf( fpout, "Stats2     %d %d %d\n", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus );
    fprintf( fpout, "Stats3     %d %d %d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
@@ -5936,7 +5931,7 @@ void old_fold_area( AREA_DATA * tarea, const char *filename, bool install )
        * C changed to Z for swreality vip_flags  
        */
 
-      fprintf( fpout, "%d %d %d ", pMobIndex->level, pMobIndex->mobthac0, pMobIndex->ac );
+      fprintf( fpout, "%d %d %d ", pMobIndex->level, pMobIndex->mobthac0, pMobIndex->evasion );
       fprintf( fpout, "%dd%d+%d ", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus );
       fprintf( fpout, "%dd%d+%d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
       fprintf( fpout, "%d 0\n", pMobIndex->gold );

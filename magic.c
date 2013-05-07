@@ -2458,7 +2458,7 @@ ch_ret spell_faerie_fire( int sn, int level, CHAR_DATA * ch, void *vo )
    }
    af.type = sn;
    af.duration = ( int )( level * DUR_CONV );
-   af.location = APPLY_AC;
+   af.location = APPLY_EVASION;
    af.modifier = 2 * level;
    af.bitvector = AFF_FAERIE_FIRE;
    affect_to_char( victim, &af );
@@ -2646,7 +2646,7 @@ ch_ret spell_identify( int sn, int level, CHAR_DATA * ch, void *vo )
             ch_printf( ch, "Current armor class is %d. ( based on current condition )\r\n", obj->value[0] );
             ch_printf( ch, "Maximum armor class is %d. ( based on top condition )\r\n", obj->value[1] );
             ch_printf( ch, "Applied armor class is %d. ( based condition and location worn )\r\n",
-                       apply_ac( obj, obj->wear_loc ) );
+                       apply_evasion( obj, obj->wear_loc ) );
             break;
       }
 
@@ -3300,11 +3300,11 @@ ch_ret spell_acid_breath( int sn, int level, CHAR_DATA * ch, void *vo )
                   separate_obj( obj_lose );
                   act( AT_DAMAGE, "$p is pitted and etched!", victim, obj_lose, NULL, TO_CHAR );
                   if( ( iWear = obj_lose->wear_loc ) != WEAR_NONE )
-                     victim->armor += apply_ac( obj_lose, iWear );   // <-- victim is LOSING the benefit of obj->value[0]
+                     victim->evasion += apply_evasion( obj_lose, iWear );   // <-- victim is LOSING the benefit of obj->value[0]
                   obj_lose->value[0] -= 1;   //      so we need to ADD to his AC
                   obj_lose->cost = 0;
                   if( iWear != WEAR_NONE )
-                     victim->armor -= apply_ac( obj_lose, iWear );   // <-- victim now regains the benefit of the adjusted
+                     victim->evasion -= apply_evasion( obj_lose, iWear );   // <-- victim now regains the benefit of the adjusted
                }  //      obj->value[0] so we need to SUBTRACT to his AC
                break;
 
@@ -4960,7 +4960,7 @@ ch_ret spell_create_mob( int sn, int level, CHAR_DATA * ch, void *vo )
       return rNONE;
    }
    mob->top_level = UMIN( lvl, skill->dice ? dice_parse( ch, level, skill->dice ) : mob->top_level );
-   mob->armor = interpolate( mob->top_level, 100, -100 );
+   mob->evasion = interpolate( mob->top_level, 100, -100 );
 
    mob->max_hit = mob->top_level * 8 + number_range( mob->top_level * mob->top_level / 4, mob->top_level * mob->top_level );
    mob->hit = mob->max_hit;

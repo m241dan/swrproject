@@ -1585,7 +1585,7 @@ typedef enum
 {
    APPLY_NONE, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON,
    APPLY_SEX, APPLY_NULL, APPLY_LEVEL, APPLY_AGE, APPLY_HEIGHT, APPLY_WEIGHT,
-   APPLY_MANA, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_AC,
+   APPLY_MANA, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_EVASION,
    APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_POISON, APPLY_SAVING_ROD,
    APPLY_SAVING_PARA, APPLY_SAVING_BREATH, APPLY_SAVING_SPELL, APPLY_CHA,
    APPLY_AFFECT, APPLY_RESISTANT, APPLY_IMMUNE, APPLY_SUSCEPTIBLE,
@@ -1934,7 +1934,7 @@ struct mob_index_data
    int affected_by;
    short alignment;
    short mobthac0;   /* Unused */
-   short ac;
+   short evasion;
    short hitnodice;
    short hitsizedice;
    short hitplus;
@@ -2110,7 +2110,7 @@ struct char_data
    short defposition;
    short height;
    short weight;
-   short armor; //Global Armor Apply
+   short defense; //Global Armor Apply
    short evasion; //Chance to Evade
    short wimpy;
    int deaf;
@@ -2979,8 +2979,7 @@ int urange( int mincheck, int check, int maxcheck );
 #define IS_NEUTRAL(ch)		(!IS_GOOD(ch) && !IS_EVIL(ch))
 
 #define IS_AWAKE(ch)		((ch)->position > POS_SLEEPING)
-#define GET_AC(ch)		( (ch)->armor + ( IS_AWAKE(ch) ? dex_app[get_curr_dex(ch)].defensive : 0 ) \
-   - ( (ch)->race == RACE_DEFEL ? (ch)->skill_level[COMBAT_ABILITY]*2+5 : (ch)->skill_level[COMBAT_ABILITY]/2 ) )
+#define GET_EVASION(ch)		( (ch)->evasion )
 #define GET_HITROLL(ch)		((ch)->hitroll				    \
    +str_app[get_curr_str(ch)].tohit	    \
    +(2-(abs((ch)->mental_state)/10)))
@@ -4322,7 +4321,7 @@ void char_from_room args( ( CHAR_DATA * ch ) );
 void char_to_room args( ( CHAR_DATA * ch, ROOM_INDEX_DATA * pRoomIndex ) );
 OD *obj_to_char args( ( OBJ_DATA * obj, CHAR_DATA * ch ) );
 void obj_from_char args( ( OBJ_DATA * obj ) );
-int apply_ac args( ( OBJ_DATA * obj, int iWear ) );
+int apply_evasion args( ( OBJ_DATA * obj, int iWear ) );
 OD *get_eq_char args( ( CHAR_DATA * ch, int iWear ) );
 void equip_char args( ( CHAR_DATA * ch, OBJ_DATA * obj, int iWear ) );
 void unequip_char args( ( CHAR_DATA * ch, OBJ_DATA * obj ) );

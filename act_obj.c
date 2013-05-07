@@ -1027,14 +1027,14 @@ obj_ret damage_obj( OBJ_DATA * obj )
          break;
       case ITEM_ARMOR:
          if( ch && obj->value[0] >= 1 )
-            ch->armor += apply_ac( obj, obj->wear_loc );
+            ch->evasion += apply_evasion( obj, obj->wear_loc );
          if( --obj->value[0] <= 0 )
          {
             make_scraps( obj );
             objcode = rOBJ_SCRAPPED;
          }
          else if( ch && obj->value[0] >= 1 )
-            ch->armor -= apply_ac( obj, obj->wear_loc );
+            ch->evasion -= apply_evasion( obj, obj->wear_loc );
          break;
       case ITEM_WEAPON:
          if( --obj->value[0] <= 0 )

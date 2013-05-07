@@ -715,7 +715,7 @@ void do_takedrug( CHAR_DATA * ch, const char *argument )
             if( sn < MAX_SKILL && !IS_AFFECTED( ch, AFF_TRUESIGHT ) )
             {
                af.type = sn;
-               af.location = APPLY_AC;
+               af.location = APPLY_EVASION;
                af.modifier = -10;
                af.duration = URANGE( 1, ch->pcdata->drug_level[drug] - ch->pcdata->addiction[drug], obj->value[1] );
                af.bitvector = AFF_TRUESIGHT;

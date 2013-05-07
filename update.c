@@ -519,7 +519,7 @@ void gain_addiction( CHAR_DATA * ch )
                if( !IS_AFFECTED( ch, AFF_BLIND ) )
                {
                   af.type = gsn_blindness;
-                  af.location = APPLY_AC;
+                  af.location = APPLY_EVASION;
                   af.modifier = 10;
                   af.duration = ch->pcdata->addiction[drug];
                   af.bitvector = AFF_BLIND;
