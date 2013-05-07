@@ -3030,6 +3030,9 @@ void clean_obj( OBJ_INDEX_DATA * obj )
    EXTRA_DESCR_DATA *ed;
    EXTRA_DESCR_DATA *ed_next;
 
+   xCLEAR_BITS( obj->damtype );
+   xSET_BIT( obj->damtype, DAM_BLUNT );
+
    STRFREE( obj->name );
    STRFREE( obj->short_descr );
    STRFREE( obj->description );

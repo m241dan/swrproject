@@ -624,6 +624,9 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
 
    switch ( obj->item_type )
    {
+      case ITEM_WEAPON:
+         fprintf( fp, "Damtype     %s\n", print_bitvector( &obj->damtype ) );
+         break;
       case ITEM_PILL:  /* was down there with staff and wand, wrongly - Scryn */
       case ITEM_POTION:
          if( IS_VALID_SN( obj->value[1] ) )
@@ -1703,6 +1706,7 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
             break;
 
          case 'D':
+            KEY( "Damtype", obj->damtype, fread_bitvector( fp ) );
             KEY( "Description", obj->description, fread_string( fp ) );
             break;
 

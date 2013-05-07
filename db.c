@@ -5040,6 +5040,7 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
    pObjIndex->last_affect = NULL;
    pObjIndex->first_extradesc = NULL;
    pObjIndex->last_extradesc = NULL;
+   xCLEAR_BITS( pObjIndex->damtype );
    if( !cObjIndex )
    {
       sprintf( buf, "A %s", name );
@@ -5061,12 +5062,15 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
       pObjIndex->value[5] = 0;
       pObjIndex->weight = 1;
       pObjIndex->cost = 0;
+      xSET_BIT( pObjIndex->damtype, DAM_BLUNT );
+
    }
    else
    {
       EXTRA_DESCR_DATA *ed, *ced;
       AFFECT_DATA *paf, *cpaf;
 
+      pObjIndex->damtype = cObjIndex->damtype;
       pObjIndex->short_descr = QUICKLINK( cObjIndex->short_descr );
       pObjIndex->description = QUICKLINK( cObjIndex->description );
       pObjIndex->action_desc = QUICKLINK( cObjIndex->action_desc );
@@ -6137,6 +6141,9 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
                break;
             }
             break;
+
+         case 'D':
+            KEY( "Damtype", pObjIndex->damtype, fread_bitvector( fp ) );
 
          case 'F':
             if( !str_cmp( word, "Flags" ) )

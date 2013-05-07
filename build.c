@@ -5667,6 +5667,9 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
 
    switch ( pObjIndex->item_type )
    {
+      case ITEM_WEAPON:
+         fprintf( fpout, "Damtype    %s\n", print_bitvector( &pObjIndex->damtype ) );
+         break;
       case ITEM_PILL:
       case ITEM_POTION:
       case ITEM_SCROLL:
