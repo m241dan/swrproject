@@ -2643,9 +2643,10 @@ ch_ret spell_identify( int sn, int level, CHAR_DATA * ch, void *vo )
             break;
 
          case ITEM_ARMOR:
-            ch_printf( ch, "Current armor class is %d. ( based on current condition )\r\n", obj->value[0] );
-            ch_printf( ch, "Maximum armor class is %d. ( based on top condition )\r\n", obj->value[1] );
-            ch_printf( ch, "Applied armor class is %d. ( based condition and location worn )\r\n",
+            ch_printf( ch, "Armor-Class is %d.", obj->value[2] );
+            ch_printf( ch, "Current evasion class is %d. ( based on current condition )\r\n", obj->value[0] );
+            ch_printf( ch, "Maximum evasion class is %d. ( based on top condition )\r\n", obj->value[1] );
+            ch_printf( ch, "Applied evasion class is %d. ( based condition and location worn )\r\n",
                        apply_evasion( obj, obj->wear_loc ) );
             break;
       }
