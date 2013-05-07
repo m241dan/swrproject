@@ -3137,6 +3137,31 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "damtype" ) )
+   {
+      if( !can_omodify( ch, obj ) )
+         return;
+      if( obj->item_type != ITEM_WEAPON )
+      {
+         send_to_char( "Non-weapons cannot have damage types.\r\n", ch );
+         return;
+      }
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_damtype( arg3 ) ) == -1 || ( value >= DAM_ALL && value <= DAM_PHYSICAL ) )
+         {
+            ch_printf( ch, "%s is an invalid damtype.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( obj->damtype, value );
+         if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+            xTOGGLE_BIT( obj->pIndexData->damtype, value );
+      }
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
    if( !str_cmp( arg2, "type" ) )
    {
       if( !can_omodify( ch, obj ) )
