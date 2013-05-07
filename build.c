@@ -269,6 +269,24 @@ const char *flag_string( int bitvector, const char *const flagarray[] )
    return buf;
 }
 
+const char *ext_flag_string( EXT_BV * bitvector, const char *const flagarray[] )
+{
+   static char buf[MAX_STRING_LENGTH];
+   int x;
+
+   buf[0] = '\0';
+   for( x = 0; x < MAX_BITS; ++x )
+      if( xIS_SET( *bitvector, x ) )
+      {
+         mudstrlcat( buf, flagarray[x], MAX_STRING_LENGTH );
+         mudstrlcat( buf, " ", MAX_STRING_LENGTH );
+      }
+   if( ( x = strlen( buf ) ) > 0 )
+      buf[--x] = '\0';
+
+   return buf;
+}
+
 
 bool can_rmodify( CHAR_DATA * ch, ROOM_INDEX_DATA * room )
 {
@@ -2182,10 +2200,10 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       {
          argument = one_argument( argument, arg3 );
          value = get_aflag( arg3 );
-         if( value < 0 || value > 31 )
+         if( value < 0 || value > MAX_BITS )
             ch_printf( ch, "Unknown flag: %s\r\n", arg3 );
          else
-            TOGGLE_BIT( victim->affected_by, 1 << value );
+            xTOGGLE_BIT( victim->affected_by, value );
       }
       if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
          victim->pIndexData->affected_by = victim->affected_by;
@@ -3380,7 +3398,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       paf->duration = -1;
       paf->location = loc;
       paf->modifier = value;
-      paf->bitvector = 0;
+      xCLEAR_BITS( paf->bitvector );
       paf->next = NULL;
       if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
       {
@@ -5424,7 +5442,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
 {
    if( paf->type < 0 || paf->type >= top_sn )
    {
-      fprintf( fp, "Affect       %d %d %d %d %d\n",
+      fprintf( fp, "Affect       %d %d %d %d %s\n",
                paf->type,
                paf->duration,
                ( ( paf->location == APPLY_WEAPONSPELL
@@ -5432,11 +5450,11 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
                    || paf->location == APPLY_REMOVESPELL
                    || paf->location == APPLY_STRIPSN )
                  && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->bitvector );
+               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
    }
    else
    {
-      fprintf( fp, "AffectData   '%s' %d %d %d %d\n",
+      fprintf( fp, "AffectData   '%s' %d %d %d %s\n",
                skill_table[paf->type]->name,
                paf->duration,
                ( ( paf->location == APPLY_WEAPONSPELL
@@ -5444,7 +5462,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
                    || paf->location == APPLY_REMOVESPELL
                    || paf->location == APPLY_STRIPSN )
                  && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->bitvector );
+               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
    }
 }
 
@@ -5717,8 +5735,8 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
       fprintf( fpout, "Specfun2    %s~\n", pMobIndex->spec_funname2 );
    fprintf( fpout, "Gender     %s~\n", npc_sex[pMobIndex->sex] );
    fprintf( fpout, "Actflags   %s~\n", flag_string( pMobIndex->act, act_flags ) );
-   if( pMobIndex->affected_by )
-      fprintf( fpout, "Affected   %s~\n", flag_string( pMobIndex->affected_by, a_flags ) );
+   if( !xIS_EMPTY( pMobIndex->affected_by ) )
+      fprintf( fpout, "Affected   %s~\n", ext_flag_string( &pMobIndex->affected_by, a_flags ) );
    fprintf( fpout, "Stats1     %d %d %d %d %d %d %d\n", pMobIndex->alignment, pMobIndex->level, pMobIndex->mobthac0,
             pMobIndex->evasion, pMobIndex->defense, pMobIndex->gold, pMobIndex->exp );
    fprintf( fpout, "Stats2     %d %d %d\n", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus );
@@ -5925,8 +5943,8 @@ void old_fold_area( AREA_DATA * tarea, const char *filename, bool install )
       fprintf( fpout, "%s~\n", pMobIndex->short_descr );
       fprintf( fpout, "%s~\n", strip_cr( pMobIndex->long_descr ) );
       fprintf( fpout, "%s~\n", strip_cr( pMobIndex->description ) );
-      fprintf( fpout, "%d %d %d %c\n", pMobIndex->act,
-               pMobIndex->affected_by, pMobIndex->alignment, complexmob ? 'Z' : 'S' );
+      fprintf( fpout, "%d %s %d %c\n", pMobIndex->act,
+               print_bitvector( &pMobIndex->affected_by ), pMobIndex->alignment, complexmob ? 'Z' : 'S' );
       /*
        * C changed to Z for swreality vip_flags  
        */

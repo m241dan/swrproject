@@ -458,7 +458,7 @@ void talk_channel( CHAR_DATA * ch, const char *argument, int channel, const char
       return;
    }
 
-   if( IS_NPC( ch ) && IS_AFFECTED( ch, AFF_CHARM ) )
+   if( IS_NPC( ch ) && xIS_SET( ch->affected_by, AFF_CHARM ) )
    {
       if( ch->master )
          send_to_char( "I don't think so...\r\n", ch->master );
@@ -1105,14 +1105,14 @@ void do_tell( CHAR_DATA * ch, const char *argument )
 
    if( !IS_NPC( victim ) && ( victim->switched )
        && ( get_trust( ch ) > LEVEL_AVATAR )
-       && !IS_SET( victim->switched->act, ACT_POLYMORPHED ) && !IS_AFFECTED( victim->switched, AFF_POSSESS ) )
+       && !IS_SET( victim->switched->act, ACT_POLYMORPHED ) && !xIS_SET( victim->switched->affected_by, AFF_POSSESS ) )
    {
       send_to_char( "That player is switched.\r\n", ch );
       return;
    }
 
    else if( !IS_NPC( victim ) && ( victim->switched )
-            && ( IS_SET( victim->switched->act, ACT_POLYMORPHED ) || IS_AFFECTED( victim->switched, AFF_POSSESS ) ) )
+            && ( IS_SET( victim->switched->act, ACT_POLYMORPHED ) || xIS_SET( victim->switched->affected_by, AFF_POSSESS ) ) )
       switched_victim = victim->switched;
 
    else if( !IS_NPC( victim ) && ( !victim->desc ) )
@@ -1601,8 +1601,6 @@ void do_save( CHAR_DATA * ch, const char *argument )
    if( IS_NPC( ch ) )
       return;
 
-   if( !IS_SET( ch->affected_by, race_table[ch->race].affected ) )
-      SET_BIT( ch->affected_by, race_table[ch->race].affected );
    if( !IS_SET( ch->resistant, race_table[ch->race].resist ) )
       SET_BIT( ch->resistant, race_table[ch->race].resist );
    if( !IS_SET( ch->susceptible, race_table[ch->race].suscept ) )
@@ -1658,7 +1656,7 @@ void do_follow( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( IS_AFFECTED( ch, AFF_CHARM ) && ch->master )
+   if( xIS_SET( ch->affected_by, AFF_CHARM ) && ch->master )
    {
       act( AT_PLAIN, "But you'd rather follow $N!", ch, NULL, ch->master, TO_CHAR );
       return;
@@ -1719,9 +1717,9 @@ void stop_follower( CHAR_DATA * ch )
       return;
    }
 
-   if( IS_AFFECTED( ch, AFF_CHARM ) )
+   if( xIS_SET( ch->affected_by, AFF_CHARM ) )
    {
-      REMOVE_BIT( ch->affected_by, AFF_CHARM );
+      xREMOVE_BIT( ch->affected_by, AFF_CHARM );
       affect_strip( ch, gsn_charm_person );
    }
 

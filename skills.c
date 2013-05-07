@@ -1283,7 +1283,7 @@ void do_gouge( CHAR_DATA * ch, const char *argument )
             af.location = APPLY_HITROLL;
             af.modifier = -6;
             af.duration = 3 + ( ch->skill_level[COMBAT_ABILITY] / 20 );
-            af.bitvector = AFF_BLIND;
+            af.bitvector = meb( AFF_BLIND );
             affect_to_char( victim, &af );
             act( AT_SKILL, "You can't see a thing!", victim, NULL, NULL, TO_CHAR );
          }
@@ -2299,7 +2299,7 @@ void do_stun( CHAR_DATA * ch, const char *argument )
          af.location = APPLY_EVASION;
          af.modifier = 20;
          af.duration = 3;
-         af.bitvector = AFF_PARALYSIS;
+         af.bitvector = meb( AFF_PARALYSIS );
          affect_to_char( victim, &af );
          update_pos( victim );
       }
@@ -2679,7 +2679,7 @@ void do_sneak( CHAR_DATA * ch, const char *argument )
       af.duration = ( int )( ch->skill_level[SMUGGLING_ABILITY] * DUR_CONV );
       af.location = APPLY_NONE;
       af.modifier = 0;
-      af.bitvector = AFF_SNEAK;
+      af.bitvector = meb( AFF_SNEAK );
       affect_to_char( ch, &af );
       learn_from_success( ch, gsn_sneak );
    }
@@ -2708,11 +2708,11 @@ void do_hide( CHAR_DATA * ch, const char *argument )
    send_to_char( "You attempt to hide.\r\n", ch );
 
    if( IS_AFFECTED( ch, AFF_HIDE ) )
-      REMOVE_BIT( ch->affected_by, AFF_HIDE );
+      xREMOVE_BIT( ch->affected_by, AFF_HIDE );
 
    if( IS_NPC( ch ) || number_percent(  ) < ch->pcdata->learned[gsn_hide] )
    {
-      SET_BIT( ch->affected_by, AFF_HIDE );
+      xSET_BIT( ch->affected_by, AFF_HIDE );
       learn_from_success( ch, gsn_hide );
    }
    else
@@ -2730,11 +2730,11 @@ void do_visible( CHAR_DATA * ch, const char *argument )
    affect_strip( ch, gsn_invis );
    affect_strip( ch, gsn_mass_invis );
    affect_strip( ch, gsn_sneak );
-   REMOVE_BIT( ch->affected_by, AFF_HIDE );
+   xREMOVE_BIT( ch->affected_by, AFF_HIDE );
    if( ch->race != RACE_DEFEL )  /* Defel has perm invis */
-      REMOVE_BIT( ch->affected_by, AFF_INVISIBLE );
+     xREMOVE_BIT( ch->affected_by, AFF_INVISIBLE );
    if( ch->race != RACE_NOGHRI ) /* Noghri has perm sneak */
-      REMOVE_BIT( ch->affected_by, AFF_SNEAK );
+      xREMOVE_BIT( ch->affected_by, AFF_SNEAK );
    send_to_char( "Ok.\r\n", ch );
    return;
 }
@@ -2781,7 +2781,7 @@ void do_recall( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( IS_SET( ch->affected_by, AFF_CURSE ) )
+   if( xIS_SET( ch->affected_by, AFF_CURSE ) )
    {
       send_to_char( "You are cursed and cannot recall!\r\n", ch );
       return;
@@ -3375,7 +3375,7 @@ void do_berserk( CHAR_DATA * ch, const char *argument )
     */
    af.location = APPLY_STR;
    af.modifier = 1;
-   af.bitvector = AFF_BERSERK;
+   af.bitvector = meb( AFF_BERSERK );
    affect_to_char( ch, &af );
    send_to_char( "You start to lose control..\r\n", ch );
    learn_from_success( ch, gsn_berserk );

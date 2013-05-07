@@ -540,7 +540,7 @@ void reset_room( ROOM_INDEX_DATA *room )
                   SET_BIT( mob->act, ACT_PET );
             }
             if( room_is_dark( pRoomIndex ) )
-               SET_BIT( mob->affected_by, AFF_INFRARED );
+               xSET_BIT( mob->affected_by, AFF_INFRARED );
             mob->resetvnum = pRoomIndex->vnum;
             mob->resetnum = onreset;
             pReset->sreset = FALSE;

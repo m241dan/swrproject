@@ -1631,7 +1631,7 @@ ch_ret spell_blindness( int sn, int level, CHAR_DATA * ch, void *vo )
    af.location = APPLY_HITROLL;
    af.modifier = -4;
    af.duration = ( int )( ( 1 + ( level / 3 ) ) * DUR_CONV );
-   af.bitvector = AFF_BLIND;
+   af.bitvector = meb( AFF_BLIND );
    affect_to_char( victim, &af );
    set_char_color( AT_MAGIC, victim );
    send_to_char( "You are blinded!\r\n", victim );
@@ -1792,7 +1792,7 @@ ch_ret spell_change_sex( int sn, int level, CHAR_DATA * ch, void *vo )
       af.modifier = number_range( 0, 2 ) - victim->sex;
    }
    while( af.modifier == 0 );
-   af.bitvector = 0;
+   xCLEAR_BITS( af.bitvector );
    affect_to_char( victim, &af );
    set_char_color( AT_MAGIC, victim );
    send_to_char( "You feel different.\r\n", victim );
@@ -1847,7 +1847,7 @@ ch_ret spell_charm_person( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = (int)( ( number_fuzzy( ( level + 1 ) / 3 ) + 1 ) * DUR_CONV );
    af.location = 0;
    af.modifier = 0;
-   af.bitvector = AFF_CHARM;
+   af.bitvector = meb( AFF_CHARM );
    affect_to_char( victim, &af );
    act( AT_MAGIC, "Isn't $n just so nice?", ch, NULL, victim, TO_VICT );
    act( AT_MAGIC, "$N's eyes glaze over...", ch, NULL, victim, TO_ROOM );
@@ -1894,7 +1894,7 @@ ch_ret spell_chill_touch( int sn, int level, CHAR_DATA * ch, void *vo )
       af.duration = 14;
       af.location = APPLY_STR;
       af.modifier = -1;
-      af.bitvector = 0;
+      xCLEAR_BITS( af.bitvector );
       affect_join( victim, &af );
    }
    else
@@ -2095,7 +2095,7 @@ ch_ret spell_curse( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = ( int )( ( 4 * level ) * DUR_CONV );
    af.location = APPLY_HITROLL;
    af.modifier = -1;
-   af.bitvector = AFF_CURSE;
+   af.bitvector = meb( AFF_CURSE );
    affect_to_char( victim, &af );
 
    af.location = APPLY_SAVING_SPELL;
@@ -2173,55 +2173,7 @@ ch_ret spell_dispel_evil( int sn, int level, CHAR_DATA * ch, void *vo )
 
 ch_ret spell_dispel_magic( int sn, int level, CHAR_DATA * ch, void *vo )
 {
-   CHAR_DATA *victim = ( CHAR_DATA * ) vo;
-   int affected_by, cnt;
-   SKILLTYPE *skill = get_skilltype( sn );
-
-   if( IS_SET( victim->immune, RIS_MAGIC ) )
-   {
-      immune_casting( skill, ch, victim, NULL );
-      return rSPELL_FAILED;
-   }
-
-   if( victim->affected_by && ch == victim )
-   {
-      set_char_color( AT_MAGIC, ch );
-      send_to_char( "You pass your hands around your body...\r\n", ch );
-      while( victim->first_affect )
-         affect_remove( victim, victim->first_affect );
-      victim->affected_by = race_table[victim->race].affected;
-      return rNONE;
-   }
-   else
-      if( victim->affected_by == race_table[victim->race].affected
-          || level < victim->top_level || saves_spell_staff( level, victim ) )
-   {
-      failed_casting( skill, ch, victim, NULL );
-      return rSPELL_FAILED;
-   }
-
-   if( !IS_NPC( victim ) )
-   {
-      send_to_char( "You can't do that... yet.\r\n", ch );
-      return rSPELL_FAILED;
-   }
-
-   cnt = 0;
-   for( ;; )
-   {
-      affected_by = 1 << number_bits( 5 );
-      if( IS_SET( victim->affected_by, affected_by ) )
-         break;
-      if( cnt++ > 30 )
-      {
-         failed_casting( skill, ch, victim, NULL );
-         return rNONE;
-      }
-   }
-   REMOVE_BIT( victim->affected_by, affected_by );
-   successful_casting( skill, ch, victim, NULL );
-
-   return rNONE;
+   return rSPELL_FAILED;
 }
 
 
@@ -2309,7 +2261,7 @@ ch_ret spell_enchant_weapon( int sn, int level, CHAR_DATA * ch, void *vo )
    paf->duration = -1;
    paf->location = APPLY_HITROLL;
    paf->modifier = level / 15;
-   paf->bitvector = 0;
+   xCLEAR_BITS( paf->bitvector );
    LINK( paf, obj->first_affect, obj->last_affect, next, prev );
 
    CREATE( paf, AFFECT_DATA, 1 );
@@ -2317,7 +2269,7 @@ ch_ret spell_enchant_weapon( int sn, int level, CHAR_DATA * ch, void *vo )
    paf->duration = -1;
    paf->location = APPLY_DAMROLL;
    paf->modifier = level / 15;
-   paf->bitvector = 0;
+   xCLEAR_BITS( paf->bitvector );
    LINK( paf, obj->first_affect, obj->last_affect, next, prev );
 
    if( IS_GOOD( ch ) )
@@ -2460,7 +2412,7 @@ ch_ret spell_faerie_fire( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = ( int )( level * DUR_CONV );
    af.location = APPLY_EVASION;
    af.modifier = 2 * level;
-   af.bitvector = AFF_FAERIE_FIRE;
+   af.bitvector = meb( AFF_FAERIE_FIRE );
    affect_to_char( victim, &af );
    act( AT_PINK, "You are surrounded by a pink outline.", victim, NULL, NULL, TO_CHAR );
    act( AT_PINK, "$n is surrounded by a pink outline.", victim, NULL, NULL, TO_ROOM );
@@ -2487,11 +2439,11 @@ ch_ret spell_faerie_fog( int sn, int level, CHAR_DATA * ch, void *vo )
       affect_strip( ich, gsn_invis );
       affect_strip( ich, gsn_mass_invis );
       affect_strip( ich, gsn_sneak );
-      REMOVE_BIT( ich->affected_by, AFF_HIDE );
+      xREMOVE_BIT( ich->affected_by, AFF_HIDE );
       if( ich->race != RACE_DEFEL )
-         REMOVE_BIT( ich->affected_by, AFF_INVISIBLE );
+         xREMOVE_BIT( ich->affected_by, AFF_INVISIBLE );
       if( ich->race != RACE_NOGHRI )
-         REMOVE_BIT( ich->affected_by, AFF_SNEAK );
+         xREMOVE_BIT( ich->affected_by, AFF_SNEAK );
       act( AT_MAGIC, "$n is revealed!", ich, NULL, NULL, TO_ROOM );
       act( AT_MAGIC, "You are revealed!", ich, NULL, NULL, TO_CHAR );
    }
@@ -2760,7 +2712,7 @@ ch_ret spell_invis( int sn, int level, CHAR_DATA * ch, void *vo )
       af.duration = ( int )( ( ( level / 4 ) + 12 ) * DUR_CONV );
       af.location = APPLY_NONE;
       af.modifier = 0;
-      af.bitvector = AFF_INVISIBLE;
+      af.bitvector = meb( AFF_INVISIBLE );
       affect_to_char( victim, &af );
       act( AT_MAGIC, "You fade out of existence.", victim, NULL, NULL, TO_CHAR );
       return rNONE;
@@ -2975,7 +2927,7 @@ ch_ret spell_pass_door( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = ( int )( number_fuzzy( level / 4 ) * DUR_CONV );
    af.location = APPLY_NONE;
    af.modifier = 0;
-   af.bitvector = AFF_PASS_DOOR;
+   af.bitvector = meb( AFF_PASS_DOOR );
    affect_to_char( victim, &af );
    act( AT_MAGIC, "$n turns translucent.", victim, NULL, NULL, TO_ROOM );
    act( AT_MAGIC, "You turn translucent.", victim, NULL, NULL, TO_CHAR );
@@ -3005,7 +2957,7 @@ ch_ret spell_poison( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = ( int )( level * DUR_CONV );
    af.location = APPLY_STR;
    af.modifier = -2;
-   af.bitvector = AFF_POISON;
+   af.bitvector = meb( AFF_POISON );
    affect_join( victim, &af );
    set_char_color( AT_MAGIC, victim );
    send_to_char( "You feel very sick.\r\n", victim );
@@ -3165,7 +3117,7 @@ ch_ret spell_sleep( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = ( int )( ( 4 + level ) * DUR_CONV );
    af.location = APPLY_NONE;
    af.modifier = 0;
-   af.bitvector = AFF_SLEEP;
+   af.bitvector = meb( AFF_SLEEP );
    affect_join( victim, &af );
 
    /*
@@ -3250,7 +3202,7 @@ ch_ret spell_weaken( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = ( int )( level / 2 * DUR_CONV );
    af.location = APPLY_STR;
    af.modifier = -2;
-   af.bitvector = 0;
+   xCLEAR_BITS( af.bitvector );
    affect_to_char( victim, &af );
    set_char_color( AT_MAGIC, victim );
    send_to_char( "You feel weaker.\r\n", victim );
@@ -3762,7 +3714,7 @@ ch_ret spell_remove_invis( int sn, int level, CHAR_DATA * ch, void *vo )
 
          affect_strip( victim, gsn_invis );
          affect_strip( victim, gsn_mass_invis );
-         REMOVE_BIT( victim->affected_by, AFF_INVISIBLE );
+         xREMOVE_BIT( victim->affected_by, AFF_INVISIBLE );
          send_to_char( "Ok.\r\n", ch );
          return rNONE;
       }
@@ -3875,7 +3827,7 @@ ch_ret spell_animate_dead( int sn, int level, CHAR_DATA * ch, void *vo )
       af.duration = ( int )( ( number_fuzzy( ( level + 1 ) / 4 ) + 1 ) * DUR_CONV );
       af.location = 0;
       af.modifier = 0;
-      af.bitvector = AFF_CHARM;
+      af.bitvector = meb( AFF_CHARM );
       affect_to_char( mob, &af );
 
       if( corpse->first_content )
@@ -3957,7 +3909,7 @@ ch_ret spell_possess( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = 20 + ( ch->skill_level[FORCE_ABILITY] - victim->top_level ) / 2;
    af.location = 0;
    af.modifier = 0;
-   af.bitvector = AFF_POSSESS;
+   af.bitvector = meb( AFF_POSSESS );
    affect_to_char( victim, &af );
 
    sprintf( buf, "You have possessed %s!\r\n", victim->short_descr );
@@ -4374,165 +4326,7 @@ ch_ret spell_area_attack( int sn, int level, CHAR_DATA * ch, void *vo )
 
 ch_ret spell_affectchar( int sn, int level, CHAR_DATA * ch, void *vo )
 {
-   AFFECT_DATA af;
-   SMAUG_AFF *saf;
-   SKILLTYPE *skill = get_skilltype( sn );
-   CHAR_DATA *victim = ( CHAR_DATA * ) vo;
-   int schance;
-   bool affected = FALSE, first = TRUE;
-   ch_ret retcode = rNONE;
-
-   if( SPELL_FLAG( skill, SF_RECASTABLE ) )
-      affect_strip( victim, sn );
-   for( saf = skill->first_affect; saf; saf = saf->next )
-   {
-      if( saf->location >= REVERSE_APPLY )
-      {
-         if( !SPELL_FLAG( skill, SF_ACCUMULATIVE ) )
-         {
-            if( first == TRUE )
-            {
-               if( SPELL_FLAG( skill, SF_RECASTABLE ) )
-                  affect_strip( ch, sn );
-               if( is_affected( ch, sn ) )
-                  affected = TRUE;
-            }
-            first = FALSE;
-            if( affected == TRUE )
-               continue;
-         }
-         victim = ch;
-      }
-      else
-         victim = ( CHAR_DATA * ) vo;
-      /*
-       * Check if char has this bitvector already 
-       */
-      if( ( af.bitvector = saf->bitvector ) != 0
-          && IS_AFFECTED( victim, af.bitvector ) && !SPELL_FLAG( skill, SF_ACCUMULATIVE ) )
-         continue;
-      /*
-       * necessary for affect_strip to work properly...
-       */
-      switch ( af.bitvector )
-      {
-         default:
-            af.type = sn;
-            break;
-         case AFF_POISON:
-            af.type = gsn_poison;
-
-            send_to_char( "You feel the hatred grow within you!\r\n", ch );
-            ch->alignment = ch->alignment - 100;
-            ch->alignment = URANGE( -1000, ch->alignment, 1000 );
-            sith_penalty( ch );
-
-            schance = ris_save( victim, level, RIS_POISON );
-            if( schance == 1000 )
-            {
-               retcode = rVICT_IMMUNE;
-               if( SPELL_FLAG( skill, SF_STOPONFAIL ) )
-                  return retcode;
-               continue;
-            }
-            if( saves_poison_death( schance, victim ) )
-            {
-               if( SPELL_FLAG( skill, SF_STOPONFAIL ) )
-                  return retcode;
-               continue;
-            }
-            victim->mental_state = URANGE( 30, victim->mental_state + 2, 100 );
-            break;
-         case AFF_BLIND:
-            af.type = gsn_blindness;
-            break;
-         case AFF_INVISIBLE:
-            af.type = gsn_invis;
-            break;
-         case AFF_SLEEP:
-            af.type = gsn_sleep;
-            schance = ris_save( victim, level, RIS_SLEEP );
-            if( schance == 1000 )
-            {
-               retcode = rVICT_IMMUNE;
-               if( SPELL_FLAG( skill, SF_STOPONFAIL ) )
-                  return retcode;
-               continue;
-            }
-            break;
-         case AFF_CHARM:
-            af.type = gsn_charm_person;
-            schance = ris_save( victim, level, RIS_CHARM );
-            if( schance == 1000 )
-            {
-               retcode = rVICT_IMMUNE;
-               if( SPELL_FLAG( skill, SF_STOPONFAIL ) )
-                  return retcode;
-               continue;
-            }
-            break;
-         case AFF_POSSESS:
-            af.type = gsn_possess;
-            break;
-      }
-      af.duration = dice_parse( ch, level, saf->duration );
-      af.modifier = dice_parse( ch, level, saf->modifier );
-      af.location = saf->location % REVERSE_APPLY;
-      if( af.duration == 0 )
-      {
-
-         switch ( af.location )
-         {
-            case APPLY_HIT:
-               if( ch != victim && victim->hit < victim->max_hit && af.modifier > 0 )
-               {
-                  send_to_char( "The nobel Jedi use their powers to help others!\r\n", ch );
-                  ch->alignment = ch->alignment + 20;
-                  ch->alignment = URANGE( -1000, ch->alignment, 1000 );
-                  jedi_bonus( ch );
-               }
-               if( af.modifier > 0 && victim->hit >= victim->max_hit )
-               {
-                  return rSPELL_FAILED;
-               }
-               victim->hit = URANGE( 0, victim->hit + af.modifier, victim->max_hit );
-               update_pos( victim );
-               break;
-            case APPLY_MANA:
-               if( af.modifier > 0 && victim->mana >= victim->max_mana )
-               {
-                  return rSPELL_FAILED;
-               }
-               if( ch != victim )
-               {
-                  send_to_char( "The nobel Jedi use their powers to help others!\r\n", ch );
-                  ch->alignment = ch->alignment + 25;
-                  ch->alignment = URANGE( -1000, ch->alignment, 1000 );
-                  jedi_bonus( ch );
-               }
-               victim->mana = URANGE( 0, victim->mana + af.modifier, victim->max_mana );
-               update_pos( victim );
-               break;
-            case APPLY_MOVE:
-               if( af.modifier > 0 && victim->move >= victim->max_move )
-               {
-                  return rSPELL_FAILED;
-               }
-               victim->move = URANGE( 0, victim->move + af.modifier, victim->max_move );
-               update_pos( victim );
-               break;
-            default:
-               affect_modify( victim, &af, TRUE );
-               break;
-         }
-      }
-      else if( SPELL_FLAG( skill, SF_ACCUMULATIVE ) )
-         affect_join( victim, &af );
-      else
-         affect_to_char( victim, &af );
-   }
-   update_pos( victim );
-   return retcode;
+   return rSPELL_FAILED;
 }
 
 
@@ -4973,7 +4767,7 @@ ch_ret spell_create_mob( int sn, int level, CHAR_DATA * ch, void *vo )
    af.duration = ( int )(( number_fuzzy( ( level + 1 ) / 3 ) + 1 ) * DUR_CONV);
    af.location = 0;
    af.modifier = 0;
-   af.bitvector = AFF_CHARM;
+   af.bitvector = meb( AFF_CHARM );
    affect_to_char( mob, &af );
    return rNONE;
 }

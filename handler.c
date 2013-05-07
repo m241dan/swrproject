@@ -590,11 +590,11 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
 
    if( fAdd )
    {
-      SET_BIT( ch->affected_by, paf->bitvector );
+      xSET_BITS( ch->affected_by, paf->bitvector );
    }
    else
    {
-      REMOVE_BIT( ch->affected_by, paf->bitvector );
+      xREMOVE_BITS( ch->affected_by, paf->bitvector );
       /*
        * might be an idea to have a duration removespell which returns
        * the spell after the duration... but would have to store
@@ -603,7 +603,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       switch ( paf->location % REVERSE_APPLY )
       {
          case APPLY_AFFECT:
-            REMOVE_BIT( ch->affected_by, mod );
+            xREMOVE_BIT( ch->affected_by, mod );
             return;
          case APPLY_RESISTANT:
             REMOVE_BIT( ch->resistant, mod );
@@ -615,7 +615,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
             REMOVE_BIT( ch->susceptible, mod );
             return;
          case APPLY_REMOVE:
-            SET_BIT( ch->affected_by, mod );
+            xSET_BIT( ch->affected_by, mod );
             return;
       }
       mod = 0 - mod;
@@ -707,7 +707,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
          ch->saving_spell_staff += mod;
          break;
       case APPLY_AFFECT:
-         SET_BIT( ch->affected_by, mod );
+         SET_BIT( ch->affected_by.bits[0], mod );
          break;
       case APPLY_RESISTANT:
          SET_BIT( ch->resistant, mod );
@@ -721,7 +721,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_WEAPONSPELL:   /* see fight.c */
          break;
       case APPLY_REMOVE:
-         REMOVE_BIT( ch->affected_by, mod );
+         REMOVE_BIT( ch->affected_by.bits[0], mod );
          break;
 
       case APPLY_FULL:
@@ -2662,75 +2662,17 @@ const char *affect_loc_name( int location )
 /*
  * Return ascii name of an affect bit vector.
  */
-const char *affect_bit_name( int vector )
+const char *affect_bit_name( EXT_BV * vector )
 {
    static char buf[512];
+   int x;
 
    buf[0] = '\0';
-   if( vector & AFF_BLIND )
-      strcat( buf, " blind" );
-   if( vector & AFF_INVISIBLE )
-      strcat( buf, " invisible" );
-   if( vector & AFF_DETECT_EVIL )
-      strcat( buf, " detect_evil" );
-   if( vector & AFF_DETECT_INVIS )
-      strcat( buf, " detect_invis" );
-   if( vector & AFF_DETECT_MAGIC )
-      strcat( buf, " detect_magic" );
-   if( vector & AFF_DETECT_HIDDEN )
-      strcat( buf, " detect_hidden" );
-   if( vector & AFF_WEAKEN )
-      strcat( buf, " weaken" );
-   if( vector & AFF_SANCTUARY )
-      strcat( buf, " sanctuary" );
-   if( vector & AFF_FAERIE_FIRE )
-      strcat( buf, " faerie_fire" );
-   if( vector & AFF_INFRARED )
-      strcat( buf, " infrared" );
-   if( vector & AFF_CURSE )
-      strcat( buf, " curse" );
-   if( vector & AFF_FLAMING )
-      strcat( buf, " flaming" );
-   if( vector & AFF_POISON )
-      strcat( buf, " poison" );
-   if( vector & AFF_PROTECT )
-      strcat( buf, " protect" );
-   if( vector & AFF_PARALYSIS )
-      strcat( buf, " paralysis" );
-   if( vector & AFF_SLEEP )
-      strcat( buf, " sleep" );
-   if( vector & AFF_SNEAK )
-      strcat( buf, " sneak" );
-   if( vector & AFF_HIDE )
-      strcat( buf, " hide" );
-   if( vector & AFF_CHARM )
-      strcat( buf, " charm" );
-   if( vector & AFF_POSSESS )
-      strcat( buf, " possess" );
-   if( vector & AFF_FLYING )
-      strcat( buf, " flying" );
-   if( vector & AFF_PASS_DOOR )
-      strcat( buf, " pass_door" );
-   if( vector & AFF_FLOATING )
-      strcat( buf, " floating" );
-   if( vector & AFF_TRUESIGHT )
-      strcat( buf, " true_sight" );
-   if( vector & AFF_DETECTTRAPS )
-      strcat( buf, " detect_traps" );
-   if( vector & AFF_SCRYING )
-      strcat( buf, " scrying" );
-   if( vector & AFF_FIRESHIELD )
-      strcat( buf, " fireshield" );
-   if( vector & AFF_SHOCKSHIELD )
-      strcat( buf, " shockshield" );
-   if( vector & AFF_ICESHIELD )
-      strcat( buf, " iceshield" );
-   if( vector & AFF_POSSESS )
-      strcat( buf, " possess" );
-   if( vector & AFF_BERSERK )
-      strcat( buf, " berserk" );
-   if( vector & AFF_AQUA_BREATH )
-      strcat( buf, " aqua_breath" );
+   for( x = 0; x < MAX_AFF; x++ )
+   {
+      if( xIS_SET( *vector, x ) )
+         strcat( buf, a_flags[x] );
+   }
    return ( buf[0] != '\0' ) ? buf + 1 : "none";
 }
 
@@ -3153,7 +3095,7 @@ void clean_mob( MOB_INDEX_DATA * mob )
    mob->sex = 0;
    mob->level = 0;
    mob->act = 0;
-   mob->affected_by = 0;
+   xCLEAR_BITS( mob->affected_by );
    mob->alignment = 0;
    mob->mobthac0 = 0;
    mob->evasion = 0;
@@ -3207,7 +3149,7 @@ void fix_char( CHAR_DATA * ch )
    for( aff = ch->first_affect; aff; aff = aff->next )
       affect_modify( ch, aff, FALSE );
 
-   ch->affected_by = race_table[ch->race].affected;
+   xCLEAR_BITS( ch->affected_by );
    ch->mental_state = -10;
    ch->hit = UMAX( 1, ch->hit );
    ch->mana = UMAX( 1, ch->mana );

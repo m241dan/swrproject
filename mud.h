@@ -678,7 +678,7 @@ extern bool MOBtrigger;
 struct race_type
 {
    char race_name[16];  /* Race name         */
-   int affected;  /* Default affect bitvectors  */
+   EXT_BV affected;  /* Default affect bitvectors  */
    short str_plus;   /* Str bonus/penalty    */
    short dex_plus;   /* Dex      "        */
    short wis_plus;   /* Wis      "        */
@@ -1027,7 +1027,7 @@ struct affect_data
    int duration;
    short location;
    int modifier;
-   int bitvector;
+   EXT_BV bitvector;
 };
 
 
@@ -1140,40 +1140,16 @@ struct smaug_affect
 * Bits for 'affected_by'.
 * Used in #MOBILES.
 */
-#define AFF_NONE                  0
-
-#define AFF_BLIND		  BV00
-#define AFF_INVISIBLE		  BV01
-#define AFF_DETECT_EVIL		  BV02
-#define AFF_DETECT_INVIS	  BV03
-#define AFF_DETECT_MAGIC	  BV04
-#define AFF_DETECT_HIDDEN	  BV05
-#define AFF_WEAKEN		  BV06
-#define AFF_SANCTUARY		  BV07
-#define AFF_FAERIE_FIRE		  BV08
-#define AFF_INFRARED		  BV09
-#define AFF_CURSE		  BV10
-#define AFF_FLAMING		  BV11   /* Unused   */
-#define AFF_POISON		  BV12
-#define AFF_PROTECT		  BV13
-#define AFF_PARALYSIS		  BV14
-#define AFF_SNEAK		  BV15
-#define AFF_HIDE		  BV16
-#define AFF_SLEEP		  BV17
-#define AFF_CHARM		  BV18
-#define AFF_FLYING		  BV19
-#define AFF_PASS_DOOR		  BV20
-#define AFF_FLOATING		  BV21
-#define AFF_TRUESIGHT		  BV22
-#define AFF_DETECTTRAPS		  BV23
-#define AFF_SCRYING	          BV24
-#define AFF_FIRESHIELD	          BV25
-#define AFF_SHOCKSHIELD	          BV26
-#define AFF_HAUS1                 BV27 /* not used */
-#define AFF_ICESHIELD  		  BV28
-#define AFF_POSSESS		  BV29
-#define AFF_BERSERK		  BV30
-#define AFF_AQUA_BREATH		  BV31
+typedef enum
+{
+   AFF_NONE, AFF_BLIND, AFF_INVISIBLE, AFF_DETECT_EVIL, AFF_DETECT_INVIS,
+   AFF_DETECT_MAGIC, AFF_DETECT_HIDDEN, AFF_WEAKEN, AFF_SANCTUARY,
+   AFF_FAERIE_FIRE, AFF_INFRARED, AFF_CURSE, AFF_FLAMING, AFF_POISON,
+   AFF_PROTECT, AFF_PARALYSIS, AFF_SNEAK, AFF_HIDE, AFF_SLEEP, AFF_CHARM,
+   AFF_FLYING, AFF_PASS_DOOR, AFF_FLOATING, AFF_TRUESIGHT, AFF_DETECTTRAPS,
+   AFF_SCRYING, AFF_FIRESHIELD, AFF_SHOCKSHIELD, AFF_HAUS1, AFF_ICESHIELD,
+   AFF_POSSESS, AFF_BERSERK, AFF_AQUA_BREATH, MAX_AFF
+} aff_bits;
 
 /* 31 aff's (1 left.. :P) */
 /* make that none - ugh - time for another field? :P */
@@ -1951,7 +1927,7 @@ struct mob_index_data
    short sex;
    short level;
    int act;
-   int affected_by;
+   EXT_BV affected_by;
    short alignment;
    short mobthac0;   /* Unused */
    short evasion;
@@ -2103,7 +2079,7 @@ struct char_data
    int gold;
    long experience[MAX_ABILITY];
    int act;
-   int affected_by;
+   EXT_BV affected_by;
    int carry_weight;
    int carry_number;
    int xflags;
@@ -3029,7 +3005,7 @@ void ext_toggle_bits args( ( EXT_BV * var, EXT_BV * bits ) );
 #define IS_NPC(ch)		(IS_SET((ch)->act, ACT_IS_NPC))
 #define IS_IMMORTAL(ch)		(get_trust((ch)) >= LEVEL_IMMORTAL)
 #define IS_HERO(ch)		(get_trust((ch)) >= LEVEL_HERO)
-#define IS_AFFECTED(ch, sn)	(IS_SET((ch)->affected_by, (sn)))
+#define IS_AFFECTED(ch, sn)	(xIS_SET((ch)->affected_by, (sn)))
 #define HAS_BODYPART(ch, part)	((ch)->xflags == 0 || IS_SET((ch)->xflags, (part)))
 
 #define IS_GOOD(ch)		((ch)->alignment >= 350)
@@ -4053,6 +4029,7 @@ void free_note args( ( NOTE_DATA * pnote ) );
 void RelCreate( relation_type, void *, void * );
 void RelDestroy( relation_type, void *, void * );
 const char *flag_string( int bitvector, const char *const flagarray[] );
+const char *ext_flag_string( EXT_BV * bitvector, const char *const flagarray[] );
 int get_dir( const char *txt );
 char *strip_cr( const char *str );
 #define VCHECK_ROOM 0
@@ -4191,7 +4168,7 @@ RD *add_reset( ROOM_INDEX_DATA *room, char letter, int extra, int arg1, int arg2
 void reset_area args( ( AREA_DATA * pArea ) );
 
 /* db.c */
-char *fread_flagstring( FILE * fp );
+const char *fread_flagstring( FILE * fp );
 size_t mudstrlcpy( char *dst, const char *src, size_t siz );
 size_t mudstrlcat( char *dst, const char *src, size_t siz );
 void show_file( CHAR_DATA * ch, const char *filename );
@@ -4303,6 +4280,12 @@ void actiondesc args( ( CHAR_DATA * ch, OBJ_DATA * obj, void *vo ) );
 void jedi_checks args( ( CHAR_DATA * ch ) );
 void jedi_bonus args( ( CHAR_DATA * ch ) );
 void sith_penalty args( ( CHAR_DATA * ch ) );
+EXT_BV fread_bitvector args( ( FILE * fp ) );
+void fwrite_bitvector args( ( EXT_BV * bits, FILE * fp ) );
+char *print_bitvector args( ( EXT_BV * bits ) );
+EXT_BV meb( int bit );
+EXT_BV multimeb( int bit, ... );
+
 
 /* mud_comm.c */
 const char *mprog_type_to_name( int type );
@@ -4414,7 +4397,7 @@ bool can_see_obj args( ( CHAR_DATA * ch, OBJ_DATA * obj ) );
 bool can_drop_obj args( ( CHAR_DATA * ch, OBJ_DATA * obj ) );
 const char *item_type_name args( ( OBJ_DATA * obj ) );
 const char *affect_loc_name args( ( int location ) );
-const char *affect_bit_name args( ( int vector ) );
+const char *affect_bit_name args( ( EXT_BV * vector ) );
 const char *extra_bit_name args( ( int extra_flags ) );
 const char *magic_bit_name args( ( int magic_flags ) );
 ch_ret check_for_trap args( ( CHAR_DATA * ch, OBJ_DATA * obj, int flag ) );

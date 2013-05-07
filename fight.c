@@ -970,7 +970,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
                af.location = APPLY_EVASION;
                af.modifier = 20;
                af.duration = 7;
-               af.bitvector = AFF_PARALYSIS;
+               af.bitvector = meb( AFF_PARALYSIS );
                affect_to_char( victim, &af );
                update_pos( victim );
                if( IS_NPC( victim ) )
@@ -1350,7 +1350,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
       {
          affect_strip( ch, gsn_invis );
          affect_strip( ch, gsn_mass_invis );
-         REMOVE_BIT( ch->affected_by, AFF_INVISIBLE );
+         xREMOVE_BIT( ch->affected_by, AFF_INVISIBLE );
          act( AT_MAGIC, "$n fades into existence.", ch, NULL, NULL, TO_ROOM );
       }
 
@@ -1358,7 +1358,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
        * Take away Hide 
        */
       if( IS_AFFECTED( ch, AFF_HIDE ) )
-         REMOVE_BIT( ch->affected_by, AFF_HIDE );
+         xREMOVE_BIT( ch->affected_by, AFF_HIDE );
       /*
        * Damage modifiers.
        */
@@ -1471,7 +1471,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
       af.duration = 20;
       af.location = APPLY_STR;
       af.modifier = -2;
-      af.bitvector = AFF_POISON;
+      af.bitvector = meb( AFF_POISON );
       affect_join( victim, &af );
       victim->mental_state = URANGE( 20, victim->mental_state + 2, 100 );
    }
@@ -1796,7 +1796,7 @@ void check_killer( CHAR_DATA * ch, CHAR_DATA * victim )
    /*
     * Charm-o-rama.
     */
-   if( IS_SET( ch->affected_by, AFF_CHARM ) )
+   if( xIS_SET( ch->affected_by, AFF_CHARM ) )
    {
       if( !ch->master )
       {
@@ -1805,7 +1805,7 @@ void check_killer( CHAR_DATA * ch, CHAR_DATA * victim )
          sprintf( buf, "Check_killer: %s bad AFF_CHARM", IS_NPC( ch ) ? ch->short_descr : ch->name );
          bug( buf, 0 );
          affect_strip( ch, gsn_charm_person );
-         REMOVE_BIT( ch->affected_by, AFF_CHARM );
+         xREMOVE_BIT( ch->affected_by, AFF_CHARM );
          return;
       }
 
@@ -2815,7 +2815,7 @@ void do_flee( CHAR_DATA * ch, const char *argument )
          continue;
 
       affect_strip( ch, gsn_sneak );
-      REMOVE_BIT( ch->affected_by, AFF_SNEAK );
+      xREMOVE_BIT( ch->affected_by, AFF_SNEAK );
       if( ch->mount && ch->mount->fighting )
          stop_fighting( ch->mount, TRUE );
       move_char( ch, pexit, 0 );
@@ -2865,7 +2865,7 @@ bool get_cover( CHAR_DATA * ch )
          continue;
 
       affect_strip( ch, gsn_sneak );
-      REMOVE_BIT( ch->affected_by, AFF_SNEAK );
+      xREMOVE_BIT( ch->affected_by, AFF_SNEAK );
       if( ch->mount && ch->mount->fighting )
          stop_fighting( ch->mount, TRUE );
       move_char( ch, pexit, 0 );

@@ -1272,7 +1272,7 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
       ch_printf( ch, "Pcflags: %s\r\n", flag_string( victim->pcdata->flags, pc_flags ) );
       ch_printf( ch, "Wanted flags: %s\r\n", flag_string( victim->pcdata->wanted_flags, planet_flags ) );
    }
-   ch_printf( ch, "Affected by: %s\r\n", affect_bit_name( victim->affected_by ) );
+   ch_printf( ch, "Affected by: %s\r\n", affect_bit_name( &victim->affected_by ) );
    ch_printf( ch, "Speaks: %d   Speaking: %d\r\n", victim->speaks, victim->speaking );
    send_to_char( "Languages: ", ch );
    for( x = 0; lang_array[x] != LANG_UNKNOWN; x++ )
@@ -1311,7 +1311,7 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
                     "%s: '%s' modifies %s by %d for %d rounds with bits %s.\r\n",
                     skill_tname[skill->type],
                     skill->name,
-                    affect_loc_name( paf->location ), paf->modifier, paf->duration, affect_bit_name( paf->bitvector ) );
+                    affect_loc_name( paf->location ), paf->modifier, paf->duration, affect_bit_name( &paf->bitvector ) );
    return;
 }
 
@@ -1854,7 +1854,7 @@ void do_return( CHAR_DATA * ch, const char *argument )
    if( IS_NPC( ch ) && IS_AFFECTED( ch, AFF_POSSESS ) )
    {
       affect_strip( ch, gsn_possess );
-      REMOVE_BIT( ch->affected_by, AFF_POSSESS );
+      xREMOVE_BIT( ch->affected_by, AFF_POSSESS );
    }
 /*    if ( IS_NPC( ch->desc->character ) )
       REMOVE_BIT( ch->desc->character->affected_by, AFF_POSSESS );*/

@@ -404,7 +404,7 @@ void save_mobile( FILE * fp, CHAR_DATA * mob )
             mob->hit, mob->max_hit, mob->mana, mob->max_mana, mob->move, mob->max_move );
    fprintf( fp, "Position %d\n", mob->position );
    fprintf( fp, "Flags %d\n", mob->act );
-   fprintf( fp, "AffectedBy   %d\n", mob->affected_by );
+   fprintf( fp, "AffectedBy   %s\n", print_bitvector( &mob->affected_by ) );
 
    for( paf = mob->first_affect; paf; paf = paf->next )
    {
@@ -412,11 +412,11 @@ void save_mobile( FILE * fp, CHAR_DATA * mob )
          continue;
 
       if( paf->type >= 0 && paf->type < TYPE_PERSONAL )
-         fprintf( fp, "AffectData   '%s' %3d %3d %3d %d\n",
-                  skill->name, paf->duration, paf->modifier, paf->location, paf->bitvector );
+         fprintf( fp, "AffectData   '%s' %3d %3d %3d %s\n",
+                  skill->name, paf->duration, paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
       else
-         fprintf( fp, "Affect       %3d %3d %3d %3d %d\n",
-                  paf->type, paf->duration, paf->modifier, paf->location, paf->bitvector );
+         fprintf( fp, "Affect       %3d %3d %3d %3d %s\n",
+                  paf->type, paf->duration, paf->modifier, paf->location,print_bitvector(  &paf->bitvector ) );
    }
 
    de_equip_char( mob );
@@ -618,12 +618,12 @@ CHAR_DATA *load_mobile( FILE * fp )
                    || paf->location == APPLY_WEARSPELL
                    || paf->location == APPLY_REMOVESPELL || paf->location == APPLY_STRIPSN )
                   paf->modifier = slot_lookup( paf->modifier );
-               paf->bitvector = fread_number( fp );
+               paf->bitvector = fread_bitvector( fp );
                LINK( paf, mob->first_affect, mob->last_affect, next, prev );
                fMatch = TRUE;
                break;
             }
-            KEY( "AffectedBy", mob->affected_by, fread_number( fp ) );
+            KEY( "AffectedBy", mob->affected_by, fread_bitvector( fp ) );
             break;
 
 #ifdef OVERLANDCODE

@@ -307,7 +307,7 @@ void do_buy( CHAR_DATA * ch, const char *argument )
       pet = create_mobile( pet->pIndexData );
       SET_BIT( ch->act, PLR_BOUGHT_PET );
       SET_BIT( pet->act, ACT_PET );
-      SET_BIT( pet->affected_by, AFF_CHARM );
+      xSET_BIT( pet->affected_by, AFF_CHARM );
 
       argument = one_argument( argument, arg );
       if( arg[0] != '\0' )

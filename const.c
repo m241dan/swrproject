@@ -41,39 +41,39 @@ const struct race_type race_table[MAX_RACE] = {
     * race name     DEF_AFF      st dx ws in cn ch lk fc hp mn re su   RESTRICTION  LANGUAGE 
     */
    {
-    "Human", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, LANG_COMMON},
+    "Human", meb( AFF_NONE ), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, LANG_COMMON},
    {
-    "Wookiee", 0, 8, -1, -3, 0, 2, -2, 0, 0, 3, 0, 0, 0, 0, LANG_WOOKIEE},
+    "Wookiee", meb( AFF_NONE ), 8, -1, -3, 0, 2, -2, 0, 0, 3, 0, 0, 0, 0, LANG_WOOKIEE},
    {
-    "Twi'lek", 0, 0, 2, 2, 2, -1, -1, 0, 0, 0, 0, 0, 0, 0, LANG_TWI_LEK},
+    "Twi'lek", meb( AFF_NONE ), 0, 2, 2, 2, -1, -1, 0, 0, 0, 0, 0, 0, 0, LANG_TWI_LEK},
    {
-    "Rodian", 0, 0, 3, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, LANG_RODIAN},
+    "Rodian", meb( AFF_NONE ), 0, 3, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, LANG_RODIAN},
    {
-    "Hutt", 0, -3, -9, -3, 3, 5, -6, 0, 0, 3, 0, 0, 0, 0, LANG_HUTT},
+    "Hutt", meb( AFF_NONE ), -3, -9, -3, 3, 5, -6, 0, 0, 3, 0, 0, 0, 0, LANG_HUTT},
    {
-    "Mon Calamari", AFF_AQUA_BREATH, 0, -1, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, LANG_MON_CALAMARI},
+    "Mon Calamari", meb( AFF_AQUA_BREATH ), 0, -1, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, LANG_MON_CALAMARI},
    {
-    "Noghri", AFF_SNEAK, 0, 8, -2, -1, 0, -3, 0, 0, 0, 0, 0, 0, 0, LANG_NOGHRI},
+    "Noghri", meb( AFF_SNEAK ), 0, 8, -2, -1, 0, -3, 0, 0, 0, 0, 0, 0, 0, LANG_NOGHRI},
    {
-    "Gamorrean", 0, 6, 0, -5, -5, 5, -2, 0, 0, 3, 0, 0, 0, 0, LANG_GAMORREAN},
+    "Gamorrean", meb( AFF_NONE ), 6, 0, -5, -5, 5, -2, 0, 0, 3, 0, 0, 0, 0, LANG_GAMORREAN},
    {
-    "Jawa", 0, -3, 3, 1, 0, 0, -2, 0, 0, 0, 0, 0, 0, 0, LANG_JAWA},
+    "Jawa", meb( AFF_NONE ), -3, 3, 1, 0, 0, -2, 0, 0, 0, 0, 0, 0, 0, LANG_JAWA},
    {
-    "Adarian", 0, -2, -1, +2, +2, -1, +2, 0, 0, 0, 0, 0, 0, 0, LANG_ADARIAN},
+    "Adarian", meb( AFF_NONE ), -2, -1, +2, +2, -1, +2, 0, 0, 0, 0, 0, 0, 0, LANG_ADARIAN},
    {
-    "Ewok", 0, -2, -1, -5, -5, -2, +8, 0, 0, 0, 0, 0, 0, 0, LANG_EWOK},
+    "Ewok", meb( AFF_NONE ), -2, -1, -5, -5, -2, +8, 0, 0, 0, 0, 0, 0, 0, LANG_EWOK},
    {
-    "Verpine", 0, -1, 0, +1, +6, -1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_VERPINE},
+    "Verpine", meb( AFF_NONE ), -1, 0, +1, +6, -1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_VERPINE},
    {
-    "Defel", AFF_INVISIBLE, +1, +3, -3, -3, +1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_DEFEL},
+    "Defel", meb( AFF_INVISIBLE ), +1, +3, -3, -3, +1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_DEFEL},
    {
-    "Trandoshan", AFF_INFRARED, +2, 0, 0, 0, +6, -1, 0, 0, 0, 0, 0, 0, 0, LANG_TRANDOSHAN},
+    "Trandoshan", meb( AFF_INFRARED ), +2, 0, 0, 0, +6, -1, 0, 0, 0, 0, 0, 0, 0, LANG_TRANDOSHAN},
    {
-    "Chadra-Fan", AFF_INFRARED, -3, +3, 0, +2, -1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_CHADRA_FAN},
+    "Chadra-Fan", meb( AFF_INFRARED ), -3, +3, 0, +2, -1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_CHADRA_FAN},
    {
-    "Quarren", AFF_AQUA_BREATH + AFF_INFRARED, -1, +1, 0, +1, -1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_MON_CALAMARI},
+    "Quarren", meb( AFF_AQUA_BREATH ), -1, +1, 0, +1, -1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_MON_CALAMARI},
    {
-    "Duinuogwuin", AFF_FLYING, 0, -1, +3, 0, +8, +1, 0, 0, 0, +10, 0, 0, 0, LANG_DUINUOGWUIN}
+    "Duinuogwuin", meb( AFF_FLYING ), 0, -1, +3, 0, +8, +1, 0, 0, 0, +10, 0, 0, 0, LANG_DUINUOGWUIN}
 
 };
 

@@ -208,7 +208,7 @@ void do_makeblade( CHAR_DATA * ch, const char *argument )
    paf->duration = -1;
    paf->location = get_atype( "backstab" );
    paf->modifier = level / 3;
-   paf->bitvector = 0;
+   xCLEAR_BITS( paf->bitvector );
    paf->next = NULL;
    LINK( paf, obj->first_affect, obj->last_affect, next, prev );
    ++top_affect;
@@ -217,7 +217,7 @@ void do_makeblade( CHAR_DATA * ch, const char *argument )
    paf2->duration = -1;
    paf2->location = get_atype( "hitroll" );
    paf2->modifier = -2;
-   paf2->bitvector = 0;
+   xCLEAR_BITS( paf2->bitvector );
    paf2->next = NULL;
    LINK( paf2, obj->first_affect, obj->last_affect, next, prev );
    ++top_affect;
@@ -474,7 +474,7 @@ void do_makeblaster( CHAR_DATA * ch, const char *argument )
    paf->duration = -1;
    paf->location = get_atype( "hitroll" );
    paf->modifier = URANGE( 0, 1 + scope, level / 30 );
-   paf->bitvector = 0;
+   xCLEAR_BITS( paf->bitvector );
    paf->next = NULL;
    LINK( paf, obj->first_affect, obj->last_affect, next, prev );
    ++top_affect;
@@ -483,7 +483,7 @@ void do_makeblaster( CHAR_DATA * ch, const char *argument )
    paf2->duration = -1;
    paf2->location = get_atype( "damroll" );
    paf2->modifier = URANGE( 0, power, level / 30 );
-   paf2->bitvector = 0;
+   xCLEAR_BITS( paf2->bitvector );
    paf2->next = NULL;
    LINK( paf2, obj->first_affect, obj->last_affect, next, prev );
    ++top_affect;
@@ -792,7 +792,7 @@ void do_makelightsaber( CHAR_DATA * ch, const char *argument )
    paf->duration = -1;
    paf->location = get_atype( "hitroll" );
    paf->modifier = URANGE( 0, gems, level / 30 );
-   paf->bitvector = 0;
+   xCLEAR_BITS( paf->bitvector );
    paf->next = NULL;
    LINK( paf, obj->first_affect, obj->last_affect, next, prev );
    ++top_affect;
@@ -801,7 +801,7 @@ void do_makelightsaber( CHAR_DATA * ch, const char *argument )
    paf2->duration = -1;
    paf2->location = get_atype( "parry" );
    paf2->modifier = ( level / 3 );
-   paf2->bitvector = 0;
+   xCLEAR_BITS( paf2->bitvector );
    paf2->next = NULL;
    LINK( paf2, obj->first_affect, obj->last_affect, next, prev );
    ++top_affect;
@@ -2743,7 +2743,7 @@ void add_reinforcements( CHAR_DATA * ch )
          if( mob[mob_cnt]->master )
             stop_follower( mob[mob_cnt] );
          add_follower( mob[mob_cnt], ch );
-         SET_BIT( mob[mob_cnt]->affected_by, AFF_CHARM );
+         xSET_BIT( mob[mob_cnt]->affected_by, AFF_CHARM );
          do_setblaster( mob[mob_cnt], "full" );
       }
    }

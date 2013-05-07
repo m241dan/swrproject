@@ -2156,7 +2156,6 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
 
       ch->perm_lck = number_range( 6, 18 );
       ch->perm_frc = number_range( -2000, 20 );
-      ch->affected_by = race_table[ch->race].affected;
       ch->perm_lck += race_table[ch->race].lck_plus;
       ch->perm_frc += race_table[ch->race].frc_plus;
 

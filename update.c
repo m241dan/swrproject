@@ -522,7 +522,7 @@ void gain_addiction( CHAR_DATA * ch )
                   af.location = APPLY_EVASION;
                   af.modifier = 10;
                   af.duration = ch->pcdata->addiction[drug];
-                  af.bitvector = AFF_BLIND;
+                  af.bitvector = meb( AFF_BLIND );
                   affect_to_char( ch, &af );
                }
             case SPICE_CARSANUM:
@@ -532,7 +532,7 @@ void gain_addiction( CHAR_DATA * ch )
                   af.location = APPLY_DAMROLL;
                   af.modifier = -10;
                   af.duration = ch->pcdata->addiction[drug];
-                  af.bitvector = AFF_WEAKEN;
+                  af.bitvector = meb( AFF_WEAKEN );
                   affect_to_char( ch, &af );
                }
             case SPICE_RYLL:
@@ -542,7 +542,7 @@ void gain_addiction( CHAR_DATA * ch )
                   af.location = APPLY_DEX;
                   af.modifier = -5;
                   af.duration = ch->pcdata->addiction[drug];
-                  af.bitvector = AFF_WEAKEN;
+                  af.bitvector = meb( AFF_WEAKEN );
                   affect_to_char( ch, &af );
                }
             case SPICE_ANDRIS:
@@ -552,7 +552,7 @@ void gain_addiction( CHAR_DATA * ch )
                   af.location = APPLY_CON;
                   af.modifier = -5;
                   af.duration = ch->pcdata->addiction[drug];
-                  af.bitvector = AFF_WEAKEN;
+                  af.bitvector = meb (AFF_WEAKEN );
                   affect_to_char( ch, &af );
                }
          }

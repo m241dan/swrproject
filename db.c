@@ -1032,7 +1032,7 @@ void load_mobiles( AREA_DATA * tarea, FILE * fp )
       ((char*)pMobIndex->description)[0] = UPPER( pMobIndex->description[0] );
 
       pMobIndex->act = fread_number( fp ) | ACT_IS_NPC;
-      pMobIndex->affected_by = fread_number( fp );
+      pMobIndex->affected_by = fread_bitvector( fp );
       pMobIndex->pShop = NULL;
       pMobIndex->rShop = NULL;
       pMobIndex->alignment = fread_number( fp );
@@ -1298,7 +1298,7 @@ void load_objects( AREA_DATA * tarea, FILE * fp )
                paf->modifier = slot_lookup( fread_number( fp ) );
             else
                paf->modifier = fread_number( fp );
-            paf->bitvector = 0;
+            xCLEAR_BITS( paf->bitvector );
             LINK( paf, pObjIndex->first_affect, pObjIndex->last_affect, next, prev );
             top_affect++;
          }
@@ -2618,7 +2618,7 @@ void clear_char( CHAR_DATA * ch )
    ch->dest_buf_2 = NULL;
    ch->spare_ptr = NULL;
    ch->mount = NULL;
-   ch->affected_by = 0;
+   xCLEAR_BITS( ch->affected_by );
    ch->logon = current_time;
    ch->evasion = 100;
    ch->position = POS_STANDING;
@@ -5139,7 +5139,7 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       ((char*)pMobIndex->long_descr)[0] = UPPER( pMobIndex->long_descr[0] );
       ((char*)pMobIndex->description)[0] = UPPER( pMobIndex->description[0] );
       pMobIndex->act = ACT_IS_NPC | ACT_PROTOTYPE;
-      pMobIndex->affected_by = 0;
+      xCLEAR_BITS( pMobIndex->affected_by );
       pMobIndex->pShop = NULL;
       pMobIndex->rShop = NULL;
       pMobIndex->spec_fun = NULL;
@@ -5429,7 +5429,7 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
    paf->duration = fread_number( fp );
    pafmod = fread_number( fp );
    paf->location = fread_number( fp );
-   paf->bitvector = fread_number( fp );
+   paf->bitvector = fread_bitvector( fp );
 
    if( paf->location == APPLY_WEAPONSPELL
        || paf->location == APPLY_WEARSPELL
@@ -6561,10 +6561,10 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                {
                   affectflags = one_argument( affectflags, flag );
                   value = get_aflag( flag );
-                  if( value < 0 || value > 31 )
+                  if( value < 0 || value > MAX_BITS )
                      bug( "Unknown affectflag: %s", flag );
                   else
-                     SET_BIT( pMobIndex->affected_by, 1 << value );
+                     xSET_BIT( pMobIndex->affected_by, value );
                }
                break;
             }
@@ -8307,82 +8307,71 @@ size_t mudstrlcat( char *dst, const char *src, size_t siz )
   return ( dlen + ( s - src ) );   /* count does not include NUL */
 }
 
-/*
- * Read a string of text based flags from file fp. Ending in ~
- */
- char *fread_flagstring( FILE * fp )
+/* Read a string from file and return it */
+const char *fread_flagstring( FILE * fp )
 {
-    static char buf[MAX_STRING_LENGTH];
-    char *plast;
-    char c;
-    int ln;
+   static char flagstring[MAX_STRING_LENGTH];
+   char *plast;
+   char c;
+   int ln;
 
-    plast = buf;
-    buf[0] = '\0';
-    ln = 0;
+   plast = flagstring;
+   flagstring[0] = '\0';
+   ln = 0;
+   /*
+    * Skip blanks. Read first char. 
+    */
+   do
+   {
+      if( feof( fp ) )
+      {
+         bug( "%s: EOF encountered on read.", __FUNCTION__ );
+         if( fBootDb )
+            exit( 1 );
+         return "";
+      }
+      c = getc( fp );
+   }
+   while( isspace( c ) );
+   if( ( *plast++ = c ) == '~' )
+      return "";
 
-    /*
-     * Skip blanks.
-     * Read first char.
-     */
-    do
-    {
-        if( feof( fp ) )
-        {
-            bug( "%s", "fread_string: EOF encountered on read." );
+   for( ;; )
+   {
+      if( ln >= ( MAX_STRING_LENGTH - 1 ) )
+      {
+         bug( "%s: string too long", __FUNCTION__ );
+         *plast = '\0';
+         return flagstring;
+      }
+      switch ( *plast = getc( fp ) )
+      {
+         default:
+            plast++;
+            ln++;
+            break;
+
+         case EOF:
+            bug( "%s: EOF", __FUNCTION__ );
             if( fBootDb )
-            {
-                shutdown_mud( "Corrupt file somewhere." );
-                exit( 1 );
-            }
-            snprintf( buf, MAX_STRING_LENGTH, "%s", "" );
-            return buf;
-        }
-        c = getc( fp );
-    }
-    while( isspace( c ) );
-
-    if( ( *plast++ = c ) == '~' )
-    {
-        snprintf( buf, MAX_STRING_LENGTH, "%s", "" );
-        return buf;
-    }
-
-    for( ;; )
-    {
-        if( ln >= ( MAX_STRING_LENGTH - 1 ) )
-        {
-            bug( "%s", "fread_flagstring: string too long" );
+               exit( 1 );
             *plast = '\0';
-            return ( buf );
-        }
-        switch ( *plast = getc( fp ) )
-        {
-           default:
-               plast++;
-               ln++;
-               break;
+            return flagstring;
+            break;
 
-           case EOF:
-               bug( "%s", "Fread_string: EOF" );
-               if( fBootDb )
-                   exit( 1 );
-               *plast = '\0';
-               return ( buf );
+         case '\n':
+            plast++;
+            ln++;
+            *plast++ = '\r';
+            ln++;
+            break;
 
-           case '\n':
-               ++plast;
-               ++ln;
-               *plast++ = '\r';
-               ++ln;
-               break;
+         case '\r':
+            break;
 
-           case '\r':
-               break;
-
-           case '~':
-               *plast = '\0';
-               return ( buf );
-        }
-    }
+         case '~':
+            *plast = '\0';
+            return flagstring;
+      }
+   }
 }

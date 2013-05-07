@@ -341,8 +341,8 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    }
    if( ch->act )
       fprintf( fp, "Act          %d\n", ch->act );
-   if( ch->affected_by )
-      fprintf( fp, "AffectedBy   %d\n", ch->affected_by );
+   if( !xIS_EMPTY( ch->affected_by ) )
+      fprintf( fp, "AffectedBy   %s\n", print_bitvector( &ch->affected_by ) );
    fprintf( fp, "Position     %d\n", ch->position == POS_FIGHTING ? POS_STANDING : ch->position );
 
    fprintf( fp, "SavingThrows %d %d %d %d %d\n",
@@ -479,11 +479,11 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
          continue;
 
       if( paf->type >= 0 && paf->type < TYPE_PERSONAL )
-         fprintf( fp, "AffectData   '%s' %3d %3d %3d %10d\n",
-                  skill->name, paf->duration, paf->modifier, paf->location, paf->bitvector );
+         fprintf( fp, "AffectData   '%s' %3d %3d %3d %10s\n",
+                  skill->name, paf->duration, paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
       else
-         fprintf( fp, "Affect       %3d %3d %3d %3d %10d\n",
-                  paf->type, paf->duration, paf->modifier, paf->location, paf->bitvector );
+         fprintf( fp, "Affect       %3d %3d %3d %3d %10s\n",
+                  paf->type, paf->duration, paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
    }
 
    track = URANGE( 2, ( ( ch->top_level + 3 ) * MAX_KILLTRACK ) / LEVEL_AVATAR, MAX_KILLTRACK );
@@ -657,7 +657,7 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
        */
       if( paf->type < 0 || paf->type >= top_sn )
       {
-         fprintf( fp, "Affect       %d %d %d %d %d\n",
+         fprintf( fp, "Affect       %d %d %d %d %s\n",
                   paf->type,
                   paf->duration,
                   ( ( paf->location == APPLY_WEAPONSPELL
@@ -665,10 +665,10 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
                       || paf->location == APPLY_REMOVESPELL
                       || paf->location == APPLY_STRIPSN )
                     && IS_VALID_SN( paf->modifier ) )
-                  ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->bitvector );
+                  ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
       }
       else
-         fprintf( fp, "AffectData   '%s' %d %d %d %d\n",
+         fprintf( fp, "AffectData   '%s' %d %d %d %s\n",
                   skill_table[paf->type]->name,
                   paf->duration,
                   ( ( paf->location == APPLY_WEAPONSPELL
@@ -676,7 +676,7 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
                       || paf->location == APPLY_REMOVESPELL
                       || paf->location == APPLY_STRIPSN )
                     && IS_VALID_SN( paf->modifier ) )
-                  ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->bitvector );
+                  ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
    }
 
    for( ed = obj->first_extradesc; ed; ed = ed->next )
@@ -939,7 +939,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
 
          case 'A':
             KEY( "Act", ch->act, fread_number( fp ) );
-            KEY( "AffectedBy", ch->affected_by, fread_number( fp ) );
+            KEY( "AffectedBy", ch->affected_by, fread_bitvector( fp ) );
             KEY( "Alignment", ch->alignment, fread_number( fp ) );
 
             if( !str_cmp( word, "Addiction" ) )
@@ -1008,7 +1008,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                paf->duration = fread_number( fp );
                paf->modifier = fread_number( fp );
                paf->location = fread_number( fp );
-               paf->bitvector = fread_number( fp );
+               paf->bitvector = fread_bitvector( fp );
                LINK( paf, ch->first_affect, ch->last_affect, next, prev );
                fMatch = TRUE;
                break;
@@ -1681,7 +1681,7 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
                paf->duration = fread_number( fp );
                pafmod = fread_number( fp );
                paf->location = fread_number( fp );
-               paf->bitvector = fread_number( fp );
+               paf->bitvector = fread_bitvector( fp );
                if( paf->location == APPLY_WEAPONSPELL
                    || paf->location == APPLY_WEARSPELL || paf->location == APPLY_REMOVESPELL )
                   paf->modifier = slot_lookup( pafmod );
