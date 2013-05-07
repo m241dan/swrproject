@@ -2491,6 +2491,7 @@ ch_ret spell_identify( int sn, int level, CHAR_DATA * ch, void *vo )
    AFFECT_DATA *paf;
    SKILLTYPE *sktmp;
    SKILLTYPE *skill = get_skilltype( sn );
+   int x;
 
    if( target_name[0] == '\0' )
    {
@@ -2553,6 +2554,12 @@ ch_ret spell_identify( int sn, int level, CHAR_DATA * ch, void *vo )
             break;
 
          case ITEM_WEAPON:
+            send_to_char( "Damtype:", ch );
+            for( x = 0; x < MAX_DAMTYPE; x++ )
+               if( xIS_SET( obj->damtype, x ) )
+                  ch_printf( ch, " %s,", d_type[x] );
+            send_to_char( "\r\n", ch );
+
             ch_printf( ch, "Damage is %d to %d (average %d).\r\n",
                        obj->value[1], obj->value[2], ( obj->value[1] + obj->value[2] ) / 2 );
             if( obj->value[3] == WEAPON_BLASTER )

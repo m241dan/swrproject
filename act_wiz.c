@@ -1070,6 +1070,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    AFFECT_DATA *paf;
    OBJ_DATA *obj;
    const char *pdesc;
+   int x;
 
    one_argument( argument, arg );
 
@@ -1131,6 +1132,14 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
               obj->pIndexData->value[2], obj->pIndexData->value[3], obj->pIndexData->value[4], obj->pIndexData->value[5] );
    ch_printf( ch, "Object Values: %d %d %d %d %d %d.\r\n",
               obj->value[0], obj->value[1], obj->value[2], obj->value[3], obj->value[4], obj->value[5] );
+   if( obj->item_type == ITEM_WEAPON )
+   {
+      send_to_char( "Damtypes:", ch );
+      for( x = 0; x < MAX_DAMTYPE; x++ )
+         if( xIS_SET( obj->damtype, x ) )
+            ch_printf( ch, " %s,", d_type[x] );
+      send_to_char( "\r\n", ch );
+   }
 
    if( obj->pIndexData->first_extradesc )
    {
