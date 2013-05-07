@@ -6887,17 +6887,18 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             if( !str_cmp( word, "Stats1" ) )
             {
                char *ln = fread_line( fp );
-               int x1, x2, x3, x4, x5, x6;
+               int x1, x2, x3, x4, x5, x6, x7;
 
-               x1 = x2 = x3 = x4 = x5 = x6 = 0;
-               sscanf( ln, "%d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6 );
+               x1 = x2 = x3 = x4 = x5 = x6 = x7 = 0;
+               sscanf( ln, "%d %d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6, &x7 );
 
                pMobIndex->alignment = x1;
                pMobIndex->level = x2;
                pMobIndex->mobthac0 = x3;
                pMobIndex->evasion = x4;
-               pMobIndex->gold = x5;
-               pMobIndex->exp = x6;
+               pMobIndex->defense = x5;
+               pMobIndex->gold = x6;
+               pMobIndex->exp = x7;
 
                break;
             }

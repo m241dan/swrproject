@@ -1595,7 +1595,7 @@ typedef enum
    APPLY_KICK, APPLY_PARRY, APPLY_BASH, APPLY_STUN, APPLY_PUNCH, APPLY_CLIMB,
    APPLY_GRIP, APPLY_SCRIBE, APPLY_BREW, APPLY_WEARSPELL, APPLY_REMOVESPELL,
    APPLY_EMOTION, APPLY_MENTALSTATE, APPLY_STRIPSN, APPLY_REMOVE, APPLY_DIG,
-   APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, MAX_APPLY_TYPE
+   APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_DEFENSE, MAX_APPLY_TYPE
 } apply_types;
 
 #define REVERSE_APPLY		   1000
@@ -1935,6 +1935,7 @@ struct mob_index_data
    short alignment;
    short mobthac0;   /* Unused */
    short evasion;
+   short defense;
    short hitnodice;
    short hitsizedice;
    short hitplus;

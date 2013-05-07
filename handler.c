@@ -682,6 +682,9 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_EVASION:
          ch->evasion += mod;
          break;
+      case APPLY_DEFENSE:
+         ch->defense += mod;
+         break;
       case APPLY_HITROLL:
          ch->hitroll += mod;
          break;
@@ -2548,6 +2551,8 @@ const char *affect_loc_name( int location )
          return "experience";
       case APPLY_EVASION:
          return "evasion";
+      case APPLY_DEFENSE:
+         return "defense";
       case APPLY_HITROLL:
          return "hit roll";
       case APPLY_DAMROLL:

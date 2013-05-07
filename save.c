@@ -353,6 +353,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "Hitroll      %d\n", ch->hitroll );
    fprintf( fp, "Damroll      %d\n", ch->damroll );
    fprintf( fp, "Evasion      %d\n", ch->evasion );
+   fprintf( fp, "Defense      %d\n", ch->defense );
    if( ch->wimpy )
       fprintf( fp, "Wimpy        %d\n", ch->wimpy );
    if( ch->deaf )
@@ -1054,6 +1055,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
          case 'B':
             KEY( "Bamfin", ch->pcdata->bamfin, fread_string_nohash( fp ) );
             KEY( "Bamfout", ch->pcdata->bamfout, fread_string_nohash( fp ) );
+            KEY( "Defense", ch->defense, fread_number( fp ) );
             KEY( "Bestowments", ch->pcdata->bestowments, fread_string_nohash( fp ) );
             KEY( "Bio", ch->pcdata->bio, fread_string( fp ) );
             KEY( "Bank", ch->pcdata->bank, fread_number( fp ) );

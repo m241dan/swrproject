@@ -370,6 +370,8 @@ const char *tiny_affect_loc_name( int location )
          return " EXP  ";
       case APPLY_EVASION:
          return " EV   ";
+      case APPLY_DEFENSE:
+         return " DEF  ";
       case APPLY_HITROLL:
          return " HITRL";
       case APPLY_DAMROLL:

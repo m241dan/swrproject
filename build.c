@@ -130,7 +130,7 @@ const char *const a_types[] = {
    "steal", "sneak", "hide", "palm", "detrap", "dodge", "peek", "scan", "gouge",
    "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
    "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate"
-      "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood"
+   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "defense"
 };
 
 const char *const a_flags[] = {
@@ -5719,8 +5719,8 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    fprintf( fpout, "Actflags   %s~\n", flag_string( pMobIndex->act, act_flags ) );
    if( pMobIndex->affected_by )
       fprintf( fpout, "Affected   %s~\n", flag_string( pMobIndex->affected_by, a_flags ) );
-   fprintf( fpout, "Stats1     %d %d %d %d %d %d\n", pMobIndex->alignment, pMobIndex->level, pMobIndex->mobthac0,
-            pMobIndex->evasion, pMobIndex->gold, pMobIndex->exp );
+   fprintf( fpout, "Stats1     %d %d %d %d %d %d %d\n", pMobIndex->alignment, pMobIndex->level, pMobIndex->mobthac0,
+            pMobIndex->evasion, pMobIndex->defense, pMobIndex->gold, pMobIndex->exp );
    fprintf( fpout, "Stats2     %d %d %d\n", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus );
    fprintf( fpout, "Stats3     %d %d %d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
