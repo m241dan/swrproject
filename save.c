@@ -354,6 +354,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "Damroll      %d\n", ch->damroll );
    fprintf( fp, "Evasion      %d\n", ch->evasion );
    fprintf( fp, "Defense      %d\n", ch->defense );
+   fprintf( fp, "Damtype      %s\n", print_bitvector( &ch->damtype ) );
    if( ch->wimpy )
       fprintf( fp, "Wimpy        %d\n", ch->wimpy );
    if( ch->deaf )
@@ -724,6 +725,7 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
    ch->perm_con = 10;
    ch->perm_cha = 10;
    ch->perm_lck = 10;
+   xSET_BIT( ch->damtype, DAM_BLUNT );
    ch->pcdata->condition[COND_THIRST] = 48;
    ch->pcdata->condition[COND_FULL] = 48;
    ch->pcdata->condition[COND_BLOODTHIRST] = 10;
@@ -1106,6 +1108,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
 
          case 'D':
             KEY( "Damroll", ch->damroll, fread_number( fp ) );
+            KEY( "Damtype", ch->damtype, fread_bitvector( fp ) );
             KEY( "Deaf", ch->deaf, fread_number( fp ) );
             KEY( "Description", ch->description, fread_string( fp ) );
             if( !str_cmp( word, "Druglevel" ) )

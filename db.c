@@ -2333,6 +2333,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->was_sentinel = NULL;
    mob->plr_home = NULL;
    mob->guard_data = NULL;
+   xSET_BIT( mob->damtype, DAM_BLUNT );
 
    if( pMobIndex->evasion )
       mob->evasion = pMobIndex->evasion;
@@ -2619,6 +2620,7 @@ void clear_char( CHAR_DATA * ch )
    ch->spare_ptr = NULL;
    ch->mount = NULL;
    xCLEAR_BITS( ch->affected_by );
+   xCLEAR_BITS( ch->damtype );
    ch->logon = current_time;
    ch->evasion = 100;
    ch->position = POS_STANDING;
@@ -6625,6 +6627,7 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             break;
 
          case 'D':
+            KEY( "Damtype", pMobIndex->damtype, fread_bitvector( fp ) );
             if( !str_cmp( word, "Defenses" ) )
             {
                const char *defenses = fread_flagstring( fp );

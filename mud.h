@@ -1180,6 +1180,13 @@ typedef enum
 #define RIS_PARALYSIS		  BV21
 /* 21 RIS's*/
 
+typedef enum
+{
+   DAM_ALL, DAM_PHYSICAL, DAM_ELEMENTAL, DAM_FIRE, DAM_WATER,
+   DAM_EARTH, DAM_ELECTRICITY, DAM_WIND, DAM_ENERGY, DAM_DARKENERGY,
+   DAM_BLUNT, DAM_PIERCE, DAM_SLASH, MAX_DAMTYPE
+} damage_types;
+
 /* 
 * Attack types
 */
@@ -1484,17 +1491,12 @@ typedef enum
 #define BLASTER_HIGH            4
 
 /* Weapon Types */
-
-#define WEAPON_NONE     	0
-#define WEAPON_VIBRO_AXE	1
-#define WEAPON_VIBRO_BLADE	2
-#define WEAPON_LIGHTSABER	3
-#define WEAPON_WHIP		4
-#define WEAPON_CLAW		5
-#define WEAPON_BLASTER		6
-#define WEAPON_BLUDGEON		8
-#define WEAPON_BOWCASTER        9
-#define WEAPON_FORCE_PIKE	11
+typedef enum
+{
+   WEAPON_NONE, WEAPON_VIBRO_AXE, WEAPON_VIBRO_BLADE,
+   WEAPON_LIGHTSABER, WEAPON_WHIP, WEAPON_CLAW, WEAPON_BLASTER,
+   WEAPON_BLUDGEON, WEAPON_BOWCASTER, WEAPON_FORCE_PIKE, MAX_WEAPON
+} weapon_types;
 
 /* Lever/dial/switch/button/pullchain flags */
 #define TRIG_UP			BV00
@@ -1970,6 +1972,7 @@ struct mob_index_data
    short saving_breath;
    short saving_spell_staff;
    int vip_flags;
+   EXT_BV damtype;
 };
 
 struct hunt_hate_fear
@@ -2143,6 +2146,7 @@ struct char_data
    int home_vnum; /* hotboot tracker */
    int resetvnum;
    int resetnum;
+   EXT_BV damtype;
 };
 
 struct killed_data
@@ -2269,6 +2273,7 @@ struct obj_index_data
    int serial;
    short layers;
    int rent;   /* Unused */
+   EXT_BV damtype;
 };
 
 
@@ -2313,6 +2318,7 @@ struct obj_data
    short count;   /* support for object grouping */
    int serial; /* serial number         */
    int room_vnum; /* hotboot tracker */
+   EXT_BV damtype;
 };
 
 
@@ -3205,7 +3211,7 @@ extern int const lang_array[];
 extern const char *const lang_names[];
 extern const char *const lang_names_save[];
 extern const char *sector_name[SECT_MAX];
-
+extern const char *const d_type[MAX_DAMTYPE];
 /*
 * Global variables.
 */
@@ -4056,6 +4062,7 @@ bool DelOExtraProto( OBJ_INDEX_DATA * obj, const char *keywords );
 void fold_area( AREA_DATA * tarea, const char *filename, bool install );
 int get_otype( const char *type );
 int get_aflag( const char *flag );
+int get_damtype( const char *type );
 int get_trapflag( const char *flag );
 int get_atype( const char *type );
 int get_npc_race( const char *type );

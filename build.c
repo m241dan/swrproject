@@ -41,6 +41,12 @@ bool validate_spec_fun( const char *name );
 
 /* planet constants for vip and wanted flags */
 
+const char *const d_type[MAX_DAMTYPE] = {
+   "chaos", "physical", "elemental", "fire", "water",
+   "earth", "electricity", "wind", "energy", "dark_energy",
+   "blunt", "piercing", "slashing"
+};
+
 const char *const planet_flags[] = {
    "coruscant", "kashyyyk", "ryloth", "rodia", "nal_hutta", "mon_calamari",
    "honoghr", "gamorr", "tatooine", "adari", "byss", "endor", "roche", "af'el", "trandosh",
@@ -427,6 +433,17 @@ int get_aflag( const char *flag )
          return x;
    return -1;
 }
+
+int get_damtype( const char *type )
+{
+   int x;
+
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      if( !str_cmp( type, d_type[x] ) )
+         return x;
+   return -1;
+}
+
 
 int get_trapflag( const char *flag )
 {
@@ -1547,6 +1564,28 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "damtype" ) )
+   {
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg2 );
+         if( ( value = get_damtype( arg2 ) ) == -1 || ( value >= DAM_ALL && value <= DAM_PHYSICAL ) )
+         {
+            ch_printf( ch, "%s is an invalid damtype.\r\n", arg2 );
+            continue;
+         }
+         xTOGGLE_BIT( victim->damtype, value );
+         if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
+            xTOGGLE_BIT( victim->pIndexData->damtype, value );
+      }
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+
    if( !str_cmp( arg2, "hp" ) )
    {
       if( !can_mmodify( ch, victim ) )
@@ -1726,6 +1765,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       victim->pcdata->condition[COND_THIRST] = value;
       return;
    }
+
 
    if( !str_cmp( arg2, "drunk" ) )
    {
@@ -5743,6 +5783,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    fprintf( fpout, "Stats3     %d %d %d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
             pMobIndex->height, pMobIndex->weight, pMobIndex->numattacks, pMobIndex->hitroll, pMobIndex->damroll );
+   fprintf( fpout, "Damtype    %s\n", print_bitvector( &pMobIndex->damtype ) );
    fprintf( fpout, "Attribs    %d %d %d %d %d %d %d %d\n",
             pMobIndex->perm_str,
             pMobIndex->perm_int,

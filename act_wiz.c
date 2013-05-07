@@ -1238,6 +1238,11 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
       ch_printf( ch, "Race: %s\r\n", npc_race[victim->race] );
    ch_printf( ch, "Hitroll: %d   Damroll: %d   Position: %d   Wimpy: %d \r\n",
               GET_HITROLL( victim ), GET_DAMROLL( victim ), victim->position, victim->wimpy );
+   send_to_char( "Damtype:", ch );
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      if( xIS_SET( victim->damtype, x ) )
+         ch_printf( ch, " %s,", d_type[x] );
+   send_to_char( "\r\n", ch );
    ch_printf( ch, "Fighting: %s    Master: %s    Leader: %s\r\n",
               victim->fighting ? victim->fighting->who->name : "(none)",
               victim->master ? victim->master->name : "(none)", victim->leader ? victim->leader->name : "(none)" );

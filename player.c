@@ -45,7 +45,7 @@ void do_score( CHAR_DATA * ch, const char *argument )
 {
    char buf[MAX_STRING_LENGTH];
    AFFECT_DATA *paf;
-   int iLang, drug;
+   int iLang, drug, x;
 
    if( IS_NPC( ch ) )
    {
@@ -66,6 +66,11 @@ void do_score( CHAR_DATA * ch, const char *argument )
 
    ch_printf( ch, "Hitroll: %-2.2d  Damroll: %-2.2d   Evasion: %-4d        Saved:  %s\r",
               GET_HITROLL( ch ), GET_DAMROLL( ch ), GET_EVASION( ch ), ch->save_time ? ctime( &( ch->save_time ) ) : "no\n" );
+   send_to_char( "Damtype:", ch );
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      if( xIS_SET( ch->damtype, x ) )
+         ch_printf( ch, " %s,", d_type[x] );
+   send_to_char( "\r\n", ch );
 
    ch_printf( ch, "Align: %-5d    Wimpy: %-3d                    Time:   %s\r",
               ch->alignment, ch->wimpy, ctime( &current_time ) );
