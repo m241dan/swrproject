@@ -1251,6 +1251,15 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
    for( x = 0; x < MAX_DAMTYPE; x++ )
       if( xIS_SET( victim->damtype, x ) )
          ch_printf( ch, " %s,", d_type[x] );
+   send_to_char( "\r\nResistances", ch );
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      ch_printf( ch, " %d", victim->resistance[x] );
+   send_to_char( "\r\nPenetrations", ch );
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      ch_printf( ch, " %d", victim->penetration[x] );
+   send_to_char( "\r\nDamtype_Potency", ch );
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      ch_printf( ch, " %d", victim->damtype_potency[x] );
    send_to_char( "\r\n", ch );
    ch_printf( ch, "Fighting: %s    Master: %s    Leader: %s\r\n",
               victim->fighting ? victim->fighting->who->name : "(none)",
