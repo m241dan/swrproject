@@ -303,7 +303,7 @@ void save_clone( CHAR_DATA * ch )
 void fwrite_char( CHAR_DATA * ch, FILE * fp )
 {
    AFFECT_DATA *paf;
-   int sn, track, drug;
+   int sn, track, drug, count;
    SKILLTYPE *skill = NULL;
 
    fprintf( fp, "#%s\n", IS_NPC( ch ) ? "MOB" : "PLAYER" );
@@ -355,6 +355,18 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "Evasion      %d\n", ch->evasion );
    fprintf( fp, "Defense      %d\n", ch->defense );
    fprintf( fp, "Damtype      %s\n", print_bitvector( &ch->damtype ) );
+   fprintf( fp, "Resistance  " );
+   for( count = 0; count < MAX_DAMTYPE; count++ )
+      fprintf( fp, " %d", ch->resistance[count] );
+   fprintf( fp, "\n" );
+   fprintf( fp, "Penetration " );
+   for( count = 0; count < MAX_DAMTYPE; count++ )
+      fprintf( fp, " %d", ch->penetration[count] );
+   fprintf( fp, "\n" );
+   fprintf( fp, "DamTypePotency " );
+   for( count = 0; count < MAX_DAMTYPE; count++ )
+      fprintf( fp, " %d", ch->damtype_potency[count] );
+   fprintf( fp, "\n" );
    if( ch->wimpy )
       fprintf( fp, "Wimpy        %d\n", ch->wimpy );
    if( ch->deaf )
@@ -1112,6 +1124,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
          case 'D':
             KEY( "Damroll", ch->damroll, fread_number( fp ) );
             KEY( "Damtype", ch->damtype, fread_bitvector( fp ) );
+            if( !str_cmp( word, "DamtypePotency" ) )
+            {
+               int count;
+               for( count = 0; count < MAX_DAMTYPE; count++ )
+                  ch->damtype_potency[count] = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
             KEY( "Deaf", ch->deaf, fread_number( fp ) );
             KEY( "Description", ch->description, fread_string( fp ) );
             if( !str_cmp( word, "Druglevel" ) )
@@ -1312,6 +1332,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             KEY( "Pagerlen", ch->pcdata->pagerlen, fread_number( fp ) );
             KEY( "Password", ch->pcdata->pwd, fread_string_nohash( fp ) );
             KEY( "PDeaths", ch->pcdata->pdeaths, fread_number( fp ) );
+            if( !str_cmp( word, "Penetration" ) )
+            {
+               int count;
+               for( count = 0; count < MAX_DAMTYPE; count++ )
+                  ch->penetration[count] = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
             KEY( "PKills", ch->pcdata->pkills, fread_number( fp ) );
             KEY( "Played", ch->played, fread_number( fp ) );
             KEY( "Position", ch->position, fread_number( fp ) );
@@ -1337,6 +1365,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             KEY( "Race", ch->race, fread_number( fp ) );
             KEY( "Rank", ch->pcdata->rank, fread_string_nohash( fp ) );
             KEY( "Resistant", ch->resistant, fread_number( fp ) );
+            if( !str_cmp( word, "Resistance" ) )
+            {
+               int count;
+               for( count = 0; count < MAX_DAMTYPE; count++ )
+                  ch->resistance[count] = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
             KEY( "Restore_time", ch->pcdata->restore_time, fread_number( fp ) );
 
             if( !str_cmp( word, "Room" ) )

@@ -2147,6 +2147,9 @@ struct char_data
    int resetvnum;
    int resetnum;
    EXT_BV damtype;
+   short penetration[MAX_DAMTYPE];
+   short resistance[MAX_DAMTYPE];
+   short damtype_potency[MAX_DAMTYPE];
 };
 
 struct killed_data
