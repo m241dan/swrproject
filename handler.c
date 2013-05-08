@@ -582,7 +582,7 @@ bool nifty_is_name_prefix( const char *str, const char *namelist )
 void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
 {
    OBJ_DATA *wield;
-   int mod;
+   int mod, v1, v2;
    struct skill_type *skill;
    ch_ret retcode;
 
@@ -718,6 +718,22 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_SUSCEPTIBLE:
          SET_BIT( ch->susceptible, mod );
          break;
+      case APPLY_RESISTANCE:
+         v1 = get_value_one( mod );
+         v2 = get_value_two( mod );
+         ch->resistance[v1] += v2;
+         break;
+      case APPLY_PENETRATION:
+         v1 = get_value_one( mod );
+         v2 = get_value_two( mod );
+         ch->penetration[v1] += v2;
+         break;
+      case APPLY_DAMTYPEPOTENCY:
+         v1 = get_value_one( mod );
+         v2 = get_value_two( mod );
+         ch->damtype_potency[v1] += v2;
+         break;
+
       case APPLY_WEAPONSPELL:   /* see fight.c */
          break;
       case APPLY_REMOVE:
@@ -4011,3 +4027,24 @@ void check_switch( CHAR_DATA *ch, bool possess )
    }
    do_return( ch->switched, "" );
 }
+
+int store_two_value( int v1, int v2 )
+{
+   int value = v1;
+
+   value *= 10000;
+   value += v2;
+
+   return value;
+}
+
+int get_value_one( int value )
+{
+   return abs( value / 10000 );
+}
+
+int get_value_two( int value )
+{
+   return ( value % 10000 );
+}
+

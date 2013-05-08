@@ -136,7 +136,8 @@ const char *const a_types[] = {
    "steal", "sneak", "hide", "palm", "detrap", "dodge", "peek", "scan", "gouge",
    "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
    "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate"
-   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "defense"
+   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "defense", "resistance",
+   "penetration", "damtype_potency"
 };
 
 const char *const a_flags[] = {
@@ -1143,6 +1144,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  pos defpos part (see BODYPARTS)\r\n", ch );
       send_to_char( "  sav1 sav2 sav4 sav4 sav5 (see SAVINGTHROWS)\r\n", ch );
       send_to_char( "  resistant immune susceptible (see RIS)\r\n", ch );
+      send_to_char( "  penetration, resistance, damtype_potency\r\n", ch );
       send_to_char( "  attack defense numattacks\r\n", ch );
       send_to_char( "  speaking speaks (see LANGUAGES)\r\n", ch );
       send_to_char( "  name short long description title spec spec2\r\n", ch );
@@ -3487,7 +3489,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
    {
       AFFECT_DATA *paf;
       short loc;
-      int bitv;
+      int bitv, value2;
 
       argument = one_argument( argument, arg2 );
       if( arg2[0] == '\0' || !argument || argument[0] == 0 )
@@ -3502,7 +3504,8 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          send_to_char( "backstab    pick        track       steal         sneak        hide\r\n", ch );
          send_to_char( "detrap      dodge       peek        scan          gouge        search\r\n", ch );
          send_to_char( "mount       disarm      kick        parry         bash         stun\r\n", ch );
-         send_to_char( "punch       climb       grip        scribe        brew\r\n", ch );
+         send_to_char( "punch       climb       grip        scribe        brew         penetration\r\n", ch );
+         send_to_char( "resistance  damtype_potency\r\n", ch );
          return;
       }
       loc = get_atype( arg2 );
@@ -3529,6 +3532,28 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          if( !bitv )
             return;
          value = bitv;
+      }
+      else if( loc == APPLY_PENETRATION || loc == APPLY_RESISTANCE || loc == APPLY_DAMTYPEPOTENCY )
+      {
+         argument = one_argument( argument, arg3 );
+
+         if( ( value = get_damtype( arg3 ) ) == -1 )
+         {
+            ch_printf( ch, "&PProper Usage: oset <object> affect %s  <damtype> <amount>&w\r\n", a_types[loc] );
+            return;
+         }
+         if( !is_number( argument ) )
+         {
+            ch_printf( ch, "&PProper Usage: oset <object> affecet %s %s <amount>&w\r\n", a_types[loc], d_type[value] );
+            return;
+         }
+         value2 = atoi( argument );
+         if( value2 > 100 || value2 < -100 )
+         {
+            send_to_char( "Amount entered can only be between -100 and 100\r\n", ch );
+            return;
+         }
+         value = store_two_value( value, value2 );
       }
       else
       {

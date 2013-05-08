@@ -1593,7 +1593,8 @@ typedef enum
    APPLY_KICK, APPLY_PARRY, APPLY_BASH, APPLY_STUN, APPLY_PUNCH, APPLY_CLIMB,
    APPLY_GRIP, APPLY_SCRIBE, APPLY_BREW, APPLY_WEARSPELL, APPLY_REMOVESPELL,
    APPLY_EMOTION, APPLY_MENTALSTATE, APPLY_STRIPSN, APPLY_REMOVE, APPLY_DIG,
-   APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_DEFENSE, MAX_APPLY_TYPE
+   APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_DEFENSE, APPLY_RESISTANCE,
+   APPLY_PENETRATION, APPLY_DAMTYPEPOTENCY, MAX_APPLY_TYPE
 } apply_types;
 
 #define REVERSE_APPLY		   1000
@@ -4454,6 +4455,9 @@ void add_kill args( ( CHAR_DATA * ch, CHAR_DATA * mob ) );
 int times_killed args( ( CHAR_DATA * ch, CHAR_DATA * mob ) );
 void check_switches( bool possess );
 void check_switch( CHAR_DATA *ch, bool possess );
+int store_two_value( int v1, int v2 );
+int get_value_one( int value );
+int get_value_two( int value );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
