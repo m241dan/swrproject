@@ -1973,6 +1973,9 @@ struct mob_index_data
    short saving_spell_staff;
    int vip_flags;
    EXT_BV damtype;
+   short penetration[MAX_DAMTYPE];
+   short resistance[MAX_DAMTYPE];
+   short damtype_potency[MAX_DAMTYPE];
 };
 
 struct hunt_hate_fear

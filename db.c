@@ -2292,6 +2292,7 @@ void area_update( void )
 CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
 {
    CHAR_DATA *mob;
+   int x;
 
    if( !pMobIndex )
    {
@@ -2384,6 +2385,13 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->speaks = pMobIndex->speaks;
    mob->speaking = pMobIndex->speaking;
    mob->vip_flags = pMobIndex->vip_flags;
+
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+   {
+      mob->penetration[x] = pMobIndex->penetration[x];
+      mob->resistance[x] = pMobIndex->resistance[x];
+      mob->damtype_potency[x] = pMobIndex->damtype_potency[x];
+   }
 
    /*
     * Insert in list.
@@ -5122,7 +5130,7 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
 {
    MOB_INDEX_DATA *pMobIndex, *cMobIndex;
    char buf[MAX_STRING_LENGTH];
-   int iHash;
+   int iHash, x;
 
    if( cvnum > 0 )
       cMobIndex = get_mob_index( cvnum );
@@ -5182,6 +5190,12 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->numattacks = 1;
       pMobIndex->attacks = 0;
       pMobIndex->defenses = 0;
+      for( x = 0; x < MAX_DAMTYPE; x++ )
+      {
+         pMobIndex->penetration[x] = 0;
+         pMobIndex->resistance[x] = 0;
+         pMobIndex->damtype_potency[x] = 0;
+      }
    }
    else
    {
@@ -5226,6 +5240,12 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->numattacks = cMobIndex->numattacks;
       pMobIndex->attacks = cMobIndex->attacks;
       pMobIndex->defenses = cMobIndex->defenses;
+      for( x = 0; x < MAX_DAMTYPE; x++ )
+      {
+         pMobIndex->penetration[x] = cMobIndex->penetration[x];
+         pMobIndex->resistance[x] = cMobIndex->resistance[x];
+         pMobIndex->damtype_potency[x] = cMobIndex->damtype_potency[x];
+      }
    }
    iHash = vnum % MAX_KEY_HASH;
    pMobIndex->next = mob_index_hash[iHash];
@@ -6635,6 +6655,14 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
 
          case 'D':
             KEY( "Damtype", pMobIndex->damtype, fread_bitvector( fp ) );
+            if( !str_cmp( word, "DamtypePotency" ) )
+            {
+               int count;
+               for( count = 0; count < MAX_DAMTYPE; count++ )
+                  pMobIndex->damtype_potency[count] = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
             if( !str_cmp( word, "Defenses" ) )
             {
                const char *defenses = fread_flagstring( fp );
@@ -6710,6 +6738,13 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             break;
 
          case 'P':
+            if( !str_cmp( word, "Penetration" ) )
+            {
+               int count;
+               for( count = 0; count < MAX_DAMTYPE; count++ )
+                  pMobIndex->penetration[count] = fread_number( fp );
+               break;
+            }
             if( !str_cmp( word, "Position" ) )
             {
                short position = get_npc_position( fread_flagstring( fp ) );
@@ -6773,6 +6808,13 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                   else
                      SET_BIT( pMobIndex->resistant, 1 << value );
                }
+               break;
+            }
+            if( !str_cmp( word, "Resistance" ) )
+            {
+               int count;
+               for( count = 0; count < MAX_DAMTYPE; count++ )
+                  pMobIndex->resistance[count] = fread_number( fp );
                break;
             }
             break;
