@@ -66,7 +66,7 @@ void do_score( CHAR_DATA * ch, const char *argument )
 
    ch_printf( ch, "Hitroll: %-2.2d  Damroll: %-2.2d   Evasion: %-4d        Saved:  %s\r",
               GET_HITROLL( ch ), GET_DAMROLL( ch ), GET_EVASION( ch ), ch->save_time ? ctime( &( ch->save_time ) ) : "no\n" );
-   send_to_char( "Damtype:", ch );
+   ch_printf( ch, "Global AC: %-4d Damtype:", GET_ARMOR( ch ) );
    for( x = 0; x < MAX_DAMTYPE; x++ )
       if( xIS_SET( ch->damtype, x ) )
          ch_printf( ch, " %s,", d_type[x] );
@@ -375,8 +375,8 @@ const char *tiny_affect_loc_name( int location )
          return " EXP  ";
       case APPLY_EVASION:
          return " EV   ";
-      case APPLY_DEFENSE:
-         return " DEF  ";
+      case APPLY_ARMOR:
+         return " AMR  ";
       case APPLY_HITROLL:
          return " HITRL";
       case APPLY_DAMROLL:

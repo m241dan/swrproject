@@ -130,13 +130,13 @@ const char *const o_types[] = {
 const char *const a_types[] = {
    "none", "strength", "dexterity", "intelligence", "wisdom", "constitution",
    "sex", "null", "level", "age", "height", "weight", "force", "hit", "move",
-   "credits", "experience", "armor", "hitroll", "damroll", "save_poison", "save_rod",
+   "credits", "experience", "evasion", "hitroll", "damroll", "save_poison", "save_rod",
    "save_para", "save_breath", "save_spell", "charisma", "affected", "resistant",
    "immune", "susceptible", "weaponspell", "luck", "backstab", "pick", "track",
    "steal", "sneak", "hide", "palm", "detrap", "dodge", "peek", "scan", "gouge",
    "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
    "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate"
-   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "defense", "resistance",
+   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "armor", "resistance",
    "penetration", "damtype_potency", "agility"
 };
 

@@ -1593,8 +1593,8 @@ typedef enum
    APPLY_KICK, APPLY_PARRY, APPLY_BASH, APPLY_STUN, APPLY_PUNCH, APPLY_CLIMB,
    APPLY_GRIP, APPLY_SCRIBE, APPLY_BREW, APPLY_WEARSPELL, APPLY_REMOVESPELL,
    APPLY_EMOTION, APPLY_MENTALSTATE, APPLY_STRIPSN, APPLY_REMOVE, APPLY_DIG,
-   APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_DEFENSE, APPLY_RESISTANCE,
-   APPLY_PENETRATION, APPLY_DAMTYPEPOTENCY, APPLY_AGILITY, MAX_APPLY_TYPE
+   APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_ARMOR, APPLY_RESISTANCE,
+   APPLY_PENETRATION, APPLY_DAMTYPEPOTENCY, APPLY_AGI, MAX_APPLY_TYPE
 } apply_types;
 
 #define REVERSE_APPLY		   1000
@@ -2115,7 +2115,7 @@ struct char_data
    short defposition;
    short height;
    short weight;
-   short defense; //Global Armor Apply
+   short armor; //Global Armor Apply
    short evasion; //Chance to Evade
    short wimpy;
    int deaf;
@@ -3029,14 +3029,10 @@ void ext_toggle_bits args( ( EXT_BV * var, EXT_BV * bits ) );
 #define IS_NEUTRAL(ch)		(!IS_GOOD(ch) && !IS_EVIL(ch))
 
 #define IS_AWAKE(ch)		((ch)->position > POS_SLEEPING)
-#define GET_EVASION(ch)		( (ch)->evasion )
-#define GET_HITROLL(ch)		((ch)->hitroll				    \
-   +str_app[get_curr_str(ch)].tohit	    \
-   +(2-(abs((ch)->mental_state)/10)))
-#define GET_DAMROLL(ch)		((ch)->damroll                              \
-   +str_app[get_curr_str(ch)].todam	    \
-   +(((ch)->mental_state > 5		    \
-   &&(ch)->mental_state < 15) ? 1 : 0) )
+#define GET_EVASION(ch)		((ch)->evasion + evasion_from_agi((ch)) )
+#define GET_ARMOR(ch)           ((ch)->armor + armor_from_con((ch)) )
+#define GET_HITROLL(ch)		((ch)->hitroll + hitroll_from_dex((ch)) )
+#define GET_DAMROLL(ch)		((ch)->damroll + damroll_from_str((ch))  )
 
 #define IS_OUTSIDE(ch)		(!IS_SET(				    \
    (ch)->in_room->room_flags,		    \
@@ -4462,6 +4458,10 @@ void check_switch( CHAR_DATA *ch, bool possess );
 int store_two_value( int v1, int v2 );
 int get_value_one( int value );
 int get_value_two( int value );
+int evasion_from_agi( CHAR_DATA *ch );
+int armor_from_con( CHAR_DATA *ch );
+int hitroll_from_dex( CHAR_DATA *ch );
+int damroll_from_str( CHAR_DATA *ch );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

@@ -613,6 +613,9 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_CON:
          ch->mod_con += mod;
          break;
+      case APPLY_AGI:
+         ch->mod_agi += mod;
+         break;
       case APPLY_CHA:
          ch->mod_cha += mod;
          break;
@@ -651,8 +654,8 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_EVASION:
          ch->evasion += mod;
          break;
-      case APPLY_DEFENSE:
-         ch->defense += mod;
+      case APPLY_ARMOR:
+         ch->armor += mod;
          break;
       case APPLY_HITROLL:
          ch->hitroll += mod;
@@ -2536,8 +2539,8 @@ const char *affect_loc_name( int location )
          return "experience";
       case APPLY_EVASION:
          return "evasion";
-      case APPLY_DEFENSE:
-         return "defense";
+      case APPLY_ARMOR:
+         return "armor";
       case APPLY_HITROLL:
          return "hit roll";
       case APPLY_DAMROLL:
@@ -4017,3 +4020,79 @@ int get_value_two( int value )
    return ( value % 10000 );
 }
 
+/*
+ * A new way to get something from stats as opposed to stat tables. Allows for unlimited stats,
+ * also, I use a for loop to allow for diminishing returns at certain tiers of agi. -Davenge
+ */
+int evasion_from_agi( CHAR_DATA *ch )
+{
+   int agi, x;
+   double evasion;
+
+   agi = get_curr_agi( ch );
+   evasion = 0;
+
+   for( x = 0; x < agi; x++ )
+   {
+      if( x >= 0 )
+         evasion += 10;
+   }
+   return (int)( evasion * -1 );
+}
+
+/*
+ * Get Hitroll from dex, read previous comment regarding any other possible questions. -Davenge
+ */
+int hitroll_from_dex( CHAR_DATA *ch )
+{
+   int dex, x;
+   double hitroll;
+
+   dex = get_curr_dex( ch );
+   hitroll = 0;
+
+   for( x = 0; x < dex; x++ )
+   {
+      if( x >= 0 )
+         hitroll += .5;
+   }
+   return (int)hitroll;
+}
+
+/*
+ * Get Damroll... previous comment, etc -Davenge
+ */
+int damroll_from_str( CHAR_DATA *ch )
+{
+   int str, x;
+   double damroll;
+
+   str = get_curr_str( ch );
+   damroll = 0;
+
+   for( x = 0; x < str; x++ )
+   {
+      if( x >= 0 )
+         damroll += .5;
+   }
+   return (int)damroll;
+}
+
+/*
+ * Get Armor... -Davenge
+ */
+int armor_from_con( CHAR_DATA *ch )
+{
+   int con, x;
+   double armor;
+
+   con = get_curr_con( ch );
+   armor = 0;
+
+   for( x = 0; x < con; x++ )
+   {
+      if( x >= 0 )
+         armor += 10;
+   }
+   return (int)armor;
+}
