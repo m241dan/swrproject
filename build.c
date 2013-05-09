@@ -5929,10 +5929,10 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
             pMobIndex->height, pMobIndex->weight, pMobIndex->numattacks, pMobIndex->hitroll, pMobIndex->damroll );
    fprintf( fpout, "Damtype    %s\n", print_bitvector( &pMobIndex->damtype ) );
-   fprintf( fpout, "Attribs    %d %d %d %d %d %d %d %d\n",
+   fprintf( fpout, "Attribs    %d %d %d %d %d %d %d %d %d\n",
             pMobIndex->perm_str,
             pMobIndex->perm_int,
-            pMobIndex->perm_wis, pMobIndex->perm_dex, pMobIndex->perm_con, pMobIndex->perm_cha, pMobIndex->perm_lck, pMobIndex->perm_frc );
+            pMobIndex->perm_wis, pMobIndex->perm_dex, pMobIndex->perm_con, pMobIndex->perm_agi, pMobIndex->perm_cha, pMobIndex->perm_lck, pMobIndex->perm_frc );
    {
       int count;
       fprintf( fpout, "Resistance  " );

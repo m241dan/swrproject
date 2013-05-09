@@ -6622,19 +6622,20 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             if( !str_cmp( word, "Attribs" ) )
             {
                char *ln = fread_line( fp );
-               int x1, x2, x3, x4, x5, x6, x7, x8;
+               int x1, x2, x3, x4, x5, x6, x7, x8, x9;
 
                x1 = x2 = x3 = x4 = x5 = x6 = x7 = x8 = 0;
-               sscanf( ln, "%d %d %d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6, &x7, &x8 );
+               sscanf( ln, "%d %d %d %d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6, &x7, &x8, &x9 );
 
                pMobIndex->perm_str = x1;
                pMobIndex->perm_int = x2;
                pMobIndex->perm_wis = x3;
                pMobIndex->perm_dex = x4;
                pMobIndex->perm_con = x5;
-               pMobIndex->perm_cha = x6;
-               pMobIndex->perm_lck = x7;
-               pMobIndex->perm_frc = x8;
+               pMobIndex->perm_agi = x6;
+               pMobIndex->perm_cha = x7;
+               pMobIndex->perm_lck = x8;
+               pMobIndex->perm_frc = x9;
 
                break;
             }
