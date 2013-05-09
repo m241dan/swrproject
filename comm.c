@@ -2922,6 +2922,8 @@ void act( short AType, const char *format, CHAR_DATA * ch, const void *arg1, con
       if( ( !to->desc && ( IS_NPC( to ) && !IS_SET( to->pIndexData->progtypes, ACT_PROG ) ) ) || !IS_AWAKE( to ) )
          continue;
 
+      if( type == TO_GROUP )
+         break;
       if( type == TO_CHAR && to != ch )
          continue;
       if( type == TO_VICT && ( to != vch || to == ch ) )
@@ -2943,6 +2945,34 @@ void act( short AType, const char *format, CHAR_DATA * ch, const void *arg1, con
           * Note: use original string, not string with ANSI. -- Alty 
           */
          mprog_act_trigger( txt, to, ch, ( OBJ_DATA * ) arg1, ( void * )arg2 );
+      }
+   }
+   if( type == TO_GROUP )
+   {
+      GROUP_DATA *group;
+      int x;
+
+      group = ch->in_group;
+
+      for( x = 0; x < group->member_count; x++ )
+      {
+         to = group->members[x];
+         if( to == ch || to == vch )
+            continue;
+
+         txt = act_string( format, to, ch, arg1, arg2 );
+         if( to->desc )
+         {
+            set_char_color( AType, to );
+            send_to_char( txt, to );
+         }
+         if( MOBtrigger )
+         {
+            /*
+             * Note: use original string, not string with ANSI. -- Alty 
+             */
+            mprog_act_trigger( txt, to, ch, ( OBJ_DATA * ) arg1, ( void * )arg2 );
+         }
       }
    }
    MOBtrigger = TRUE;

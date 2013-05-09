@@ -4305,9 +4305,9 @@ void disband_group( GROUP_DATA *group )
 
 void group_invite( CHAR_DATA *leader, CHAR_DATA *invitee )
 {
-   invitee->group_invite = ch->in_group;
-   act( AT_ACTON, "You invite $N.", ch, NULL, victim, TO_CHAR );
-   act( AT_ACTION, "$n invites you to $s group.", ch, NULL, victim, TO_VICT );
+   invitee->group_invite = leader->in_group;
+   act( AT_ACTION, "You invite $N.", leader, NULL, invitee, TO_CHAR );
+   act( AT_ACTION, "$n invites you to $s group.", leader, NULL, invitee, TO_VICT );
    return;
 }
 
@@ -4340,7 +4340,7 @@ void group_leave( CHAR_DATA *ch )
    ch->in_group = NULL;
    group->member_count--;
    if( group->member_count == 0 )
-      group_disband( group );
+      disband_group( group );
 
    return;
 }
@@ -4356,7 +4356,6 @@ void group_invite_accept( CHAR_DATA *ch )
       send_to_char( "You can't join, group is full.\r\n", ch );
       return;
    }
-   group->member_count++;
    ch->in_group = ch->group_invite;
    ch->group_invite = NULL;
    group_add_member( ch, group );
@@ -4376,9 +4375,27 @@ void group_add_member( CHAR_DATA *ch, GROUP_DATA *group )
    {
       if( group->members[x] == NULL )
       {
+         group->member_count++;
          group->members[x] = ch;
          break;
       }
    }
+   return;
+}
 
+CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument )
+{
+   GROUP_DATA *group;
+   CHAR_DATA *member;
+   int x;
+
+   group = ch->in_group;
+
+   for( x = 0; x < group->member_count; x++ )
+   {
+      member = group->members[x];
+      if( !str_cmp( member->name, argument ) )
+         return member;
+   }
+   return NULL;
 }

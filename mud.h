@@ -594,6 +594,7 @@ struct frc_app_type
 #define TO_NOTVICT	    1
 #define TO_VICT		    2
 #define TO_CHAR		    3
+#define TO_GROUP            4
 
 #define INIT_WEAPON_CONDITION    12
 #define MAX_ITEM_IMPACT		 30
@@ -2174,14 +2175,14 @@ struct char_data
    GROUP_DATA *group_invite;
 };
 
+#define MAX_GROUP 6
+
 struct group_data
 {
    CHAR_DATA *leader;
    CHAR_DATA *members[MAX_GROUP];
    int member_count;
-}
-
-#define MAX_GROUP 6
+};
 
 struct killed_data
 {
@@ -4489,6 +4490,14 @@ int armor_from_con( CHAR_DATA *ch );
 int hitroll_from_dex( CHAR_DATA *ch );
 int damroll_from_str( CHAR_DATA *ch );
 void adjust_stat( CHAR_DATA *ch, int type, int mod );
+void create_group( CHAR_DATA *ch );
+void disband_group( GROUP_DATA *group );
+void group_invite( CHAR_DATA *leader, CHAR_DATA *invitee );
+void group_leave( CHAR_DATA *ch );
+void group_invite_accept( CHAR_DATA *ch );
+void group_add_member( CHAR_DATA *ch, GROUP_DATA *group );
+CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument );
+
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

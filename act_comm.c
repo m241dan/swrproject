@@ -1846,6 +1846,17 @@ void do_group( CHAR_DATA * ch, const char *argument )
       CHAR_DATA *gch;
       CHAR_DATA *leader;
 
+      if( !ch->in_group )
+      {
+         send_to_char( "You aren't in a group.\r\n", ch );
+         return;
+      }
+      if( ch->group_invite )
+      {
+         act( AT_PLAIN, "$N has invited you to $S group.", ch, NULL, ch->group_invite->leader, TO_CHAR );
+         return;
+      }
+
       leader = ch->leader ? ch->leader : ch;
       set_char_color( AT_GREEN, ch );
       ch_printf( ch, "%s's group:\r\n", PERS( leader, ch ) );
@@ -1876,7 +1887,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
 
 /* commands that require you to not have a group below this line. */
 
-   if( !str_cmp( arg, "create" )
+   if( !str_cmp( arg, "create" ) )
    {
       if( ch->in_group )
       {
@@ -1886,7 +1897,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
       create_group( ch );
    }
 
-   if( !str_cmp( arg, "accept" )
+   if( !str_cmp( arg, "accept" ) )
    {
       if( ch->in_group )
       {
@@ -1908,7 +1919,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !str_cmp( arg, "leave" )
+   if( !str_cmp( arg, "leave" ) )
       group_leave( ch );
 
    /* Sub Level, commands that require you to be the party leader */
@@ -1918,10 +1929,10 @@ void do_group( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !str_cmp( arg, "disband" )
-      disband_group( ch );
+   if( !str_cmp( arg, "disband" ) )
+      disband_group( ch->in_group );
 
-   if( !str_cmp( arg, "invite" )
+   if( !str_cmp( arg, "invite" ) )
    {
       argument = one_argument( argument, arg );
 
@@ -1943,6 +1954,20 @@ void do_group( CHAR_DATA * ch, const char *argument )
          return;
       }
       group_invite( ch, victim );
+   }
+   if( !str_cmp( arg, "kick" ) )
+   {
+      argument = one_argument( argument, arg );
+
+      if( ( victim = get_group_member( ch, arg ) ) == NULL )
+      {
+         send_to_char( "That person is not a member of your group.\r\n", ch );
+         return;
+      }
+
+      act( AT_ACTION, "You kick $N from the group!", ch, NULL, victim, TO_CHAR );
+      act( AT_ACTION, "$n kicks your from $s group!", ch, NULL, victim, TO_VICT );
+      act( AT_ACTION, "$n kicks $N from the group!", ch, NULL, victim, TO_GROUP );
    }
    return;
 }
