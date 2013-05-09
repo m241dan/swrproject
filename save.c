@@ -764,6 +764,8 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
    ch->mob_clan = STRALLOC( "" );
    ch->was_sentinel = NULL;
    ch->plr_home = NULL;
+   ch->in_group = NULL;
+   ch->group_invite = NULL;
    ch->pcdata->hotboot = FALSE;  /* Never changed except when PC is saved during hotboot save */
 #ifdef IMC
    imc_initchar( ch );

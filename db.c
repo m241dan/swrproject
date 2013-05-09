@@ -2334,6 +2334,8 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->was_sentinel = NULL;
    mob->plr_home = NULL;
    mob->guard_data = NULL;
+   mob->in_group = NULL;
+   mob->group_invite = NULL;
    xSET_BIT( mob->damtype, DAM_BLUNT );
 
    if( pMobIndex->evasion )
