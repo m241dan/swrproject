@@ -4100,19 +4100,19 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
       default:
          bug( "%s: Invalid type passed: %d", __FUNCTION__, type );
       case STAT_HIT:
-         ch->hit += amount;
+         ch->hit += UMIN( amount, ( ch->max_hit - ch->hit ) );
          break;
       case STAT_MAXHIT:
          ch->max_hit += amount;
          break;
       case STAT_MANA:
-         ch->mana += amount;
+         ch->mana += UMIN( amount, ( ch->max_mana - ch->mana ) );
          break;
       case STAT_MAXMANA:
          ch->max_mana += amount;
          break;
       case STAT_MOVE:
-         ch->move += amount;
+         ch->move += UMIN( amount, ( ch->max_move - ch->move ) );
          break;
       case STAT_MAXMOVE:
          ch->max_move += amount;
