@@ -4274,3 +4274,111 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
    }
 }
 
+void create_group( CHAR_DATA *ch )
+{
+   GROUP_DATA *group;
+
+   CREATE( group, GROUP_DATA, 1 );
+
+   group->leader = ch;
+   ch->in_group = group;
+
+   return;
+}
+
+void disband_group( GROUP_DATA *group )
+{
+   CHAR_DATA *member;
+   int x;
+
+   for( x = 0; x < MAX_GROUP; x++ )
+   {
+      member = group->members[x];
+      member->in_group = NULL;
+      group->members[x] = NULL;
+   }
+
+   group->leader = NULL;
+   DISPOSE( group );
+   return;
+}
+
+void group_invite( CHAR_DATA *leader, CHAR_DATA *invitee )
+{
+   invitee->group_invite = ch->in_group;
+   act( AT_ACTON, "You invite $N.", ch, NULL, victim, TO_CHAR );
+   act( AT_ACTION, "$n invites you to $s group.", ch, NULL, victim, TO_VICT );
+   return;
+}
+
+void group_leave( CHAR_DATA *ch )
+{
+   GROUP_DATA *group;
+   CHAR_DATA *member;
+   int x;
+
+   group = ch->in_group;
+
+   if( ch == group->leader )
+   {
+      for( x = 0; x < MAX_GROUP; x++ )
+      {
+         member = group->members[x];
+         if( member != ch )
+         {
+            group->leader = member;
+            break;
+         }
+      }
+   }
+   for( x = 0; x < MAX_GROUP; x++ )
+   {
+      member = group->members[x];
+      if( member == ch )
+         group->members[x] = NULL;
+   }
+   ch->in_group = NULL;
+   group->member_count--;
+   if( group->member_count == 0 )
+      group_disband( group );
+
+   return;
+}
+
+void group_invite_accept( CHAR_DATA *ch )
+{
+   GROUP_DATA *group;
+
+   group = ch->group_invite;
+
+   if( group->member_count >= MAX_GROUP )
+   {
+      send_to_char( "You can't join, group is full.\r\n", ch );
+      return;
+   }
+   group->member_count++;
+   ch->in_group = ch->group_invite;
+   ch->group_invite = NULL;
+   group_add_member( ch, group );
+   return;
+}
+
+void group_add_member( CHAR_DATA *ch, GROUP_DATA *group )
+{
+   int x;
+
+   if( group->member_count >= MAX_GROUP )
+   {
+      bug( "group_add_member, trying to add member to a group that's full.", 0 );
+      return;
+   }
+   for( x = 0; x < MAX_GROUP; x++ )
+   {
+      if( group->members[x] == NULL )
+      {
+         group->members[x] = ch;
+         break;
+      }
+   }
+
+}

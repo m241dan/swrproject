@@ -117,6 +117,7 @@ typedef struct killed_data KILLED_DATA;
 typedef struct wizent WIZENT;
 typedef struct specfun_list SPEC_LIST;
 typedef struct extended_bitvector EXT_BV;
+typedef struct group_data GROUP_DATA;
 /*
 * Function types.
 */
@@ -2169,7 +2170,18 @@ struct char_data
    short damtype_potency[MAX_DAMTYPE];
    short parry;
    short dodge;
+   GROUP_DATA *in_group;
+   GROUP_DATA *group_invite;
 };
+
+struct group_data
+{
+   CHAR_DATA *leader;
+   CHAR_DATA *members[MAX_GROUP];
+   int member_count;
+}
+
+#define MAX_GROUP 6
 
 struct killed_data
 {

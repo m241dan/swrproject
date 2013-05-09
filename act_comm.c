@@ -1874,91 +1874,76 @@ void do_group( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !strcmp( arg, "disband" ) )
-   {
-      CHAR_DATA *gch;
-      int count = 0;
+/* commands that require you to not have a group below this line. */
 
-      if( ch->leader || ch->master )
+   if( !str_cmp( arg, "create" )
+   {
+      if( ch->in_group )
       {
-         send_to_char( "You cannot disband a group if you're following someone.\r\n", ch );
+         send_to_char( "You are already in a group.\r\n", ch );
+         return;
+      }
+      create_group( ch );
+   }
+
+   if( !str_cmp( arg, "accept" )
+   {
+      if( ch->in_group )
+      {
+         send_to_char( "You are already in a group.\r\n", ch );
+         return;
+      }
+      if( !ch->group_invite )
+      {
+         send_to_char( "You have no pending invites.\r\n", ch );
+         return;
+      }
+      group_invite_accept( ch );
+   }
+
+/* commands that require you having a group already below this line */
+   if( !ch->in_group )
+   {
+      send_to_char( "You aren't in a group, try creating one?\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg, "leave" )
+      group_leave( ch );
+
+   /* Sub Level, commands that require you to be the party leader */
+   if( ch->in_group->leader != ch )
+   {
+      send_to_char( "You aren't the leader of the group!\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg, "disband" )
+      disband_group( ch );
+
+   if( !str_cmp( arg, "invite" )
+   {
+      argument = one_argument( argument, arg );
+
+      if( ch->in_group->member_count > MAX_GROUP )
+      {
+         send_to_char( "You're group is full.\r\n", ch );
          return;
       }
 
-      for( gch = first_char; gch; gch = gch->next )
+      if( ( victim = get_char_world( ch, arg ) ) == NULL )
       {
-         if( is_same_group( ch, gch ) && ( ch != gch ) )
-         {
-            gch->leader = NULL;
-            gch->master = NULL;
-            count++;
-            send_to_char( "Your group is disbanded.\r\n", gch );
-         }
+         send_to_char( "They aren't here.\r\n", ch );
+         return;
       }
 
-      if( count == 0 )
-         send_to_char( "You have no group members to disband.\r\n", ch );
-      else
-         send_to_char( "You disband your group.\r\n", ch );
-
-      return;
-   }
-
-   if( !strcmp( arg, "all" ) )
-   {
-      CHAR_DATA *rch;
-      int count = 0;
-
-      for( rch = ch->in_room->first_person; rch; rch = rch->next_in_room )
+      if( victim->group_invite )
       {
-         if( ch != rch && !IS_NPC( rch ) && rch->master == ch && !ch->master && !ch->leader && !is_same_group( rch, ch ) )
-         {
-            rch->leader = ch;
-            count++;
-         }
+         send_to_char( "They already have a group invite pending.\r\n", ch );
+         return;
       }
-
-      if( count == 0 )
-         send_to_char( "You have no eligible group members.\r\n", ch );
-      else
-      {
-         act( AT_ACTION, "$n groups $s followers.", ch, NULL, victim, TO_ROOM );
-         send_to_char( "You group your followers.\r\n", ch );
-      }
-      return;
+      group_invite( ch, victim );
    }
-
-   if( ( victim = get_char_room( ch, arg ) ) == NULL )
-   {
-      send_to_char( "They aren't here.\r\n", ch );
-      return;
-   }
-
-   if( ch->master || ( ch->leader && ch->leader != ch ) )
-   {
-      send_to_char( "But you are following someone else!\r\n", ch );
-      return;
-   }
-
-   if( victim->master != ch && ch != victim )
-   {
-      act( AT_PLAIN, "$N isn't following you.", ch, NULL, victim, TO_CHAR );
-      return;
-   }
-
-   if( is_same_group( victim, ch ) && ch != victim )
-   {
-      victim->leader = NULL;
-      act( AT_ACTION, "$n removes $N from $s group.", ch, NULL, victim, TO_NOTVICT );
-      act( AT_ACTION, "$n removes you from $s group.", ch, NULL, victim, TO_VICT );
-      act( AT_ACTION, "You remove $N from your group.", ch, NULL, victim, TO_CHAR );
-      return;
-   }
-
-   victim->leader = ch;
-   act( AT_ACTION, "$N joins $n's group.", ch, NULL, victim, TO_NOTVICT );
-   act( AT_ACTION, "You join $n's group.", ch, NULL, victim, TO_VICT );
-   act( AT_ACTION, "$N joins your group.", ch, NULL, victim, TO_CHAR );
    return;
 }
 
