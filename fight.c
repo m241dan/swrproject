@@ -1440,7 +1440,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
     * Hurt the victim.
     * Inform the victim of his new state.
     */
-   victim->hit -= dam;
+   adjust_stat( ch, STAT_HIT, -dam );
 
    /*
     * Get experience based on % of damage done       -Thoric

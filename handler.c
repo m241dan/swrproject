@@ -551,7 +551,7 @@ bool nifty_is_name_prefix( const char *str, const char *namelist )
 void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
 {
    OBJ_DATA *wield;
-   int mod, v1, v2;
+   int mod;
    struct skill_type *skill;
    ch_ret retcode;
 
@@ -599,28 +599,28 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_NONE:
          break;
       case APPLY_STR:
-         ch->mod_str += mod;
+         adjust_stat( ch, STAT_STRENGTH, mod );
          break;
       case APPLY_DEX:
-         ch->mod_dex += mod;
+         adjust_stat( ch, STAT_DEXTERITY, mod );
          break;
       case APPLY_INT:
-         ch->mod_int += mod;
+         adjust_stat( ch, STAT_INTELLIGENCE, mod );
          break;
       case APPLY_WIS:
-         ch->mod_wis += mod;
+         adjust_stat( ch, STAT_WISDOM, mod );
          break;
       case APPLY_CON:
-         ch->mod_con += mod;
+         adjust_stat( ch, STAT_CONSTITUTION, mod );
          break;
       case APPLY_AGI:
-         ch->mod_agi += mod;
+         adjust_stat( ch, STAT_AGILITY, mod );
          break;
       case APPLY_CHA:
-         ch->mod_cha += mod;
+         adjust_stat( ch, STAT_CHARISMA, mod );
          break;
       case APPLY_LCK:
-         ch->mod_lck += mod;
+         adjust_stat( ch, STAT_LUCK, mod );
          break;
       case APPLY_SEX:
          ch->sex = ( ch->sex + mod ) % 3;
@@ -639,29 +639,29 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
          ch->weight += mod;
          break;
       case APPLY_MANA:
-         ch->max_mana += mod;
+         adjust_stat( ch, STAT_MAXMANA, mod );
          break;
       case APPLY_HIT:
-         ch->max_hit += mod;
+         adjust_stat( ch, STAT_MAXHIT, mod );
          break;
       case APPLY_MOVE:
-         ch->max_move += mod;
+         adjust_stat( ch, STAT_MAXMOVE, mod );
          break;
       case APPLY_GOLD:
          break;
       case APPLY_EXP:
          break;
       case APPLY_EVASION:
-         ch->evasion += mod;
+         adjust_stat( ch, STAT_EVASION, mod );
          break;
       case APPLY_ARMOR:
-         ch->armor += mod;
+         adjust_stat( ch, STAT_ARMOR, mod );
          break;
       case APPLY_HITROLL:
-         ch->hitroll += mod;
+         adjust_stat( ch, STAT_HITROLL, mod );
          break;
       case APPLY_DAMROLL:
-         ch->damroll += mod;
+         adjust_stat( ch, STAT_DAMROLL, mod );
          break;
       case APPLY_SAVING_POISON:
          ch->saving_poison_death += mod;
@@ -691,19 +691,13 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
          SET_BIT( ch->susceptible, mod );
          break;
       case APPLY_RESISTANCE:
-         v1 = get_value_one( mod );
-         v2 = get_value_two( mod );
-         ch->resistance[v1] += v2;
+         adjust_stat( ch, STAT_RESISTANCE, mod );
          break;
       case APPLY_PENETRATION:
-         v1 = get_value_one( mod );
-         v2 = get_value_two( mod );
-         ch->penetration[v1] += v2;
+         adjust_stat( ch, STAT_PENETRATION, mod );
          break;
       case APPLY_DAMTYPEPOTENCY:
-         v1 = get_value_one( mod );
-         v2 = get_value_two( mod );
-         ch->damtype_potency[v1] += v2;
+         adjust_stat( ch, STAT_DAMTYPEPOTENCY, mod );
          break;
 
       case APPLY_WEAPONSPELL:   /* see fight.c */
@@ -4174,6 +4168,9 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
       case STAT_PERMAGI:
          ch->perm_agi += amount;
          break;
+      case STAT_PERMCHA:
+         ch->perm_cha += amount;
+         break;
       case STAT_STRENGTH:
          ch->mod_str += amount;
          break;
@@ -4192,6 +4189,12 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
       case STAT_AGILITY:
          ch->mod_agi += amount;
          break;
+      case STAT_CHARISMA:
+         ch->mod_cha += amount;
+         break;
+      case STAT_LUCK:
+         ch->mod_lck += amount;
+         break;
       case STAT_RESISTANCE:
          v1 = get_value_one( amount );
          v2 = get_value_two( amount );
@@ -4202,7 +4205,7 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
          v2 = get_value_two( amount );
          ch->penetration[v1] += v2;
          break;
-      case STAT_DTYPEPOTENCY:
+      case STAT_DAMTYPEPOTENCY:
          v1 = get_value_one( amount );
          v2 = get_value_two( amount );
          ch->damtype_potency[v1] += v2;
