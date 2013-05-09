@@ -3005,45 +3005,23 @@ void do_dismount( CHAR_DATA * ch, const char *argument )
 bool check_parry( CHAR_DATA * ch, CHAR_DATA * victim )
 {
    int chances;
-   OBJ_DATA *wield;
 
    if( !IS_AWAKE( victim ) )
       return FALSE;
 
-   if( IS_NPC( victim ) && !IS_SET( victim->defenses, DFND_PARRY ) )
-      return FALSE;
+   chances = ch->parry;
 
-   if( IS_NPC( victim ) )
-   {
-      /*
-       * Tuan was here.  :)   *** so was Durga :p *** 
-       */
-      chances = UMIN( 60, victim->skill_level[COMBAT_ABILITY] );
-   }
-   else
-   {
-      if( ( wield = get_eq_char( victim, WEAR_WIELD ) ) == NULL || ( wield->value[3] != WEAPON_LIGHTSABER ) )
-      {
-         if( ( wield = get_eq_char( victim, WEAR_DUAL_WIELD ) ) == NULL || ( wield->value[3] != WEAPON_LIGHTSABER ) )
-            return FALSE;
-      }
-      chances = ( int )( victim->pcdata->learned[gsn_parry] );
-   }
-
-   chances = URANGE( 10, chances, 90 );
+   chances = URANGE( 0, chances, 95 );
 
    if( number_range( 1, 100 ) > chances )
-   {
-      learn_from_failure( victim, gsn_parry );
       return FALSE;
-   }
+
    if( !IS_NPC( victim ) && !IS_SET( victim->pcdata->flags, PCFLAG_GAG ) )
        /*SB*/ act( AT_SKILL, "You parry $n's attack.", ch, NULL, victim, TO_VICT );
 
    if( !IS_NPC( ch ) && !IS_SET( ch->pcdata->flags, PCFLAG_GAG ) )   /* SB */
       act( AT_SKILL, "$N parries your attack.", ch, NULL, victim, TO_CHAR );
 
-   learn_from_success( victim, gsn_parry );
    return TRUE;
 }
 
@@ -3059,19 +3037,10 @@ bool check_dodge( CHAR_DATA * ch, CHAR_DATA * victim )
    if( !IS_AWAKE( victim ) )
       return FALSE;
 
-   if( IS_NPC( victim ) && !IS_SET( victim->defenses, DFND_DODGE ) )
-      return FALSE;
-
-   if( IS_NPC( victim ) )
-      chances = UMIN( 60, victim->top_level );
-   else
-      chances = ( int )( victim->pcdata->learned[gsn_dodge] / 2 );
+   chances = ch->dodge;
 
    if( number_range( 1, 100 ) > chances )
-   {
-      learn_from_failure( victim, gsn_dodge );
       return FALSE;
-   }
 
    if( !IS_NPC( victim ) && !IS_SET( victim->pcdata->flags, PCFLAG_GAG ) )
       act( AT_SKILL, "You dodge $n's attack.", ch, NULL, victim, TO_VICT );
@@ -3079,7 +3048,6 @@ bool check_dodge( CHAR_DATA * ch, CHAR_DATA * victim )
    if( !IS_NPC( ch ) && !IS_SET( ch->pcdata->flags, PCFLAG_GAG ) )
       act( AT_SKILL, "$N dodges your attack.", ch, NULL, victim, TO_CHAR );
 
-   learn_from_success( victim, gsn_dodge );
    return TRUE;
 }
 

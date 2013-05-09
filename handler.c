@@ -783,8 +783,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
             ch->pcdata->learned[gsn_detrap] = UMAX( 1, ch->pcdata->learned[gsn_detrap] + mod );
          break;
       case APPLY_DODGE:
-         if( !IS_NPC( ch ) && ch->pcdata->learned[gsn_dodge] > 0 )
-            ch->pcdata->learned[gsn_dodge] = UMAX( 1, ch->pcdata->learned[gsn_dodge] + mod );
+         adjust_stat( ch, STAT_DODGE, mod );
          break;
       case APPLY_PEEK:
          if( !IS_NPC( ch ) && ch->pcdata->learned[gsn_peek] > 0 )
@@ -819,8 +818,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
             ch->pcdata->learned[gsn_kick] = UMAX( 1, ch->pcdata->learned[gsn_kick] + mod );
          break;
       case APPLY_PARRY:
-         if( !IS_NPC( ch ) && ch->pcdata->learned[gsn_parry] > 0 )
-            ch->pcdata->learned[gsn_parry] = UMAX( 1, ch->pcdata->learned[gsn_parry] + mod );
+         adjust_stat( ch, STAT_PARRY, mod );
          break;
       case APPLY_BASH:
          if( !IS_NPC( ch ) && ch->pcdata->learned[gsn_bash] > 0 )
@@ -4242,13 +4240,13 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
          break;
       case STAT_CRITDAM:
          ch->crit_dam += amount;
-         break;
+         break; */
       case STAT_DODGE:
          ch->dodge += amount;
          break;
       case STAT_PARRY:
          ch->parry += amount;
-         break;
+         break; /*
       case STAT_COUNTER:
          ch->counter += amount;
          break;
