@@ -4391,9 +4391,10 @@ CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument )
 
    group = ch->in_group;
 
-   for( x = 0; x < group->member_count; x++ )
+   for( x = 0; x < MAX_GROUP; x++ )
    {
-      member = group->members[x];
+      if( ( member = group->members[x] ) == NULL )
+         continue;
       if( !str_cmp( member->name, argument ) )
          return member;
    }
