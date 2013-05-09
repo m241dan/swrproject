@@ -2013,14 +2013,6 @@ struct fighting_data
    short timeskilled;
 };
 
-struct editor_data
-{
-   short numlines;
-   short on_line;
-   short size;
-   char line[49][81];
-};
-
 struct extracted_char_data
 {
    EXTRACT_CHAR_DATA *next;
@@ -4068,7 +4060,9 @@ char *strip_cr( const char *str );
 #define VCHECK_OBJ 1
 #define VCHECK_MOB 2
 bool is_valid_vnum( int vnum, short type );
-void start_editing args( ( CHAR_DATA * ch, const char *data ) );
+#define start_editing( ch, data ) \
+        start_editing_nolimit( ch, data, MAX_STRING_LENGTH )
+void    start_editing_nolimit   args( ( CHAR_DATA *ch, char *data, int max_size ) );
 void stop_editing args( ( CHAR_DATA * ch ) );
 void edit_buffer args( ( CHAR_DATA * ch, char *argument ) );
 const char *copy_buffer( CHAR_DATA * ch );
@@ -4115,7 +4109,7 @@ int get_langnum_save( const char *flag );
 int get_secflag( const char *flag );
 int get_npc_position( const char *position );
 int get_npc_sex( const char *sex );
-
+void smush_tilde( char *str );
 
 /* clans.c */
 CL *get_clan( const char *name );

@@ -1039,7 +1039,7 @@ void do_description( CHAR_DATA * ch, const char *argument )
       case SUB_NONE:
          ch->substate = SUB_PERSONAL_DESC;
          ch->dest_buf = ch;
-         start_editing( ch, ch->description );
+         start_editing( ch, (char *)ch->description );
          return;
 
       case SUB_PERSONAL_DESC:
@@ -1078,7 +1078,7 @@ void do_bio( CHAR_DATA * ch, const char *argument )
       case SUB_NONE:
          ch->substate = SUB_PERSONAL_BIO;
          ch->dest_buf = ch;
-         start_editing( ch, ch->pcdata->bio );
+         start_editing( ch, (char *)ch->pcdata->bio );
          return;
 
       case SUB_PERSONAL_BIO:

@@ -760,116 +760,6 @@ void smush_tilde( char *str )
 }
 
 
-void start_editing( CHAR_DATA * ch, const char *data )
-{
-   EDITOR_DATA *edit;
-   short lines, size, lpos;
-   char c;
-
-   if( !ch->desc )
-   {
-      bug( "Fatal: start_editing: no desc", 0 );
-      return;
-   }
-   if( ch->substate == SUB_RESTRICTED )
-      bug( "NOT GOOD: start_editing: ch->substate == SUB_RESTRICTED", 0 );
-
-   set_char_color( AT_GREEN, ch );
-   send_to_char( "Begin entering your text (/? =help /s =save /c =clear /l =list /f =format)\r\n", ch );
-   send_to_char( "--------------------------------------------------------------------------\r\n> ", ch );
-   if( ch->editor )
-      stop_editing( ch );
-
-   CREATE( edit, EDITOR_DATA, 1 );
-   edit->numlines = 0;
-   edit->on_line = 0;
-   edit->size = 0;
-   size = 0;
-   lpos = 0;
-   lines = 0;
-   if( !data )
-      bug( "editor: data is NULL!\r\n", 0 );
-   else
-      for( ;; )
-      {
-         c = data[size++];
-         if( c == '\0' )
-         {
-            edit->line[lines][lpos] = '\0';
-            break;
-         }
-         else if( c == '\r' );
-         else if( c == '\n' || lpos > 78 )
-         {
-            edit->line[lines][lpos] = '\0';
-            lines++;
-            lpos = 0;
-         }
-         else
-            edit->line[lines][lpos++] = c;
-         if( lines >= 49 || size > 4096 )
-         {
-            edit->line[lines][lpos] = '\0';
-            break;
-         }
-      }
-   edit->numlines = lines;
-   edit->size = size;
-   edit->on_line = lines;
-   ch->editor = edit;
-   ch->desc->connected = CON_EDITING;
-}
-
-const char *copy_buffer( CHAR_DATA * ch )
-{
-   char buf[MAX_STRING_LENGTH];
-   char tmp[100];
-   short x, len;
-
-   if( !ch )
-   {
-      bug( "%s: null ch", __FUNCTION__ );
-      return STRALLOC( "" );
-   }
-
-   if( !ch->editor )
-   {
-      bug( "%s: null editor", __FUNCTION__ );
-      return STRALLOC( "" );
-   }
-
-   buf[0] = '\0';
-   for( x = 0; x < ch->editor->numlines; x++ )
-   {
-      strcpy( tmp, ch->editor->line[x] );
-      smush_tilde( tmp );
-      len = strlen( tmp );
-      if( tmp[len - 1] == '~' )
-         tmp[len - 1] = '\0';
-      else
-         strcat( tmp, "\n" );
-      strcat( buf, tmp );
-   }
-   return STRALLOC( buf );
-}
-
-void stop_editing( CHAR_DATA * ch )
-{
-   set_char_color( AT_PLAIN, ch );
-   DISPOSE( ch->editor );
-   ch->editor = NULL;
-   send_to_char( "Done.\r\n", ch );
-   ch->dest_buf = NULL;
-   ch->spare_ptr = NULL;
-   ch->substate = SUB_NONE;
-   if( !ch->desc )
-   {
-      bug( "Fatal: stop_editing: no desc", 0 );
-      return;
-   }
-   ch->desc->connected = CON_PLAYING;
-}
-
 void do_goto( CHAR_DATA * ch, const char *argument )
 {
    char arg[MAX_INPUT_LENGTH];
@@ -2070,7 +1960,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          ch->tempnum = SUB_NONE;
       ch->substate = SUB_MOB_DESC;
       ch->dest_buf = victim;
-      start_editing( ch, victim->description );
+      start_editing( ch, (char *)victim->description );
       return;
    }
 
@@ -3496,7 +3386,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          ch->spare_ptr = NULL;
       ch->substate = SUB_OBJ_LONG;
       ch->dest_buf = obj;
-      start_editing( ch, obj->description );
+      start_editing( ch, (char *)obj->description );
       return;
    }
 
@@ -3709,7 +3599,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          ch->spare_ptr = NULL;
       ch->substate = SUB_OBJ_EXTRA;
       ch->dest_buf = ed;
-      start_editing( ch, ed->description );
+      start_editing( ch, (char *)ed->description );
       return;
    }
 
@@ -3740,7 +3630,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          ch->spare_ptr = NULL;
       ch->substate = SUB_OBJ_EXTRA;
       ch->dest_buf = ed;
-      start_editing( ch, ed->description );
+      start_editing( ch, (char *)ed->description );
       return;
    }
 
@@ -4306,7 +4196,7 @@ void do_redit( CHAR_DATA * ch, const char *argument )
          ch->tempnum = SUB_NONE;
       ch->substate = SUB_ROOM_DESC;
       ch->dest_buf = location;
-      start_editing( ch, location->description );
+      start_editing( ch, (char *)location->description );
       return;
    }
 
@@ -4339,7 +4229,7 @@ void do_redit( CHAR_DATA * ch, const char *argument )
          ch->tempnum = SUB_NONE;
       ch->substate = SUB_ROOM_EXTRA;
       ch->dest_buf = ed;
-      start_editing( ch, ed->description );
+      start_editing( ch, (char *)ed->description );
       return;
    }
 
@@ -5010,344 +4900,6 @@ void do_mcreate( CHAR_DATA * ch, const char *argument )
    char_to_room( mob, ch->in_room );
    act( AT_IMMORT, "$n waves $s arms about, and $N appears at $s command!", ch, NULL, mob, TO_ROOM );
    act( AT_IMMORT, "You wave your arms about, and $N appears at your command!", ch, NULL, mob, TO_CHAR );
-}
-
-
-/*
- * Simple but nice and handle line editor.			-Thoric
- */
-void edit_buffer( CHAR_DATA * ch, char *argument )
-{
-   DESCRIPTOR_DATA *d;
-   EDITOR_DATA *edit;
-   char cmd[MAX_INPUT_LENGTH];
-   char buf[MAX_INPUT_LENGTH];
-   const int max_buf_lines = 60;
-   short x, line;
-   bool save;
-
-   if( ( d = ch->desc ) == NULL )
-   {
-      send_to_char( "You have no descriptor.\r\n", ch );
-      return;
-   }
-
-   if( d->connected != CON_EDITING )
-   {
-      send_to_char( "You can't do that!\r\n", ch );
-      bug( "%s: d->connected != CON_EDITING", __FUNCTION__ );
-      return;
-   }
-
-   if( ch->substate <= SUB_PAUSE )
-   {
-      send_to_char( "You can't do that!\r\n", ch );
-      bug( "%s: illegal ch->substate (%d)", __FUNCTION__, ch->substate );
-      d->connected = CON_PLAYING;
-      return;
-   }
-
-   if( !ch->editor )
-   {
-      send_to_char( "You can't do that!\r\n", ch );
-      bug( "%s: null editor", __FUNCTION__ );
-      d->connected = CON_PLAYING;
-      return;
-   }
-
-   edit = ch->editor;
-   save = FALSE;
-
-   if( argument[0] == '/' || argument[0] == '\\' )
-   {
-      one_argument( argument, cmd );
-
-      if( !str_cmp( cmd + 1, "?" ) )
-      {
-         send_to_char( "Editing commands\r\n---------------------------------\r\n", ch );
-         send_to_char( "/l              list buffer\r\n", ch );
-         send_to_char( "/c              clear buffer\r\n", ch );
-         send_to_char( "/d [line]       delete line\r\n", ch );
-         send_to_char( "/g <line>       goto line\r\n", ch );
-         send_to_char( "/i <line>       insert line\r\n", ch );
-         send_to_char( "/f <format>     format text in buffer\r\n", ch );
-         send_to_char( "/r <old> <new>  global replace\r\n", ch );
-         send_to_char( "/a              abort editing\r\n", ch );
-         if( get_trust( ch ) > LEVEL_IMMORTAL )
-            send_to_char( "/! <command>    execute command (do not use another editing command)\r\n", ch );
-         send_to_char( "/s              save buffer\r\n\r\n> ", ch );
-         return;
-      }
-
-      if( !str_cmp( cmd + 1, "c" ) )
-      {
-         memset( edit, '\0', sizeof( EDITOR_DATA ) );
-         edit->numlines = 0;
-         edit->on_line = 0;
-         send_to_char( "Buffer cleared.\r\n> ", ch );
-         return;
-      }
-
-      if( !str_cmp( cmd + 1, "r" ) )
-      {
-         char word1[MAX_INPUT_LENGTH];
-         char word2[MAX_INPUT_LENGTH];
-         const char *sptr;
-         char *wptr, *lwptr;
-         int count, wordln, word2ln, lineln;
-
-         sptr = one_argument( argument, word1 );
-         sptr = one_argument( sptr, word1 );
-         sptr = one_argument( sptr, word2 );
-         if( word1[0] == '\0' || word2[0] == '\0' )
-         {
-            send_to_char( "Need word to replace, and replacement.\r\n> ", ch );
-            return;
-         }
-         if( strcmp( word1, word2 ) == 0 )
-         {
-            send_to_char( "Done.\r\n> ", ch );
-            return;
-         }
-         count = 0;
-         wordln = strlen( word1 );
-         word2ln = strlen( word2 );
-         ch_printf( ch, "Replacing all occurrences of %s with %s...\r\n", word1, word2 );
-         for( x = 0; x < edit->numlines; x++ )
-         {
-            lwptr = edit->line[x];
-            while( ( wptr = strstr( lwptr, word1 ) ) != NULL )
-            {
-               ++count;
-               lineln = snprintf( buf, MAX_INPUT_LENGTH, "%s%s", word2, wptr + wordln );
-               if( lineln + wptr - edit->line[x] > 79 )
-                  buf[lineln] = '\0';
-               mudstrlcpy( wptr, buf, MAX_STRING_LENGTH );
-               lwptr = wptr + word2ln;
-            }
-         }
-         ch_printf( ch, "Found and replaced %d occurrence(s).\r\n> ", count );
-         return;
-      }
-
-      /*
-       * added format command - shogar 
-       *
-       * This has been redone to be more efficient, and to make format
-       * start at beginning of buffer, not whatever line you happened
-       * to be on, at the time.   
-       */
-      if( !str_cmp( cmd + 1, "f" ) )
-      {
-         char temp_buf[MAX_STRING_LENGTH + max_buf_lines];
-         int ep, old_p, end_mark;
-         int p = 0;
-
-         pager_printf( ch, "Reformating...\r\n" );
-
-         for( x = 0; x < edit->numlines; x++ )
-         {
-            strncpy( temp_buf + p, edit->line[x], MAX_STRING_LENGTH + max_buf_lines - p );
-            p += strlen( edit->line[x] );
-            temp_buf[p] = ' ';
-            p++;
-         }
-
-         temp_buf[p] = '\0';
-         end_mark = p;
-         p = 75;
-         old_p = 0;
-         edit->on_line = 0;
-         edit->numlines = 0;
-
-         while( old_p < end_mark )
-         {
-            while( temp_buf[p] != ' ' && p > old_p )
-               p--;
-
-            if( p == old_p )
-               p += 75;
-
-            if( p > end_mark )
-               p = end_mark;
-
-            ep = 0;
-            for( x = old_p; x < p; x++ )
-            {
-               edit->line[edit->on_line][ep] = temp_buf[x];
-               ep++;
-            }
-            edit->line[edit->on_line][ep] = '\0';
-
-            edit->on_line++;
-            edit->numlines++;
-
-            old_p = p + 1;
-            p += 75;
-
-         }
-         pager_printf( ch, "Reformating done.\r\n> " );
-         return;
-      }
-
-      if( !str_cmp( cmd + 1, "i" ) )
-      {
-         if( edit->numlines >= max_buf_lines )
-            send_to_char( "Buffer is full.\r\n> ", ch );
-         else
-         {
-            if( argument[2] == ' ' )
-               line = atoi( argument + 2 ) - 1;
-            else
-               line = edit->on_line;
-            if( line < 0 )
-               line = edit->on_line;
-            if( line < 0 || line > edit->numlines )
-               send_to_char( "Out of range.\r\n> ", ch );
-            else
-            {
-               for( x = ++edit->numlines; x > line; x-- )
-                  mudstrlcpy( edit->line[x], edit->line[x - 1], MAX_STRING_LENGTH );
-               mudstrlcpy( edit->line[line], "", MAX_STRING_LENGTH );
-               send_to_char( "Line inserted.\r\n> ", ch );
-            }
-         }
-         return;
-      }
-      if( !str_cmp( cmd + 1, "d" ) )
-      {
-         if( edit->numlines == 0 )
-            send_to_char( "Buffer is empty.\r\n> ", ch );
-         else
-         {
-            if( argument[2] == ' ' )
-               line = atoi( argument + 2 ) - 1;
-            else
-               line = edit->on_line;
-            if( line < 0 )
-               line = edit->on_line;
-            if( line < 0 || line > edit->numlines )
-               send_to_char( "Out of range.\r\n> ", ch );
-            else
-            {
-               if( line == 0 && edit->numlines == 1 )
-               {
-                  memset( edit, '\0', sizeof( EDITOR_DATA ) );
-                  edit->numlines = 0;
-                  edit->on_line = 0;
-                  send_to_char( "Line deleted.\r\n> ", ch );
-                  return;
-               }
-               for( x = line; x < ( edit->numlines - 1 ); x++ )
-                  mudstrlcpy( edit->line[x], edit->line[x + 1], MAX_STRING_LENGTH );
-               mudstrlcpy( edit->line[edit->numlines--], "", MAX_STRING_LENGTH );
-               if( edit->on_line > edit->numlines )
-                  edit->on_line = edit->numlines;
-               send_to_char( "Line deleted.\r\n> ", ch );
-            }
-         }
-         return;
-      }
-      if( !str_cmp( cmd + 1, "g" ) )
-      {
-         if( edit->numlines == 0 )
-            send_to_char( "Buffer is empty.\r\n> ", ch );
-         else
-         {
-            if( argument[2] == ' ' )
-               line = atoi( argument + 2 ) - 1;
-            else
-            {
-               send_to_char( "Goto what line?\r\n> ", ch );
-               return;
-            }
-            if( line < 0 )
-               line = edit->on_line;
-            if( line < 0 || line > edit->numlines )
-               send_to_char( "Out of range.\r\n> ", ch );
-            else
-            {
-               edit->on_line = line;
-               ch_printf( ch, "(On line %d)\r\n> ", line + 1 );
-            }
-         }
-         return;
-      }
-      if( !str_cmp( cmd + 1, "l" ) )
-      {
-         if( edit->numlines == 0 )
-            send_to_char( "Buffer is empty.\r\n> ", ch );
-         else
-         {
-            send_to_char( "------------------\r\n", ch );
-            for( x = 0; x < edit->numlines; x++ )
-               ch_printf( ch, "%2d> %s\r\n", x + 1, edit->line[x] );
-            send_to_char( "------------------\r\n> ", ch );
-         }
-         return;
-      }
-      if( !str_cmp( cmd + 1, "a" ) )
-      {
-         send_to_char( "\r\nAborting... ", ch );
-         stop_editing( ch );
-         return;
-      }
-      if( get_trust( ch ) > LEVEL_IMMORTAL && !str_cmp( cmd + 1, "!" ) )
-      {
-         DO_FUN *last_cmd;
-         int substate = ch->substate;
-
-         last_cmd = ch->last_cmd;
-         ch->substate = SUB_RESTRICTED;
-         interpret( ch, argument + 3 );
-         ch->substate = substate;
-         ch->last_cmd = last_cmd;
-         set_char_color( AT_GREEN, ch );
-         send_to_char( "\r\n> ", ch );
-         return;
-      }
-      if( !str_cmp( cmd + 1, "s" ) )
-      {
-         d->connected = CON_PLAYING;
-         if( !ch->last_cmd )
-            return;
-         ( *ch->last_cmd ) ( ch, "" );
-         return;
-      }
-   }
-
-   if( edit->size + strlen( argument ) + 1 >= MAX_STRING_LENGTH - 1 )
-      send_to_char( "You buffer is full.\r\n", ch );
-   else
-   {
-      if( strlen( argument ) > 79 )
-      {
-         strncpy( buf, argument, 79 );
-         buf[79] = 0;
-         send_to_char( "(Long line trimmed)\r\n> ", ch );
-      }
-      else
-         mudstrlcpy( buf, argument, MAX_INPUT_LENGTH );
-      mudstrlcpy( edit->line[edit->on_line++], buf, MAX_STRING_LENGTH );
-      if( edit->on_line > edit->numlines )
-         edit->numlines++;
-      if( edit->numlines > max_buf_lines )
-      {
-         edit->numlines = max_buf_lines;
-         send_to_char( "Buffer full.\r\n", ch );
-         save = TRUE;
-      }
-   }
-
-   if( save )
-   {
-      d->connected = CON_PLAYING;
-      if( !ch->last_cmd )
-         return;
-      ( *ch->last_cmd ) ( ch, "" );
-      return;
-   }
-   send_to_char( "> ", ch );
 }
 
 void assign_area( CHAR_DATA * ch )
@@ -7419,7 +6971,7 @@ void mpedit( CHAR_DATA * ch, MPROG_DATA * mprg, int mptype,
    ch->dest_buf = mprg;
    if( !mprg->comlist )
       mprg->comlist = STRALLOC( "" );
-   start_editing( ch, mprg->comlist );
+   start_editing( ch, (char *)mprg->comlist );
    return;
 }
 
@@ -8004,7 +7556,7 @@ void rpedit( CHAR_DATA * ch, MPROG_DATA * mprg, int mptype,
    ch->dest_buf = mprg;
    if( !mprg->comlist )
       mprg->comlist = STRALLOC( "" );
-   start_editing( ch, mprg->comlist );
+   start_editing( ch, (char *)mprg->comlist );
    return;
 }
 

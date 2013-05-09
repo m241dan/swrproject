@@ -282,7 +282,7 @@ void do_comment( CHAR_DATA * ch, const char *argument )
       note_attach( ch );
       ch->substate = SUB_WRITING_NOTE;
       ch->dest_buf = ch->pnote;
-      start_editing( ch, ch->pnote->text );
+      start_editing( ch, (char *)ch->pnote->text );
       return;
    }
 

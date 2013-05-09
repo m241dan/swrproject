@@ -748,7 +748,7 @@ void do_note( CHAR_DATA * ch, const char *arg_passed, bool IS_MAIL )
          ch->dest_buf = ed;
          if( get_trust( ch ) < sysdata.write_mail_free )
             --quill->value[0];
-         start_editing( ch, ed->description );
+         start_editing( ch, (char *)ed->description );
          return;
       }
       else
