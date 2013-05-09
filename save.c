@@ -369,6 +369,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    for( count = 0; count < MAX_DAMTYPE; count++ )
       fprintf( fp, " %d", ch->damtype_potency[count] );
    fprintf( fp, "\n" );
+   fprintf( fp, "Threat       %d\n", ch->threat );
    if( ch->wimpy )
       fprintf( fp, "Wimpy        %d\n", ch->wimpy );
    if( ch->deaf )
@@ -1577,6 +1578,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             break;
 
          case 'T':
+            KEY( "Threat", ch->threat, fread_number( fp ) );
             KEY( "Toplevel", ch->top_level, fread_number( fp ) );
             if( !str_cmp( word, "Tongue" ) )
             {

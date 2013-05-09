@@ -137,7 +137,7 @@ const char *const a_types[] = {
    "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
    "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate"
    "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "armor", "resistance",
-   "penetration", "damtype_potency", "agility"
+   "penetration", "damtype_potency", "agility", "threat"
 };
 
 const char *const a_flags[] = {

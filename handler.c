@@ -699,6 +699,9 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_DAMTYPEPOTENCY:
          adjust_stat( ch, STAT_DAMTYPEPOTENCY, mod );
          break;
+      case APPLY_THREAT:
+         adjust_stat( ch, STAT_THREAT, mod );
+         break;
 
       case APPLY_WEAPONSPELL:   /* see fight.c */
          break;
@@ -4144,10 +4147,10 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
          break;
       case STAT_HASTEFROMMAGIC:
          ch->haste_from_magic += amount;
-         break;
+         break;*/
       case STAT_THREAT:
          ch->threat += amount;
-         break;*/
+         break;
       case STAT_PERMSTR:
          ch->perm_str += amount;
          break;
