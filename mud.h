@@ -1594,7 +1594,7 @@ typedef enum
    APPLY_GRIP, APPLY_SCRIBE, APPLY_BREW, APPLY_WEARSPELL, APPLY_REMOVESPELL,
    APPLY_EMOTION, APPLY_MENTALSTATE, APPLY_STRIPSN, APPLY_REMOVE, APPLY_DIG,
    APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_DEFENSE, APPLY_RESISTANCE,
-   APPLY_PENETRATION, APPLY_DAMTYPEPOTENCY, MAX_APPLY_TYPE
+   APPLY_PENETRATION, APPLY_DAMTYPEPOTENCY, APPLY_AGILITY, MAX_APPLY_TYPE
 } apply_types;
 
 #define REVERSE_APPLY		   1000
@@ -2126,6 +2126,7 @@ struct char_data
    short perm_cha;
    short perm_lck;
    short perm_frc;
+   short perm_agi;
    short mod_str;
    short mod_int;
    short mod_wis;
@@ -2134,6 +2135,7 @@ struct char_data
    short mod_cha;
    short mod_lck;
    short mod_frc;
+   short mod_agi;
    short mental_state;  /* simplified */
    short emotional_state;  /* simplified */
    int retran;

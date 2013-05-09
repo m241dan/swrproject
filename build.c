@@ -137,7 +137,7 @@ const char *const a_types[] = {
    "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
    "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate"
    "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "defense", "resistance",
-   "penetration", "damtype_potency"
+   "penetration", "damtype_potency", "agility"
 };
 
 const char *const a_flags[] = {
@@ -1137,7 +1137,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          send_to_char( "Syntax: mset <victim> <field>  <value>\r\n", ch );
       send_to_char( "\r\n", ch );
       send_to_char( "Field being one of:\r\n", ch );
-      send_to_char( "  str int wis dex con cha lck frc sex\r\n", ch );
+      send_to_char( "  str int wis dex con agi cha lck frc sex\r\n", ch );
       send_to_char( "  credits hp force move align race\r\n", ch );
       send_to_char( "  hitroll damroll armor affected level\r\n", ch );
       send_to_char( "  thirst drunk full blood flags\r\n", ch );
@@ -1191,13 +1191,13 @@ void do_mset( CHAR_DATA * ch, const char *argument )
 
    if( IS_NPC( victim ) )
    {
-      minattr = 1;
-      maxattr = 25;
+      minattr = -9999;
+      maxattr = 9999;
    }
    else
    {
-      minattr = 3;
-      maxattr = 18;
+      minattr = -9999;
+      maxattr = 9999;
    }
 
    if( !str_cmp( arg2, "on" ) )
@@ -1297,6 +1297,21 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       victim->perm_con = value;
       if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
          victim->pIndexData->perm_con = value;
+      return;
+   }
+
+   if( !str_cmp( arg2, "agi" ) )
+   {
+      if( !can_mmodify( ch, victim ) )
+         return;
+      if( value < minattr || value > maxattr )
+      {
+         ch_printf( ch, "Constitution range is %d to %d.\r\n", minattr, maxattr );
+         return;
+      }
+      victim->perm_agi = value;
+      if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
+         victim->pIndexData->perm_agi = value;
       return;
    }
 
