@@ -354,6 +354,8 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "Damroll      %d\n", ch->damroll );
    fprintf( fp, "Evasion      %d\n", ch->evasion );
    fprintf( fp, "Armor        %d\n", ch->armor );
+   fprintf( fp, "Dodge        %d\n", ch->dodge );
+   fprintf( fp, "Parry        %d\n", ch->parry );
    fprintf( fp, "Damtype      %s\n", print_bitvector( &ch->damtype ) );
    fprintf( fp, "Resistance  " );
    for( count = 0; count < MAX_DAMTYPE; count++ )
@@ -1155,6 +1157,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                fMatch = TRUE;
                break;
             }
+            KEY( "Dodge", ch->dodge, fread_number( fp ) );
             break;
 
             /*
@@ -1334,6 +1337,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
          case 'P':
             KEY( "Pagerlen", ch->pcdata->pagerlen, fread_number( fp ) );
             KEY( "Password", ch->pcdata->pwd, fread_string_nohash( fp ) );
+            KEY( "Parry", ch->parry, fread_number( fp ) );
             KEY( "PDeaths", ch->pcdata->pdeaths, fread_number( fp ) );
             if( !str_cmp( word, "Penetration" ) )
             {

@@ -1994,6 +1994,8 @@ struct mob_index_data
    short penetration[MAX_DAMTYPE];
    short resistance[MAX_DAMTYPE];
    short damtype_potency[MAX_DAMTYPE];
+   short dodge;
+   short parry;
 };
 
 struct hunt_hate_fear
@@ -2173,6 +2175,8 @@ struct char_data
    short penetration[MAX_DAMTYPE];
    short resistance[MAX_DAMTYPE];
    short damtype_potency[MAX_DAMTYPE];
+   short parry;
+   short dodge;
 };
 
 struct killed_data

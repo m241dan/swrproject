@@ -5928,6 +5928,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    fprintf( fpout, "Stats3     %d %d %d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
             pMobIndex->height, pMobIndex->weight, pMobIndex->numattacks, pMobIndex->hitroll, pMobIndex->damroll );
+   fprintf( fpout, "Stats5     %d %d\n", pMobIndex->dodge, pMobIndex->parry );
    fprintf( fpout, "Damtype    %s\n", print_bitvector( &pMobIndex->damtype ) );
    fprintf( fpout, "Attribs    %d %d %d %d %d %d %d %d %d\n",
             pMobIndex->perm_str,

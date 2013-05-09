@@ -7006,6 +7006,16 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                break;
             }
 
+            if( !str_cmp( word, "Stats5 " ) )
+            {
+               char *ln = fread_line( fp );
+               int x1, x2;
+               sscanf( ln, "%d %d", &x1, &x2 );
+               pMobIndex->dodge = x1;
+               pMobIndex->parry = x2;
+               break;
+            }
+
             if( !str_cmp( word, "Suscept" ) )
             {
                const char *suscep = fread_flagstring( fp );
