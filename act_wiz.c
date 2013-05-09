@@ -1328,6 +1328,13 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Susceptible: %s\r\n", flag_string( victim->susceptible, ris_flags ) );
    ch_printf( ch, "Attacks    : %s\r\n", flag_string( victim->attacks, attack_flags ) );
    ch_printf( ch, "Defenses   : %s\r\n", flag_string( victim->defenses, defense_flags ) );
+   if( IS_NPC( victim ) )
+   {
+      LOOT_DATA *loot;
+
+      for( loot = victim->pIndexData->first_loot; loot; loot = loot->next )
+         ch_printf( ch, "&cLoot: Vnum &w%d &cPercent &w%d &cAmount &w%d\r\n", loot->vnum, loot->percent, loot->amount );
+   }
    for( paf = victim->first_affect; paf; paf = paf->next )
       if( ( skill = get_skilltype( paf->type ) ) != NULL )
          ch_printf( ch,

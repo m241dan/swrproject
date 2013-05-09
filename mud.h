@@ -118,6 +118,8 @@ typedef struct wizent WIZENT;
 typedef struct specfun_list SPEC_LIST;
 typedef struct extended_bitvector EXT_BV;
 typedef struct group_data GROUP_DATA;
+typedef struct loot_data LOOT_DATA;
+
 /*
 * Function types.
 */
@@ -1998,6 +2000,17 @@ struct mob_index_data
    short damtype_potency[MAX_DAMTYPE];
    short dodge;
    short parry;
+   LOOT_DATA *first_loot;
+   LOOT_DATA *last_loot;
+};
+
+struct loot_data
+{
+   LOOT_DATA *next;
+   LOOT_DATA *prev;
+   int vnum;
+   int percent;
+   int amount;
 };
 
 struct hunt_hate_fear
@@ -4123,6 +4136,7 @@ int get_secflag( const char *flag );
 int get_npc_position( const char *position );
 int get_npc_sex( const char *sex );
 void smush_tilde( char *str );
+void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot );
 
 /* clans.c */
 CL *get_clan( const char *name );

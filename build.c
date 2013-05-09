@@ -1250,6 +1250,75 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "addloot" ) )
+   {
+      LOOT_DATA *loot;
+      int percent;
+      int amount;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on players.\r\n", ch );
+         return;
+      }
+
+       argument = one_argument( argument, arg3 );
+       value = atoi( arg3 );
+       argument = one_argument( argument, arg3 );
+       percent = atoi( arg3 );
+       amount = atoi( argument );
+
+      if( value == 0 || percent == 0 || amount == 0 )
+      {
+         send_to_char( "Proper usage: mset <mob> loot <vnum> <percent> <amount>\r\n", ch );
+         return;
+      }
+
+      CREATE( loot, LOOT_DATA, 1 );
+      loot->vnum = value;
+      loot->percent = percent;
+      loot->amount = amount;
+      LINK( loot, victim->pIndexData->first_loot, victim->pIndexData->last_loot, next, prev );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+
+   }
+
+   if( !str_cmp( arg2, "remloot" ) )
+   {
+      LOOT_DATA *loot;
+      bool found = FALSE;
+      int count = 0;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( value == 0 )
+      {
+         send_to_char( "Propse usage: mset <mob> remloot <slot>\r\n", ch );
+         return;
+      }
+
+      for( loot = victim->pIndexData->first_loot; loot; loot = loot->next )
+         if( ++count == value )
+         {
+            found = TRUE;
+            break;
+         }
+
+      if( found )
+      {
+         UNLINK( loot, victim->pIndexData->first_loot, victim->pIndexData->last_loot, next, prev );
+         DISPOSE( loot );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      send_to_char( "No loot at that slot to remove.\r\n", ch );
+      return;
+   }
 
    if( !str_cmp( arg2, "penetration" ) )
    {
@@ -5544,7 +5613,24 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
       for( mprog = pMobIndex->mudprogs; mprog; mprog = mprog->next )
          mprog_write_prog( fpout, mprog );
    }
+   if( pMobIndex->first_loot )
+   {
+      LOOT_DATA *loot;
+
+      for( loot = pMobIndex->first_loot; loot; loot = loot->next )
+         fwrite_loot_data( fpout, loot );
+   }
    fprintf( fpout, "%s", "#ENDMOBILE\n\n" );
+}
+
+void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot )
+{
+   fprintf( fpout, "%s", "#LOOTDATA\n\n" );
+   fprintf( fpout, "Vnum        %d\n", loot->vnum );
+   fprintf( fpout, "Percent     %d\n", loot->percent );
+   fprintf( fpout, "Amount      %d\n", loot->amount );
+   fprintf( fpout, "%s", "#ENDLOOTDATA\n\n" );
+   return;
 }
 
 void fwrite_area_header( FILE * fpout, AREA_DATA * tarea, bool install )
