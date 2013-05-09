@@ -1023,7 +1023,7 @@ void read_from_buffer( DESCRIPTOR_DATA * d )
     */
    for( i = 0, k = 0; d->inbuf[i] != '\n' && d->inbuf[i] != '\r'; i++ )
    {
-      if( k >= 254 )
+      if( k >= MAX_INPUT_LENGTH )
       {
          write_to_descriptor( d, "Line too long.\r\n", 0 );
 

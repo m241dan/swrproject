@@ -3039,6 +3039,8 @@ bool check_dodge( CHAR_DATA * ch, CHAR_DATA * victim )
 
    chances = ch->dodge;
 
+   chances = URANGE( 0, chances, 95 );
+
    if( number_range( 1, 100 ) > chances )
       return FALSE;
 
