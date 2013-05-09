@@ -2154,6 +2154,7 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
 
       ch->pcdata->clan = NULL;
 
+      ch->perm_agi = 10;
       ch->perm_lck = number_range( 6, 18 );
       ch->perm_frc = number_range( -2000, 20 );
       ch->perm_lck += race_table[ch->race].lck_plus;

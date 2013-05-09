@@ -740,6 +740,7 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
    ch->perm_con = 10;
    ch->perm_cha = 10;
    ch->perm_lck = 10;
+   ch->perm_agi = 10;
    xSET_BIT( ch->damtype, DAM_BLUNT );
    ch->pcdata->condition[COND_THIRST] = 48;
    ch->pcdata->condition[COND_FULL] = 48;

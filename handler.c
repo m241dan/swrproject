@@ -327,11 +327,7 @@ short get_age( CHAR_DATA * ch )
  */
 short get_curr_str( CHAR_DATA * ch )
 {
-   short max;
-
-   max = 20 + race_table[ch->race].str_plus;
-   max = UMIN( max, 25 );
-   return URANGE( 3, ch->perm_str + ch->mod_str, max );
+   return ch->perm_str + ch->mod_str;
 }
 
 /*
@@ -339,12 +335,7 @@ short get_curr_str( CHAR_DATA * ch )
  */
 short get_curr_int( CHAR_DATA * ch )
 {
-   short max;
-
-   max = 20 + race_table[ch->race].int_plus;
-   max = UMIN( max, 25 );
-
-   return URANGE( 3, ch->perm_int + ch->mod_int, max );
+   return ch->perm_int + ch->mod_int;
 }
 
 /*
@@ -352,12 +343,7 @@ short get_curr_int( CHAR_DATA * ch )
  */
 short get_curr_wis( CHAR_DATA * ch )
 {
-   short max;
-
-   max = 20 + race_table[ch->race].wis_plus;
-   max = UMIN( max, 25 );
-
-   return URANGE( 3, ch->perm_wis + ch->mod_wis, max );
+   return ch->perm_wis + ch->mod_wis;
 }
 
 /*
@@ -365,12 +351,7 @@ short get_curr_wis( CHAR_DATA * ch )
  */
 short get_curr_dex( CHAR_DATA * ch )
 {
-   short max;
-
-   max = 20 + race_table[ch->race].dex_plus;
-   max = UMIN( max, 25 );
-
-   return URANGE( 3, ch->perm_dex + ch->mod_dex, max );
+   return ch->perm_dex + ch->mod_dex;
 }
 
 /*
@@ -378,12 +359,15 @@ short get_curr_dex( CHAR_DATA * ch )
  */
 short get_curr_con( CHAR_DATA * ch )
 {
-   short max;
+   return ch->perm_con + ch->mod_con;
+}
 
-   max = 20 + race_table[ch->race].con_plus;
-   max = UMIN( max, 25 );
-
-   return URANGE( 3, ch->perm_con + ch->mod_con, max );
+/*
+ * Retrieve character's current agility.
+ */
+short get_curr_agi( CHAR_DATA *ch )
+{
+   return ch->perm_agi + ch->mod_agi;
 }
 
 /*
@@ -391,12 +375,7 @@ short get_curr_con( CHAR_DATA * ch )
  */
 short get_curr_cha( CHAR_DATA * ch )
 {
-   short max;
-
-   max = 20 + race_table[ch->race].cha_plus;
-   max = UMIN( max, 25 );
-
-   return URANGE( 3, ch->perm_cha + ch->mod_cha, max );
+   return ch->perm_cha + ch->mod_cha;
 }
 
 /*
@@ -404,22 +383,12 @@ short get_curr_cha( CHAR_DATA * ch )
  */
 short get_curr_lck( CHAR_DATA * ch )
 {
-   short max;
-
-   max = 20 + race_table[ch->race].lck_plus;
-   max = UMIN( max, 25 );
-
-   return URANGE( 3, ch->perm_lck + ch->mod_lck, max );
+   return  ch->perm_lck + ch->mod_lck;
 }
 
 short get_curr_frc( CHAR_DATA * ch )
 {
-   short max;
-
-   max = 20 + race_table[ch->race].frc_plus;
-   max = UMIN( max, 25 );
-
-   return URANGE( 0, ch->perm_frc + ch->mod_frc, max );
+   return ch->perm_frc + ch->mod_frc;
 }
 
 /*

@@ -1967,6 +1967,7 @@ struct mob_index_data
    short perm_cha;
    short perm_lck;
    short perm_frc;
+   short perm_agi;
    short saving_poison_death;
    short saving_wand;
    short saving_para_petri;
@@ -4358,6 +4359,7 @@ short get_curr_int args( ( CHAR_DATA * ch ) );
 short get_curr_wis args( ( CHAR_DATA * ch ) );
 short get_curr_dex args( ( CHAR_DATA * ch ) );
 short get_curr_con args( ( CHAR_DATA * ch ) );
+short get_curr_agi args( ( CHAR_DATA * ch ) );
 short get_curr_cha args( ( CHAR_DATA * ch ) );
 short get_curr_lck args( ( CHAR_DATA * ch ) );
 short get_curr_frc args( ( CHAR_DATA * ch ) );

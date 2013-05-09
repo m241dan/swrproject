@@ -2365,6 +2365,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->perm_con = pMobIndex->perm_con;
    mob->perm_cha = pMobIndex->perm_cha;
    mob->perm_lck = pMobIndex->perm_lck;
+   mob->perm_agi = pMobIndex->perm_agi;
    mob->hitroll = pMobIndex->hitroll;
    mob->damroll = pMobIndex->damroll;
    mob->race = pMobIndex->race;
@@ -2655,6 +2656,7 @@ void clear_char( CHAR_DATA * ch )
    ch->perm_cha = 10;
    ch->perm_con = 10;
    ch->perm_lck = 10;
+   ch->perm_agi = 10;
    ch->mod_str = 0;
    ch->mod_dex = 0;
    ch->mod_int = 0;
@@ -2662,6 +2664,7 @@ void clear_char( CHAR_DATA * ch )
    ch->mod_cha = 0;
    ch->mod_con = 0;
    ch->mod_lck = 0;
+   ch->mod_agi = 0;
    ch->plr_home = NULL;
    return;
 }
@@ -5182,6 +5185,7 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->perm_cha = 10;
       pMobIndex->perm_con = 10;
       pMobIndex->perm_lck = 10;
+      pMobIndex->perm_agi = 10;
       pMobIndex->race = 0;
       pMobIndex->xflags = 0;
       pMobIndex->resistant = 0;
@@ -5232,6 +5236,7 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->perm_cha = cMobIndex->perm_cha;
       pMobIndex->perm_con = cMobIndex->perm_con;
       pMobIndex->perm_lck = cMobIndex->perm_lck;
+      pMobIndex->perm_agi = cMobIndex->perm_agi;
       pMobIndex->race = cMobIndex->race;
       pMobIndex->xflags = cMobIndex->xflags;
       pMobIndex->resistant = cMobIndex->resistant;
