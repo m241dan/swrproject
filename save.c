@@ -452,11 +452,11 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       fprintf( fp, "MDeaths      %d\n", ch->pcdata->mdeaths );
       if( ch->pcdata->illegal_pk )
          fprintf( fp, "IllegalPK    %d\n", ch->pcdata->illegal_pk );
-      fprintf( fp, "AttrPerm     %d %d %d %d %d %d %d\n",
-               ch->perm_str, ch->perm_int, ch->perm_wis, ch->perm_dex, ch->perm_con, ch->perm_cha, ch->perm_lck );
+      fprintf( fp, "AttrPerm     %d %d %d %d %d %d %d %d\n",
+               ch->perm_str, ch->perm_int, ch->perm_wis, ch->perm_dex, ch->perm_con, ch->perm_agi, ch->perm_cha, ch->perm_lck );
 
-      fprintf( fp, "AttrMod      %d %d %d %d %d %d %d\n",
-               ch->mod_str, ch->mod_int, ch->mod_wis, ch->mod_dex, ch->mod_con, ch->mod_cha, ch->mod_lck );
+      fprintf( fp, "AttrMod      %d %d %d %d %d %d %d %d\n",
+               ch->mod_str, ch->mod_int, ch->mod_wis, ch->mod_dex, ch->mod_con, ch->mod_agi, ch->mod_cha, ch->mod_lck );
 
       fprintf( fp, "Condition    %d %d %d %d\n",
                ch->pcdata->condition[0], ch->pcdata->condition[1], ch->pcdata->condition[2], ch->pcdata->condition[3] );
@@ -1036,15 +1036,16 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             {
                line = fread_line( fp );
                x1 = x2 = x3 = x4 = x5 = x6 = x7 = 13;
-               sscanf( line, "%d %d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6, &x7 );
+               sscanf( line, "%d %d %d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6, &x7, &x8 );
                ch->mod_str = x1;
                ch->mod_int = x2;
                ch->mod_wis = x3;
                ch->mod_dex = x4;
                ch->mod_con = x5;
-               ch->mod_cha = x6;
-               ch->mod_lck = x7;
-               if( !x7 )
+               ch->mod_agi = x6;
+               ch->mod_cha = x7;
+               ch->mod_lck = x8;
+               if( !x8 )
                   ch->mod_lck = 0;
                fMatch = TRUE;
                break;
@@ -1054,15 +1055,16 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             {
                line = fread_line( fp );
                x1 = x2 = x3 = x4 = x5 = x6 = x7 = 0;
-               sscanf( line, "%d %d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6, &x7 );
+               sscanf( line, "%d %d %d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6, &x7, &x8 );
                ch->perm_str = x1;
                ch->perm_int = x2;
                ch->perm_wis = x3;
                ch->perm_dex = x4;
                ch->perm_con = x5;
-               ch->perm_cha = x6;
-               ch->perm_lck = x7;
-               if( !x7 || x7 == 0 )
+               ch->perm_agi = x6;
+               ch->perm_cha = x7;
+               ch->perm_lck = x8;
+               if( !x8 || x8 == 0 )
                   ch->perm_lck = 13;
                fMatch = TRUE;
                break;
