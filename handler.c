@@ -4349,7 +4349,11 @@ void group_invite_accept( CHAR_DATA *ch )
 {
    GROUP_DATA *group;
 
-   group = ch->group_invite;
+   if( ( group = ch->group_invite ) == NULL )
+   {
+      send_to_char( "That group no longer exists.\r\n", ch );
+      return;
+   }
 
    if( group->member_count >= MAX_GROUP )
    {
