@@ -3134,3 +3134,21 @@ CHAR_DATA *most_threat( CHAR_DATA *angered )
    return most_threat->angry_at;
 }
 
+void do_showthreat( CHAR_DATA *ch, const char *argument )
+{
+   THREAT_DATA *threat;
+
+   send_to_char( "---------------------------------------------------\r\n", ch );
+
+   for( threat = first_threat; threat; threat = threat->next )
+   {
+      if( !threat->angry_at || !threat->angered )
+      {
+         bug( "There's a NULL angry_at or angered in the set.", 0 );
+         continue;
+      }
+      ch_printf( ch, "%s is angry at %s for %d Fickle and %d Constant.\r\n", threat->angered->name, threat->angry_at->name, threat->fickle, threat->constant );
+   }
+   send_to_char( "---------------------------------------------------\r\n", ch );
+   return;
+}

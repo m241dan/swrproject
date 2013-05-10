@@ -3364,6 +3364,7 @@ extern struct act_prog_data *mob_act_list;
 * Command functions.
 * Defined in act_*.c (mostly).
 */
+DECLARE_DO_FUN( do_showthreat );
 DECLARE_DO_FUN( do_setmssp );
 DECLARE_DO_FUN( do_setplanet );
 DECLARE_DO_FUN( do_makeplanet );
