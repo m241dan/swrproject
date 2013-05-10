@@ -340,8 +340,25 @@ void violence_update( void )
          }
       }
 
-      if( ( victim = who_fighting( ch ) ) == NULL || IS_AFFECTED( ch, AFF_PARALYSIS ) )
+      if( IS_AFFECTED( ch, AFF_PARALYSIS ) )
          continue;
+
+      if( ( victim = most_threat( ch ) ) != NULL )
+      {
+         if( who_fighting( ch ) != victim )
+         {
+            EXIT_DATA *exit;
+            stop_fighting( ch, FALSE );
+            if( ( exit = get_exit( ch->in_room, find_first_step( ch->in_room, victim->in_room, 20 ) ) ) == NULL )
+            {
+               free_threat( has_threat( ch, victim ) );
+               continue;
+            }
+            move_char( ch, exit, 0 );
+            if( ch->in_room != victim->in_room )
+               continue;
+         }
+      }
 
       retcode = rNONE;
 
@@ -3099,3 +3116,21 @@ void decay_threat( CHAR_DATA *angry_at, CHAR_DATA *angered, int dam )
    }
    return;
 }
+
+CHAR_DATA *most_threat( CHAR_DATA *angered )
+{
+   THREAT_DATA *threat, *most_threat;
+
+   for( threat = first_threat; threat; threat = threat->next )
+   {
+      if( threat->angered == angered )
+      {
+         if( !most_threat )
+            most_threat = threat;
+         else if( ( threat->fickle + threat->constant ) > ( most_threat->fickle + most_threat->constant ) )
+            most_threat = threat;
+      }
+   }
+   return most_threat->angry_at;
+}
+

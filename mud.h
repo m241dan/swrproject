@@ -4339,6 +4339,7 @@ bool is_threatened args( ( CHAR_DATA * angry_at ) );
 void free_threat args( ( THREAT_DATA *threat ) );
 void decay_threat args( ( void ) );
 void decay_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered, int dam ) );
+CHAR_DATA *most_threat args( ( CHAR_DATA *angered ) );
 
 /* makeobjs.c */
 OBJ_DATA *make_corpse( CHAR_DATA * ch, CHAR_DATA * killer );
@@ -4615,6 +4616,7 @@ void save_herb_table args( ( void ) );
 /* track.c */
 void found_prey args( ( CHAR_DATA * ch, CHAR_DATA * victim ) );
 void hunt_victim args( ( CHAR_DATA * ch ) );
+int find_first_step( ROOM_INDEX_DATA * src, ROOM_INDEX_DATA * target, int maxdist );
 
 /* update.c */
 void advance_level args( ( CHAR_DATA * ch, int ability ) );
