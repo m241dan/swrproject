@@ -1443,6 +1443,15 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
    adjust_stat( ch, STAT_HIT, -dam );
 
    /*
+    * Handle Threat Generation/Decay -Davenge
+    */
+   if( ch != victim )
+   {
+      generate_threat( ch, victim, dam );
+      decay_threat( victim, ch, dam );
+   }
+
+   /*
     * Get experience based on % of damage done       -Thoric
     */
    if( dam && ch != victim && !IS_NPC( ch ) && ch->fighting && ch->fighting->xp )
@@ -1479,6 +1488,15 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
    if( !npcvict && get_trust( victim ) >= LEVEL_IMMORTAL && get_trust( ch ) >= LEVEL_IMMORTAL && victim->hit < 1 )
       victim->hit = 1;
    update_pos( victim );
+
+   if( victim->position <= POS_STUNNED )
+   {
+      THREAT_DATA *threat;
+      if( ( threat = has_threat( ch, victim ) ) != NULL )
+         free_threat( threat );
+      if( ( threat = has_threat( victim, ch ) ) != NULL )
+         free_threat( threat );
+   }
 
    switch ( victim->position )
    {
