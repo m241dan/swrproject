@@ -119,6 +119,7 @@ typedef struct specfun_list SPEC_LIST;
 typedef struct extended_bitvector EXT_BV;
 typedef struct group_data GROUP_DATA;
 typedef struct loot_data LOOT_DATA;
+typedef struct threat_data THREAT_DATA;
 
 /*
 * Function types.
@@ -2013,6 +2014,16 @@ struct loot_data
    int amount;
 };
 
+struct threat_data
+{
+   THREAT_DATA *next;
+   THREAT_DATA *prev;
+   CHAR_DATA *angry_at;
+   CHAR_DATA *angered;
+   int constant;
+   int fickle;
+};
+
 struct hunt_hate_fear
 {
    const char *name;
@@ -3337,6 +3348,8 @@ extern CHAR_DATA *quitting_char;
 extern CHAR_DATA *loading_char;
 extern CHAR_DATA *saving_char;
 extern OBJ_DATA *all_obj;
+extern THREAT_DATA *first_threat;
+extern THREAT_DATA *last_threat;
 
 extern time_t current_time;
 extern bool fLogAll;
@@ -4320,6 +4333,12 @@ bool legal_loot args( ( CHAR_DATA * ch, CHAR_DATA * victim ) );
 bool check_illegal_pk args( ( CHAR_DATA * ch, CHAR_DATA * victim ) );
 OBJ_DATA *raw_kill( CHAR_DATA *ch, CHAR_DATA *victim );
 bool in_arena args( ( CHAR_DATA * ch ) );
+void generate_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered, int amount ) );
+THREAT_DATA *has_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered ) );
+bool is_threatened args( ( CHAR_DATA * angry_at ) );
+void free_threat args( ( THREAT_DATA *threat ) );
+void decay_threat args( ( void ) );
+void decay_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered, int dam ) );
 
 /* makeobjs.c */
 OBJ_DATA *make_corpse( CHAR_DATA * ch, CHAR_DATA * killer );

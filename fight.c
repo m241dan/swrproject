@@ -2988,3 +2988,96 @@ void do_slay( CHAR_DATA * ch, const char *argument )
    raw_kill( ch, victim );
    return;
 }
+
+
+void generate_threat( CHAR_DATA *angry_at, CHAR_DATA *angered, int amount )
+{
+   THREAT_DATA *threat;
+
+   int fickle = UMAX( 1, ( (int)( amount *.75 ) + angry_at->threat * 2 ) );
+   int constant = UMAX( 1, (int)( amount *.25 ) );
+
+   if( ( threat = has_threat( angry_at, angered ) ) == NULL )
+   {
+      CREATE( threat, THREAT_DATA, 1 );
+      threat->angry_at = angry_at;
+      threat->angered = angered;
+      threat->fickle = fickle;
+      threat->constant = constant;
+      LINK( threat, first_threat, last_threat, next, prev );
+   }
+   else
+   {
+      threat->fickle += fickle;
+      threat->constant += constant;
+   }
+   if( threat->constant > 2000 )
+      threat->constant = 2000;
+   return;
+}
+
+THREAT_DATA *has_threat( CHAR_DATA *angry_at, CHAR_DATA *angered )
+{
+   THREAT_DATA *threat;
+
+   for( threat = first_threat; threat; threat = threat->next )
+   {
+      if( threat->angry_at == angry_at && threat->angered == angered )
+         return threat;
+   }
+   return NULL;
+}
+
+bool is_threatened( CHAR_DATA *angry_at )
+{
+   THREAT_DATA *threat;
+
+   for( threat = first_threat; threat; threat = threat->next )
+      if( threat->angry_at == angry_at )
+         return TRUE;
+
+   return FALSE;
+}
+
+void free_threat( THREAT_DATA *threat )
+{
+   UNLINK( threat, first_threat, last_threat, next, prev );
+   threat->angry_at = NULL;
+   threat->angered = NULL;
+   DISPOSE( threat );
+}
+
+void decay_threat( void )
+{
+   THREAT_DATA *threat, *threat_next;
+   int decay;
+
+   for( threat = first_threat; threat; threat = threat_next )
+   {
+      threat_next = threat->next;
+      if( !threat->angered || !threat->angry_at || char_died( threat->angered ) || char_died( threat->angry_at ) )
+      {
+         free_threat( threat );
+         continue;
+      }
+      if( threat->fickle <= 0 )
+         continue;
+
+      decay = UMAX( 3, ( (int)( threat->fickle *.02 ) - threat->angry_at->threat ) );
+      threat->fickle -= UMIN( decay, threat->fickle );
+   }
+   return;
+}
+
+void decay_threat( CHAR_DATA *angry_at, CHAR_DATA *angered, int dam )
+{
+   THREAT_DATA *threat;
+   int decay;
+
+   if( ( threat = has_threat( angry_at, angered ) ) != NULL )
+   {
+      decay = UMAX( 1, ((int)( dam *.05 ) - (int)( threat->angry_at->threat * 1.5 )) );
+      threat->fickle -= UMIN( threat->fickle, decay );
+   }
+   return;
+}

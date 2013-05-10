@@ -38,6 +38,9 @@ void fread_fuss_lootdata( FILE *fp, LOOT_DATA *loot );
 /*
  * Globals.
  */
+THREAT_DATA *first_threat;
+THREAT_DATA *last_threat;
+
 WIZENT *first_wiz;
 WIZENT *last_wiz;
 
@@ -460,6 +463,9 @@ void boot_db( bool fCopyOver )
    for( wear = 0; wear < MAX_WEAR; wear++ )
       for( x = 0; x < MAX_LAYERS; x++ )
          save_equipment[wear][x] = NULL;
+
+   first_threat = NULL;
+   last_threat = NULL;
 
    /*
     * Init random number generator.
