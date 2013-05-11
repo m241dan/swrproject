@@ -177,7 +177,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Alignment   %d\n", skill->alignment );
 
    fprintf( fpout, "DamageDetails   %f %f %f %f\n", skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
-
+   if( !xIS_EMPTY( skill->damtype ) )
+      fprintf( fpout, "Damtype         %s", print_bitvector( &skill->damtype ) );
    if( skill->type != SKILL_HERB )
    {
       fprintf( fpout, "Minlevel     %d\n", skill->min_level );
@@ -420,6 +421,7 @@ SKILLTYPE *fread_skill( FILE * fp )
                skill->base_roll_boost = fread_float( fp );
             }
             KEY( "Dammsg", skill->noun_damage, fread_string_nohash( fp ) );
+            KEY( "Damtype", skill->damtype, fread_bitvector( fp ) );
             KEY( "Dice", skill->dice, fread_string_nohash( fp ) );
             KEY( "Diechar", skill->die_char, fread_string_nohash( fp ) );
             KEY( "Dieroom", skill->die_room, fread_string_nohash( fp ) );
