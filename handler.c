@@ -873,7 +873,12 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
 /*
  * Give an affect to a char.
  */
-void affect_to_char( CHAR_DATA * ch, AFFECT_DATA * paf )
+void affect_to_char( CHAR_DATA *ch, AFFECT_DATA *paf )
+{
+   affect_to_char( ch, NULL, paf );
+   return;
+}
+void affect_to_char( CHAR_DATA * ch, CHAR_DATA *from, AFFECT_DATA * paf )
 {
    AFFECT_DATA *paf_new;
 
@@ -899,6 +904,12 @@ void affect_to_char( CHAR_DATA * ch, AFFECT_DATA * paf )
 
    affect_modify( ch, paf_new, TRUE );
    return;
+
+   if( from )
+   {
+      paf_new->from = from;
+   }
+
 }
 
 

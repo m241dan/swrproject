@@ -41,7 +41,7 @@ const char *const spell_power[] = { "none", "minor", "greater", "major" };
 
 const char *const spell_class[] = { "none", "lunar", "solar", "travel", "summon", "life", "death", "illusion" };
 
-const char *const target_type[] = { "ignore", "offensive", "defensive", "self", "objinv" };
+const char *const target_type[] = { "ignore", "offensive", "defensive", "self", "objinv", "any", "aoe_friendly", "aoe_enemy", "aoe_enemy_friend" };
 
 
 void show_char_to_char( CHAR_DATA * list, CHAR_DATA * ch );
@@ -78,6 +78,16 @@ int get_starget( const char *name )
     if( !str_cmp( name, target_type[x] ) )
       return x;
   return -1;
+}
+
+int get_ability_type( const char *ability )
+{
+   int x;
+
+   for( x = 0; x < ABILITY_MAX; x++ )
+      if( !str_cmp( ability, ability_type[x] ) )
+         return x;
+   return -1;
 }
 
 int get_sflag( const char *name )
@@ -355,7 +365,7 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
 {
    char buf[MAX_STRING_LENGTH];
    char arg[MAX_INPUT_LENGTH];
-   int sn;
+   int sn, x;
    SKILLTYPE *skill = NULL;
 
    one_argument( argument, arg );
@@ -368,8 +378,8 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
    if( !str_cmp( arg, "all" ) )
    {
       for( sn = 0; sn < top_sn && skill_table[sn] && skill_table[sn]->name; sn++ )
-         pager_printf( ch, "Sn: %4d Slot: %4d Skill/spell: '%-20s' Damtype: %s\r\n",
-                       sn, skill_table[sn]->slot, skill_table[sn]->name, spell_damage[SPELL_DAMAGE( skill_table[sn] )] );
+         pager_printf( ch, "Sn: %4d Slot: %4d Skill/spell: '%-20s' Ability Type: %s\r\n",
+                       sn, skill_table[sn]->slot, skill_table[sn]->name, ability_type[skill_table[sn]->ability_type] );
    }
    else if( !str_cmp( arg, "herbs" ) )
    {
@@ -417,33 +427,22 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
       }
 
       ch_printf( ch, "Sn: %4d Slot: %4d %s: '%-20s'\r\n", sn, skill->slot, skill_tname[skill->type], skill->name );
-      if( skill->flags )
-      {
-         int x;
-
-         ch_printf( ch, "Damtype: %s  Acttype: %s   Classtype: %s   Powertype: %s\r\n",
-                    spell_damage[SPELL_DAMAGE( skill )],
-                    spell_action[SPELL_ACTION( skill )],
-                    spell_class[SPELL_CLASS( skill )], spell_power[SPELL_POWER( skill )] );
-         strcpy( buf, "Flags:" );
-         for( x = 11; x < 32; x++ )
-            if( SPELL_FLAG( skill, 1 << x ) )
-            {
-               strcat( buf, " " );
-               strcat( buf, spell_flag[x - 11] );
-            }
-         strcat( buf, "\r\n" );
-         send_to_char( buf, ch );
-      }
-      ch_printf( ch, "Saves: %s\r\n", spell_saves[( int )skill->saves] );
-
-      if( skill->difficulty != '\0' )
-         ch_printf( ch, "Difficulty: %d\r\n", ( int )skill->difficulty );
-
-      ch_printf( ch, "Type: %s  Target: %s  Minpos: %d  Mana: %d  Beats: %d\r\n",
+      ch_printf( ch, "Type: %s  Target: %s  Minpos: %d  Mana: %d  Move: %d Beats: %d\r\n",
                  skill_tname[skill->type],
                  target_type[URANGE( TAR_IGNORE, skill->target, TAR_OBJ_INV )],
-                 skill->minimum_position, skill->min_mana, skill->beats );
+                 skill->minimum_position, skill->min_mana, skill->min_move, skill->beats );
+      ch_printf( ch, "Ability Type: %s, Stat Boost: %f, Attack Boost: %f, Defense Mod: %f, Base Roll Boost: %f\r\n",
+                 ability_type[skill->ability_type], skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
+      send_to_char( "Damtype:", ch );
+      if( xIS_EMPTY( skill->damtype ) )
+         send_to_char( " none", ch );
+      else
+      {
+         for( x = 0; x < MAX_DAMTYPE; x++ )
+            if( xIS_SET( skill->damtype, x ) )
+               ch_printf( ch, " %d,", d_type[x] );
+          send_to_char( "\r\n", ch );
+      }
       ch_printf( ch, "Flags: %d  Guild: %d  Code: %s\r\n",
                  skill->flags,
                  skill->guild, skill->skill_fun ? skill->skill_fun_name : skill->spell_fun_name );
@@ -476,8 +475,6 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
          }
          if( aff->bitvector )
          {
-            int x;
-
             strcat( buf, " applies" );
             for( x = 0; x < 32; x++ )
                if( IS_SET( aff->bitvector, 1 << x ) )
@@ -3547,4 +3544,19 @@ void do_scan( CHAR_DATA * ch, const char *argument )
 
 void do_slice( CHAR_DATA * ch, const char *argument )
 {
+}
+
+void generate_buff_threat( CHAR_DATA *ch, CHAR_DATA *victim, int amount )
+{
+   THREAT_DATA *threat;
+
+   if( is_same_group( ch, victim ) )
+   {
+      for( threat = first_threat; threat; threat = threat->next )
+         if( threat->angry_at == victim )
+            generate_threat( ch, threat->angered, amount );
+   }
+   else
+      generate_threat( ch, victim, amount );
+   return;
 }

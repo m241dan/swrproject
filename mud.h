@@ -1028,6 +1028,7 @@ struct affect_data
 {
    AFFECT_DATA *next;
    AFFECT_DATA *prev;
+   CHAR_DATA *from;
    short type;
    int duration;
    short location;
@@ -1043,6 +1044,7 @@ struct smaug_affect
 {
    SMAUG_AFF *next;
    SMAUG_AFF *prev;
+   CHAR_DATA *from;
    const char *duration;
    short location;
    const char *modifier;
@@ -1602,7 +1604,7 @@ typedef enum
 */
 typedef enum
 {
-   APPLY_NONE, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON,
+   APPLY_NONE, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON, APPLY_AGI,
    APPLY_SEX, APPLY_NULL, APPLY_LEVEL, APPLY_AGE, APPLY_HEIGHT, APPLY_WEIGHT,
    APPLY_MANA, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_EVASION,
    APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_POISON, APPLY_SAVING_ROD,
@@ -1615,7 +1617,7 @@ typedef enum
    APPLY_GRIP, APPLY_SCRIBE, APPLY_BREW, APPLY_WEARSPELL, APPLY_REMOVESPELL,
    APPLY_EMOTION, APPLY_MENTALSTATE, APPLY_STRIPSN, APPLY_REMOVE, APPLY_DIG,
    APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_ARMOR, APPLY_RESISTANCE,
-   APPLY_PENETRATION, APPLY_DAMTYPEPOTENCY, APPLY_AGI, APPLY_THREAT, MAX_APPLY_TYPE
+   APPLY_PENETRATION, APPLY_DAMTYPEPOTENCY, APPLY_THREAT, MAX_APPLY_TYPE
 } apply_types;
 
 #define REVERSE_APPLY		   1000
@@ -2603,14 +2605,21 @@ struct teleport_data
 typedef enum
 {
    TAR_IGNORE, TAR_CHAR_OFFENSIVE, TAR_CHAR_DEFENSIVE, TAR_CHAR_SELF,
-   TAR_OBJ_INV
+   TAR_OBJ_INV, TAR_CHAR_ANY, TAR_AOE_FRIENDLY, TAR_AOE_ENEMY, TAR_AOE_ENEMYGROUP
 } target_types;
 
 typedef enum
 {
    SKILL_UNKNOWN, SKILL_SPELL, SKILL_SKILL, SKILL_WEAPON, SKILL_TONGUE,
-   SKILL_HERB
+   SKILL_HERB, SKILL_PASSIVE
 } skill_types;
+
+typedef enum
+{
+   ABILITY_HEALING, ABILITY_DAMAGE, ABILITY_BUFF, ABILITY_ENFEEBLE,
+   ABILITY_REDIRECT, ABILITY_CLENASE, ABILITY_SUMMON, ABILITY_POLYMORPH,
+   ABILITY_MAX
+} ability_types;
 
 struct timerset
 {
@@ -2664,6 +2673,13 @@ struct skill_type
    char participants;   /* # of required participants */
    struct timerset userec; /* Usage record         */
    int alignment; /* for jedi powers */
+   short min_move;
+   short ability_type;
+   double stat_boost;
+   double attack_boost;
+   double defense_mod;
+   double base_roll_boost;
+   EXT_BV damtype;
 };
 
 
@@ -3236,6 +3252,7 @@ extern const struct liq_type liq_table[LIQ_MAX];
 extern const char *const attack_table[13];
 extern const char *const ability_name[MAX_ABILITY];
 
+extern const char *const ability_type[ABILITY_MAX];
 extern const char *const skill_tname[];
 extern short const movement_loss[SECT_MAX];
 extern const char *const dir_name[];
@@ -4395,6 +4412,7 @@ void release_supermob( void );
 void set_title( CHAR_DATA * ch, const char *title );
 
 /* skills.c */
+int get_ability_type( const char *ability );
 bool check_skill( CHAR_DATA * ch, const char *command, const char *argument );
 void learn_from_success( CHAR_DATA * ch, int sn );
 void learn_from_failure( CHAR_DATA * ch, int sn );
@@ -4403,7 +4421,7 @@ bool check_dodge( CHAR_DATA * ch, CHAR_DATA * victim );
 bool check_grip( CHAR_DATA * ch, CHAR_DATA * victim );
 void disarm( CHAR_DATA * ch, CHAR_DATA * victim );
 void trip( CHAR_DATA * ch, CHAR_DATA * victim );
-
+void generate_buff_threat( CHAR_DATA *ch, CHAR_DATA *victim, int amount );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
@@ -4431,6 +4449,7 @@ bool nifty_is_name( const char *str, const char *namelist );
 bool nifty_is_name_prefix( const char *str, const char *namelist );
 void affect_modify args( ( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd ) );
 void affect_to_char args( ( CHAR_DATA * ch, AFFECT_DATA * paf ) );
+void affect_to_char args( ( CHAR_DATA * ch, CHAR_DATA * from, AFFECT_DATA * paf ) );
 void affect_remove args( ( CHAR_DATA * ch, AFFECT_DATA * paf ) );
 void affect_strip args( ( CHAR_DATA * ch, int sn ) );
 bool is_affected args( ( CHAR_DATA * ch, int sn ) );

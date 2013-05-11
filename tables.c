@@ -31,7 +31,9 @@ int top_herb;
 SKILLTYPE *skill_table[MAX_SKILL];
 SKILLTYPE *herb_table[MAX_HERB];
 
-const char *const skill_tname[] = { "unknown", "Spell", "Skill", "Weapon", "Tongue", "Herb" };
+const char *const skill_tname[] = { "unknown", "Spell", "Skill", "Weapon", "Tongue", "Herb", "Passive" };
+
+const char *const ability_type[ABILITY_MAX] = { "Healing", "Damage", "Buff", "Enfeeble", "Redirect", "Cleanse", "Summon", "Polymorph" };
 
 SPELL_FUN *spell_function( const char *name )
 {
@@ -106,6 +108,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    fprintf( fpout, "Flags        %d\n", skill->flags );
    if( skill->target )
       fprintf( fpout, "Target       %d\n", skill->target );
+   fprintf( fpout, "AbilityType  %d\n", skill->ability_type );
    if( skill->minimum_position )
       fprintf( fpout, "Minpos       %d\n", skill->minimum_position );
    if( skill->saves )
@@ -114,6 +117,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Slot         %d\n", skill->slot );
    if( skill->min_mana )
       fprintf( fpout, "Mana         %d\n", skill->min_mana );
+   if( skill->min_move )
+      fprintf( fpout, "Move         %d\n", skill->min_move );
    if( skill->beats )
       fprintf( fpout, "Rounds       %d\n", skill->beats );
    if( skill->guild != -1 )
@@ -170,6 +175,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Affect       '%s' %d '%s' %d\n", aff->duration, aff->location, aff->modifier, aff->bitvector );
    if( skill->alignment )
       fprintf( fpout, "Alignment   %d\n", skill->alignment );
+
+   fprintf( fpout, "DamageDetails   %f %f %f %f\n", skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
 
    if( skill->type != SKILL_HERB )
    {
@@ -357,6 +364,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'A':
+            KEY( "AbilityType", skill->ability_type, fread_number( fp ) );
             KEY( "Alignment", skill->alignment, fread_number( fp ) );
             if( !str_cmp( word, "Affect" ) )
             {
@@ -404,6 +412,13 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'D':
+            if( !str_cmp( word, "DamageDetails" ) )
+            {
+               skill->stat_boost = fread_float( fp );
+               skill->attack_boost = fread_float( fp );
+               skill->defense_mod = fread_float( fp );
+               skill->base_roll_boost = fread_float( fp );
+            }
             KEY( "Dammsg", skill->noun_damage, fread_string_nohash( fp ) );
             KEY( "Dice", skill->dice, fread_string_nohash( fp ) );
             KEY( "Diechar", skill->die_char, fread_string_nohash( fp ) );
@@ -444,6 +459,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             KEY( "Misschar", skill->miss_char, fread_string_nohash( fp ) );
             KEY( "Missroom", skill->miss_room, fread_string_nohash( fp ) );
             KEY( "Missvict", skill->miss_vict, fread_string_nohash( fp ) );
+            KEY( "Move", skill->min_move, fread_number( fp ) );
             break;
 
          case 'N':
