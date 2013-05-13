@@ -668,17 +668,14 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    int thac0;
    int thac0_00;
    int thac0_32;
-   int plusris;
-   int dam, x;
+   int dam, damroll;
    int diceroll;
-   int attacktype, cnt;
    int prof_bonus;
    int prof_gsn;
    ch_ret retcode = rNONE;
-   int schance;
-   bool fail;
-   AFFECT_DATA af;
-
+   EXT_BV damtype;
+   int hit_wear;
+   int hit_locations[MAX_HITLOC] = { WEAR_HEAD, WEAR_HEAD, WEAR_BODY, WEAR_BODY, WEAR_BODY, WEAR_LEGS, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_SHIELD, WEAR_ABOUT, WEAR_ABOUT, WEAR_WAIST, WEAR_EYES };
 
    /*
     * Can't beat a dead char!
@@ -706,220 +703,150 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    prof_bonus = weapon_prof_bonus_check( ch, wield, &prof_gsn );
 
-   if( ch->fighting  /* make sure fight is already started */
-       && dt == TYPE_UNDEFINED && IS_NPC( ch ) && ch->attacks != 0 )
-   {
-      cnt = 0;
-      for( ;; )
-      {
-         x = number_range( 0, 6 );
-         attacktype = 1 << x;
-         if( IS_SET( ch->attacks, attacktype ) )
-            break;
-         if( cnt++ > 16 )
-         {
-            attacktype = 0;
-            break;
-         }
-      }
-      if( attacktype == ATCK_BACKSTAB )
-         attacktype = 0;
-      if( wield && number_percent(  ) > 25 )
-         attacktype = 0;
-      switch ( attacktype )
-      {
-         default:
-            break;
-         case ATCK_BITE:
-            do_bite( ch, "" );
-            retcode = global_retcode;
-            break;
-         case ATCK_CLAWS:
-            do_claw( ch, "" );
-            retcode = global_retcode;
-            break;
-         case ATCK_TAIL:
-            do_tail( ch, "" );
-            retcode = global_retcode;
-            break;
-         case ATCK_STING:
-            do_sting( ch, "" );
-            retcode = global_retcode;
-            break;
-         case ATCK_PUNCH:
-            do_punch( ch, "" );
-            retcode = global_retcode;
-            break;
-         case ATCK_KICK:
-            do_kick( ch, "" );
-            retcode = global_retcode;
-            break;
-         case ATCK_TRIP:
-            attacktype = 0;
-            break;
-      }
-      if( attacktype )
-         return retcode;
-   }
-
+   xCLEAR_BITS( damtype );
    if( dt == TYPE_UNDEFINED )
    {
       dt = TYPE_HIT;
       if( wield && wield->item_type == ITEM_WEAPON )
+      {
          dt += wield->value[3];
+         damtype = wield->damtype;
+      }
+      else
+         damtype = ch->damtype;
+   }
+   else
+   {
+      damtype = skill_table[dt]->damtype;
+      if( skill_table[dt]->type == SKILL_SKILL )
+      {
+         if( wield )
+            xSET_BIT( damtype, wield->damtype );
+         else
+            xSET_BIT( damtype, ch->damtype );
+      }
    }
 
    /*
     * Calculate to-hit-armor-class-0 versus armor.
     */
-   thac0_00 = 20;
-   thac0_32 = 10;
-   thac0 = interpolate( ch->skill_level[COMBAT_ABILITY], thac0_00, thac0_32 ) - GET_HITROLL( ch );
-   victim_ac = ( int )( GET_EVASION( victim ) / 10 );
 
-   /*
-    * if you can't see what's coming... 
-    */
-   if( wield && !can_see_obj( victim, wield ) )
-      victim_ac += 1;
-   if( !can_see( ch, victim ) )
-      victim_ac -= 4;
-
-   if( ch->race == RACE_DEFEL )
-      victim_ac += 2;
-
-   if( !IS_AWAKE( victim ) )
-      victim_ac += 5;
-
-   /*
-    * Weapon proficiency bonus 
-    */
-   victim_ac += prof_bonus / 20;
-
-   /*
-    * The moment of excitement!
-    */
-   diceroll = number_range( 1, 20 );
-
-   if( diceroll == 1 || ( diceroll < 20 && diceroll < thac0 - victim_ac ) )
+   if( dt >= TYPE_HIT )
    {
+      thac0_00 = 20;
+      thac0_32 = 10;
+      thac0 = interpolate( ch->skill_level[COMBAT_ABILITY], thac0_00, thac0_32 ) - GET_HITROLL( ch );
+      victim_ac = ( int )( GET_EVASION( victim ) / 10 );
+
       /*
-       * Miss. 
+       * if you can't see what's coming... 
        */
-      if( prof_gsn != -1 )
-         learn_from_failure( ch, prof_gsn );
-      damage( ch, victim, 0, dt );
-      tail_chain(  );
-      return rNONE;
+      if( wield && !can_see_obj( victim, wield ) )
+         victim_ac += 1;
+      if( !can_see( ch, victim ) )
+         victim_ac -= 4;
+
+      if( !IS_AWAKE( victim ) )
+         victim_ac += 5;
+
+      /*
+       * Weapon proficiency bonus 
+       */
+      victim_ac += prof_bonus / 20;
+
+      /*
+       * The moment of excitement!
+       */
+      diceroll = number_range( 1, 20 );
+
+      if( diceroll == 1 || ( diceroll < 20 && diceroll < thac0 - victim_ac ) )
+      {
+         /*
+          * Miss. 
+          */
+         if( prof_gsn != -1 )
+            learn_from_failure( ch, prof_gsn );
+         damage( ch, victim, 0, dt );
+         tail_chain(  );
+         return rNONE;
+      }
    }
+
+   /* Figure out where we hit */
+   hit_wear = hit_locations[number_range( 0, ( MAX_HITLOC - 1 ) )];
 
    /*
     * Hit.
     * Calc damage.
     */
+   /* Let's get our base roll */
+   if( dt >= TYPE_HIT || skill_table[dt]->type == SKILL_SKILL )
+   {
+      if( !wield )   /* dice formula fixed by Thoric */
+         dam = number_range( ch->barenumdie, ch->baresizedie * ch->barenumdie ) + ch->damplus;
+      else
+         dam = number_range( wield->value[1], wield->value[2] );
 
-   if( !wield )   /* dice formula fixed by Thoric */
-      dam = number_range( ch->barenumdie, ch->baresizedie * ch->barenumdie ) + ch->damplus;
+      if( !wield )
+         dam += get_curr_str( ch ) - get_curr_con( victim );
+      else if( wield->value[3] == WEAPON_BLASTER || wield->value[3] == WEAPON_BOWCASTER )
+         dam += get_curr_agi( ch ) - get_curr_con( victim );
+      else if( wield->value[3] == WEAPON_VIBRO_BLADE || wield->value[3] == WEAPON_FORCE_PIKE || wield->value[3] == WEAPON_WHIP )
+         dam += get_curr_dex( ch ) - get_curr_con( victim );
+      else
+         dam += get_curr_str( ch ) - get_curr_con( victim );
+   }
    else
-      dam = number_range( wield->value[1], wield->value[2] );
-
+   {
+      dam = number_range( skill_table[dt]->min_level , MAX( 1, skill_table[dt]->min_level / 3 ) );
+      dam += get_curr_int( ch ) - get_curr_wis( wis );
+   }
    /*
     * Bonuses.
     */
+   /* Apply our base roll modifier from skills */
+   if( dt < TYPE_HIT && skill_table[dt]->base_roll_boost > 0 )
+      dam = (int)( dam * skill_table[dt]->base_roll_boost );
+   /* Apply our physical stat attribute */
+   if( dt < TYPE_HIT && skill_table[dt]->stat_boost > 0 )
+   {
+      int stat;
+      double mod;
 
+      stat = skill_table[dt]->stat_boost / 1;
+      mod = skill_table[dt]->stat_boost % 1;
+
+      switch( stat )
+      {
+         case APPLY_STR:
+            dam += (int)( get_curr_str( ch ) * mod );
+            break;
+         case APPLY_DEX:
+            dam += (int)( get_curr_dex( ch ) * mod );
+            break;
+         case APPLY_CON:
+            dam += (int)( get_curr_con( ch ) * mod );
+            break;
+         case APPLY_AGI:
+            dam += (int)( get_curr_agi( ch ) * mod );
+            break;
+         case APPLY_INT:
+            dam += (int)( get_curr_int( ch ) * mod );
+            break;
+         case APPLY_WIS:
+            dam += (int)( get_curr_wis( ch ) * mod );
+            break;
+      }
+   }
+   /* Handle Damroll Stuff */
+   if( dt < TYPE_HIT && skill_table[dt]->attack_boost > 0 )
+   {
+      damroll = GET_DAMROLL( ch );
+   }
    dam += GET_DAMROLL( ch );
 
-   if( prof_bonus )
-      dam *= ( 1 + prof_bonus / 100 );
-
-
-   if( !IS_NPC( ch ) && ch->pcdata->learned[gsn_enhanced_damage] > 0 )
-   {
-      dam += ( int )( dam * ch->pcdata->learned[gsn_enhanced_damage] / 120 );
-      learn_from_success( ch, gsn_enhanced_damage );
-   }
-
-
    if( !IS_AWAKE( victim ) )
-      dam *= 2;
-   if( dt == gsn_backstab )
-      dam *= ( 2 + URANGE( 2, ch->skill_level[HUNTING_ABILITY] - ( victim->skill_level[COMBAT_ABILITY] / 4 ), 30 ) / 8 );
-
-   if( dt == gsn_circle )
-      dam *= ( 2 + URANGE( 2, ch->skill_level[HUNTING_ABILITY] - ( victim->skill_level[COMBAT_ABILITY] / 4 ), 30 ) / 16 );
-
-   plusris = 0;
-
-   if( wield )
-   {
-      if( IS_SET( wield->extra_flags, ITEM_MAGIC ) )
-         dam = ris_damage( victim, dam, RIS_MAGIC );
-      else
-         dam = ris_damage( victim, dam, RIS_NONMAGIC );
-
-      /*
-       * Handle PLUS1 - PLUS6 ris bits vs. weapon hitroll   -Thoric
-       */
-      plusris = obj_hitroll( wield );
-   }
-   else
-      dam = ris_damage( victim, dam, RIS_NONMAGIC );
-
-   /*
-    * check for RIS_PLUSx                -Thoric 
-    */
-   if( dam )
-   {
-      int xx, res, imm, sus, mod;
-
-      if( plusris )
-         plusris = RIS_PLUS1 << UMIN( plusris, 7 );
-
-      /*
-       * initialize values to handle a zero plusris 
-       */
-      imm = res = -1;
-      sus = 1;
-
-      /*
-       * find high ris 
-       */
-      for( xx = RIS_PLUS1; xx <= RIS_PLUS6; xx <<= 1 )
-      {
-         if( IS_SET( victim->immune, xx ) )
-            imm = xx;
-         if( IS_SET( victim->resistant, xx ) )
-            res = xx;
-         if( IS_SET( victim->susceptible, xx ) )
-            sus = xx;
-      }
-      mod = 10;
-      if( imm >= plusris )
-         mod -= 10;
-      if( res >= plusris )
-         mod -= 2;
-      if( sus <= plusris )
-         mod += 2;
-
-      /*
-       * check if immune 
-       */
-      if( mod <= 0 )
-         dam = -1;
-      if( mod != 10 )
-         dam = ( dam * mod ) / 10;
-   }
-
-   /*
-    * race modifier 
-    */
-
-   if( victim->race == RACE_DUINUOGWUIN )
-      dam /= 5;
-
-   /*
-    * check to see if weapon is charged 
-    */
+     dam *= 2;
 
    if( dt == ( TYPE_HIT + WEAPON_BLASTER ) && wield && wield->item_type == ITEM_WEAPON )
    {
@@ -946,68 +873,6 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       else if( wield->blaster_setting == BLASTER_NORMAL && wield->value[4] >= 3 )
       {
          wield->value[4] -= 3;
-      }
-      else if( wield->blaster_setting == BLASTER_STUN && wield->value[4] >= 5 )
-      {
-         dam /= 10;
-         wield->value[4] -= 3;
-         fail = FALSE;
-         schance = ris_save( victim, ch->skill_level[COMBAT_ABILITY], RIS_PARALYSIS );
-         if( schance == 1000 )
-            fail = TRUE;
-         else
-            fail = saves_para_petri( schance, victim );
-         if( victim->was_stunned > 0 )
-         {
-            fail = TRUE;
-            victim->was_stunned--;
-         }
-         schance = 100 - get_curr_con( victim ) - victim->skill_level[COMBAT_ABILITY] / 2;
-         /*
-          * harder for player to stun another player 
-          */
-         if( !IS_NPC( ch ) && !IS_NPC( victim ) )
-            schance -= sysdata.stun_plr_vs_plr;
-         else
-            schance -= sysdata.stun_regular;
-         schance = URANGE( 5, schance, 95 );
-         if( !fail && number_percent(  ) < schance )
-         {
-            WAIT_STATE( victim, PULSE_VIOLENCE );
-            act( AT_BLUE, "Blue rings of energy from $N's blaster knock you down leaving you stunned!", victim, NULL, ch,
-                 TO_CHAR );
-            act( AT_BLUE, "Blue rings of energy from your blaster strike $N, leaving $M stunned!", ch, NULL, victim,
-                 TO_CHAR );
-            act( AT_BLUE, "Blue rings of energy from $n's blaster hit $N, leaving $M stunned!", ch, NULL, victim,
-                 TO_NOTVICT );
-            stop_fighting( victim, TRUE );
-            if( !IS_AFFECTED( victim, AFF_PARALYSIS ) )
-            {
-               af.type = gsn_stun;
-               af.location = APPLY_EVASION;
-               af.modifier = 20;
-               af.duration = 7;
-               af.bitvector = meb( AFF_PARALYSIS );
-               affect_to_char( victim, &af );
-               update_pos( victim );
-               if( IS_NPC( victim ) )
-               {
-                  start_hating( victim, ch );
-                  start_hunting( victim, ch );
-                  victim->was_stunned = 10;
-               }
-            }
-         }
-         else
-         {
-            act( AT_BLUE, "Blue rings of energy from $N's blaster hit you but have little effect", victim, NULL, ch,
-                 TO_CHAR );
-            act( AT_BLUE, "Blue rings of energy from your blaster hit $N, but nothing seems to happen!", ch, NULL, victim,
-                 TO_CHAR );
-            act( AT_BLUE, "Blue rings of energy from $n's blaster hit $N, but nothing seems to happen!", ch, NULL, victim,
-                 TO_NOTVICT );
-
-         }
       }
       else if( wield->blaster_setting == BLASTER_HALF && wield->value[4] >= 2 )
       {
@@ -1071,14 +936,6 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    if( dam <= 0 )
       dam = 1;
-
-   if( prof_gsn != -1 )
-   {
-      if( dam > 0 )
-         learn_from_success( ch, prof_gsn );
-      else
-         learn_from_failure( ch, prof_gsn );
-   }
 
    /*
     * immune to damage 

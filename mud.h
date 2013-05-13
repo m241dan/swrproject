@@ -1778,6 +1778,8 @@ typedef enum
    WEAR_MISSILE_WIELD, MAX_WEAR
 } wear_locations;
 
+#define MAX_HITLOC 14
+
 /* Board Types */
 typedef enum
 { BOARD_NOTE, BOARD_MAIL } board_types;
