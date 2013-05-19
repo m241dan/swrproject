@@ -165,6 +165,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Dice         %s~\n", skill->dice );
    if( skill->value )
       fprintf( fpout, "Value        %d\n", skill->value );
+   if( skill->threat )
+      fprintf( fpout, "Threat       %d\n", skill->threat );
    if( skill->difficulty )
       fprintf( fpout, "Difficulty   %d\n", skill->difficulty );
    if( skill->participants )
@@ -174,7 +176,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    if( skill->teachers && skill->teachers[0] != '\0' )
       fprintf( fpout, "Teachers     %s~\n", skill->teachers );
    for( aff = skill->first_affect; aff; aff = aff->next )
-      fprintf( fpout, "Affect       '%s' %d '%s' %d\n", aff->duration, aff->location, aff->modifier, aff->bitvector );
+      fprintf( fpout, "Affect       '%s' %d '%s' %s\n", aff->duration, aff->location, aff->modifier, print_bitvector( &aff->bitvector ) );
    if( skill->alignment )
       fprintf( fpout, "Alignment   %d\n", skill->alignment );
 
@@ -376,7 +378,7 @@ SKILLTYPE *fread_skill( FILE * fp )
                aff->duration = str_dup( fread_word( fp ) );
                aff->location = fread_number( fp );
                aff->modifier = str_dup( fread_word( fp ) );
-               aff->bitvector = fread_number( fp );
+               aff->bitvector = fread_bitvector( fp );
                LINK( aff, skill->first_affect, skill->last_affect, next, prev );
                fMatch = TRUE;
                break;
@@ -487,6 +489,7 @@ SKILLTYPE *fread_skill( FILE * fp )
          case 'T':
             KEY( "Target", skill->target, fread_number( fp ) );
             KEY( "Teachers", skill->teachers, fread_string_nohash( fp ) );
+            KEY( "Threat", skill->threat, fread_number( fp ) );
             KEY( "Type", skill->type, get_skill( fread_word( fp ) ) );
             break;
 

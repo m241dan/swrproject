@@ -864,6 +864,9 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    }
 
+   /* Handle Res_Pen */
+   dam = res_pen( ch, victim, dam, damtype );
+
    if( !IS_AWAKE( victim ) )
      dam *= 2;
 
@@ -3028,3 +3031,54 @@ void do_showthreat( CHAR_DATA *ch, const char *argument )
    send_to_char( "---------------------------------------------------\r\n", ch );
    return;
 }
+
+int res_pen( CHAR_DATA *ch, CHAR_DATA *victim, int dam, EXT_BV damtype )
+{
+   double mod, mod_pen, mod_res;
+   int counter, split_dam;
+   int num_damtype = 0;
+   int progress = 0;
+
+   for( counter = 0; counter < MAX_DAMTYPE; counter++ )
+      if( xIS_SET( damtype, counter ) )
+         num_damtype++;
+
+   if( num_damtype <= 0 )
+   {
+      bug( "res_pen being called with no damtypes" );
+      return dam;
+   }
+
+   split_dam = dam / num_damtype;
+   dam = 0;
+
+   for( counter = DAM_FIRE; counter < MAX_DAMTYPE; counter++ )
+   {
+      if( xIS_SET( damtype, counter ) )
+      {
+         mod_pen = ch->penetration[DAM_ALL];
+         mod_res = victim->resistance[DAM_ALL];
+
+         if( counter >= DAM_BLUNT && counter <= DAM_SLASH )
+         {
+            mod_pen += ch->penetration[DAM_PHYSICAL] + ch->penetration[counter];
+            mod_res += victim->resistance[DAM_PHYSICAL] + victim->resistance[counter];
+
+            mod = (100 + URANGE( -95, ( (int)(mod_pen - mod_res) ), 95 )) / 100;
+            dam += (int)( split_dam * mod );
+         }
+         if( counter >= DAM_FIRE && counter <= DAM_DARKENERGY )
+         {
+            mod_pen += ch->penetration[DAM_ELEMENTAL] + ch->penetration[counter];
+            mod_res += victim->resistance[DAM_ELEMENTAL] + victim->resistance[counter];
+
+            mod = (100 +URANGE( -95, ( (int)( mod_pen - mod_res ) ), 95 )) / 100;
+            dam += (int)( split_dam * mod );
+         }
+         if( ++progress == num_damtype )
+            break;
+      }
+   }
+   return dam;
+}
+

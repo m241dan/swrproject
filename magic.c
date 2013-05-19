@@ -509,15 +509,15 @@ int rd_parse( CHAR_DATA * ch, int level, char *texp )
          case 'C':
          case 'c':
             return get_curr_con( ch );
-         case 'A':
-         case 'a':
-            return get_curr_cha( ch );
          case 'U':
          case 'u':
             return get_curr_lck( ch );
          case 'Y':
          case 'y':
             return get_age( ch );
+         case 'A':
+         case 'a':
+            return get_curr_agi( ch );
       }
 
    for( x = 0; x < len; ++x )

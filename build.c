@@ -429,7 +429,7 @@ int get_aflag( const char *flag )
 {
    int x;
 
-   for( x = 0; x < 32; x++ )
+   for( x = 0; x < MAX_AFF; x++ )
       if( !str_cmp( flag, a_flags[x] ) )
          return x;
    return -1;

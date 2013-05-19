@@ -410,9 +410,28 @@ void heal_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 }
 void damage_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
+   multi_hit( ch, victim, gsn );
+   return;
 }
 void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
+   SMAUG_AFF *saf;
+   AFFECT_DATA af;
+
+   af.type = gsn;
+   af.from = ch;
+   af.affect_type = AFFECT_BUFF;
+
+   for( saf = skill_table[gsn]->first_affect; saf; saf = saf->next )
+   {
+      af.location = saf->location;
+      af.duration = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->duration );
+      af.modifier = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->modifier );
+      xCLEAR_BITS( af.bitvector );
+      xSET_BITS( af.bitvector, saf->bitvector );
+      affect_to_char( victim, &af );
+   }
+   return;
 }
 void enfeeble_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
@@ -618,16 +637,16 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
             strcat( buf, a_types[aff->location % REVERSE_APPLY] );
             strcat( buf, " by '" );
             strcat( buf, aff->modifier );
-            if( aff->bitvector )
+            if( !xIS_EMPTY( aff->bitvector ) )
                strcat( buf, "' and" );
             else
                strcat( buf, "'" );
          }
-         if( aff->bitvector )
+         if( !xIS_EMPTY( aff->bitvector ) )
          {
             strcat( buf, " applies" );
-            for( x = 0; x < 32; x++ )
-               if( IS_SET( aff->bitvector, 1 << x ) )
+            for( x = 0; x < MAX_AFF; x++ )
+               if( xIS_SET( aff->bitvector, x ) )
                {
                   strcat( buf, " " );
                   strcat( buf, a_flags[x] );
@@ -1043,7 +1062,8 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          char modifier[MAX_INPUT_LENGTH];
          char duration[MAX_INPUT_LENGTH];
          char bitvector[MAX_INPUT_LENGTH];
-         int loc, bit, tmpbit;
+         int loc, tmpbit;
+         EXT_BV bit;
          SMAUG_AFF *aff;
 
          argument = one_argument( argument, location );
@@ -1059,14 +1079,14 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             send_to_char( "Unknown affect location.  See AFFECTTYPES.\r\n", ch );
             return;
          }
-         bit = 0;
+         xCLEAR_BITS( bit );
          while( argument[0] != 0 )
          {
             argument = one_argument( argument, bitvector );
             if( ( tmpbit = get_aflag( bitvector ) ) == -1 )
                ch_printf( ch, "Unknown bitvector: %s.  See AFFECTED_BY\r\n", bitvector );
             else
-               bit |= ( 1 << tmpbit );
+               xSET_BIT( bit, tmpbit );
          }
          CREATE( aff, SMAUG_AFF, 1 );
          if( !str_cmp( duration, "0" ) )
@@ -1085,7 +1105,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             snprintf( modifier, MAX_INPUT_LENGTH, "%d", modval );
          }
          aff->modifier = str_dup( modifier );
-         aff->bitvector = bit;
+         xSET_BITS( aff->bitvector, bit );
          LINK( aff, skill->first_affect, skill->last_affect, next, prev );
          send_to_char( "Ok.\r\n", ch );
          return;

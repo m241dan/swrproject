@@ -1029,6 +1029,7 @@ struct affect_data
    AFFECT_DATA *next;
    AFFECT_DATA *prev;
    CHAR_DATA *from;
+   int affect_type;
    short type;
    int duration;
    short location;
@@ -1036,6 +1037,8 @@ struct affect_data
    EXT_BV bitvector;
 };
 
+#define AFFECT_BUFF 0
+#define AFFECT_ENFEEBLE 1
 
 /*
 * A SMAUG spell
@@ -1044,11 +1047,10 @@ struct smaug_affect
 {
    SMAUG_AFF *next;
    SMAUG_AFF *prev;
-   CHAR_DATA *from;
    const char *duration;
    short location;
    const char *modifier;
-   int bitvector;
+   EXT_BV bitvector;
 };
 
 /***************************************************************************
@@ -2685,6 +2687,7 @@ struct skill_type
    double base_roll_boost;
    EXT_BV damtype;
    int charge;
+   int threat;
 };
 
 
@@ -4367,6 +4370,7 @@ void free_threat args( ( THREAT_DATA *threat ) );
 void decay_threat args( ( void ) );
 void decay_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered, int dam ) );
 CHAR_DATA *most_threat args( ( CHAR_DATA *angered ) );
+int res_pen( CHAR_DATA *ch, CHAR_DATA *victim, int dam, EXT_BV damtype );
 
 /* makeobjs.c */
 OBJ_DATA *make_corpse( CHAR_DATA * ch, CHAR_DATA * killer );

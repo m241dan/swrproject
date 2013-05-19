@@ -873,12 +873,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
 /*
  * Give an affect to a char.
  */
-void affect_to_char( CHAR_DATA *ch, AFFECT_DATA *paf )
-{
-   affect_to_char( ch, NULL, paf );
-   return;
-}
-void affect_to_char( CHAR_DATA * ch, CHAR_DATA *from, AFFECT_DATA * paf )
+void affect_to_char( CHAR_DATA * ch,  AFFECT_DATA * paf )
 {
    AFFECT_DATA *paf_new;
 
@@ -897,19 +892,27 @@ void affect_to_char( CHAR_DATA * ch, CHAR_DATA *from, AFFECT_DATA * paf )
    CREATE( paf_new, AFFECT_DATA, 1 );
    LINK( paf_new, ch->first_affect, ch->last_affect, next, prev );
    paf_new->type = paf->type;
+   paf_new->from = paf->from;
+   paf_new->affect_type = paf->affect_type;
    paf_new->duration = paf->duration;
    paf_new->location = paf->location;
    paf_new->modifier = paf->modifier;
    paf_new->bitvector = paf->bitvector;
-
    affect_modify( ch, paf_new, TRUE );
-   return;
 
-   if( from )
+   if( paf_new->from )
    {
-      paf_new->from = from;
+      switch( paf_new->affect_type )
+      {
+         case AFFECT_BUFF:
+            generate_buff_threat( paf_new->from, ch, ( skill_table[paf_new->type]->threat * paf_new->from->skill_level[COMBAT_ABILITY] ) );
+            break;
+         case AFFECT_ENFEEBLE:
+            generate_threat( paf_new->from, ch, ( skill_table[paf_new->type]->threat * paf_new->from->skill_level[COMBAT_ABILITY] ) );
+            break;
+      }
    }
-
+   return;
 }
 
 
