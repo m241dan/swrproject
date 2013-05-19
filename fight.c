@@ -675,7 +675,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    ch_ret retcode = rNONE;
    EXT_BV damtype;
    int hit_wear;
-   int hit_locations[MAX_HITLOC] = { WEAR_HEAD, WEAR_HEAD, WEAR_BODY, WEAR_BODY, WEAR_BODY, WEAR_LEGS, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_SHIELD, WEAR_ABOUT, WEAR_ABOUT, WEAR_WAIST, WEAR_EYES };
+   int hit_locations[MAX_HITLOC] = { WEAR_HEAD, WEAR_HEAD, WEAR_BODY, WEAR_BODY, WEAR_BODY, WEAR_LEGS, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_SHIELD, WEAR_ABOUT, WEAR_ABOUT, WEAR_WAIST, WEAR_ARMS };
 
    /*
     * Can't beat a dead char!
@@ -721,9 +721,9 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       if( skill_table[dt]->type == SKILL_SKILL )
       {
          if( wield )
-            xSET_BIT( damtype, wield->damtype );
+            xSET_BITS( damtype, wield->damtype );
          else
-            xSET_BIT( damtype, ch->damtype );
+            xSET_BITS( damtype, ch->damtype );
       }
    }
 
@@ -762,7 +762,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       if( diceroll == 1 || ( diceroll < 20 && diceroll < thac0 - victim_ac ) )
       {
          /*
-          * Miss. 
+          * Miss.
           */
          if( prof_gsn != -1 )
             learn_from_failure( ch, prof_gsn );
@@ -798,15 +798,17 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    }
    else
    {
-      dam = number_range( skill_table[dt]->min_level , MAX( 1, skill_table[dt]->min_level / 3 ) );
-      dam += get_curr_int( ch ) - get_curr_wis( wis );
+      dam = number_range( skill_table[dt]->min_level , UMAX( 1, skill_table[dt]->min_level / 3 ) );
+      dam += get_curr_int( ch ) - get_curr_wis( victim );
    }
    /*
     * Bonuses.
     */
+
    /* Apply our base roll modifier from skills */
    if( dt < TYPE_HIT && skill_table[dt]->base_roll_boost > 0 )
       dam = (int)( dam * skill_table[dt]->base_roll_boost );
+
    /* Apply our physical stat attribute */
    if( dt < TYPE_HIT && skill_table[dt]->stat_boost > 0 )
    {
@@ -814,7 +816,9 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       double mod;
 
       stat = skill_table[dt]->stat_boost / 1;
-      mod = skill_table[dt]->stat_boost % 1;
+      mod = skill_table[dt]->stat_boost - stat;
+      if( mod == 0 )
+         mod = 1;
 
       switch( stat )
       {
@@ -838,12 +842,27 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
             break;
       }
    }
+
    /* Handle Damroll Stuff */
-   if( dt < TYPE_HIT && skill_table[dt]->attack_boost > 0 )
+   if( dt > TYPE_HIT || skill_table[dt]->type == SKILL_SKILL || skill_table[dt]->attack_boost > 0 )
    {
-      damroll = GET_DAMROLL( ch );
+      OBJ_DATA *hit_loc_armor;
+
+      damroll = (int)( GET_DAMROLL( ch ) * skill_table[dt]->attack_boost );
+      dam += damroll;
+      dam -= GET_ARMOR( victim );
+      if( ( hit_loc_armor = get_eq_char( victim, hit_wear ) ) != NULL && skill_table[dt]->type != SKILL_SPELL )
+         dam -= hit_loc_armor->value[2];
    }
-   dam += GET_DAMROLL( ch );
+
+   /* Handle Defense Mod */
+   if( dt < TYPE_HIT && skill_table[dt]->defense_mod > 0 )
+   {
+      int armor_dam_mod;
+      armor_dam_mod = (int)( GET_ARMOR( ch ) * skill_table[dt]->defense_mod );
+      dam += armor_dam_mod;
+
+   }
 
    if( !IS_AWAKE( victim ) )
      dam *= 2;

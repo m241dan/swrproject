@@ -4098,7 +4098,7 @@ int armor_from_con( CHAR_DATA *ch )
    for( x = 0; x < con; x++ )
    {
       if( x >= 0 )
-         armor += 10;
+         armor += 2;
    }
    return (int)armor;
 }

@@ -1959,7 +1959,7 @@ struct mob_index_data
    short alignment;
    short mobthac0;   /* Unused */
    short evasion;
-   short defense;
+   short armor;
    short hitnodice;
    short hitsizedice;
    short hitplus;

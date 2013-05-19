@@ -5544,7 +5544,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    if( !xIS_EMPTY( pMobIndex->affected_by ) )
       fprintf( fpout, "Affected   %s~\n", ext_flag_string( &pMobIndex->affected_by, a_flags ) );
    fprintf( fpout, "Stats1     %d %d %d %d %d %d %d\n", pMobIndex->alignment, pMobIndex->level, pMobIndex->mobthac0,
-            pMobIndex->evasion, pMobIndex->defense, pMobIndex->gold, pMobIndex->exp );
+            pMobIndex->evasion, pMobIndex->armor, pMobIndex->gold, pMobIndex->exp );
    fprintf( fpout, "Stats2     %d %d %d\n", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus );
    fprintf( fpout, "Stats3     %d %d %d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
@@ -5789,7 +5789,7 @@ void old_fold_area( AREA_DATA * tarea, const char *filename, bool install )
        * C changed to Z for swreality vip_flags  
        */
 
-      fprintf( fpout, "%d %d %d ", pMobIndex->level, pMobIndex->mobthac0, pMobIndex->evasion );
+      fprintf( fpout, "%d %d %d %d", pMobIndex->level, pMobIndex->mobthac0, pMobIndex->evasion, pMobIndex->armor );
       fprintf( fpout, "%dd%d+%d ", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus );
       fprintf( fpout, "%dd%d+%d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
       fprintf( fpout, "%d 0\n", pMobIndex->gold );

@@ -163,7 +163,7 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    int first = gsn_first_skill;
    int top = gsn_first_weapon - 1;
    struct timeval time_used;
-   int mana;
+   int mana, move;
 
    /*
     * bsearch for the skill 
@@ -196,11 +196,11 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    }
 
    /*
-    * check if mana is required 
+    * check if mana is required
     */
    if( skill_table[sn]->min_mana )
    {
-      mana = IS_NPC( ch ) ? 0 : skill_table[sn]->min_mana;
+      mana = skill_table[sn]->min_mana;
 
       if( !IS_NPC( ch ) && ch->mana < mana )
       {
@@ -212,6 +212,22 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    {
       mana = 0;
    }
+
+   /*
+    * check if move is required
+    */
+   if( skill_table[dt]->min_move )
+   {
+      move = skill_table[sn]->min_move;
+
+      if( !IS_NPC( ch ) && ch->move < move )
+      {
+         send_to_char( "You need to more stamina to use this skill.\r\n", ch );
+         return TRUE;
+      }
+   }
+   else
+      move = 0;
 
    /*
     * Is this a real do-fun, or a really a spell?

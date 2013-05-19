@@ -2344,12 +2344,14 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->in_group = NULL;
    mob->group_invite = NULL;
    xSET_BIT( mob->damtype, DAM_BLUNT );
-
    if( pMobIndex->evasion )
       mob->evasion = pMobIndex->evasion;
    else
      mob->evasion = ( short )( LEVEL_HERO - mob->top_level * 2.5 );
-
+   if( pMobIndex->armor )
+      mob->armor = pMobIndex->armor;
+   else
+      mob->armor = ( short )( mob->top_level * .75 );
    if( !pMobIndex->hitnodice )
       mob->max_hit = mob->top_level * 10 + number_range( mob->top_level, mob->top_level * 10 );
    else
@@ -2640,7 +2642,8 @@ void clear_char( CHAR_DATA * ch )
    xCLEAR_BITS( ch->affected_by );
    xCLEAR_BITS( ch->damtype );
    ch->logon = current_time;
-   ch->evasion = 100;
+   ch->evasion = 0;
+   ch->armor = 0;
    ch->position = POS_STANDING;
    ch->hit = 500;
    ch->max_hit = 500;
@@ -5176,6 +5179,7 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->level = 1;
       pMobIndex->mobthac0 = 0;
       pMobIndex->evasion = 0;
+      pMobIndex->armor = 0;
       pMobIndex->hitnodice = 0;
       pMobIndex->hitsizedice = 0;
       pMobIndex->hitplus = 0;
@@ -6974,7 +6978,7 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                pMobIndex->level = x2;
                pMobIndex->mobthac0 = x3;
                pMobIndex->evasion = x4;
-               pMobIndex->defense = x5;
+               pMobIndex->armor = x5;
                pMobIndex->gold = x6;
                pMobIndex->exp = x7;
 
