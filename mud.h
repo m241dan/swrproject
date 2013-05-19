@@ -4437,6 +4437,8 @@ void trip( CHAR_DATA * ch, CHAR_DATA * victim );
 void generate_buff_threat( CHAR_DATA *ch, CHAR_DATA *victim, int amount );
 void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, int gsn, bool StartCasting );
 void heal_msg( CHAR_DATA *ch, CHAR_DATA *victim, int amount );
+void buff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn );
+void rbuff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn );
 void heal_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void damage_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );

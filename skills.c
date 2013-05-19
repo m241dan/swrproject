@@ -431,16 +431,59 @@ void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
       xSET_BITS( af.bitvector, saf->bitvector );
       affect_to_char( victim, &af );
    }
+   buff_msg( ch, victim, gsn );
    return;
 }
 void enfeeble_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
+   SMAUG_AFF *saf;
+   AFFECT_DATA af;
+
+   af.type = gsn;
+   af.from = ch;
+   af.affect_type = AFFECT_ENFEEBLE;
+
+   for( saf = skill_table[gsn]->first_affect; saf; saf = saf->next )
+   {
+      af.location = saf->location;
+      af.duration = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->duration );
+      af.modifier = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->modifier );
+      xCLEAR_BITS( af.bitvector );
+      xSET_BITS( af.bitvector, saf->bitvector );
+      affect_to_char( victim, &af );
+   }
+   buff_msg( ch, victim, gsn );
+   return;
 }
 void redirect_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
 }
 void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
+   AFFECT_DATA *aff, *aff_next;
+   bool friendly;
+
+   if( is_same_group( ch, victim ) )
+      friendly = TRUE;
+   else
+      friendly = FALSE;
+
+   for( aff = victim->first_affect; aff; aff = aff_next )
+   {
+      aff_next = aff->next;
+      if( friendly && aff->affect_type == AFFECT_ENFEEBLE )
+      {
+         affect_remove( victim, aff );
+         break;
+      }
+      else if( !friendly && aff->affect_type == AFFECT_BUFF )
+      {
+         affect_remove( victim, aff );
+         break;
+      }
+   }
+   generate_buff_threat( ch, victim, ( skill_table[gsn]->threat * ch->skill_level[COMBAT_ABILITY] ) );
+   rbuff_msg( ch, victim, gsn );
 }
 void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
@@ -501,6 +544,66 @@ void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, int gsn, bool StartCastin
       act( AT_YELLOW, to_vict, ch, NULL, victim, TO_VICT );
    act( AT_YELLOW, to_room, ch, NULL, victim, TO_NOTVICT );
    return;
+}
+
+void buff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn )
+{
+   char to_char[MAX_INPUT_LENGTH], to_vict[MAX_INPUT_LENGTH], to_room[MAX_INPUT_LENGTH];
+
+   if( ch != victim )
+   {
+      sprintf( to_char, "You %s %s with the affects of %s.", skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeeble" : "buff",
+                         IS_NPC( victim ) ? victim->short_descr : victim->name,
+                         smash_underscore( skill_table[gsn]->name ) );
+      sprintf( to_vict, "%s %s you with the affects of %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                         skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
+                         smash_underscore( skill_table[gsn]->name ) );
+      sprintf( to_room, "%s %s %s with the affects of %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                         skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
+                         IS_NPC( victim ) ? victim->short_descr : victim->name,
+                         smash_underscore( skill_table[gsn]->name ) );
+   }
+   else
+   {
+      sprintf( to_char, "You %s yourself with the affects of %s.", skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeeble" : "buff", smash_underscore( skill_table[gsn]->name ) );
+      sprintf( to_room, "%s %s themselves with the affect of %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                         skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
+                         smash_underscore( skill_table[gsn]->name ) );
+   }
+
+   act( AT_PLAIN, to_char, ch, NULL, victim, TO_CHAR );
+   if( to_vict[0] != '\0' )
+      act( AT_PLAIN, to_vict, ch, NULL, victim, TO_VICT );
+   act( AT_PLAIN, to_room, ch, NULL, victim, TO_NOTVICT );
+}
+
+void rbuff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn )
+{
+   char to_char[MAX_INPUT_LENGTH], to_vict[MAX_INPUT_LENGTH], to_room[MAX_INPUT_LENGTH];
+
+   if( ch != victim )
+   {
+      sprintf( to_char, "You remove the affects of %s from %s.",
+                         smash_underscore( skill_table[gsn]->name ),
+                         IS_NPC( victim ) ? victim->short_descr : victim->name );
+      sprintf( to_vict, "%s removes the affects of %s from you.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                         smash_underscore( skill_table[gsn]->name ) );
+      sprintf( to_room, "%s removes the affects of %s from %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                         smash_underscore( skill_table[gsn]->name ),
+                         IS_NPC( victim ) ? victim->short_descr : victim->name );
+   }
+   else
+   {
+      sprintf( to_char, "You remove the affects of %s on yourself.", smash_underscore( skill_table[gsn]->name ) );
+      sprintf( to_room, "%s removes the affects of %s on themselves.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                         smash_underscore( skill_table[gsn]->name ) );
+   }
+
+   act( AT_PLAIN, to_char, ch, NULL, victim, TO_CHAR );
+   if( to_vict[0] != '\0' )
+      act( AT_PLAIN, to_vict, ch, NULL, victim, TO_VICT );
+   act( AT_PLAIN, to_room, ch, NULL, victim, TO_NOTVICT );
+
 }
 
 void heal_msg( CHAR_DATA *ch, CHAR_DATA *victim, int amount )
