@@ -80,12 +80,12 @@ int get_starget( const char *name )
   return -1;
 }
 
-int get_ability_type( const char *ability )
+int get_style_type( const char *ability )
 {
    int x;
 
-   for( x = 0; x < ABILITY_MAX; x++ )
-      if( !str_cmp( ability, ability_type[x] ) )
+   for( x = 0; x < STYLE_MAX; x++ )
+      if( !str_cmp( ability, style_type[x] ) )
          return x;
    return -1;
 }
@@ -209,14 +209,12 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
       }
    }
    else
-   {
       mana = 0;
-   }
 
    /*
     * check if move is required
     */
-   if( skill_table[dt]->min_move )
+   if( skill_table[sn]->min_move )
    {
       move = skill_table[sn]->min_move;
 
@@ -229,149 +227,285 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    else
       move = 0;
 
-   /*
-    * Is this a real do-fun, or a really a spell?
-    */
-   if( !skill_table[sn]->skill_fun )
-   {
-      ch_ret retcode = rNONE;
-      void *vo = NULL;
-      CHAR_DATA *victim = NULL;
-      OBJ_DATA *obj = NULL;
-
-      target_name = "";
-
-      switch ( skill_table[sn]->target )
-      {
-         default:
-            bug( "Check_skill: bad target for sn %d.", sn );
-            send_to_char( "Something went wrong...\r\n", ch );
-            return TRUE;
-
-         case TAR_IGNORE:
-            vo = NULL;
-            if( argument[0] == '\0' )
-            {
-               if( ( victim = who_fighting( ch ) ) != NULL )
-                  target_name = victim->name;
-            }
-            else
-               target_name = argument;
-            break;
-
-         case TAR_CHAR_OFFENSIVE:
-            if( argument[0] == '\0' && ( victim = who_fighting( ch ) ) == NULL )
-            {
-               ch_printf( ch, "%s who?\r\n", capitalize( skill_table[sn]->name ) );
-               return TRUE;
-            }
-            else if( argument[0] != '\0' && ( victim = get_char_room( ch, argument ) ) == NULL )
-            {
-               send_to_char( "They aren't here.\r\n", ch );
-               return TRUE;
-            }
-            if( is_safe( ch, victim ) )
-               return TRUE;
-            vo = ( void * )victim;
-            break;
-
-         case TAR_CHAR_DEFENSIVE:
-            if( argument[0] != '\0' && ( victim = get_char_room( ch, argument ) ) == NULL )
-            {
-               send_to_char( "They aren't here.\r\n", ch );
-               return TRUE;
-            }
-            if( !victim )
-               victim = ch;
-            vo = ( void * )victim;
-            break;
-
-         case TAR_CHAR_SELF:
-            vo = ( void * )ch;
-            break;
-
-         case TAR_OBJ_INV:
-            if( ( obj = get_obj_carry( ch, argument ) ) == NULL )
-            {
-               send_to_char( "You can't find that.\r\n", ch );
-               return TRUE;
-            }
-            vo = ( void * )obj;
-            break;
-      }
-
-      /*
-       * waitstate 
-       */
-      WAIT_STATE( ch, skill_table[sn]->beats );
-      /*
-       * check for failure 
-       */
-      if( ( number_percent(  ) + skill_table[sn]->difficulty * 5 ) > ( IS_NPC( ch ) ? 75 : ch->pcdata->learned[sn] ) )
-      {
-         failed_casting( skill_table[sn], ch, ( CHAR_DATA* ) vo, obj );
-         learn_from_failure( ch, sn );
-         if( mana )
-         {
-            ch->mana -= mana / 2;
-         }
-         return TRUE;
-      }
-      if( mana )
-      {
-         ch->mana -= mana;
-      }
-      start_timer( &time_used );
-      retcode = ( *skill_table[sn]->spell_fun ) ( sn, ch->top_level, ch, vo );
-      end_timer( &time_used );
-      update_userec( &time_used, &skill_table[sn]->userec );
-
-      if( retcode == rCHAR_DIED || retcode == rERROR )
-         return TRUE;
-
-      if( char_died( ch ) )
-         return TRUE;
-
-      if( retcode == rSPELL_FAILED )
-      {
-         learn_from_failure( ch, sn );
-         retcode = rNONE;
-      }
-      else
-         learn_from_success( ch, sn );
-
-      if( skill_table[sn]->target == TAR_CHAR_OFFENSIVE && victim != ch && !char_died( victim ) )
-      {
-         CHAR_DATA *vch;
-         CHAR_DATA *vch_next;
-
-         for( vch = ch->in_room->first_person; vch; vch = vch_next )
-         {
-            vch_next = vch->next_in_room;
-            if( victim == vch && !victim->fighting && victim->master != ch )
-            {
-               retcode = multi_hit( victim, ch, TYPE_UNDEFINED );
-               break;
-            }
-         }
-      }
-      return TRUE;
-   }
-
-   if( mana )
-   {
-      ch->mana -= mana;
-   }
-   ch->prev_cmd = ch->last_cmd;  /* haus, for automapping */
-   ch->last_cmd = skill_table[sn]->skill_fun;
+   ch->casting_skill = sn;
    start_timer( &time_used );
-   ( *skill_table[sn]->skill_fun ) ( ch, argument );
+   do_skill( ch, argument );
    end_timer( &time_used );
    update_userec( &time_used, &skill_table[sn]->userec );
 
    tail_chain(  );
    return TRUE;
 }
+
+void do_skill( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   char arg[MAX_INPUT_LENGTH];
+   int gsn, schance;
+
+   gsn = ch->casting_skill;
+   argument = one_argument( argument, arg );
+
+   switch( ch->substate )
+   {
+      default:
+         if( skill_table[gsn]->target != TAR_IGNORE && ( victim = get_char_room( ch, arg ) ) == NULL )
+         {
+            send_to_char( "That person is not here.\r\n", ch );
+            return;
+         }
+
+         switch( skill_table[gsn]->target )
+         {
+            default:
+               bug( "Skill using uncoded type.", 0 );
+               return;
+            case TAR_IGNORE:
+               if( ( victim = ch->fighting->who ) == NULL )
+               {
+                  send_to_char( "You aren't fighting anyone.\r\n", ch );
+                  return;
+               }
+               break;
+            case TAR_CHAR_OFFENSIVE:
+               if( is_same_group( ch, victim ) )
+               {
+                  send_to_char( "You can't cast that on someone who isn't grouped with you.\r\n", ch );
+                  return;
+               }
+               break;
+            case TAR_CHAR_DEFENSIVE:
+               if( !is_same_group( ch, victim ) )
+               {
+                  send_to_char( "You can only cast this on someone who is grouped with you.\r\n", ch );
+                  return;
+               }
+               break;
+            case TAR_CHAR_SELF:
+               victim = ch;
+               break;
+         }
+
+         schance = IS_NPC( ch ) ? 100 : (int)( ch->pcdata->learned[gsn] );
+         if( number_percent( ) < schance )
+         {
+            if( skill_table[gsn]->charge > 0 )
+            {
+               charge_message( ch, victim, gsn, TRUE );
+               add_timer( ch, TIMER_DO_FUN, skill_table[gsn]->charge, do_skill, 1 );
+               ch->skill_target = victim;
+               return;
+            }
+            charge_message( ch, victim, gsn, FALSE );
+            break;
+         }
+         else
+         {
+            send_to_char( "You can't seem to focus enough.\r\n", ch );
+            learn_from_failure( ch, gsn );
+            return;
+         }
+         return;
+
+      case 1:
+         victim = ch->skill_target;
+         gsn = ch->casting_skill;
+         ch->skill_target = NULL;
+         ch->casting_skill = -1;
+         adjust_stat( ch, STAT_MANA, -skill_table[gsn]->min_mana );
+         adjust_stat( ch, STAT_MOVE, -skill_table[gsn]->min_move );
+         charge_message( ch, victim, gsn, FALSE );
+         break;
+
+      case SUB_TIMER_DO_ABORT:
+         ch->substate = SUB_NONE;
+         ch->skill_target = NULL;
+         ch->casting_skill = -1;
+         send_to_char( "You are interrupted before completing the use of your ability.\r\n", ch );
+         return;
+   }
+
+   ch->substate = SUB_NONE;
+   learn_from_success( ch, gsn );
+   /*
+    * Handle skill based on ability style
+    */
+   switch( skill_table[gsn]->style )
+   {
+      default:
+         bug( "Unknown Skill Style being used by %s.", ch->name );
+         break;
+      case STYLE_HEALING:
+         heal_skill( ch, gsn, victim );
+         break;
+      case STYLE_DAMAGE:
+         damage_skill( ch, gsn, victim );
+         break;
+      case STYLE_BUFF:
+         buff_skill( ch, gsn, victim );
+         break;
+      case STYLE_ENFEEBLE:
+         enfeeble_skill( ch, gsn, victim );
+         break;
+      case STYLE_REDIRECT:
+         redirect_skill( ch, gsn, victim );
+         break;
+      case STYLE_CLEANSE:
+         cleanse_skill( ch, gsn, victim );
+         break;
+      case STYLE_SUMMON:
+         summon_skill( ch, gsn, victim );
+         break;
+      case STYLE_POLYMORPH:
+         polymorph_skill( ch, gsn, victim );
+         break;
+   }
+   return;
+}
+
+void heal_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+   int amount;
+
+   amount = ch->skill_level[COMBAT_ABILITY] + get_curr_wis( ch );
+   if( skill_table[gsn]->stat_boost )
+   {
+      int stat;
+      double mod;
+
+      stat = skill_table[gsn]->stat_boost / 1;
+      mod = skill_table[gsn]->stat_boost - stat;
+      if( !mod )
+         mod = 1;
+
+      switch( stat )
+      {
+         case APPLY_STR:
+            amount += (int)( get_curr_str( ch ) * mod );
+            break;
+         case APPLY_DEX:
+            amount += (int)( get_curr_dex( ch ) * mod );
+            break;
+         case APPLY_CON:
+            amount += (int)( get_curr_con( ch ) * mod );
+            break;
+         case APPLY_AGI:
+            amount += (int)( get_curr_agi( ch ) * mod );
+            break;
+         case APPLY_INT:
+            amount += (int)( get_curr_int( ch ) * mod );
+            break;
+         case APPLY_WIS:
+            amount += (int)( get_curr_wis( ch ) * mod );
+            break;
+      }
+   }
+   if( skill_table[gsn]->base_roll_boost )
+      amount *= skill_table[gsn]->base_roll_boost;
+
+   adjust_stat( victim, STAT_HIT, amount );
+   generate_buff_threat( ch, victim, (int)( .8 * amount ) );
+   heal_msg( ch, victim, amount );
+   return;
+}
+void damage_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+}
+void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+}
+void enfeeble_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+}
+void redirect_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+}
+void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+}
+void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+}
+void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+{
+}
+
+void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, int gsn, bool StartCasting )
+{
+   char to_char[MAX_INPUT_LENGTH], to_vict[MAX_INPUT_LENGTH], to_room[MAX_INPUT_LENGTH];
+
+   switch( skill_table[gsn]->target )
+   {
+      case TAR_CHAR_OFFENSIVE:
+      case TAR_CHAR_DEFENSIVE:
+      case TAR_CHAR_ANY:
+         if( StartCasting )
+         {
+            sprintf( to_char, "You start %s %s on %s.", skill_table[gsn]->type == SKILL_SKILL ? "charging" : "casting",
+                               smash_underscore( skill_table[gsn]->name ),
+                               IS_NPC( victim ) ? victim->short_descr : victim->name );
+            sprintf( to_vict, "%s starts %s %s on you.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                               skill_table[gsn]->type == SKILL_SKILL ? "charging" : "casting",
+                               smash_underscore( skill_table[gsn]->name ) );
+            sprintf( to_room, "%s starts %s %s on %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                               skill_table[gsn]->type == SKILL_SKILL ? "charging" : "casting",
+                               smash_underscore( skill_table[gsn]->name ),
+                               IS_NPC( victim ) ? victim->short_descr : victim->name );
+         }
+         else
+         {
+            sprintf( to_char, "You %s %s on %s.", skill_table[gsn]->type == SKILL_SKILL ? "use" : "cast",
+                               smash_underscore( skill_table[gsn]->name ),
+                               IS_NPC( victim ) ? victim->short_descr : victim->name );
+            sprintf( to_vict, "%s %s %s on you.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                               skill_table[gsn]->type == SKILL_SKILL ? "uses" : "casts",
+                               smash_underscore( skill_table[gsn]->name ) );
+            sprintf( to_room, "%s %s %s on %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
+                               skill_table[gsn]->type == SKILL_SKILL ? "uses" : "casts",
+                               smash_underscore( skill_table[gsn]->name ),
+                               IS_NPC( victim ) ? victim->short_descr : victim->name );
+         }
+      case TAR_CHAR_SELF:
+         if( StartCasting )
+         {
+            sprintf( to_char, "You begin to %s %s.", skill_table[gsn]->type == SKILL_SKILL ? "charge" : "cast", smash_underscore( skill_table[gsn]->name ) );
+            sprintf( to_room, "%s begins to %s %s.", IS_NPC( ch ) ? ch->short_descr : ch->name, skill_table[gsn]->type == SKILL_SKILL ? "charge" : "cast", smash_underscore( skill_table[gsn]->name ) );
+         }
+         else
+         {
+            sprintf( to_char, "You %s %s.", skill_table[gsn]->type == SKILL_SKILL ? "use" : "cast", smash_underscore( skill_table[gsn]->name ) );
+            sprintf( to_room, "%s  %s %s.", IS_NPC( ch ) ? ch->short_descr : ch->name, skill_table[gsn]->type == SKILL_SKILL ? "uses" : "casts", smash_underscore( skill_table[gsn]->name ) );
+         }
+   }
+   act( AT_YELLOW, to_char, ch, NULL, victim, TO_CHAR );
+   if( to_vict[0] != '\0' )
+      act( AT_YELLOW, to_vict, ch, NULL, victim, TO_VICT );
+   act( AT_YELLOW, to_room, ch, NULL, victim, TO_NOTVICT );
+   return;
+}
+
+void heal_msg( CHAR_DATA *ch, CHAR_DATA *victim, int amount )
+{
+   char to_char[MAX_INPUT_LENGTH], to_vict[MAX_INPUT_LENGTH], to_room[MAX_INPUT_LENGTH];
+
+   if( ch != victim )
+   {
+      sprintf( to_char, "You heal %s for %d.", IS_NPC( victim ) ? victim->short_descr : victim->name, amount );
+      sprintf( to_vict, "%s heals you for %d.", IS_NPC( ch ) ? ch->short_descr : ch->name, amount );
+      sprintf( to_room, "%s heals %s for %d.", IS_NPC( ch ) ? ch->short_descr : ch->name, IS_NPC( victim ) ? victim->short_descr : victim->name, amount );
+   }
+   else
+   {
+      sprintf( to_char, "You heal yourself for %d.", amount );
+      sprintf( to_room, "%s heals themselves for %d.", IS_NPC( ch ) ? ch->short_descr : ch->name, amount );
+   }
+
+   act( AT_PLAIN, to_char, ch, NULL, victim, TO_CHAR );
+   if( to_vict[0] != '\0' )
+      act( AT_PLAIN, to_vict, ch, NULL, victim, TO_VICT );
+   act( AT_PLAIN, to_room, ch, NULL, victim, TO_NOTVICT );
+}
+
 
 /*
  * Lookup a skills information
@@ -394,8 +528,8 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
    if( !str_cmp( arg, "all" ) )
    {
       for( sn = 0; sn < top_sn && skill_table[sn] && skill_table[sn]->name; sn++ )
-         pager_printf( ch, "Sn: %4d Slot: %4d Skill/spell: '%-20s' Ability Type: %s\r\n",
-                       sn, skill_table[sn]->slot, skill_table[sn]->name, ability_type[skill_table[sn]->ability_type] );
+         pager_printf( ch, "Sn: %4d Slot: %4d Skill/spell: '%-20s' Style Type: %s\r\n",
+                       sn, skill_table[sn]->slot, skill_table[sn]->name, style_type[skill_table[sn]->style] );
    }
    else if( !str_cmp( arg, "herbs" ) )
    {
@@ -443,12 +577,12 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
       }
 
       ch_printf( ch, "Sn: %4d Slot: %4d %s: '%-20s'\r\n", sn, skill->slot, skill_tname[skill->type], skill->name );
-      ch_printf( ch, "Type: %s  Target: %s  Minpos: %d  Mana: %d  Move: %d Beats: %d\r\n",
+      ch_printf( ch, "Type: %s  Target: %s  Minpos: %d  Mana: %d  Move: %d Beats: %d Charge: %d\r\n",
                  skill_tname[skill->type],
                  target_type[URANGE( TAR_IGNORE, skill->target, TAR_OBJ_INV )],
-                 skill->minimum_position, skill->min_mana, skill->min_move, skill->beats );
-      ch_printf( ch, "Ability Type: %s, Stat Boost: %f, Attack Boost: %f, Defense Mod: %f, Base Roll Boost: %f\r\n",
-                 ability_type[skill->ability_type], skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
+                 skill->minimum_position, skill->min_mana, skill->min_move, skill->beats, skill->charge );
+      ch_printf( ch, "Style Type: %s, Stat Boost: %f, Attack Boost: %f, Defense Mod: %f, Base Roll Boost: %f\r\n",
+                 style_type[skill->style], skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
       send_to_char( "Damtype:", ch );
       if( xIS_EMPTY( skill->damtype ) )
          send_to_char( " none", ch );
@@ -3566,13 +3700,9 @@ void generate_buff_threat( CHAR_DATA *ch, CHAR_DATA *victim, int amount )
 {
    THREAT_DATA *threat;
 
-   if( is_same_group( ch, victim ) )
-   {
-      for( threat = first_threat; threat; threat = threat->next )
-         if( threat->angry_at == victim )
-            generate_threat( ch, threat->angered, amount );
-   }
-   else
-      generate_threat( ch, victim, amount );
+   for( threat = first_threat; threat; threat = threat->next )
+      if( threat->angry_at == victim )
+         generate_threat( ch, threat->angered, amount );
+
    return;
 }

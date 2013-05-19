@@ -33,7 +33,7 @@ SKILLTYPE *herb_table[MAX_HERB];
 
 const char *const skill_tname[] = { "unknown", "Spell", "Skill", "Weapon", "Tongue", "Herb", "Passive" };
 
-const char *const ability_type[ABILITY_MAX] = { "Healing", "Damage", "Buff", "Enfeeble", "Redirect", "Cleanse", "Summon", "Polymorph" };
+const char *const style_type[STYLE_MAX] = { "Healing", "Damage", "Buff", "Enfeeble", "Redirect", "Cleanse", "Summon", "Polymorph" };
 
 SPELL_FUN *spell_function( const char *name )
 {
@@ -108,7 +108,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    fprintf( fpout, "Flags        %d\n", skill->flags );
    if( skill->target )
       fprintf( fpout, "Target       %d\n", skill->target );
-   fprintf( fpout, "AbilityType  %d\n", skill->ability_type );
+   fprintf( fpout, "StyleType  %d\n", skill->style );
    if( skill->minimum_position )
       fprintf( fpout, "Minpos       %d\n", skill->minimum_position );
    if( skill->saves )
@@ -121,6 +121,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Move         %d\n", skill->min_move );
    if( skill->beats )
       fprintf( fpout, "Rounds       %d\n", skill->beats );
+   if( skill->charge )
+      fprintf( fpout, "Charge       %d\n", skill->charge );
    if( skill->guild != -1 )
       fprintf( fpout, "Guild        %d\n", skill->guild );
    if( skill->skill_fun )
@@ -365,7 +367,6 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'A':
-            KEY( "AbilityType", skill->ability_type, fread_number( fp ) );
             KEY( "Alignment", skill->alignment, fread_number( fp ) );
             if( !str_cmp( word, "Affect" ) )
             {
@@ -383,6 +384,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'C':
+            KEY( "Charge", skill->charge, fread_number( fp ) );
             if ( !str_cmp( word, "Code" ) )
             {
                SPELL_FUN *spellfun;
@@ -477,8 +479,9 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'S':
-            KEY( "Slot", skill->slot, fread_number( fp ) );
             KEY( "Saves", skill->saves, fread_number( fp ) );
+            KEY( "Slot", skill->slot, fread_number( fp ) );
+            KEY( "StyleType", skill->style, fread_number( fp ) );
             break;
 
          case 'T':

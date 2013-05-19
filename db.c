@@ -2678,6 +2678,8 @@ void clear_char( CHAR_DATA * ch )
    ch->mod_lck = 0;
    ch->mod_agi = 0;
    ch->plr_home = NULL;
+   ch->casting_skill = -1;
+   ch->skill_target = NULL;
    return;
 }
 
@@ -3624,6 +3626,23 @@ void smash_tilde( char *str )
 
    return;
 }
+
+void smash_underscore( char *str )
+{
+   for( ; *str != '\0'; str++ )
+      if( *str == '_' )
+         *str = ' ';
+
+   return;
+}
+const char *smash_underscore( const char *str )
+{
+   static char buf[MAX_STRING_LENGTH];
+   mudstrlcpy( buf, str, MAX_STRING_LENGTH );
+   smash_underscore( buf );
+   return buf;
+}
+
 
 /*
  * From SmaugFUSS

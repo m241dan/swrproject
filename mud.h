@@ -1871,7 +1871,7 @@ typedef enum
 typedef enum
 {
    TIMER_NONE, TIMER_RECENTFIGHT, TIMER_SHOVEDRAG, TIMER_DO_FUN,
-   TIMER_APPLIED, TIMER_PKILLED
+   TIMER_APPLIED, TIMER_PKILLED, TIMER_SKILL_FUN
 } timer_types;
 
 struct timer_data
@@ -2202,6 +2202,8 @@ struct char_data
    GROUP_DATA *in_group;
    GROUP_DATA *group_invite;
    int threat;
+   int casting_skill;
+   CHAR_DATA *skill_target;
 };
 
 #define MAX_GROUP 6
@@ -2618,10 +2620,10 @@ typedef enum
 
 typedef enum
 {
-   ABILITY_HEALING, ABILITY_DAMAGE, ABILITY_BUFF, ABILITY_ENFEEBLE,
-   ABILITY_REDIRECT, ABILITY_CLENASE, ABILITY_SUMMON, ABILITY_POLYMORPH,
-   ABILITY_MAX
-} ability_types;
+   STYLE_HEALING, STYLE_DAMAGE, STYLE_BUFF, STYLE_ENFEEBLE,
+   STYLE_REDIRECT, STYLE_CLEANSE, STYLE_SUMMON, STYLE_POLYMORPH,
+   STYLE_MAX
+} style_types;
 
 struct timerset
 {
@@ -2676,12 +2678,13 @@ struct skill_type
    struct timerset userec; /* Usage record         */
    int alignment; /* for jedi powers */
    short min_move;
-   short ability_type;
+   short style;
    double stat_boost;
    double attack_boost;
    double defense_mod;
    double base_roll_boost;
    EXT_BV damtype;
+   int charge;
 };
 
 
@@ -3254,7 +3257,7 @@ extern const struct liq_type liq_table[LIQ_MAX];
 extern const char *const attack_table[13];
 extern const char *const ability_name[MAX_ABILITY];
 
-extern const char *const ability_type[ABILITY_MAX];
+extern const char *const style_type[STYLE_MAX];
 extern const char *const skill_tname[];
 extern short const movement_loss[SECT_MAX];
 extern const char *const dir_name[];
@@ -3383,6 +3386,7 @@ extern struct act_prog_data *mob_act_list;
 * Command functions.
 * Defined in act_*.c (mostly).
 */
+DECLARE_DO_FUN( do_skill );
 DECLARE_DO_FUN( do_showthreat );
 DECLARE_DO_FUN( do_setmssp );
 DECLARE_DO_FUN( do_setplanet );
@@ -4323,6 +4327,9 @@ void delete_obj args( ( OBJ_INDEX_DATA * obj ) );
 void delete_mob args( ( MOB_INDEX_DATA * mob ) );
 void sort_area args( ( AREA_DATA * pArea, bool proto ) );
 void sort_area_by_name args( ( AREA_DATA * pArea ) ); /* Fireblade */
+void smash_underscore args( ( char *str ) );
+const char *smash_underscore args( ( const char *str ) );
+
 
 /* fight.c */
 int max_fight args( ( CHAR_DATA * ch ) );
@@ -4414,7 +4421,7 @@ void release_supermob( void );
 void set_title( CHAR_DATA * ch, const char *title );
 
 /* skills.c */
-int get_ability_type( const char *ability );
+int get_style_type( const char *ability );
 bool check_skill( CHAR_DATA * ch, const char *command, const char *argument );
 void learn_from_success( CHAR_DATA * ch, int sn );
 void learn_from_failure( CHAR_DATA * ch, int sn );
@@ -4424,6 +4431,17 @@ bool check_grip( CHAR_DATA * ch, CHAR_DATA * victim );
 void disarm( CHAR_DATA * ch, CHAR_DATA * victim );
 void trip( CHAR_DATA * ch, CHAR_DATA * victim );
 void generate_buff_threat( CHAR_DATA *ch, CHAR_DATA *victim, int amount );
+void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, int gsn, bool StartCasting );
+void heal_msg( CHAR_DATA *ch, CHAR_DATA *victim, int amount );
+void heal_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void damage_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void enfeeble_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void redirect_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
