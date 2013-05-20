@@ -108,7 +108,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    fprintf( fpout, "Flags        %d\n", skill->flags );
    if( skill->target )
       fprintf( fpout, "Target       %d\n", skill->target );
-   fprintf( fpout, "StyleType  %d\n", skill->style );
+   fprintf( fpout, "Style      %d\n", skill->style );
    if( skill->minimum_position )
       fprintf( fpout, "Minpos       %d\n", skill->minimum_position );
    if( skill->saves )
@@ -355,6 +355,7 @@ SKILLTYPE *fread_skill( FILE * fp )
    CREATE( skill, SKILLTYPE, 1 );
 
    skill->guild = -1;
+   skill->style = -1;
 
    for( ;; )
    {
@@ -483,7 +484,7 @@ SKILLTYPE *fread_skill( FILE * fp )
          case 'S':
             KEY( "Saves", skill->saves, fread_number( fp ) );
             KEY( "Slot", skill->slot, fread_number( fp ) );
-            KEY( "StyleType", skill->style, fread_number( fp ) );
+            KEY( "Style", skill->style, fread_number( fp ) );
             break;
 
          case 'T':

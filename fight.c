@@ -343,21 +343,29 @@ void violence_update( void )
       if( IS_AFFECTED( ch, AFF_PARALYSIS ) )
          continue;
 
-      if( ( victim = most_threat( ch ) ) != NULL )
+      if( !is_threatened( ch ) )
+         continue;
+
+      if( IS_NPC( ch ) )
       {
-         if( who_fighting( ch ) != victim )
+         if( ( victim = most_threat( ch ) ) != NULL )
          {
-            EXIT_DATA *exit;
-            stop_fighting( ch, FALSE );
-            if( ( exit = get_exit( ch->in_room, find_first_step( ch->in_room, victim->in_room, 20 ) ) ) == NULL )
+            if( who_fighting( ch ) != victim )
             {
-               free_threat( has_threat( ch, victim ) );
-               continue;
+               EXIT_DATA *exit;
+               stop_fighting( ch, FALSE );
+               if( ( exit = get_exit( ch->in_room, find_first_step( ch->in_room, victim->in_room, 20 ) ) ) == NULL )
+               {
+                  free_threat( has_threat( ch, victim ) );
+                  continue;
+               }
+               move_char( ch, exit, 0 );
+               if( ch->in_room != victim->in_room )
+                  continue;
             }
-            move_char( ch, exit, 0 );
-            if( ch->in_room != victim->in_room )
-               continue;
          }
+         else
+            continue;
       }
 
       retcode = rNONE;

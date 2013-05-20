@@ -261,7 +261,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                bug( "Skill using uncoded type.", 0 );
                return;
             case TAR_IGNORE:
-               if( ( victim = ch->fighting->who ) == NULL )
+               if( ch->fighting && ( victim = ch->fighting->who ) == NULL )
                {
                   send_to_char( "You aren't fighting anyone.\r\n", ch );
                   return;
@@ -703,18 +703,19 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
                  skill_tname[skill->type],
                  target_type[URANGE( TAR_IGNORE, skill->target, TAR_OBJ_INV )],
                  skill->minimum_position, skill->min_mana, skill->min_move, skill->beats, skill->charge );
-      ch_printf( ch, "Style Type: %s, Stat Boost: %f, Attack Boost: %f, Defense Mod: %f, Base Roll Boost: %f\r\n",
-                 style_type[skill->style], skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
-      send_to_char( "Damtype:", ch );
+      ch_printf( ch, "Style Type: %s Damtype:",
+                 style_type[skill->style] );
       if( xIS_EMPTY( skill->damtype ) )
-         send_to_char( " none", ch );
+         send_to_char( " none\r\n", ch );
       else
       {
          for( x = 0; x < MAX_DAMTYPE; x++ )
             if( xIS_SET( skill->damtype, x ) )
-               ch_printf( ch, " %d,", d_type[x] );
+               ch_printf( ch, " %s,", d_type[x] );
           send_to_char( "\r\n", ch );
       }
+      ch_printf( ch, "Stat Boost: %f, Attack Boost: %f\r\nDefense Mod: %f, Base Roll Boost: %f\r\n",
+                 skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
       ch_printf( ch, "Flags: %d  Guild: %d  Code: %s\r\n",
                  skill->flags,
                  skill->guild, skill->skill_fun ? skill->skill_fun_name : skill->spell_fun_name );
