@@ -43,7 +43,6 @@ const char *const spell_class[] = { "none", "lunar", "solar", "travel", "summon"
 
 const char *const target_type[] = { "ignore", "offensive", "defensive", "self", "objinv", "any", "aoe_friendly", "aoe_enemy", "aoe_enemy_friend" };
 
-
 void show_char_to_char( CHAR_DATA * list, CHAR_DATA * ch );
 bool validate_spec_fun( const char *name );
 int ris_save( CHAR_DATA * ch, int schance, int ris );
@@ -1104,10 +1103,22 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          send_to_char( "Ok.\r\n", ch );
          return;
       }
+      if( !str_cmp( arg2, "move" ) )
+      {
+         skill->min_move = URANGE( 0, atoi( argument ), 2000 );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
       if( !str_cmp( arg2, "beats" ) )
       {
          skill->beats = URANGE( 0, atoi( argument ), 120 );
          send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "charge" ) )
+      {
+         skill->charge = atoi( argument );
+         send_to_char( "Ok\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "guild" ) )
@@ -1125,6 +1136,12 @@ void do_sset( CHAR_DATA * ch, const char *argument )
       if( !str_cmp( arg2, "type" ) )
       {
          skill->type = get_skill( argument );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "style" ) )
+      {
+         skill->style = get_style_type( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
@@ -1381,6 +1398,51 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             DISPOSE( skill->teachers );
          if( str_cmp( argument, "clear" ) )
             skill->teachers = str_dup( argument );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "statboost" ) )
+      {
+         skill->stat_boost = atof( argument );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "attackboost" ) )
+      {
+         skill->attack_boost = atof( argument );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "defensemod" ) )
+      {
+         skill->defense_mod = atof( argument );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "baserollboost" ) )
+      {
+         skill->base_roll_boost = atof( argument );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "threat" ) )
+      {
+         skill->threat = atoi( argument );
+         send_to_char( "Ok.\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "damtype" ) )
+      {
+         while( argument[0] != '\0' )
+         {
+            argument = one_argument( argument, arg2 );
+            if( ( value = get_damtype( arg2 ) ) == -1 )
+            {
+               ch_printf( ch, "%s is an invalid damtype.\r\n", arg2 );
+               continue;
+            }
+            xTOGGLE_BIT( skill->damtype, value );
+         }
          send_to_char( "Ok.\r\n", ch );
          return;
       }
