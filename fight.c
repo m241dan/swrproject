@@ -874,11 +874,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    }
 
    /* Handle Res_Pen */
-   ch_printf( ch, "Dam before Res_Pen: %d\r\n", dam );
-
    dam = res_pen( ch, victim, dam, damtype );
-
-   ch_printf( ch, "Dam after Res_Pen: %d\r\n", dam );
 
    if( !IS_AWAKE( victim ) )
      dam *= 2;
@@ -3064,24 +3060,16 @@ int res_pen( CHAR_DATA *ch, CHAR_DATA *victim, int dam, EXT_BV damtype )
             mod_res += victim->resistance[DAM_ELEMENTAL] + victim->resistance[counter];
          }
 
-         ch_printf( ch, "mod_pen: %f mdo_res: %f\r\n", mod_pen, mod_res );
-
          mod = mod_pen - mod_res;
-
-         ch_printf( ch, "mod: %f\r\n", mod );
          if( mod == 0 )
          {
             dam += split_dam;
             continue;
          }
          mod = URANGE( -95, (int)mod, 95 );
-         ch_printf( ch, "mod after urange: %f\r\n", mod );
          mod /= 100;
-         ch_printf( ch, "mod after turning to percentage: %f\r\n", mod );
          mod += 1;
-         ch_printf( ch, "mod after adding one for multiplaction: %f\r\n", mod );
          mod = fabs(mod);
-         ch_printf( ch, "mod after abs: %f\r\n", mod );
          dam += (int)( split_dam * mod );
 
          if( ++progress == num_damtype )
