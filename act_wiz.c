@@ -5978,3 +5978,24 @@ void do_cedit( CHAR_DATA * ch, const char *argument )
     */
    do_cedit( ch, "" );
 }
+
+void do_showthreat( CHAR_DATA *ch, const char *argument )
+{
+   THREAT_DATA *threat;
+
+   send_to_char( "Threat Data:\r\n", ch );
+   send_to_char( "--------------------------------------------------------------------------------\r\n", ch );
+   for( threat = first_threat; threat; threat = threat->next )
+   {
+      if( !threat->angered || threat->angry_at )
+      {
+         bug( "There's a NULL angered or angry_at in a threat.", 0 );
+         continue;
+      }
+      ch_printf( ch, "%s is angry at %s. Constant: %d Fickle: %d\r\n", threat->angered->name, threat->angry_at->name, threat->constant, threat->fickle );
+   }
+   send_to_char( "--------------------------------------------------------------------------------\r\n", ch );
+   return;
+}
+
+

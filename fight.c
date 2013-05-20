@@ -852,11 +852,11 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    }
 
    /* Handle Damroll Stuff */
-   if( dt > TYPE_HIT || skill_table[dt]->type == SKILL_SKILL || skill_table[dt]->attack_boost > 0 )
+   if( dt >= TYPE_HIT || skill_table[dt]->type == SKILL_SKILL || skill_table[dt]->attack_boost > 0 )
    {
       OBJ_DATA *hit_loc_armor;
 
-      damroll = (int)( GET_DAMROLL( ch ) * skill_table[dt]->attack_boost );
+      damroll = is_skill( dt ) ? (int)( GET_DAMROLL( ch ) * skill_table[dt]->attack_boost ) : GET_DAMROLL( ch );
       dam += damroll;
       dam -= GET_ARMOR( victim );
       if( ( hit_loc_armor = get_eq_char( victim, hit_wear ) ) != NULL && skill_table[dt]->type != SKILL_SPELL )
@@ -3019,25 +3019,6 @@ CHAR_DATA *most_threat( CHAR_DATA *angered )
       }
    }
    return most_threat->angry_at;
-}
-
-void do_showthreat( CHAR_DATA *ch, const char *argument )
-{
-   THREAT_DATA *threat;
-
-   send_to_char( "---------------------------------------------------\r\n", ch );
-
-   for( threat = first_threat; threat; threat = threat->next )
-   {
-      if( !threat->angry_at || !threat->angered )
-      {
-         bug( "There's a NULL angry_at or angered in the set.", 0 );
-         continue;
-      }
-      ch_printf( ch, "%s is angry at %s for %d Fickle and %d Constant.\r\n", threat->angered->name, threat->angry_at->name, threat->fickle, threat->constant );
-   }
-   send_to_char( "---------------------------------------------------\r\n", ch );
-   return;
 }
 
 int res_pen( CHAR_DATA *ch, CHAR_DATA *victim, int dam, EXT_BV damtype )

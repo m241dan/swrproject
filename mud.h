@@ -4578,6 +4578,7 @@ void group_leave( CHAR_DATA *ch );
 void group_invite_accept( CHAR_DATA *ch );
 void group_add_member( CHAR_DATA *ch, GROUP_DATA *group );
 CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument );
+bool is_skill( int gsn );
 
 
 /* interp.c */

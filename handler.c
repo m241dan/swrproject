@@ -4421,3 +4421,10 @@ CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument )
    }
    return NULL;
 }
+
+bool is_skill( int gsn )
+{
+   if( gsn < TYPE_HIT && gsn > 0 )
+      return TRUE;
+   return FALSE;
+}
