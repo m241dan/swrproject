@@ -81,7 +81,7 @@ void do_score( CHAR_DATA * ch, const char *argument )
    else
       ch_printf( ch, "Hit Points: %d of %d     Move: %d of %d\r\n", ch->hit, ch->max_hit, ch->move, ch->max_move );
 
-   ch_printf( ch, "Str: %2d  Dex: %2d  Con: %2d  Agi: %2d  Int: %2d  Wis: %2d  Cha: %2d  Lck: ??  Frc: ??\r\n",
+   ch_printf( ch, "Str: %2d  Dex: %2d  Con: %2d  Agi: %2d  Int: %2d  Wis: %2d  Cha: %2d\r\n",
               get_curr_str( ch ), get_curr_dex( ch ), get_curr_con( ch ), get_curr_agi( ch ), get_curr_int( ch ), get_curr_wis( ch ),
               get_curr_cha( ch ) );
 
