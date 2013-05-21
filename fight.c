@@ -796,6 +796,8 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       else
          dam = number_range( wield->value[1], wield->value[2] );
 
+      ch_printf( ch, "Base Weapon Roll: %d\r\n", dam );
+
       if( !wield )
          dam += get_curr_str( ch ) - get_curr_con( victim );
       else if( wield->value[3] == WEAPON_BLASTER || wield->value[3] == WEAPON_BOWCASTER )
@@ -804,6 +806,9 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
          dam += get_curr_dex( ch ) - get_curr_con( victim );
       else
          dam += get_curr_str( ch ) - get_curr_con( victim );
+
+      ch_printf( ch, "Damage After Native Stat v. Con Rolls: %d\r\n", dam );
+
    }
    else
    {
@@ -817,6 +822,8 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    /* Apply our base roll modifier from skills */
    if( dt < TYPE_HIT && skill_table[dt]->base_roll_boost > 0 )
       dam = (int)( dam * skill_table[dt]->base_roll_boost );
+
+   ch_printf( ch, "Damage After Base Roll Mod: %d\r\n", dam );
 
    /* Apply our physical stat attribute */
    if( dt < TYPE_HIT && skill_table[dt]->stat_boost > 0 )
@@ -852,6 +859,8 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       }
    }
 
+   ch_printf( ch, "Damage after Attribute Boost: %d\r\n", dam );
+
    /* Handle Damroll Stuff */
    if( dt >= TYPE_HIT || skill_table[dt]->type == SKILL_SKILL || skill_table[dt]->attack_boost > 0 )
    {
@@ -864,6 +873,8 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
          dam -= hit_loc_armor->value[2];
    }
 
+   ch_printf( ch, "Damage after Damroll: %d\r\n", dam );
+
    /* Handle Defense Mod */
    if( dt < TYPE_HIT && skill_table[dt]->defense_mod > 0 )
    {
@@ -873,11 +884,17 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    }
 
+   ch_printf( ch, "Damage after Defense Mod: %d\r\n", dam );
+
    /* Handle DType Potency */
    dam = dtype_potency( ch, dam, damtype );
 
+   ch_printf( ch, "Damage after Dtype Potency: %d\r\n", dam );
+
    /* Handle Res_Pen */
    dam = res_pen( ch, victim, dam, damtype );
+
+   ch_printf( ch, "Damage after Res_pen: %d\r\n", dam );
 
    if( !IS_AWAKE( victim ) )
      dam *= 2;
