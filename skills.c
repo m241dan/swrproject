@@ -173,7 +173,6 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
 
       if( LOWER( command[0] ) == LOWER( skill_table[sn]->name[0] )
           && !str_prefix( command, skill_table[sn]->name )
-          && ( skill_table[sn]->skill_fun || skill_table[sn]->spell_fun != spell_null )
           && ( IS_NPC( ch ) || ( ch->pcdata->learned[sn] > 0 ) ) )
          break;
       if( first >= top )
@@ -702,7 +701,7 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
       ch_printf( ch, "Sn: %4d Slot: %4d %s: '%-20s'\r\n", sn, skill->slot, skill_tname[skill->type], skill->name );
       ch_printf( ch, "Type: %s  Target: %s  Minpos: %d  Mana: %d  Move: %d Beats: %d Charge: %d\r\n",
                  skill_tname[skill->type],
-                 target_type[URANGE( TAR_IGNORE, skill->target, TAR_OBJ_INV )],
+                 target_type[skill->target],
                  skill->minimum_position, skill->min_mana, skill->min_move, skill->beats, skill->charge );
       ch_printf( ch, "Style Type: %s Damtype:",
                  style_type[skill->style] );
