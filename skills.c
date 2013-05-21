@@ -402,6 +402,8 @@ void heal_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
    if( skill_table[gsn]->base_roll_boost )
       amount *= skill_table[gsn]->base_roll_boost;
 
+   amount = res_pen( ch, victim, amount, skill_table[gsn]->damtype );
+
    adjust_stat( victim, STAT_HIT, amount );
    generate_buff_threat( ch, victim, (int)( .8 * amount ) );
    heal_msg( ch, victim, amount );
@@ -954,19 +956,6 @@ void do_sset( CHAR_DATA * ch, const char *argument )
       {
          skill->alignment = atoi( argument );
          send_to_char( "Ok.\r\n", ch );
-         return;
-      }
-      if( !str_cmp( arg2, "damtype" ) )
-      {
-         int x = get_sdamage( argument );
-
-         if( x == -1 )
-            send_to_char( "Not a spell damage type.\r\n", ch );
-         else
-         {
-            SET_SDAM( skill, x );
-            send_to_char( "Ok.\r\n", ch );
-         }
          return;
       }
       if( !str_cmp( arg2, "acttype" ) )
