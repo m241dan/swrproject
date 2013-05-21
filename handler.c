@@ -3212,7 +3212,7 @@ void showaffect( CHAR_DATA * ch, AFFECT_DATA * paf )
          case APPLY_PENETRATION:
          case APPLY_RESISTANCE:
          case APPLY_DAMTYPEPOTENCY:
-            sprintf( buf, "Affects %s %s by %d.\r\n", d_type[get_value_one( paf->modifier)], a_types[paf->location], get_value_two( paf->modifier ) );
+            sprintf( buf, "Affects %s %s by %d.\r\n", d_type[get_value_one( paf->modifier)], smash_underscore( a_types[paf->location] ), get_value_two( paf->modifier ) );
             break;
          case APPLY_AFFECT:
             sprintf( buf, "Affects %s by", affect_loc_name( paf->location ) );
