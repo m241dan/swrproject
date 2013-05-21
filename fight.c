@@ -1373,7 +1373,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
    if( ch != victim )
    {
       generate_threat( ch, victim, dam );
-      decay_threat( victim, ch, dam );
+//      decay_threat( victim, ch, dam );
    }
 
    /*
@@ -2942,6 +2942,7 @@ void generate_threat( CHAR_DATA *angry_at, CHAR_DATA *angered, int amount )
 
    if( ( threat = has_threat( angry_at, angered ) ) == NULL )
    {
+      send_to_char( "Generating New Threat Data.\r\n", angry_at );
       CREATE( threat, THREAT_DATA, 1 );
       threat->angry_at = angry_at;
       threat->angered = angered;

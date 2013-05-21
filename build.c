@@ -135,7 +135,7 @@ const char *const a_types[] = {
    "immune", "susceptible", "weaponspell", "luck", "backstab", "pick", "track",
    "steal", "sneak", "hide", "palm", "detrap", "dodge", "peek", "scan", "gouge",
    "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
-   "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate"
+   "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate",
    "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "armor", "resistance",
    "penetration", "damtype_potency", "threat"
 };
