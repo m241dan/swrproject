@@ -1169,10 +1169,20 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    }
 
    for( paf = obj->first_affect; paf; paf = paf->next )
-      ch_printf( ch, "Affects %s by %d. (extra)\r\n", affect_loc_name( paf->location ), paf->modifier );
+   {
+      if( paf->location == APPLY_PENETRATION || paf->location == APPLY_RESISTANCE || paf->location == APPLY_DAMTYPEPOTENCY )
+         ch_printf( ch, "Affects %s %s by %d. (extra)\r\n", d_type[get_value_one( paf->modifier)], a_types[paf->location], get_value_two( paf->modifier ) );
+      else
+         ch_printf( ch, "Affects %s by %d. (extra)\r\n", affect_loc_name( paf->location ), paf->modifier );
+   }
 
    for( paf = obj->pIndexData->first_affect; paf; paf = paf->next )
-      ch_printf( ch, "Affects %s by %d.\r\n", affect_loc_name( paf->location ), paf->modifier );
+   {
+      if( paf->location == APPLY_PENETRATION || paf->location == APPLY_RESISTANCE || paf->location == APPLY_DAMTYPEPOTENCY )
+         ch_printf( ch, "Affects %s %s by %d.\r\n", d_type[get_value_one( paf->modifier)], a_types[paf->location], get_value_two( paf->modifier ) );
+      else
+         ch_printf( ch, "Affects %s by %d.\r\n", affect_loc_name( paf->location ), paf->modifier );
+   }
 
    return;
 }

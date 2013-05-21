@@ -128,7 +128,7 @@ const char *const o_types[] = {
 };
 
 const char *const a_types[] = {
-   "none", "strength", "dexterity", "intelligence", "wisdom", "constitution", "agility"
+   "none", "strength", "dexterity", "intelligence", "wisdom", "constitution", "agility",
    "sex", "null", "level", "age", "height", "weight", "force", "hit", "move",
    "credits", "experience", "evasion", "hitroll", "damroll", "save_poison", "save_rod",
    "save_para", "save_breath", "save_spell", "charisma", "affected", "resistant",
