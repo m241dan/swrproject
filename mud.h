@@ -4371,6 +4371,7 @@ void decay_threat args( ( void ) );
 void decay_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered, int dam ) );
 CHAR_DATA *most_threat args( ( CHAR_DATA *angered ) );
 int res_pen( CHAR_DATA *ch, CHAR_DATA *victim, int dam, EXT_BV damtype );
+int dtype_potency( CHAR_DATA *ch, int dam, EXT_BV damtype );
 
 /* makeobjs.c */
 OBJ_DATA *make_corpse( CHAR_DATA * ch, CHAR_DATA * killer );

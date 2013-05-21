@@ -873,6 +873,9 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    }
 
+   /* Handle DType Potency */
+   dam = dtype_potency( ch, dam, damtype );
+
    /* Handle Res_Pen */
    dam = res_pen( ch, victim, dam, damtype );
 
@@ -3079,3 +3082,53 @@ int res_pen( CHAR_DATA *ch, CHAR_DATA *victim, int dam, EXT_BV damtype )
    return dam;
 }
 
+int dtype_potency( CHAR_DATA *ch, int dam, EXT_BV damtype )
+{
+   double dtype_pot;
+   int counter, split_dam;
+   int num_damtype = 0;
+   int progress = 0;
+
+   for( counter = 0; counter < MAX_DAMTYPE; counter++ )
+      if( xIS_SET( damtype, counter ) )
+         num_damtype++;
+
+   if( num_damtype <= 0 )
+   {
+      bug( "dtype_potency being called with no damtypes" );
+      return dam;
+   }
+
+   split_dam = (int)( dam / num_damtype );
+   dam = 0;
+
+   for( counter = DAM_FIRE; counter < MAX_DAMTYPE; counter++ )
+   {
+      if( xIS_SET( damtype, counter ) )
+      {
+         dtype_pot = ch->damtype_potency[DAM_ALL] + ch->damtype_potency[counter];
+
+         if( counter >= DAM_BLUNT && counter <= DAM_SLASH )
+            dtype_pot += ch->damtype_potency[DAM_PHYSICAL];
+         if( counter >= DAM_FIRE && counter <= DAM_DARKENERGY )
+            dtype_pot += ch->damtype_potency[DAM_ELEMENTAL];
+
+         if( dtype_pot == 0 )
+         {
+            dam += split_dam;
+            continue;
+         }
+         dtype_pot = URANGE( -95, (int)dtype_pot, 95 );
+         dtype_pot /= 100;
+         dtype_pot += 1;
+         dtype_pot = fabs(dtype_pot);
+         dam += (int)( split_dam * dtype_pot );
+
+         if( ++progress == num_damtype )
+            break;
+      }
+   }
+   return dam;
+
+
+}
