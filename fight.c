@@ -356,7 +356,10 @@ void violence_update( void )
                stop_fighting( ch, FALSE );
                if( ( exit = get_exit( ch->in_room, find_first_step( ch->in_room, victim->in_room, 20 ) ) ) == NULL )
                {
-                  free_threat( has_threat( ch, victim ) );
+                  THREAT_DATA *threat;
+
+                  if( ( threat = has_threat( ch, victim ) ) != NULL )
+                     free_threat( threat );
                   continue;
                }
                move_char( ch, exit, 0 );

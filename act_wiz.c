@@ -3057,6 +3057,7 @@ void do_unsilence( CHAR_DATA * ch, const char *argument )
 void do_peace( CHAR_DATA * ch, const char *argument )
 {
    CHAR_DATA *rch;
+   THREAT_DATA *threat;
 
    act( AT_IMMORT, "$n booms, 'PEACE!'", ch, NULL, NULL, TO_ROOM );
    for( rch = ch->in_room->first_person; rch; rch = rch->next_in_room )
@@ -3065,6 +3066,15 @@ void do_peace( CHAR_DATA * ch, const char *argument )
       {
          stop_fighting( rch, TRUE );
          do_sit( rch, "" );
+      }
+
+      /*
+       * Handle Threat Elimination
+       */
+      for( threat = first_threat; threat; threat = threat->next )
+      {
+         if( threat->angered == rch || threat->angry_at == rch )
+            free_threat( threat );
       }
 
       /*
