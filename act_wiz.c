@@ -1229,8 +1229,8 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
               get_curr_wis( victim ),
               get_curr_dex( victim ),
               get_curr_con( victim ), get_curr_cha( victim ), get_curr_lck( victim ), get_curr_frc( victim ) );
-   ch_printf( ch, "Hps: %d/%d  Force: %d/%d   Move: %d/%d\r\n",
-              victim->hit, victim->max_hit, victim->mana, victim->max_mana, victim->move, victim->max_move );
+   ch_printf( ch, "Hps: %d/%d  Force: %d/%d   Move: %d/%d Armor: %d\r\n",
+              victim->hit, victim->max_hit, victim->mana, victim->max_mana, victim->move, victim->max_move, GET_ARMOR( victim ) );
    if( !IS_NPC( victim ) )
    {
       int ability;
