@@ -344,11 +344,10 @@ void violence_update( void )
       if( IS_AFFECTED( ch, AFF_PARALYSIS ) )
          continue;
 
-      if( !is_threatened( ch ) )
-         continue;
-
       if( IS_NPC( ch ) )
       {
+         if( !is_angered( ch ) )
+            continue;
          if( ( victim = most_threat( ch ) ) != NULL )
          {
             if( who_fighting( ch ) != victim )
@@ -368,6 +367,8 @@ void violence_update( void )
          else
             continue;
       }
+      else if( ( victim = who_fighting( ch ) ) == NULL )
+         continue;
 
       retcode = rNONE;
 
@@ -2978,6 +2979,17 @@ bool is_threatened( CHAR_DATA *angry_at )
 
    for( threat = first_threat; threat; threat = threat->next )
       if( threat->angry_at == angry_at )
+         return TRUE;
+
+   return FALSE;
+}
+
+bool is_angered( CHAR_DATA *angered )
+{
+   THREAT_DATA *threat;
+
+   for( threat = first_threat; threat; threat = threat->next )
+      if( threat->angered == angered )
          return TRUE;
 
    return FALSE;

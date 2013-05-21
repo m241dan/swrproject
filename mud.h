@@ -4366,6 +4366,7 @@ bool in_arena args( ( CHAR_DATA * ch ) );
 void generate_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered, int amount ) );
 THREAT_DATA *has_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered ) );
 bool is_threatened args( ( CHAR_DATA * angry_at ) );
+bool is_angered args( ( CHAR_DATA * angered ) );
 void free_threat args( ( THREAT_DATA *threat ) );
 void decay_threat args( ( void ) );
 void decay_threat args( ( CHAR_DATA * angry_at, CHAR_DATA * angered, int dam ) );

@@ -5997,7 +5997,7 @@ void do_showthreat( CHAR_DATA *ch, const char *argument )
    send_to_char( "--------------------------------------------------------------------------------\r\n", ch );
    for( threat = first_threat; threat; threat = threat->next )
    {
-      if( !threat->angered || threat->angry_at )
+      if( !threat->angered || !threat->angry_at )
       {
          bug( "There's a NULL angered or angry_at in a threat.", 0 );
          continue;
