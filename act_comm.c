@@ -1367,12 +1367,13 @@ void do_qui( CHAR_DATA * ch, const char *argument )
 void do_quit( CHAR_DATA * ch, const char *argument )
 {
    /*
-    * OBJ_DATA *obj; 
+    * OBJ_DATA *obj;
     *//*
-    * Unused 
+    * Unused
     */
    int x, y;
    int level;
+   QTIMER *qtimer, *next_qtimer;
 
    if( IS_NPC( ch ) && IS_SET( ch->act, ACT_POLYMORPHED ) )
    {
@@ -1409,6 +1410,14 @@ void do_quit( CHAR_DATA * ch, const char *argument )
       send_to_char( "You will have to find a safer resting place such as a hotel...\r\n", ch );
       send_to_char( "Maybe you could HAIL a speeder.\r\n", ch );
       return;
+   }
+
+   for( qtimer = first_qtimer; qtimer; qtimer = next_qtimer )
+   {
+      next_qtimer = qtimer->next;
+
+      if( qtimer->timer_ch == ch )
+         dispose_qtimer( qtimer );
    }
 
    set_char_color( AT_WHITE, ch );

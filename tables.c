@@ -167,6 +167,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Value        %d\n", skill->value );
    if( skill->threat )
       fprintf( fpout, "Threat       %d\n", skill->threat );
+   if( skill->cooldown )
+      fprintf( fpout, "Cooldown     %d\n", skill->cooldown );
    if( skill->difficulty )
       fprintf( fpout, "Difficulty   %d\n", skill->difficulty );
    if( skill->participants )
@@ -415,6 +417,7 @@ SKILLTYPE *fread_skill( FILE * fp )
                break;
             }
             KEY( "Components", skill->components, fread_string_nohash( fp ) );
+            KEY( "Cooldown", skill->cooldown, fread_number( fp ) );
             break;
 
          case 'D':

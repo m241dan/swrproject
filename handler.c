@@ -912,6 +912,7 @@ void affect_to_char( CHAR_DATA * ch,  AFFECT_DATA * paf )
             break;
       }
    }
+   add_queue( ch, AFFECT_TIMER );
    return;
 }
 
@@ -3455,6 +3456,7 @@ void add_timer( CHAR_DATA * ch, short type, short count, DO_FUN * fun, int value
       timer->value = value;
       LINK( timer, ch->first_timer, ch->last_timer, next, prev );
    }
+   add_queue( ch, TIMER_TIMER );
 }
 
 TIMER *get_timerptr( CHAR_DATA * ch, short type )
@@ -4432,4 +4434,175 @@ bool is_skill( int gsn )
    if( gsn < TYPE_HIT && gsn > 0 )
       return TRUE;
    return FALSE;
+}
+
+void add_queue( CHAR_DATA *ch, int type )
+{
+   if( is_queued( ch, type ) )
+      return;
+
+   switch( type )
+   {
+      case AI_TIMER:
+         ch->next_thought = get_next_thought( ch );
+      case COOLDOWN_TIMER:
+      case AFFECT_TIMER:
+      case TIMER_TIMER:
+      case COMBAT_ROUND:
+         create_qtimer( ch, type );
+         break;
+   }
+   return;
+}
+
+void create_qtimer( CHAR_DATA *ch, int type )
+{
+   QTIMER *queue;
+
+   CREATE( queue, QTIMER, 1 );
+   queue->timer_ch = ch;
+   queue->type = type;
+   LINK( queue, first_qtimer, last_qtimer, next, prev );
+}
+
+void dispose_qtimer( QTIMER *timer )
+{
+   UNLINK( timer, first_qtimer, last_qtimer, next, prev );
+   timer->timer_ch = NULL;
+   DISPOSE( timer );
+}
+
+bool is_queued( CHAR_DATA *ch, int type )
+{
+   QTIMER *queue;
+
+   for( queue = first_qtimer; queue; queue = queue->next )
+      if( queue->timer_ch == ch && queue->type == type)
+         return TRUE;
+   return FALSE;
+}
+
+void extract_cooldown( CHAR_DATA * ch, CD_DATA * cdat )
+{
+   if( !cdat )
+   {
+      bug( "extrat_cooldown: NULL cdat" );
+      return;
+   }
+   UNLINK( cdat, ch->first_cooldown, ch->last_cooldown, next, prev );
+   DISPOSE( cdat->message );
+   DISPOSE( cdat );
+   return;
+}
+
+bool is_on_cooldown( CHAR_DATA *ch, int gsn )
+{
+   CD_DATA *cdat;
+
+   if( !ch->first_cooldown )
+      return FALSE;
+
+   for( cdat = ch->first_cooldown; cdat; cdat = cdat->next )
+   {
+      if( gsn == cdat->sn )
+      {
+         ch_printf( ch, "%s is on cooldown for %d more seconds.\r\n", skill_table[gsn]->name, (int)cdat->time_remaining );
+         return TRUE;
+      }
+   }
+   return FALSE;
+}
+
+
+double get_skill_cooldown( CHAR_DATA *ch, int gsn )
+{
+   double cooldown;
+
+   cooldown = skill_table[gsn]->cooldown;
+   cooldown *= get_haste( ch );
+
+   return cooldown;
+}
+
+void set_on_cooldown( CHAR_DATA *ch, int gsn )
+{
+   CD_DATA *cdat;
+   double cooldown = get_skill_cooldown( ch, gsn );
+
+   if( cooldown <= 0 )
+      return;
+
+   CREATE( cdat, CD_DATA, 1 );
+   cdat->message = str_dup( skill_table[gsn]->cdmsg );
+   cdat->sn = gsn;
+   cdat->time_remaining = cooldown;
+   LINK( cdat, ch->first_cooldown, ch->last_cooldown, next, prev );
+   add_queue( ch, COOLDOWN_TIMER );
+   return;
+
+}
+
+double get_round( CHAR_DATA *ch )
+{
+   double round;
+
+   round = BASE_ROUND;
+   round += ch->round;
+   round *= get_haste( ch );
+
+   if( round < .25 ) /* Hard Floor for attack rounds .25 seconds */
+      round = .25;
+
+   return round;
+}
+
+double get_haste( CHAR_DATA *ch )
+{
+   int haste;
+
+   if( IS_NPC( ch ) )
+      haste = UMIN( ch->mob_haste, 50 );
+   else
+      haste = UMIN( ch->haste_from_item, 25 );
+
+   haste += UMIN( ch->haste_from_skill, 25 );
+   haste += UMIN( ch->haste_from_spell, 25 );
+
+   haste = UMAX( -95, haste );
+
+   haste += 100;
+   haste /= 100;
+
+   return haste;
+}
+
+void change_mind( CHAR_DATA *ch, int fom )
+{
+   if( !IS_NPC( ch ) )
+   {
+      bug( "Trying to change %s's frame of mind.", ch->name );
+      return;
+   }
+   ch->next_thought = .25; /* Have its next thought right away */
+   ch->fom = fom;
+   return;
+}
+
+double get_next_thought( CHAR_DATA *ch )
+{
+   if( !IS_NPC( ch ) )
+   {
+      bug( "Trying to get next thought timer from %s who is a player.", ch->name );
+      return 999;
+   }
+   switch( ch->fom )
+   {
+      case FOM_IDLE:
+         return ch->tspeed * number_range( 4, 60 );
+      case FOM_FIGHTING:
+         return ch->tspeed * 2;
+      case FOM_HUNTING:
+         return ch->tspeed * .75;
+   }
+   return 999;
 }

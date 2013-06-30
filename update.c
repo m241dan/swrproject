@@ -48,6 +48,7 @@ void char_check args( ( void ) );
 void drunk_randoms args( ( CHAR_DATA * ch ) );
 void halucinations args( ( CHAR_DATA * ch ) );
 void subtract_times args( ( struct timeval * etime, struct timeval * sttime ) );
+void split_timers_update args( ( void ) );
 
 /*
  * Global Variables
@@ -2212,6 +2213,8 @@ void update_handler( void )
    struct timeval sttime;
    struct timeval etime;
 
+   split_timers_update( );
+
    if( timechar )
    {
       set_char_color( AT_PLAIN, timechar );
@@ -2316,7 +2319,6 @@ void update_handler( void )
    tail_chain(  );
    return;
 }
-
 
 void remove_portal( OBJ_DATA * portal )
 {
@@ -2779,4 +2781,243 @@ void subtract_times( struct timeval *etime, struct timeval *sttime )
       etime->tv_sec--;
    }
    return;
+}
+
+void split_timers_update(  )
+{
+   CHAR_DATA *ch;
+   CHAR_DATA *victim;
+   QTIMER *timer, *next_timer;
+   ch_ret retcode;
+
+
+   if( !first_qtimer )
+      return;
+
+   for( timer = first_qtimer; timer; timer = next_timer )
+   {
+      next_timer = timer->next;
+      ch = timer->timer_ch;
+      set_cur_char( ch );
+      if( char_died( ch ) )
+         continue;
+      switch( timer->type )
+      {
+         default:
+            break;
+         case AFFECT_TIMER:
+            AFFECT_DATA *paf, *paf_next;
+            SKILLTYPE *skill;
+
+            if( ch->first_affect )
+            {
+               for( paf = ch->first_affect; paf; paf = paf_next )
+               {
+                  paf_next = paf->next;
+                  if( paf->duration > 0 )
+                     paf->duration -= .25;
+                  else if( paf->duration < 0 )
+                     ;
+                  else
+                  {
+                     if( !paf_next || paf_next->type != paf->type || paf_next->duration > 0 )
+                     {
+                        skill = get_skilltype( paf->type );
+                        if( paf->type > 0 && skill && skill->msg_off )
+                        {
+                           set_char_color( AT_WEAROFF, ch );
+                           send_to_char( skill->msg_off, ch );
+                           send_to_char( "\r\n", ch );
+                        }
+                     }
+                     if( paf->type == gsn_possess )
+                     {
+                        ch->desc->character = ch->desc->original;
+                        ch->desc->original = NULL;
+                        ch->desc->character->desc = ch->desc;
+                        ch->desc->character->switched = NULL;
+                        ch->desc = NULL;
+                     }
+                     affect_remove( ch, paf );
+                  }
+               }
+            }
+            else
+               dispose_qtimer( timer );
+            break;
+         case TIMER_TIMER:
+            TIMER *ptimer, *ptimer_next;
+
+            if( ch->first_timer )
+            {
+               for( ptimer = ch->first_timer; ptimer; ptimer = ptimer_next )
+               {
+                  ptimer_next = ptimer->next;
+                  ptimer->count -= .25;
+                  if( ptimer->count <= 0 )
+                  {
+                     if( ptimer->type == TIMER_DO_FUN )
+                     {
+                        int tempsub;
+
+                        UNLINK( ptimer, ch->first_timer, ch->last_timer, next, prev );
+                        tempsub = ch->substate;
+                        ch->substate = ptimer->value;
+                        ( ptimer->do_fun ) ( ch, "" );
+                        if( char_died( ch ) )
+                           break;
+                        ch->substate = tempsub;
+                        DISPOSE( ptimer );
+                     }
+                     else
+                        extract_timer( ch, ptimer );
+                  }
+               }
+            }
+            else
+               dispose_qtimer( timer );
+            break;
+         case COOLDOWN_TIMER:
+            CD_DATA *cdat, *cdat_next;
+
+            if( ch->first_cooldown )
+            {
+               for( cdat = ch->first_cooldown; cdat; cdat = cdat_next )
+               {
+                  cdat_next = cdat->next;
+
+                  cdat->time_remaining -= .25;
+                  if( cdat->time_remaining <= 0 )
+                  {
+                     send_to_char( cdat->message, ch );
+                     extract_cooldown( ch, cdat );
+                  }
+               }
+            }
+            else
+               dispose_qtimer( timer );
+            break;
+         case AI_TIMER:
+            ch->next_thought -= .25;
+            if( ch->next_thought > 0 )
+               break;
+
+            switch( ch->fom )
+            {
+               case FOM_IDLE:
+                  break;
+               case FOM_FIGHTING:
+                  if( ( victim = who_fighting( ch ) ) == NULL )
+                  {
+                     if( is_angered( ch ) )
+                        change_mind( ch, FOM_HUNTING );
+                     else
+                        change_mind( ch, FOM_IDLE );
+                     break;
+                  }
+                  if( victim != most_threat( ch ) )
+                  {
+                     stop_fighting( ch, FALSE );
+                     change_mind( ch, FOM_HUNTING );
+                     break;
+                  }
+                  add_queue( ch, COMBAT_ROUND );
+                  break;
+               case FOM_HUNTING:
+                  if( (victim = most_threat( ch ) ) == NULL )
+                  {
+                     change_mind( ch, FOM_IDLE );
+                     break;
+                  }
+                  if( victim->in_room == ch->in_room )
+                  {
+                     act( AT_ACTION, "$n turns $s attentions to you!", ch, NULL, victim, TO_VICT );
+                     act( AT_ACTION, "$n turns $s attentions to $N", ch, NULL, victim, TO_NOTVICT );
+                     set_fighting( ch, victim );
+                     add_queue( ch, COMBAT_ROUND );
+                  }
+                  else
+                  {
+                     int ret;
+                     ret = find_first_step( ch->in_room, victim->in_room, 5000 );
+                     act( AT_ACTION, "$n leaves the room and heads towards $N!", ch, NULL, victim, TO_ROOM );
+                     move_char( ch, get_exit( ch->in_room, ret ), FALSE );
+                     if( ch->in_room == victim->in_room )
+                     {
+                        set_fighting( ch, victim );
+                        add_queue( ch, COMBAT_ROUND );
+                     }
+                  }
+                  break;
+            }
+            ch->next_thought = get_next_thought( ch );
+            break;
+         case COMBAT_ROUND:
+            ch->next_round -= .25;
+            if( ch->next_round > 0 )
+               break;
+
+            retcode = rNONE;
+
+            if( ( victim = who_fighting( ch ) ) == NULL )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
+
+            if( IS_NPC( ch ) && victim->in_room != ch->in_room )
+            {
+               change_mind( ch, FOM_HUNTING );
+               break;
+            }
+            if( IS_SET( ch->in_room->room_flags, ROOM_SAFE ) )
+            {
+               char buf[MAX_STRING_LENGTH];
+               sprintf( buf, "violence_update: %s fighting %s in a SAFE room.", ch->name, victim->name );
+               log_string( buf );
+               stop_fighting( ch, TRUE );
+            }
+            else if( IS_AWAKE( ch ) && ch->in_room == victim->in_room )
+               retcode = multi_hit( ch, victim, TYPE_UNDEFINED );
+            else
+               stop_fighting( ch, FALSE );
+
+            if( char_died( ch ) )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
+
+            if( retcode == rCHAR_DIED || ( victim = who_fighting( ch ) ) == NULL )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
+
+            /*
+             *  Mob triggers
+             */
+            rprog_rfight_trigger( ch );
+            if( char_died( ch ) )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
+            mprog_hitprcnt_trigger( ch, victim );
+            if( char_died( ch ) )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
+            mprog_fight_trigger( ch, victim );
+            if( char_died( ch ) )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
+
+            ch->next_round = get_round( ch );
+            break;
+      }
+   }
 }

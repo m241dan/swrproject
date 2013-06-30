@@ -1121,6 +1121,20 @@ ch_ret move_char( CHAR_DATA * ch, EXIT_DATA * pexit, int fall )
       }
    }
 
+   {
+      CHAR_DATA *rch;
+      for( rch = ch->in_room->first_person; rch; rch = rch->next )
+      {
+         if( !IS_NPC( rch ) || rch == ch || !is_angered( rch ) )
+            continue;
+         if( ch == most_threat( rch ) )
+         {
+            set_fighting( rch, ch );
+            add_queue( ch, COMBAT_ROUND );
+         }
+      }
+   }
+
    if( ch->in_room->first_content )
       retcode = check_room_for_traps( ch, TRAP_ENTER_ROOM );
    if( retcode != rNONE )

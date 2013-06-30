@@ -120,6 +120,8 @@ typedef struct extended_bitvector EXT_BV;
 typedef struct group_data GROUP_DATA;
 typedef struct loot_data LOOT_DATA;
 typedef struct threat_data THREAT_DATA;
+typedef struct queue_timers QTIMER;
+typedef struct cooldown_data CD_DATA;
 
 /*
 * Function types.
@@ -327,6 +329,42 @@ struct extended_bitvector
 #ifdef IMC
 #include "imc.h"
 #endif
+
+/*
+ * Creating a timer that is queued and runs every pulse of the CPU
+ * Basically, this is giving us more accuracy in our ability to generate
+ * and reduce cooldowns without dragging too much on the processing %
+ *-Davenge
+ */
+struct queue_timers
+{
+   QTIMER *next;
+   QTIMER *prev;
+   CHAR_DATA *timer_ch;
+   int type;
+};
+
+/*
+ * Need a way to tell what timer the queue timer is cast to
+ * -Davenge
+ */
+
+#define COMBAT_LAG_TIMER    0
+#define COOLDOWN_TIMER      1
+#define AFFECT_TIMER        2
+#define TIMER_TIMER         3
+#define COMBAT_ROUND        4
+#define AI_TIMER            5
+
+struct cooldown_data
+{
+   CD_DATA *next;
+   CD_DATA *prev;
+   const char *message;
+   int sn;
+   double time_remaining;
+};
+
 
 /*
 * do_who output structure -- Narn
@@ -1031,7 +1069,7 @@ struct affect_data
    CHAR_DATA *from;
    int affect_type;
    short type;
-   int duration;
+   double duration;
    short location;
    int modifier;
    EXT_BV bitvector;
@@ -1883,7 +1921,7 @@ struct timer_data
    DO_FUN *do_fun;
    int value;
    short type;
-   short count;
+   double count;
 };
 
 
@@ -2009,6 +2047,9 @@ struct mob_index_data
    short parry;
    LOOT_DATA *first_loot;
    LOOT_DATA *last_loot;
+   double round;
+   int haste;
+   double tspeed; /* thought speed, how often a mob thinks */
 };
 
 struct loot_data
@@ -2206,9 +2247,26 @@ struct char_data
    int threat;
    int casting_skill;
    CHAR_DATA *skill_target;
+   CD_DATA *first_cooldown;
+   CD_DATA *last_cooldown;
+   double round;
+   double next_round; /* next combat round, when? */
+   int haste_from_item;
+   int haste_from_skill;
+   int haste_from_spell;
+   int mob_haste;
+   double tspeed; /* mob thought speed */
+   int fom; /* Mob Frame of Mind */
+   double next_thought; /* when a mob will have its next thought */
 };
 
-#define MAX_GROUP 6
+typedef enum
+{
+   FOM_IDLE, FOM_FIGHTING, FOM_HUNTING, MAX_FOM
+} f_o_ms;
+
+#define MAX_GROUP  6
+#define BASE_ROUND 2 /* seconds */
 
 struct group_data
 {
@@ -2688,6 +2746,8 @@ struct skill_type
    EXT_BV damtype;
    int charge;
    int threat;
+   int cooldown;
+   const char *cdmsg;
 };
 
 
@@ -3293,6 +3353,7 @@ extern const char *const lang_names[];
 extern const char *const lang_names_save[];
 extern const char *sector_name[SECT_MAX];
 extern const char *const d_type[MAX_DAMTYPE];
+extern const char *const frames_of_mind[MAX_FOM];
 /*
 * Global variables.
 */
@@ -3375,6 +3436,8 @@ extern CHAR_DATA *saving_char;
 extern OBJ_DATA *all_obj;
 extern THREAT_DATA *first_threat;
 extern THREAT_DATA *last_threat;
+extern QTIMER *first_qtimer;
+extern QTIMER *last_qtimer;
 
 extern time_t current_time;
 extern bool fLogAll;
@@ -4581,7 +4644,18 @@ void group_invite_accept( CHAR_DATA *ch );
 void group_add_member( CHAR_DATA *ch, GROUP_DATA *group );
 CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument );
 bool is_skill( int gsn );
-
+void add_queue( CHAR_DATA *ch, int type );
+void create_qtimer( CHAR_DATA *ch, int type );
+void dispose_qtimer( QTIMER *timer );
+bool is_queued( CHAR_DATA *ch, int type );
+void extract_cooldown( CHAR_DATA *ch, CD_DATA *cdat );
+bool is_on_cooldown( CHAR_DATA *ch, int gsn );
+double get_skill_cooldown( CHAR_DATA *ch, int gsn );
+void set_on_cooldown( CHAR_DATA *ch, int gsn );
+double get_round( CHAR_DATA *ch );
+double get_haste( CHAR_DATA *ch );
+void change_mind( CHAR_DATA *ch, int fom );
+double get_next_thought( CHAR_DATA *ch );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

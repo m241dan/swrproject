@@ -258,6 +258,9 @@ AREA_DATA *last_bsort;
 
 SYSTEM_DATA sysdata;
 
+QTIMER *first_qtimer;
+QTIMER *last_qtimer;
+
 int top_affect;
 int top_area;
 int top_ed;
@@ -466,6 +469,8 @@ void boot_db( bool fCopyOver )
 
    first_threat = NULL;
    last_threat = NULL;
+   first_qtimer = NULL;
+   last_qtimer = NULL;
 
    /*
     * Init random number generator.
@@ -2369,6 +2374,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->hitplus = pMobIndex->hitplus;
    mob->damplus = pMobIndex->damplus;
 
+
    mob->perm_str = pMobIndex->perm_str;
    mob->perm_dex = pMobIndex->perm_dex;
    mob->perm_wis = pMobIndex->perm_wis;
@@ -2379,6 +2385,11 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->perm_agi = pMobIndex->perm_agi;
    mob->hitroll = pMobIndex->hitroll;
    mob->damroll = pMobIndex->damroll;
+   mob->dodge = pMobIndex->dodge;
+   mob->hitroll = pMobIndex->parry;
+   mob->round = pMobIndex->round;
+   mob->mob_haste = pMobIndex->haste;
+
    mob->race = pMobIndex->race;
    mob->xflags = pMobIndex->xflags;
    mob->saving_poison_death = pMobIndex->saving_poison_death;
@@ -2405,6 +2416,12 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
       mob->damtype_potency[x] = pMobIndex->damtype_potency[x];
    }
 
+   /* AI Stuff */
+   if( ( mob->tspeed = pMobIndex->tspeed ) == 0 )
+      mob->tspeed = 2;
+   mob->fom = FOM_IDLE;
+
+   add_queue( mob, AI_TIMER );
    /*
     * Insert in list.
     */
@@ -6646,6 +6663,11 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                break;
             }
 
+            if( !str_cmp( word, "AIStuff" ) )
+            {
+               pMobIndex->tspeed = fread_float( fp );
+            }
+
             if( !str_cmp( word, "Attacks" ) )
             {
                const char *attacks = fread_flagstring( fp );
@@ -7051,11 +7073,10 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
 
             if( !str_cmp( word, "Stats5 " ) )
             {
-               char *ln = fread_line( fp );
-               int x1, x2;
-               sscanf( ln, "%d %d", &x1, &x2 );
-               pMobIndex->dodge = x1;
-               pMobIndex->parry = x2;
+               pMobIndex->dodge = fread_number( fp );
+               pMobIndex->parry = fread_number( fp );
+               pMobIndex->round = fread_float( fp );
+               pMobIndex->haste = fread_number( fp );
                break;
             }
 

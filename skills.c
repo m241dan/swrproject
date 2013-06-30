@@ -183,6 +183,9 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
          first = sn + 1;
    }
 
+   if( is_on_cooldown( ch, sn ) )
+      return TRUE;
+
    if( !check_pos( ch, skill_table[sn]->minimum_position ) )
       return TRUE;
 
@@ -361,6 +364,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
          polymorph_skill( ch, gsn, victim );
          break;
    }
+   set_on_cooldown( ch, gsn );
    return;
 }
 
@@ -706,7 +710,8 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
                  skill_tname[skill->type],
                  target_type[skill->target],
                  skill->minimum_position, skill->min_mana, skill->min_move, skill->beats, skill->charge );
-      ch_printf( ch, "Style Type: %s Damtype:",
+      ch_printf( ch, "Cooldown: %d Style Type: %s Damtype:",
+                 skill->cooldown,
                  style_type[skill->style] );
       if( xIS_EMPTY( skill->damtype ) )
          send_to_char( " none\r\n", ch );
@@ -1111,6 +1116,12 @@ void do_sset( CHAR_DATA * ch, const char *argument )
       if( !str_cmp( arg2, "charge" ) )
       {
          skill->charge = atoi( argument );
+         send_to_char( "Ok\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg2, "cooldown" ) )
+      {
+         skill->cooldown = atoi( argument );
          send_to_char( "Ok\r\n", ch );
          return;
       }

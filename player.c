@@ -316,13 +316,13 @@ void do_score( CHAR_DATA * ch, const char *argument )
          else
          {
             if( paf->modifier == 0 )
-               ch_printf( ch, "[%-24.24s;%5d rds]    ", sktmp->name, paf->duration );
+               ch_printf( ch, "[%-24.24s;%5d rds]    ", sktmp->name, (int)paf->duration );
             else if( paf->modifier > 999 )
                ch_printf( ch, "[%-15.15s; %7.7s;%5d rds]    ",
-                          sktmp->name, tiny_affect_loc_name( paf->location ), paf->duration );
+                          sktmp->name, tiny_affect_loc_name( paf->location ), (int)paf->duration );
             else
                ch_printf( ch, "[%-11.11s;%+-3.3d %7.7s;%5d rds]    ",
-                          sktmp->name, paf->modifier, tiny_affect_loc_name( paf->location ), paf->duration );
+                          sktmp->name, paf->modifier, tiny_affect_loc_name( paf->location ), (int)paf->duration );
             if( i == 0 )
                i = 1;
             if( ( ++i % 2 ) == 0 )

@@ -215,12 +215,6 @@ void violence_update( void )
    char buf[MAX_STRING_LENGTH];
    CHAR_DATA *ch;
    CHAR_DATA *lst_ch;
-   CHAR_DATA *victim;
-   CHAR_DATA *rch, *rch_next;
-   AFFECT_DATA *paf, *paf_next;
-   TIMER *timer, *timer_next;
-   ch_ret retcode;
-   SKILLTYPE *skill;
 
    lst_ch = NULL;
    for( ch = last_char; ch; lst_ch = ch, ch = gch_prev )
@@ -283,179 +277,10 @@ void violence_update( void )
             ch->fighting->xp = ( ( ch->fighting->xp * 9 ) / 10 );
 
 
-      for( timer = ch->first_timer; timer; timer = timer_next )
-      {
-         timer_next = timer->next;
-         if( --timer->count <= 0 )
-         {
-            if( timer->type == TIMER_DO_FUN )
-            {
-               int tempsub;
-
-               tempsub = ch->substate;
-               ch->substate = timer->value;
-               ( timer->do_fun ) ( ch, "" );
-               if( char_died( ch ) )
-                  break;
-               ch->substate = tempsub;
-            }
-            extract_timer( ch, timer );
-         }
-      }
-
       if( char_died( ch ) )
          continue;
 
-      /*
-       * We need spells that have shorter durations than an hour.
-       * So a melee round sounds good to me... -Thoric
-       */
-      for( paf = ch->first_affect; paf; paf = paf_next )
-      {
-         paf_next = paf->next;
-         if( paf->duration > 0 )
-            paf->duration--;
-         else if( paf->duration < 0 )
-            ;
-         else
-         {
-            if( !paf_next || paf_next->type != paf->type || paf_next->duration > 0 )
-            {
-               skill = get_skilltype( paf->type );
-               if( paf->type > 0 && skill && skill->msg_off )
-               {
-                  set_char_color( AT_WEAROFF, ch );
-                  send_to_char( skill->msg_off, ch );
-                  send_to_char( "\r\n", ch );
-               }
-            }
-            if( paf->type == gsn_possess )
-            {
-               ch->desc->character = ch->desc->original;
-               ch->desc->original = NULL;
-               ch->desc->character->desc = ch->desc;
-               ch->desc->character->switched = NULL;
-               ch->desc = NULL;
-            }
-            affect_remove( ch, paf );
-         }
-      }
-
-      if( IS_AFFECTED( ch, AFF_PARALYSIS ) )
-         continue;
-
-      if( IS_NPC( ch ) )
-      {
-         if( !is_angered( ch ) )
-            continue;
-         if( ( victim = most_threat( ch ) ) != NULL )
-         {
-            if( who_fighting( ch ) != victim )
-            {
-               EXIT_DATA *exit;
-               stop_fighting( ch, FALSE );
-               if( ( exit = get_exit( ch->in_room, find_first_step( ch->in_room, victim->in_room, 20 ) ) ) == NULL )
-               {
-                  THREAT_DATA *threat;
-
-                  if( ( threat = has_threat( ch, victim ) ) != NULL )
-                     free_threat( threat );
-                  continue;
-               }
-               move_char( ch, exit, 0 );
-               if( ch->in_room != victim->in_room )
-                  continue;
-            }
-         }
-         else
-            continue;
-      }
-      else if( ( victim = who_fighting( ch ) ) == NULL )
-         continue;
-
-      retcode = rNONE;
-
-      if( IS_SET( ch->in_room->room_flags, ROOM_SAFE ) )
-      {
-         sprintf( buf, "violence_update: %s fighting %s in a SAFE room.", ch->name, victim->name );
-         log_string( buf );
-         stop_fighting( ch, TRUE );
-      }
-      else if( IS_AWAKE( ch ) && ch->in_room == victim->in_room )
-         retcode = multi_hit( ch, victim, TYPE_UNDEFINED );
-      else
-         stop_fighting( ch, FALSE );
-
-      if( char_died( ch ) )
-         continue;
-
-      if( retcode == rCHAR_DIED || ( victim = who_fighting( ch ) ) == NULL )
-         continue;
-
-      /*
-       *  Mob triggers
-       */
-      rprog_rfight_trigger( ch );
-      if( char_died( ch ) )
-         continue;
-      mprog_hitprcnt_trigger( ch, victim );
-      if( char_died( ch ) )
-         continue;
-      mprog_fight_trigger( ch, victim );
-      if( char_died( ch ) )
-         continue;
-
-      /*
-       * Fun for the whole family!
-       */
-      for( rch = ch->in_room->first_person; rch; rch = rch_next )
-      {
-         rch_next = rch->next_in_room;
-
-         if( IS_AWAKE( rch ) && !rch->fighting )
-         {
-            /*
-             * PC's auto-assist others in their group.
-             */
-            if( !IS_NPC( ch ) || IS_AFFECTED( ch, AFF_CHARM ) )
-            {
-               if( ( !IS_NPC( rch ) || IS_AFFECTED( rch, AFF_CHARM ) ) && is_same_group( ch, rch ) )
-                  multi_hit( rch, victim, TYPE_UNDEFINED );
-               continue;
-            }
-
-            /*
-             * NPC's assist NPC's of same type or 12.5% schance regardless.
-             */
-            if( IS_NPC( rch ) && !IS_AFFECTED( rch, AFF_CHARM ) && !IS_SET( rch->act, ACT_NOASSIST ) )
-            {
-               if( char_died( ch ) )
-                  break;
-               if( rch->pIndexData == ch->pIndexData || number_bits( 3 ) == 0 )
-               {
-                  CHAR_DATA *vch;
-                  CHAR_DATA *target;
-                  int number;
-
-                  target = NULL;
-                  number = 0;
-                  for( vch = ch->in_room->first_person; vch; vch = vch->next )
-                  {
-                     if( can_see( rch, vch ) && is_same_group( vch, victim ) && number_range( 0, number ) == 0 )
-                     {
-                        target = vch;
-                        number++;
-                     }
-                  }
-
-                  if( target )
-                     multi_hit( rch, target, TYPE_UNDEFINED );
-               }
-            }
-         }
-      }
    }
-
    return;
 }
 
@@ -1145,89 +970,10 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
    npcvict = IS_NPC( victim );
 
    /*
-    * Check damage types for RIS            -Thoric
+    * Combat has officially started at this point
     */
-   if( dam && dt != TYPE_UNDEFINED )
-   {
-      if( IS_FIRE( dt ) )
-         dam = ris_damage( victim, dam, RIS_FIRE );
-      else if( IS_COLD( dt ) )
-         dam = ris_damage( victim, dam, RIS_COLD );
-      else if( IS_ACID( dt ) )
-         dam = ris_damage( victim, dam, RIS_ACID );
-      else if( IS_ELECTRICITY( dt ) )
-         dam = ris_damage( victim, dam, RIS_ELECTRICITY );
-      else if( IS_ENERGY( dt ) )
-         dam = ris_damage( victim, dam, RIS_ENERGY );
-      else if( IS_DRAIN( dt ) )
-         dam = ris_damage( victim, dam, RIS_DRAIN );
-      else if( dt == gsn_poison || IS_POISON( dt ) )
-         dam = ris_damage( victim, dam, RIS_POISON );
-      else if( dt == ( TYPE_HIT + 7 ) || dt == ( TYPE_HIT + 8 ) )
-         dam = ris_damage( victim, dam, RIS_BLUNT );
-      else if( dt == ( TYPE_HIT + 2 ) || dt == ( TYPE_HIT + 11 ) || dt == ( TYPE_HIT + 10 ) )
-         dam = ris_damage( victim, dam, RIS_PIERCE );
-      else if( dt == ( TYPE_HIT + 1 ) || dt == ( TYPE_HIT + 3 ) || dt == ( TYPE_HIT + 4 ) || dt == ( TYPE_HIT + 5 ) )
-         dam = ris_damage( victim, dam, RIS_SLASH );
-
-      if( dam == -1 )
-      {
-         if( dt >= 0 && dt < top_sn )
-         {
-            bool found = FALSE;
-            SKILLTYPE *skill = skill_table[dt];
-
-            if( skill->imm_char && skill->imm_char[0] != '\0' )
-            {
-               act( AT_HIT, skill->imm_char, ch, NULL, victim, TO_CHAR );
-               found = TRUE;
-            }
-            if( skill->imm_vict && skill->imm_vict[0] != '\0' )
-            {
-               act( AT_HITME, skill->imm_vict, ch, NULL, victim, TO_VICT );
-               found = TRUE;
-            }
-            if( skill->imm_room && skill->imm_room[0] != '\0' )
-            {
-               act( AT_ACTION, skill->imm_room, ch, NULL, victim, TO_NOTVICT );
-               found = TRUE;
-            }
-            if( found )
-               return rNONE;
-         }
-         dam = 0;
-      }
-   }
-
-   if( dam && npcvict && ch != victim )
-   {
-      if( !IS_SET( victim->act, ACT_SENTINEL ) )
-      {
-         if( victim->hunting )
-         {
-            if( victim->hunting->who != ch )
-            {
-               STRFREE( victim->hunting->name );
-               victim->hunting->name = QUICKLINK( ch->name );
-               victim->hunting->who = ch;
-            }
-         }
-         else
-            start_hunting( victim, ch );
-      }
-
-      if( victim->hating )
-      {
-         if( victim->hating->who != ch )
-         {
-            STRFREE( victim->hating->name );
-            victim->hating->name = QUICKLINK( ch->name );
-            victim->hating->who = ch;
-         }
-      }
-      else
-         start_hating( victim, ch );
-   }
+   if( dt >= TYPE_HIT )
+      add_queue( ch, COMBAT_ROUND );
 
    if( victim != ch )
    {
@@ -1241,7 +987,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
 
       if( victim->position > POS_STUNNED )
       {
-         if( !victim->fighting )
+         if( !victim->fighting && ch == most_threat( victim ) ) /* Most threat part is to stop people from attacking a hunting mob and changing its mind if the new attacker has lower threat */
             set_fighting( victim, ch );
          if( victim->fighting )
             victim->position = POS_FIGHTING;
@@ -1370,7 +1116,6 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
     * Inform the victim of his new state.
     */
    adjust_stat( victim, STAT_HIT, -dam );
-
    /*
     * Handle Threat Generation/Decay -Davenge
     */
@@ -1883,6 +1628,14 @@ void set_fighting( CHAR_DATA * ch, CHAR_DATA * victim )
       return;
    }
 
+   if( IS_NPC( ch ) )
+   {
+      if( ch->in_room == victim->in_room )
+         change_mind( ch, FOM_FIGHTING );
+      else
+         change_mind( ch, FOM_HUNTING );
+   }
+
    CREATE( fight, FIGHT_DATA, 1 );
    fight->who = victim;
    fight->xp = ( int )xp_compute( ch, victim );
@@ -1942,6 +1695,7 @@ void free_fight( CHAR_DATA * ch )
       send_to_char( skill_table[gsn_berserk]->msg_off, ch );
       send_to_char( "\r\n", ch );
    }
+
    return;
 }
 
@@ -1977,6 +1731,7 @@ void death_cry( CHAR_DATA * ch )
 
 OBJ_DATA *raw_kill( CHAR_DATA * ch, CHAR_DATA * victim )
 {
+   QTIMER *qtimer, *next_qtimer;
    CHAR_DATA *victmp;
    OBJ_DATA *corpse_to_return;
    OBJ_DATA *obj, *obj_next;
@@ -2052,6 +1807,14 @@ OBJ_DATA *raw_kill( CHAR_DATA * ch, CHAR_DATA * victim )
    do_help( victim, "_DIEMSG_" );
 
    /* swreality chnages begin here */
+
+   for( qtimer = first_qtimer; qtimer; qtimer = next_qtimer )
+   {
+     next_qtimer = qtimer->next;
+     if( qtimer->timer_ch == victim )
+        dispose_qtimer( qtimer );
+   }
+
 
    for( ship = first_ship; ship; ship = ship->next )
    {
@@ -3055,6 +2818,8 @@ CHAR_DATA *most_threat( CHAR_DATA *angered )
             most_threat = threat;
       }
    }
+   if( !most_threat )
+      return NULL;
    return most_threat->angry_at;
 }
 

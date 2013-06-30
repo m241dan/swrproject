@@ -412,10 +412,10 @@ void save_mobile( FILE * fp, CHAR_DATA * mob )
          continue;
 
       if( paf->type >= 0 && paf->type < TYPE_PERSONAL )
-         fprintf( fp, "AffectData   '%s' %3d %3d %3d %s\n",
+         fprintf( fp, "AffectData   '%s' %f %3d %3d %s\n",
                   skill->name, paf->duration, paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
       else
-         fprintf( fp, "Affect       %3d %3d %3d %3d %s\n",
+         fprintf( fp, "Affect       %3d %f %3d %3d %s\n",
                   paf->type, paf->duration, paf->modifier, paf->location,print_bitvector(  &paf->bitvector ) );
    }
 

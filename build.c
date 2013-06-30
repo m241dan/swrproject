@@ -39,6 +39,14 @@ bool check_area_conflict( AREA_DATA *carea, int low_range, int hi_range );
 void fix_exits( void );
 bool validate_spec_fun( const char *name );
 
+/*
+ * AI Frames of Mind -Davenge
+ */
+
+const char *const frames_of_mind[MAX_FOM] = {
+   "idle", "fighting", "hunting"
+};
+
 /* planet constants for vip and wanted flags */
 
 const char *const d_type[MAX_DAMTYPE] = {
@@ -5245,7 +5253,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
 {
    if( paf->type < 0 || paf->type >= top_sn )
    {
-      fprintf( fp, "Affect       %d %d %d %d %s\n",
+      fprintf( fp, "Affect       %d %f %d %d %s\n",
                paf->type,
                paf->duration,
                ( ( paf->location == APPLY_WEAPONSPELL
@@ -5257,7 +5265,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
    }
    else
    {
-      fprintf( fp, "AffectData   '%s' %d %d %d %s\n",
+      fprintf( fp, "AffectData   '%s' %f %d %d %s\n",
                skill_table[paf->type]->name,
                paf->duration,
                ( ( paf->location == APPLY_WEAPONSPELL
@@ -5549,7 +5557,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    fprintf( fpout, "Stats3     %d %d %d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
             pMobIndex->height, pMobIndex->weight, pMobIndex->numattacks, pMobIndex->hitroll, pMobIndex->damroll );
-   fprintf( fpout, "Stats5     %d %d\n", pMobIndex->dodge, pMobIndex->parry );
+   fprintf( fpout, "Stats5     %d %d %f %d\n", pMobIndex->dodge, pMobIndex->parry, pMobIndex->round, pMobIndex->haste );
    fprintf( fpout, "Damtype    %s\n", print_bitvector( &pMobIndex->damtype ) );
    fprintf( fpout, "Attribs    %d %d %d %d %d %d %d %d %d\n",
             pMobIndex->perm_str,
@@ -5570,6 +5578,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
          fprintf( fpout, " %d", pMobIndex->damtype_potency[count] );
       fprintf( fpout, "\n" );
    }
+   fprintf( fpout, "AIStuff    %f\n", pMobIndex->tspeed );
    fprintf( fpout, "Saves      %d %d %d %d %d\n",
             pMobIndex->saving_poison_death,
             pMobIndex->saving_wand, pMobIndex->saving_para_petri, pMobIndex->saving_breath, pMobIndex->saving_spell_staff );

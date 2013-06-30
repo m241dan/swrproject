@@ -1338,6 +1338,7 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Susceptible: %s\r\n", flag_string( victim->susceptible, ris_flags ) );
    ch_printf( ch, "Attacks    : %s\r\n", flag_string( victim->attacks, attack_flags ) );
    ch_printf( ch, "Defenses   : %s\r\n", flag_string( victim->defenses, defense_flags ) );
+
    if( IS_NPC( victim ) )
    {
       LOOT_DATA *loot;
@@ -1352,6 +1353,10 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
                     skill_tname[skill->type],
                     skill->name,
                     affect_loc_name( paf->location ), paf->modifier, paf->duration, affect_bit_name( &paf->bitvector ) );
+   send_to_char( "\r\nAI STUFF\r\n-------------------------------------------------------------------------------------\r\n", ch );
+   ch_printf( ch, "Thought Speed   : %f (seconds)\r\n", victim->tspeed );
+   ch_printf( ch, "Next Thought    : %f (secodns)\r\n", victim->next_thought );
+   ch_printf( ch, "Frame of Mind   : %s\r\n", frames_of_mind[victim->fom] );
    return;
 }
 
@@ -3057,7 +3062,7 @@ void do_unsilence( CHAR_DATA * ch, const char *argument )
 void do_peace( CHAR_DATA * ch, const char *argument )
 {
    CHAR_DATA *rch;
-   THREAT_DATA *threat;
+   THREAT_DATA *threat, *next_threat;
 
    act( AT_IMMORT, "$n booms, 'PEACE!'", ch, NULL, NULL, TO_ROOM );
    for( rch = ch->in_room->first_person; rch; rch = rch->next_in_room )
@@ -3071,8 +3076,9 @@ void do_peace( CHAR_DATA * ch, const char *argument )
       /*
        * Handle Threat Elimination
        */
-      for( threat = first_threat; threat; threat = threat->next )
+      for( threat = first_threat; threat; threat = next_threat )
       {
+         next_threat = threat->next;
          if( threat->angered == rch || threat->angry_at == rch )
             free_threat( threat );
       }

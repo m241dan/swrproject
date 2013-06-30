@@ -302,6 +302,7 @@ void save_clone( CHAR_DATA * ch )
  */
 void fwrite_char( CHAR_DATA * ch, FILE * fp )
 {
+   CD_DATA *cdat;
    AFFECT_DATA *paf;
    int sn, track, drug, count;
    SKILLTYPE *skill = NULL;
@@ -356,6 +357,8 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "Armor        %d\n", ch->armor );
    fprintf( fp, "Dodge        %d\n", ch->dodge );
    fprintf( fp, "Parry        %d\n", ch->parry );
+   fprintf( fp, "Round        %f\n", ch->round );
+   fprintf( fp, "Haste        %d %d %d\n", ch->haste_from_item, ch->haste_from_skill, ch->haste_from_spell );
    fprintf( fp, "Damtype      %s\n", print_bitvector( &ch->damtype ) );
    fprintf( fp, "Resistance  " );
    for( count = 0; count < MAX_DAMTYPE; count++ )
@@ -455,6 +458,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       fprintf( fp, "MDeaths      %d\n", ch->pcdata->mdeaths );
       if( ch->pcdata->illegal_pk )
          fprintf( fp, "IllegalPK    %d\n", ch->pcdata->illegal_pk );
+
       fprintf( fp, "AttrPerm     %d %d %d %d %d %d %d %d\n",
                ch->perm_str, ch->perm_int, ch->perm_wis, ch->perm_dex, ch->perm_con, ch->perm_agi, ch->perm_cha, ch->perm_lck );
 
@@ -489,16 +493,19 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       }
    }
 
+   for( cdat = ch->first_cooldown; cdat; cdat = cdat->next )
+      fprintf( fp, "Cooldown     '%s' %d %f\n", cdat->message, cdat->sn, cdat->time_remaining );
+
    for( paf = ch->first_affect; paf; paf = paf->next )
    {
       if( paf->type >= 0 && ( skill = get_skilltype( paf->type ) ) == NULL )
          continue;
 
       if( paf->type >= 0 && paf->type < TYPE_PERSONAL )
-         fprintf( fp, "AffectData   '%s' %3d %3d %3d %10s\n",
+         fprintf( fp, "AffectData   '%s' %f %3d %3d %10s\n",
                   skill->name, paf->duration, paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
       else
-         fprintf( fp, "Affect       %3d %3d %3d %3d %10s\n",
+         fprintf( fp, "Affect       %3d %f %3d %3d %10s\n",
                   paf->type, paf->duration, paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
    }
 
@@ -676,7 +683,7 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
        */
       if( paf->type < 0 || paf->type >= top_sn )
       {
-         fprintf( fp, "Affect       %d %d %d %d %s\n",
+         fprintf( fp, "Affect       %d %f %d %d %s\n",
                   paf->type,
                   paf->duration,
                   ( ( paf->location == APPLY_WEAPONSPELL
@@ -687,7 +694,7 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
                   ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
       }
       else
-         fprintf( fp, "AffectData   '%s' %d %d %d %s\n",
+         fprintf( fp, "AffectData   '%s' %f %d %d %s\n",
                   skill_table[paf->type]->name,
                   paf->duration,
                   ( ( paf->location == APPLY_WEAPONSPELL
@@ -1028,11 +1035,12 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                   paf->type = sn;
                }
 
-               paf->duration = fread_number( fp );
+               paf->duration = fread_float( fp );
                paf->modifier = fread_number( fp );
                paf->location = fread_number( fp );
                paf->bitvector = fread_bitvector( fp );
                LINK( paf, ch->first_affect, ch->last_affect, next, prev );
+               add_queue( ch, AFFECT_TIMER );
                fMatch = TRUE;
                break;
             }
@@ -1127,6 +1135,20 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                fMatch = TRUE;
                break;
             }
+
+            if( !str_cmp( word, "Cooldown" ) )
+            {
+               CD_DATA *cdat;
+
+               CREATE( cdat, CD_DATA, 1 );
+               cdat->message = str_dup( fread_word( fp ) );
+               cdat->sn = fread_number( fp );
+               cdat->time_remaining = fread_float( fp );
+               LINK( cdat, ch->first_cooldown, ch->last_cooldown, next, prev );
+               add_queue( ch, COOLDOWN_TIMER );
+               fMatch = TRUE;
+               break;
+            }
             break;
 
          case 'D':
@@ -1208,6 +1230,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             break;
 
          case 'H':
+            if( !str_cmp( word, "Haste" ) )
+            {
+               ch->haste_from_item = fread_number( fp );
+               ch->haste_from_skill = fread_number( fp );
+               ch->haste_from_spell = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
             if( !str_cmp( word, "Helled" ) )
             {
                ch->pcdata->release_date = fread_number( fp );
@@ -1399,6 +1429,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                ch->pcdata->r_range_hi = fread_number( fp );
                fMatch = TRUE;
             }
+            KEY( "Round", ch->round, fread_float( fp ) );
             break;
 
          case 'S':
