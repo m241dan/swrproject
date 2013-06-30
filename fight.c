@@ -665,6 +665,8 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       if( mod == 0 )
          mod = 1;
 
+      ch_printf( ch, "Stat: %d Mod: %f\r\n", stat, mod );
+
       switch( stat )
       {
          case APPLY_STR:
@@ -987,7 +989,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
 
       if( victim->position > POS_STUNNED )
       {
-         if( !victim->fighting && ch == most_threat( victim ) ) /* Most threat part is to stop people from attacking a hunting mob and changing its mind if the new attacker has lower threat */
+         if( !victim->fighting && ( most_threat( victim ) == NULL || ch == most_threat( victim ) ) ) /* Most threat part is to stop people from attacking a hunting mob and changing its mind if the new attacker has lower threat */
             set_fighting( victim, ch );
          if( victim->fighting )
             victim->position = POS_FIGHTING;
@@ -1635,6 +1637,8 @@ void set_fighting( CHAR_DATA * ch, CHAR_DATA * victim )
       else
          change_mind( ch, FOM_HUNTING );
    }
+   else
+      add_queue( ch, COMBAT_ROUND );
 
    CREATE( fight, FIGHT_DATA, 1 );
    fight->who = victim;

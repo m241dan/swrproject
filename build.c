@@ -5629,6 +5629,9 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
       for( loot = pMobIndex->first_loot; loot; loot = loot->next )
          fwrite_loot_data( fpout, loot );
    }
+
+   fwrite_skill_data( fpout, pMobIndex );
+
    fprintf( fpout, "%s", "#ENDMOBILE\n\n" );
 }
 
@@ -5640,6 +5643,20 @@ void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot )
    fprintf( fpout, "Amount      %d\n", loot->amount );
    fprintf( fpout, "%s", "#ENDLOOTDATA\n\n" );
    return;
+}
+
+void fwrite_skill_data( FILE *fpout, MOB_INDEX_DATA *pMobIndex )
+{
+   int x;
+   fprintf( fpout, "#NPCSKILLS   " );
+   for( x = 0; x < MAX_NPC_SKILL; x++ )
+   {
+      if( pMobIndex->npc_skills[x] == -1 )
+         break;
+      fprintf( fpout, "'%s'\n", skill_table[pMobIndex->npc_skills[x]]->name );
+   }
+   fprintf( fpout, "#ENDNPCSKILLS\n" );
+
 }
 
 void fwrite_area_header( FILE * fpout, AREA_DATA * tarea, bool install )
@@ -5655,7 +5672,7 @@ void fwrite_area_header( FILE * fpout, AREA_DATA * tarea, bool install )
             tarea->low_soft_range, tarea->hi_soft_range, tarea->low_hard_range, tarea->hi_hard_range );
    if( tarea->high_economy || tarea->low_economy )
       fprintf( fpout, "Economy      %d %d\n", tarea->high_economy, tarea->low_economy );
-   if( tarea->resetmsg )   
+   if( tarea->resetmsg )
       fprintf( fpout, "ResetMsg     %s~\n", tarea->resetmsg );
    if( tarea->reset_frequency )
       fprintf( fpout, "ResetFreq    %d\n", tarea->reset_frequency );

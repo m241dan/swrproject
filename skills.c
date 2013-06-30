@@ -159,8 +159,8 @@ extern const char *target_name;  /* from magic.c */
 bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
 {
    int sn;
-   int first = gsn_first_skill;
-   int top = gsn_first_weapon - 1;
+   int first = 1;
+   int top = gsn_first_tongue - 1;
    struct timeval time_used;
    int mana, move;
 
@@ -273,7 +273,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
             case TAR_CHAR_OFFENSIVE:
                if( is_same_group( ch, victim ) )
                {
-                  send_to_char( "You can't cast that on someone who isn't grouped with you.\r\n", ch );
+                  send_to_char( "You can't cast that on someone who is grouped with you.\r\n", ch );
                   return;
                }
                break;
@@ -848,7 +848,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          send_to_char( "  type damtype acttype classtype powertype flag dice value difficulty affect\r\n", ch );
          send_to_char( "  rmaffect level adept hit miss die imm (char/vict/room)\r\n", ch );
          send_to_char( "  charge move threat statboost defensemod attackboost, \r\n", ch );
-         send_to_char( "  baserollboost damtype style\r\n", ch );
+         send_to_char( "  baserollboost damtype style cooldown\r\n", ch );
          send_to_char( "  components teachers\r\n", ch );
          send_to_char( "Affect having the fields: <location> <modfifier> [duration] [bitvector]\r\n", ch );
          send_to_char( "(See AFFECTTYPES for location, and AFFECTED_BY for bitvector)\r\n", ch );

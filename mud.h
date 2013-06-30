@@ -1969,6 +1969,9 @@ struct timer_data
 #define AFLAG_NOPKILL               BV00
 #define AFLAG_PROTOTYPE             BV01
 
+#define MAX_PC_SKILL  50
+#define MAX_NPC_SKILL 20
+
 /*
 * Prototype for a mob.
 * This is the in-memory version of #MOBILES.
@@ -2050,6 +2053,7 @@ struct mob_index_data
    double round;
    int haste;
    double tspeed; /* thought speed, how often a mob thinks */
+   int npc_skills[MAX_NPC_SKILL];
 };
 
 struct loot_data
@@ -2094,6 +2098,8 @@ struct extracted_char_data
    ch_ret retcode;
    bool extract;
 };
+
+
 
 /*
 * One character (PC or NPC).
@@ -2258,6 +2264,9 @@ struct char_data
    double tspeed; /* mob thought speed */
    int fom; /* Mob Frame of Mind */
    double next_thought; /* when a mob will have its next thought */
+   SKILLTYPE *skills[MAX_PC_SKILL];
+   int npc_skills[MAX_NPC_SKILL];
+   int num_skills;
 };
 
 typedef enum
@@ -2749,7 +2758,6 @@ struct skill_type
    int cooldown;
    const char *cdmsg;
 };
-
 
 struct auction_data
 {
@@ -4241,7 +4249,7 @@ int get_npc_position( const char *position );
 int get_npc_sex( const char *sex );
 void smush_tilde( char *str );
 void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot );
-
+void fwrite_skill_data( FILE *fpout, MOB_INDEX_DATA * pMobIndex );
 /* clans.c */
 CL *get_clan( const char *name );
 void load_clans args( ( void ) );

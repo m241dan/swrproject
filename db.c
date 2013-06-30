@@ -34,6 +34,7 @@
 
 void init_supermob( void );
 void fread_fuss_lootdata( FILE *fp, LOOT_DATA *loot );
+void fread_fuss_skills( FILE *fp, MOB_INDEX_DATA *pMobIndex );
 
 /*
  * Globals.
@@ -406,6 +407,7 @@ void boot_db( bool fCopyOver )
    gsn_top_sn = top_sn;
 
    for( x = 0; x < top_sn; x++ )
+   {
       if( !gsn_first_spell && skill_table[x]->type == SKILL_SPELL )
          gsn_first_spell = x;
       else if( !gsn_first_skill && skill_table[x]->type == SKILL_SKILL )
@@ -414,6 +416,7 @@ void boot_db( bool fCopyOver )
          gsn_first_weapon = x;
       else if( !gsn_first_tongue && skill_table[x]->type == SKILL_TONGUE )
          gsn_first_tongue = x;
+   }
 
    log_string( "Loading herb table" );
    load_herb_table(  );
@@ -532,103 +535,6 @@ void boot_db( bool fCopyOver )
    {
       log_string( "Assigning gsn's" );
 
-      ASSIGN_GSN( gsn_eliteguard, "elite_guard" );
-      ASSIGN_GSN( gsn_gather_intelligence, "gather_intelligence" );
-      ASSIGN_GSN( gsn_specialforces, "special_forces" );
-      ASSIGN_GSN( gsn_jail, "jail" );
-      ASSIGN_GSN( gsn_smalltalk, "smalltalk" );
-      ASSIGN_GSN( gsn_propeganda, "propeganda" );
-      ASSIGN_GSN( gsn_bribe, "bribe" );
-      ASSIGN_GSN( gsn_seduce, "seduce" );
-      ASSIGN_GSN( gsn_masspropeganda, "mass_propeganda" );
-      ASSIGN_GSN( gsn_beg, "beg" );
-      ASSIGN_GSN( gsn_hijack, "hijack" );
-      ASSIGN_GSN( gsn_makejewelry, "makejewelry" );
-      ASSIGN_GSN( gsn_grenades, "grenades" );
-      ASSIGN_GSN( gsn_makeblade, "makeblade" );
-      ASSIGN_GSN( gsn_makeblaster, "makeblaster" );
-      ASSIGN_GSN( gsn_makelight, "makeflashlight" );
-      ASSIGN_GSN( gsn_makecomlink, "makecomlink" );
-      ASSIGN_GSN( gsn_makegrenade, "makegrenade" );
-      ASSIGN_GSN( gsn_makelandmine, "makelandmine" );
-      ASSIGN_GSN( gsn_makearmor, "makearmor" );
-      ASSIGN_GSN( gsn_makeshield, "makeshield" );
-      ASSIGN_GSN( gsn_makecontainer, "makecontainer" );
-      ASSIGN_GSN( gsn_gemcutting, "gemcutting" );
-      ASSIGN_GSN( gsn_reinforcements, "reinforcements" );
-      ASSIGN_GSN( gsn_postguard, "post guard" );
-      ASSIGN_GSN( gsn_torture, "torture" );
-      ASSIGN_GSN( gsn_throw, "throw" );
-      ASSIGN_GSN( gsn_snipe, "snipe" );
-      ASSIGN_GSN( gsn_disguise, "disguise" );
-      ASSIGN_GSN( gsn_mine, "mine" );
-      ASSIGN_GSN( gsn_first_aid, "first aid" );
-      ASSIGN_GSN( gsn_lightsaber_crafting, "lightsaber crafting" );
-      ASSIGN_GSN( gsn_spice_refining, "spice refining" );
-      ASSIGN_GSN( gsn_spacecombat, "space combat 1" );
-      ASSIGN_GSN( gsn_spacecombat2, "space combat 2" );
-      ASSIGN_GSN( gsn_spacecombat3, "space combat 3" );
-      ASSIGN_GSN( gsn_weaponsystems, "weapon systems" );
-      ASSIGN_GSN( gsn_starfighters, "starfighters" );
-      ASSIGN_GSN( gsn_navigation, "navigation" );
-      ASSIGN_GSN( gsn_shipsystems, "ship systems" );
-      ASSIGN_GSN( gsn_midships, "midships" );
-      ASSIGN_GSN( gsn_capitalships, "capital ships" );
-      ASSIGN_GSN( gsn_tractorbeams, "tractor beams" );
-      ASSIGN_GSN( gsn_shipmaintenance, "ship maintenance" );
-      ASSIGN_GSN( gsn_blasters, "blasters" );
-      ASSIGN_GSN( gsn_bowcasters, "bowcasters" );
-      ASSIGN_GSN( gsn_force_pikes, "force pikes" );
-      ASSIGN_GSN( gsn_lightsabers, "lightsabers" );
-      ASSIGN_GSN( gsn_vibro_blades, "vibro-blades" );
-      ASSIGN_GSN( gsn_flexible_arms, "flexible arms" );
-      ASSIGN_GSN( gsn_talonous_arms, "talonous arms" );
-      ASSIGN_GSN( gsn_bludgeons, "bludgeons" );
-      ASSIGN_GSN( gsn_detrap, "detrap" );
-      ASSIGN_GSN( gsn_backstab, "backstab" );
-      ASSIGN_GSN( gsn_circle, "circle" );
-      ASSIGN_GSN( gsn_dodge, "dodge" );
-      ASSIGN_GSN( gsn_hide, "hide" );
-      ASSIGN_GSN( gsn_peek, "peek" );
-      ASSIGN_GSN( gsn_pick_lock, "pick lock" );
-      ASSIGN_GSN( gsn_pickshiplock, "pick ship lock" );
-      ASSIGN_GSN( gsn_sneak, "sneak" );
-      ASSIGN_GSN( gsn_steal, "steal" );
-      ASSIGN_GSN( gsn_gouge, "gouge" );
-      ASSIGN_GSN( gsn_poison_weapon, "poison weapon" );
-      ASSIGN_GSN( gsn_disarm, "disarm" );
-      ASSIGN_GSN( gsn_enhanced_damage, "enhanced damage" );
-      ASSIGN_GSN( gsn_kick, "kick" );
-      ASSIGN_GSN( gsn_parry, "parry" );
-      ASSIGN_GSN( gsn_rescue, "rescue" );
-      ASSIGN_GSN( gsn_second_attack, "second attack" );
-      ASSIGN_GSN( gsn_third_attack, "third attack" );
-      ASSIGN_GSN( gsn_dual_wield, "dual wield" );
-      ASSIGN_GSN( gsn_punch, "punch" );
-      ASSIGN_GSN( gsn_bash, "bash" );
-      ASSIGN_GSN( gsn_stun, "stun" );
-      ASSIGN_GSN( gsn_bashdoor, "doorbash" );
-      ASSIGN_GSN( gsn_grip, "grip" );
-      ASSIGN_GSN( gsn_berserk, "berserk" );
-      ASSIGN_GSN( gsn_hitall, "hitall" );
-      ASSIGN_GSN( gsn_aid, "aid" );
-      ASSIGN_GSN( gsn_track, "track" );
-      ASSIGN_GSN( gsn_search, "search" );
-      ASSIGN_GSN( gsn_dig, "dig" );
-      ASSIGN_GSN( gsn_mount, "mount" );
-      ASSIGN_GSN( gsn_scribe, "scribe" );
-      ASSIGN_GSN( gsn_climb, "climb" );
-      ASSIGN_GSN( gsn_scan, "scan" );
-      ASSIGN_GSN( gsn_fireball, "fireball" );
-      ASSIGN_GSN( gsn_lightning_bolt, "force bolt" );
-      ASSIGN_GSN( gsn_aqua_breath, "aqua breath" );
-      ASSIGN_GSN( gsn_blindness, "blindness" );
-      ASSIGN_GSN( gsn_charm_person, "affect mind" );
-      ASSIGN_GSN( gsn_invis, "mask" );
-      ASSIGN_GSN( gsn_mass_invis, "group masking" );
-      ASSIGN_GSN( gsn_poison, "poison" );
-      ASSIGN_GSN( gsn_sleep, "sleep" );
-      ASSIGN_GSN( gsn_possess, "possess" );
       ASSIGN_GSN( gsn_common, "common" );
       ASSIGN_GSN( gsn_wookiee, "wookiee" );
       ASSIGN_GSN( gsn_twilek, "twilek" );
@@ -2348,6 +2254,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->guard_data = NULL;
    mob->in_group = NULL;
    mob->group_invite = NULL;
+   mob->num_skills = 0;
    xSET_BIT( mob->damtype, DAM_BLUNT );
    if( pMobIndex->evasion )
       mob->evasion = pMobIndex->evasion;
@@ -2414,6 +2321,13 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
       mob->penetration[x] = pMobIndex->penetration[x];
       mob->resistance[x] = pMobIndex->resistance[x];
       mob->damtype_potency[x] = pMobIndex->damtype_potency[x];
+   }
+
+   for( x = 0; x < MAX_NPC_SKILL; x++ )
+   {
+      mob->npc_skills[x] = pMobIndex->npc_skills[x];
+      if( mob->npc_skills[x] != -1 )
+         mob->num_skills++;
    }
 
    /* AI Stuff */
@@ -5251,6 +5165,8 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       }
       pMobIndex->first_loot = NULL;
       pMobIndex->last_loot = NULL;
+      for( x = 0; x < MAX_NPC_SKILL; x++ )
+         pMobIndex->npc_skills[x] = -1;
    }
    else
    {
@@ -5304,6 +5220,10 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       }
       pMobIndex->first_loot = cMobIndex->first_loot;
       pMobIndex->last_loot = cMobIndex->last_loot;
+
+      for( x = 0; x < MAX_NPC_SKILL; x++ )
+         pMobIndex->npc_skills[x] = cMobIndex->npc_skills[x];
+
    }
    iHash = vnum % MAX_KEY_HASH;
    pMobIndex->next = mob_index_hash[iHash];
@@ -6608,6 +6528,11 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                LINK( loot, pMobIndex->first_loot, pMobIndex->last_loot, next, prev );
                break;
             }
+            if( !str_cmp( word, "#NPCSKILLS" ) )
+            {
+               fread_fuss_skills( fp, pMobIndex );
+               break;
+            }
             if( !str_cmp( word, "#ENDMOBILE" ) )
             {
                if( !pMobIndex->long_descr )
@@ -7198,6 +7123,33 @@ void fread_fuss_lootdata( FILE * fp, LOOT_DATA *loot )
          case 'V':
             KEY( "Vnum", loot->vnum, fread_number( fp ) );
             break;
+      }
+   }
+}
+
+void fread_fuss_skills( FILE *fp, MOB_INDEX_DATA *pMobIndex )
+{
+   int x = 0;
+
+   for( ;; )
+   {
+      const char *word = ( feof( fp ) ? "#ENDNPCSKILLS" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         log_printf( "%s: EOF encouraged reading file!", __FUNCTION__ );
+         word = "#ENDNPCSKILLS";
+      }
+
+      switch( word[0] )
+      {
+         default:
+            pMobIndex->npc_skills[x] = skill_lookup( word );
+            x++;
+            break;
+         case '#':
+            if( !str_cmp( word, "#ENDNPCSKILLS" ) )
+               return;
       }
    }
 }
