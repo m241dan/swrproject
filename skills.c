@@ -244,10 +244,12 @@ void do_skill( CHAR_DATA *ch, const char *argument )
    gsn = ch->casting_skill;
    argument = one_argument( argument, arg );
 
+   send_to_char( "do_skill getting called.\r\n", ch );
+
    switch( ch->substate )
    {
       default:
-         if( skill_table[gsn]->target != TAR_IGNORE && ( victim = get_char_room( ch, arg ) ) == NULL )
+         if( ( skill_table[gsn]->target != TAR_IGNORE && skill_table[gsn]->target != TAR_CHAR_SELF ) && ( victim = get_char_room( ch, arg ) ) == NULL )
          {
             send_to_char( "That person is not here.\r\n", ch );
             return;
@@ -289,6 +291,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
          {
             if( skill_table[gsn]->charge > 0 )
             {
+               send_to_char( "Getting here.\r\n", ch );
                charge_message( ch, victim, gsn, TRUE );
                add_timer( ch, TIMER_DO_FUN, skill_table[gsn]->charge, do_skill, 1 );
                ch->skill_target = victim;
