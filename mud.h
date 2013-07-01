@@ -122,7 +122,9 @@ typedef struct loot_data LOOT_DATA;
 typedef struct threat_data THREAT_DATA;
 typedef struct queue_timers QTIMER;
 typedef struct cooldown_data CD_DATA;
-
+typedef struct discipline_data DISC_DATA;
+typedef struct type_data TYPE_DATA;
+typedef struct factor_data FACTOR_DATA;
 /*
 * Function types.
 */
@@ -1972,6 +1974,8 @@ struct timer_data
 #define MAX_PC_SKILL   50
 #define MAX_NPC_SKILL  20
 #define MAX_SKILL_SLOT 30
+#define MAX_DISCIPLINE 8
+#define MAX_EQUIPPED_DISCIPLINE 5
 /*
 * Prototype for a mob.
 * This is the in-memory version of #MOBILES.
@@ -2267,6 +2271,8 @@ struct char_data
    SKILLTYPE *pc_skills[MAX_PC_SKILL];
    int skill_slots[MAX_SKILL_SLOT];
    int top_sn;
+   DISC_DATA *equipped_disciplines[MAX_EQUIPPED_DISCIPLINE];
+   DISC_DATA *known_disciplines[MAX_DISCIPLINE];
 };
 
 typedef enum
@@ -2758,8 +2764,62 @@ struct skill_type
    int threat;
    int cooldown;
    const char *cdmsg;
+   int factors;
 };
 
+
+
+struct discipline_data
+{
+   DISC_DATA *next;
+   DISC_DATA *prev;
+   FACTOR_DATA *first_factor;
+   FACTOR_DATA *last_factor;
+   TYPE_DATA *first_type;
+   TYPE_DATA *last_type;
+   const char *name;
+   int min_level;
+   int hit_gain;
+   int move_gain;
+   int mana_gain;
+};
+
+struct factor_data
+{
+   DISC_DATA *owner;
+   FACTOR_DATA *next;
+   FACTOR_DATA *prev;
+   int factor_type;
+   int location;
+   EXT_BV affect;
+   int modifier;
+   int apply_type;
+   int duration;
+};
+
+struct type_data
+{
+   DISC_DATA *owner;
+   TYPE_DATA *next;
+   TYPE_DATA *prev;
+   int type;
+   int value;
+};
+
+typedef enum
+{
+   APPLY_FACTOR, AFFECT_FACTOR, DAMAGE_FACTOR, MAX_FACTOR
+} factor_types;
+
+typedef enum
+{
+   SKILLTYPE_TYPE, STYLE_TYPE, COST_TYPE, DAMTYPE_TYPE, STATCALC_TYPE, TARGET_TYPE, MAX_TYPE
+} skilltype_types;
+
+typedef enum
+{
+   COST_MANA, COST_MOVE, COST_BOTH, MAX_COST
+} cost_types;
 struct auction_data
 {
    OBJ_DATA *item;   /* a pointer to the item */
@@ -3328,6 +3388,10 @@ extern const struct race_type race_table[MAX_RACE];
 extern const struct liq_type liq_table[LIQ_MAX];
 extern const char *const attack_table[13];
 extern const char *const ability_name[MAX_ABILITY];
+
+extern const char *const factor_names[MAX_FACTOR];
+extern const char *const skilltype_names[MAX_TYPE];
+extern const char *const cost_type[MAX_COST];
 
 extern const char *const style_type[STYLE_MAX];
 extern const char *const skill_tname[];

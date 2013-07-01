@@ -35,6 +35,12 @@ const char *const skill_tname[] = { "unknown", "Spell", "Skill", "Weapon", "Tong
 
 const char *const style_type[STYLE_MAX] = { "Healing", "Damage", "Buff", "Enfeeble", "Redirect", "Cleanse", "Summon", "Polymorph", "Unset" };
 
+const char *const factor_names[MAX_FACTOR] = { "apply_factor", "affect_factor", "damage_factor" };
+
+const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cost_type", "damtype_type", "statcalc_type", "target_type" };
+
+const char *const cost_type[MAX_COST] = { "mana", "move", "both" };
+
 SPELL_FUN *spell_function( const char *name )
 {
   SPELL_FUN *funHandle = 0;
@@ -191,6 +197,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Alignment   %d\n", skill->alignment );
 
    fprintf( fpout, "DamageDetails   %f %f %f %f\n", skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
+   if( skill->factors )
+      fprintf( fpout, "Factors     %d\n", skill->factors );
    if( !xIS_EMPTY( skill->damtype ) )
       fprintf( fpout, "Damtype         %s", print_bitvector( &skill->damtype ) );
    if( skill->type != SKILL_HERB )
@@ -455,6 +463,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'F':
+            KEY( "Factors", skill->factors, fread_number( fp ) );
             KEY( "Flags", skill->flags, fread_number( fp ) );
             break;
 
