@@ -2254,7 +2254,6 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->guard_data = NULL;
    mob->in_group = NULL;
    mob->group_invite = NULL;
-   mob->num_skills = 0;
    xSET_BIT( mob->damtype, DAM_BLUNT );
    if( pMobIndex->evasion )
       mob->evasion = pMobIndex->evasion;
@@ -2321,13 +2320,6 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
       mob->penetration[x] = pMobIndex->penetration[x];
       mob->resistance[x] = pMobIndex->resistance[x];
       mob->damtype_potency[x] = pMobIndex->damtype_potency[x];
-   }
-
-   for( x = 0; x < MAX_NPC_SKILL; x++ )
-   {
-      mob->npc_skills[x] = pMobIndex->npc_skills[x];
-      if( mob->npc_skills[x] != -1 )
-         mob->num_skills++;
    }
 
    /* AI Stuff */
@@ -6503,6 +6495,8 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
          word = "#ENDMOBILE";
       }
 
+     // log_string( word );
+
       switch ( word[0] )
       {
          default:
@@ -6591,6 +6585,7 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             if( !str_cmp( word, "AIStuff" ) )
             {
                pMobIndex->tspeed = fread_float( fp );
+               break;
             }
 
             if( !str_cmp( word, "Attacks" ) )
@@ -6996,12 +6991,19 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                break;
             }
 
-            if( !str_cmp( word, "Stats5 " ) )
+            if( !str_cmp( word, "Stats5" ) )
             {
-               pMobIndex->dodge = fread_number( fp );
-               pMobIndex->parry = fread_number( fp );
-               pMobIndex->round = fread_float( fp );
-               pMobIndex->haste = fread_number( fp );
+               char *ln = fread_line( fp );
+               int x1, x2, x4;
+               float x3;
+
+               x1 = x2 = x3 = x4 = 0;
+               sscanf( ln,"%d %d %f %d", &x1, &x2, &x3, &x4 );
+
+               pMobIndex->dodge = x1;
+               pMobIndex->parry = x2;
+               pMobIndex->round = (double)x3;
+               pMobIndex->haste = x4;
                break;
             }
 
@@ -7074,6 +7076,9 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                {
                   CREATE( pMobIndex, MOB_INDEX_DATA, 1 );
                   oldmob = false;
+                  int x;
+                  for( x = 0; x < MAX_NPC_SKILL; x++ )
+                     pMobIndex->npc_skills[x] = -1;
                }
                pMobIndex->vnum = vnum;
                fBootDb = tmpBootDb;

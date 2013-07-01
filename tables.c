@@ -423,10 +423,12 @@ SKILLTYPE *fread_skill( FILE * fp )
          case 'D':
             if( !str_cmp( word, "DamageDetails" ) )
             {
+               fMatch = TRUE;
                skill->stat_boost = fread_float( fp );
                skill->attack_boost = fread_float( fp );
                skill->defense_mod = fread_float( fp );
                skill->base_roll_boost = fread_float( fp );
+               break;
             }
             KEY( "Dammsg", skill->noun_damage, fread_string_nohash( fp ) );
             KEY( "Damtype", skill->damtype, fread_bitvector( fp ) );

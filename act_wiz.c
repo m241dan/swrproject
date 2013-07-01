@@ -1357,6 +1357,12 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Thought Speed   : %f (seconds)\r\n", victim->tspeed );
    ch_printf( ch, "Next Thought    : %f (secodns)\r\n", victim->next_thought );
    ch_printf( ch, "Frame of Mind   : %s\r\n", frames_of_mind[victim->fom] );
+   send_to_char( "\r\nSkills:\r\n-------------------------------------------------------------------------------------\r\n", ch );
+   for( x = 0; x < MAX_NPC_SKILL; x += 2 )
+      ch_printf( ch, "%2d: %-30s | %2d: %-20s\r\n", x, victim->pIndexData->npc_skills[x] != -1 ? skill_table[victim->pIndexData->npc_skills[x]]->name : "none",
+                 x+1, victim->pIndexData->npc_skills[x+1] != -1 ? skill_table[victim->pIndexData->npc_skills[x+1]]->name : "none" );
+   send_to_char( "-------------------------------------------------------------------------------------\r\n", ch );
+
    return;
 }
 

@@ -2265,8 +2265,6 @@ struct char_data
    int fom; /* Mob Frame of Mind */
    double next_thought; /* when a mob will have its next thought */
    SKILLTYPE *skills[MAX_PC_SKILL];
-   int npc_skills[MAX_NPC_SKILL];
-   int num_skills;
 };
 
 typedef enum
