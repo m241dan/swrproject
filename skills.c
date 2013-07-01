@@ -4021,6 +4021,8 @@ void do_skills( CHAR_DATA *ch, const char *argument )
       send_to_char( "\r\n&BAvailable Skills\r\n----------------\r\n", ch );
       for( x = 0; x < MAX_PC_SKILL; x++ )
       {
+         if( !ch->pc_skills[x] )
+            break;
          if( ch->pc_skills[x]->name[0] != '\0' )
          {
             ch_printf( ch, "%-3s: %-21.21s&w",
