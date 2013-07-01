@@ -3993,6 +3993,8 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       do_save( ch, "" );
       return;
    }
+   send_to_char( "Improper Usage...\r\n", ch );
+   do_skillcraft( ch, "" );
    return;
 }
 
@@ -4001,6 +4003,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
    char arg[MAX_INPUT_LENGTH];
    char arg2[MAX_INPUT_LENGTH];
    char arg3[MAX_INPUT_LENGTH];
+   char buf[MAX_STRING_LENGTH];
    int x, slot, gsn;
    int column = 0;
 
@@ -4031,8 +4034,15 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             break;
          if( ch->pc_skills[x]->name[0] != '\0' )
          {
+            if( !is_skill_usable( ch, x ) )
+               sprintf( buf, "&zInc" );
+            else if( is_skill_set( ch, x ) )
+               sprintf( buf, "&zSet" );
+            else
+               sprintf( buf, "&CAva" );
+
             ch_printf( ch, "%-3s: %-21.21s&w",
-                       !is_skill_set( ch, x ) ? "&CAva" : "&zSet",
+                       buf,
                        ch->pc_skills[x]->name );
              if( ++column == 3 )
              {
@@ -4121,6 +4131,11 @@ void do_skills( CHAR_DATA *ch, const char *argument )
          if( ( gsn = get_player_skill_sn( ch, arg2 ) ) == -1 )
          {
             send_to_char( "You have no skill with that name.\r\n", ch );
+            return;
+         }
+         if( !is_skill_usable( ch, gsn ) )
+         {
+            send_to_char( "Skill is not usable.\r\n", ch );
             return;
          }
          if( !str_cmp( arg3, "level" ) )

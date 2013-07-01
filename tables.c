@@ -116,7 +116,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    fprintf( fpout, "Flags        %d\n", skill->flags );
    if( skill->target )
       fprintf( fpout, "Target       %d\n", skill->target );
-   fprintf( fpout, "Style      %d\n", skill->style );
+   fprintf( fpout, "Style        %d\n", skill->style );
    if( skill->minimum_position )
       fprintf( fpout, "Minpos       %d\n", skill->minimum_position );
    if( skill->saves )
