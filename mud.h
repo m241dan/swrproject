@@ -4519,6 +4519,7 @@ void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void sort_mob_skills( CHAR_DATA *ch );
+bool mob_has_skill( CHAR_DATA *ch, int gsn );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );

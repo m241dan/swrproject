@@ -167,21 +167,27 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    /*
     * bsearch for the skill 
     */
-   for( ;; )
+   if( IS_NPC( ch ) )
    {
-      sn = ( first + top ) >> 1;
+      for( ;; )
+      {
+         sn = ( first + top ) >> 1;
 
-      if( LOWER( command[0] ) == LOWER( skill_table[sn]->name[0] )
-          && !str_prefix( command, skill_table[sn]->name )
-          && ( IS_NPC( ch ) || ( ch->pcdata->learned[sn] > 0 ) ) )
-         break;
-      if( first >= top )
+         if( LOWER( command[0] ) == LOWER( skill_table[sn]->name[0] )
+             && !str_prefix( command, skill_table[sn]->name )
+             && ( IS_NPC( ch ) || ( ch->pcdata->learned[sn] > 0 ) ) )
+            break;
+         if( first >= top )
+            return FALSE;
+         if( strcasecmp( command, skill_table[sn]->name ) < 1 )
+            top = sn - 1;
+         else
+            first = sn + 1;
+      }
+      if( !mob_has_skill( ch, sn ) )
          return FALSE;
-      if( strcasecmp( command, skill_table[sn]->name ) < 1 )
-         top = sn - 1;
-      else
-         first = sn + 1;
    }
+
 
    if( is_on_cooldown( ch, sn ) )
       return TRUE;
@@ -3917,10 +3923,25 @@ void sort_mob_skills( CHAR_DATA *ch )
       {
          ch->pIndexData->npc_skills[holder] = ch->pIndexData->npc_skills[x];
          ch->pIndexData->npc_skills[x] = -1;
-         x = holder+1;
+         x = holder;
          holder = -1;
          continue;
       }
    }
    return;
+}
+
+bool mob_has_skill( CHAR_DATA *ch, int gsn )
+{
+   int x;
+
+   if( !IS_NPC( ch ) )
+      return 0;
+
+   for( x = 0; x < MAX_NPC_SKILL; x++ )
+   {
+      if( ch->pIndexData->npc_skills[x] == gsn )
+         return TRUE;
+   }
+   return FALSE;
 }
