@@ -4664,7 +4664,7 @@ double get_haste( CHAR_DATA *ch );
 void change_mind( CHAR_DATA *ch, int fom );
 double get_next_thought( CHAR_DATA *ch );
 int get_num_skills( CHAR_DATA *ch );
-
+bool is_charging( CHAR_DATA *ch );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

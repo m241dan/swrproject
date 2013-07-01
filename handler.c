@@ -4621,3 +4621,12 @@ int get_num_skills( CHAR_DATA *ch )
    }
    return 0;
 }
+
+bool is_charging( CHAR_DATA *ch )
+{
+   TIMER *charging;
+
+   if( ( charging = get_timerptr( ch, TIMER_DO_FUN ) ) != NULL )
+      return TRUE;
+   return FALSE;
+}

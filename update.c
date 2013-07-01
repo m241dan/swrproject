@@ -2931,7 +2931,7 @@ void split_timers_update(  )
 
                   for( x = 0; x < num_attempts; x++ ) /* Begin the thought process */
                   {
-                     gsn = number_range( 0, num_skills ); /* Roll a Skill */
+                     gsn = ch->pIndexData->npc_skills[number_range( 0, (num_skills-1) )]; /* Roll a Skill */
                      if( !is_on_cooldown( ch, gsn ) )
                         break;
                   }
@@ -2971,6 +2971,11 @@ void split_timers_update(  )
             if( ch->next_round > 0 )
                break;
 
+            if( is_charging( ch ) )
+            {
+               ch->next_round = get_timer( ch, TIMER_DO_FUN ) + .5;
+               break;
+            }
             retcode = rNONE;
 
             if( ( victim = who_fighting( ch ) ) == NULL )

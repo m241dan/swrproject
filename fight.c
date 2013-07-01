@@ -1700,6 +1700,9 @@ void free_fight( CHAR_DATA * ch )
       send_to_char( "\r\n", ch );
    }
 
+   if( IS_NPC( ch ) )
+      change_mind( ch, FOM_IDLE );
+
    return;
 }
 
