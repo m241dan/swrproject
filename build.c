@@ -1285,6 +1285,11 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          send_to_char( "Not a valid skill.\r\n", ch );
          return;
       }
+      if( skill_table[value]->type != SKILL_SKILL && skill_table[value]->type != SKILL_SPELL )
+      {
+         send_to_char( "Not a valid skill.\r\n", ch );
+         return;
+      }
       for( x = 0; x < MAX_NPC_SKILL; x++ )
          if( victim->pIndexData->npc_skills[x] == -1 )
             break;
