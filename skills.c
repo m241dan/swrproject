@@ -3945,3 +3945,49 @@ bool mob_has_skill( CHAR_DATA *ch, int gsn )
    }
    return FALSE;
 }
+
+void do_skillcraft( CHAR_DATA *ch, const char *argument )
+{
+   SKILLTYPE *skill;
+   char arg[MAX_INPUT_LENGTH];
+
+   argument = one_argument( argument, arg );
+
+   if( IS_NPC( ch ) )
+   {
+      send_to_char( "NPCs cannot create skills.\r\n", ch );
+      return;
+   }
+
+   if( arg[0] == '\0' )
+   {
+      send_to_char( "Proper usage: skillcraft <command> <skill> <field> <value>", ch );
+      send_to_char( "Or:           skillcraft create <skill>", ch );
+      send_to_char( "Or:           skillcraft delete <skill>", ch );
+      send_to_char( "Commands:\r\n", ch );
+      send_to_char( "  Start Commands Here\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg, "create" ) )
+   {
+      if( ch->top_sn >= MAX_PC_SKILL )
+      {
+         send_to_char( "You have too many skills.\r\n", ch );
+         return;
+      }
+
+      CREATE( skill, SKILLTYPE, 1 );
+      skill->name = str_dup( argument );
+      skill->noun_damage = str_dup( "" );
+      skill->msg_off = str_dup( "" );
+      skill->spell_fun = spell_null;
+      skill->type = SKILL_SKILL;
+      ch->pc_skills[ch->top_sn] = skill;
+      ch->top_sn++;
+      send_to_char( "Skill created.\r\n", ch );
+      do_save( ch, "" );
+      return;
+   }
+   return;
+}

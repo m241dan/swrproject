@@ -843,7 +843,8 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
          if( !str_cmp( word, "PLAYER" ) )
          {
             fread_char( ch, fp, preload, copyover );
-            sort_player_skill_table( ch );
+            if( ch->top_sn > 0 )
+               sort_player_skill_table( ch );
             if( preload )
                break;
          }
