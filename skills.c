@@ -276,6 +276,10 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                   send_to_char( "You can't cast that on someone who is grouped with you.\r\n", ch );
                   return;
                }
+               if( victim == ch )
+               {
+                  send_to_char( "You can't attack yourself!!!\r\n", ch );
+               }
                break;
             case TAR_CHAR_DEFENSIVE:
                if( !is_same_group( ch, victim ) )
