@@ -2789,7 +2789,7 @@ void split_timers_update(  )
    CHAR_DATA *victim;
    QTIMER *timer, *next_timer;
    ch_ret retcode;
-
+   int x;
 
    if( !first_qtimer )
       return;
@@ -2923,9 +2923,19 @@ void split_timers_update(  )
                   }
                   add_queue( ch, COMBAT_ROUND );
 
-                  int num_skills;
+                  int num_skills, num_attempts, gsn;
 
-                  num_skills = get_num_skills( ch );
+                  if( ( num_skills = get_num_skills( ch ) ) == 0 ) /* Get max number of skills mob has, if it has none, can't use any skills */
+                     break;
+                  num_attempts = UMAX( num_skills / 3, 1 ); /* Get number of attempts mob will try to use a skill, ie if its on cooldown, try another, but only a finite amount of attempts */
+
+                  for( x = 0; x < num_attempts; x++ ) /* Begin the thought process */
+                  {
+                     gsn = number_range( 0, num_skills ); /* Roll a Skill */
+                     if( !is_on_cooldown( ch, gsn ) )
+                        break;
+                  }
+                  check_skill( ch, skill_table[gsn]->name, victim->name );
                   break;
                case FOM_HUNTING:
                   if( (victim = most_threat( ch ) ) == NULL )
