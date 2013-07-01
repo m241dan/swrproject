@@ -528,10 +528,10 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       fprintf( fp, "\n\n" );
    }
 
-   fprintf( fp, "SkillSlot   \n" );
+   fprintf( fp, "SkillSlot   " );
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
       fprintf( fp, " %d", ch->skill_slots[x] );
-   fprintf( fp, "\n" );
+   fprintf( fp, "\n\n" );
 
    for( sn = 0; sn < ch->top_sn; sn++ )
    {
@@ -1458,6 +1458,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
          case 'S':
             KEY( "Sex", ch->sex, fread_number( fp ) );
             KEY( "ShortDescr", ch->short_descr, fread_string( fp ) );
+            if( !str_cmp( word, "SkillSlot" ) )
+            {
+               int x;
+               for( x = 0; x < MAX_SKILL_SLOT; x++ )
+                  ch->skill_slots[x] = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
             KEY( "Susceptible", ch->susceptible, fread_number( fp ) );
             if( !str_cmp( word, "SavingThrow" ) )
             {
