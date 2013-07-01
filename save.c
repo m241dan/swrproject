@@ -304,7 +304,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
 {
    CD_DATA *cdat;
    AFFECT_DATA *paf;
-   int sn, track, drug, count;
+   int sn, track, drug, count, x;
    SKILLTYPE *skill = NULL;
 
    fprintf( fp, "#%s\n", IS_NPC( ch ) ? "MOB" : "PLAYER" );
@@ -521,13 +521,17 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
     * Save color values - Samson 9-29-98 
     */
    {
-      int x;
       fprintf( fp, "MaxColors    %d\n", MAX_COLORS );
       fprintf( fp, "Colors       " );
       for( x = 0; x < MAX_COLORS; x++ )
          fprintf( fp, "%d ", ch->colors[x] );
-      fprintf( fp, "\n" );
+      fprintf( fp, "\n\n" );
    }
+
+   fprintf( fp, "SkillSlot   \n" );
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
+      fprintf( fp, " %d", ch->skill_slots[x] );
+   fprintf( fp, "\n" );
 
    for( sn = 0; sn < ch->top_sn; sn++ )
    {

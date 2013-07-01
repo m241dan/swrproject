@@ -3961,9 +3961,9 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
 
    if( arg[0] == '\0' )
    {
-      send_to_char( "Proper usage: skillcraft <command> <skill> <field> <value>", ch );
-      send_to_char( "Or:           skillcraft create <skill>", ch );
-      send_to_char( "Or:           skillcraft delete <skill>", ch );
+      send_to_char( "Proper usage: skillcraft <command> <skill> <field> <value>\r\n", ch );
+      send_to_char( "Or:           skillcraft create <skill>\r\n", ch );
+      send_to_char( "Or:           skillcraft delete <skill>\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
       send_to_char( "  Start Commands Here\r\n", ch );
       return;
