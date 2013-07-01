@@ -41,6 +41,8 @@ const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cos
 
 const char *const cost_type[MAX_COST] = { "mana", "move", "both" };
 
+const char *const applytypes_type[MAX_APPLYTYPE] = { "join_friendly", "join_enemy", "override_friendly", "override_enemy" };
+
 SPELL_FUN *spell_function( const char *name )
 {
   SPELL_FUN *funHandle = 0;
@@ -535,6 +537,192 @@ SKILLTYPE *fread_skill( FILE * fp )
    }
 }
 
+void load_disciplines(  )
+{
+   FILE *fp;
+
+   if( ( fp = fopen( DISCIPLINE_FILE, "r" ) ) != NULL )
+   {
+      for( ;; )
+      {
+         char letter;
+         const char *word;
+
+         letter = fread_letter( fp );
+         if( letter == '*' )
+         {
+            fread_to_eol( fp );
+            continue;
+         }
+
+         if( letter != '#' )
+         {
+            bug( "Load_disciplines: # not found.", 0 );
+            break;
+         }
+
+         word = fread_word( fp );
+         if( !str_cmp( word, "DISCIPLINE" ) )
+         {
+            DISC_DATA *discipline;
+            if( ( discipline = fread_discipline( fp ) ) == NULL )
+            {
+               bug( "Huge error loading disciplines.", 0 );
+               fclose( fp );
+               return;
+            }
+            LINK( discipline, first_discipline, last_discipline, next, prev );
+            continue;
+         }
+         else if( !str_cmp( word, "END" ) )
+            break;
+         else
+         {
+            bug( "Load_disciplines: bad section.", 0 );
+            continue;
+         }
+      }
+      fclose( fp );
+   }
+   else
+   {
+      bug( "Cannot open discipline.dat", 0 );
+      exit( 0 );
+   }
+   return;
+}
+
+DISC_DATA *fread_discipline( FILE * fp )
+{
+   char buf[MAX_STRING_LENGTH];
+   DISC_DATA *disc;
+   bool fMatch;
+   const char *word;
+
+   CREATE( disc, DISC_DATA, 1 );
+
+   for( ;; )
+   {
+      word = feof( fp ) ? "End" : fread_word( fp );
+      fMatch = FALSE;
+
+      switch( UPPER( word[0] ) )
+      {
+         case '*':
+            fMatch = TRUE;
+            fread_to_eol( fp );
+            break;
+         case '#':
+            if( !str_cmp( word, "#Factor" ) )
+            {
+               fMatch = TRUE;
+               FACTOR_DATA *factor;
+               CREATE( factor, FACTOR_DATA, 1 );
+               factor->factor_type = fread_number( fp );
+               factor->location = fread_number( fp );
+               factor->affect = fread_bitvector( fp );
+               factor->modifier = fread_number( fp );
+               factor->apply_type = fread_number( fp );
+               factor->duration = fread_number( fp );
+               factor->owner = disc;
+               LINK( factor, disc->first_factor, disc->last_factor, next, prev );
+               break;
+            }
+            if( !str_cmp( word, "#TypeData" ) )
+            {
+               fMatch = TRUE;
+               TYPE_DATA *type_data;
+               CREATE( type_data, TYPE_DATA, 1 );
+               type_data->type = fread_number( fp );
+               type_data->value = fread_number( fp );
+               type_data->owner = disc;
+               LINK( type_data, disc->first_type, disc->last_type, next, prev );
+               break;
+            }
+            break;
+         case 'G':
+            if( !str_cmp( word, "Gains" ) )
+            {
+               fMatch = TRUE;
+               disc->hit_gain = fread_number( fp );
+               disc->move_gain = fread_number( fp );
+               disc->mana_gain = fread_number( fp );
+               break;
+            }
+            break;
+         case 'M':
+            KEY( "MinLevel", disc->min_level, fread_number( fp ) );
+            break;
+
+         case 'N':
+            KEY( "Name", disc->name, fread_string( fp ) );
+            break;
+      }
+      if( !fMatch )
+      {
+         sprintf( buf, "Fread_discipline: no match: %s", word );
+         bug( buf, 0 );
+      }
+   }
+}
+
+void save_disciplines(  )
+{
+   FILE *fpout;
+   DISC_DATA *discipline;
+
+   if( ( fpout = fopen( DISCIPLINE_FILE, "w" ) ) == NULL )
+   {
+      bug( "Cannot open disciplines.dat for writting", 0 );
+      perror( DISCIPLINE_FILE );
+      return;
+   }
+
+   for( discipline = first_discipline; discipline; discipline = discipline->next )
+   {
+      if( !discipline->name || discipline->name[0] == '\0' )
+         break;
+      fprintf( fpout, "#DISCIPLINE\n" );
+      fwrite_discipline( fpout, discipline );
+   }
+   fprintf( fpout, "#END\n" );
+   fclose( fpout );
+   return;
+}
+
+void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
+{
+   FACTOR_DATA *factor;
+   TYPE_DATA *type_data;
+   AFFECT_DATA *aff;
+
+   fprintf( fpout, "Name       %s~\n", discipline->name );
+   fprintf( fpout, "Gains      %d %d %d\n", discipline->hit_gain, discipline->move_gain, discipline->mana_gain );
+   fprintf( fpout, "MinLevel   %d\n", discipline->min_level );
+
+   for( factor = discipline->first_factor; factor; factor = factor->next )
+   {
+      fprintf( fpout, "#Factor\n" );
+      fprintf( fpout, "FactorType  %d\n", factor->factor_type );
+      fprintf( fpout, "Location    %d\n", factor->location );
+      fprintf( fpout, "Affect      %s\n", print_bitvector( &factor->affect ) );
+      fprintf( fpout, "Modifier    %d\n", factor->modifier );
+      fprintf( fpout, "ApplyType   %d\n", factor->apply_type );
+      fprintf( fpout, "Duration    %d\n", factor->duration );
+   }
+
+   for( type_data = discipline->first_type; type_data; type_data = type_data->next )
+   {
+      fprintf( fpout, "#TypeData\n" );
+      fprintf( fpout, "Type        %d\n", type_data->type );
+      fprintf( fpout, "Value       %d\n", type_data->value );
+   }
+
+   for( aff = discipline->first_affect; aff; aff = aff->next )
+      fwrite_fuss_affect( fpout, aff );
+
+   fprintf( fpout, "End\n" );
+}
 void load_skill_table(  )
 {
    FILE *fp;

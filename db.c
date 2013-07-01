@@ -42,6 +42,9 @@ void fread_fuss_skills( FILE *fp, MOB_INDEX_DATA *pMobIndex );
 THREAT_DATA *first_threat;
 THREAT_DATA *last_threat;
 
+DISC_DATA *first_discipline;
+DISC_DATA *last_discipline;
+
 WIZENT *first_wiz;
 WIZENT *last_wiz;
 
@@ -474,6 +477,9 @@ void boot_db( bool fCopyOver )
    last_threat = NULL;
    first_qtimer = NULL;
    last_qtimer = NULL;
+   first_discipline = NULL;
+   last_discipline = NULL;
+
 
    /*
     * Init random number generator.
@@ -626,6 +632,8 @@ void boot_db( bool fCopyOver )
       load_bounties(  );
       log_string( "Loading governments" );
       load_planets(  );
+      log_string( "Loading disciplines" );
+      load_disciplines(  );
       if( fCopyOver )
       {
          log_string( "Loading world state..." );

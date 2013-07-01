@@ -2777,6 +2777,8 @@ struct discipline_data
    FACTOR_DATA *last_factor;
    TYPE_DATA *first_type;
    TYPE_DATA *last_type;
+   AFFECT_DATA *first_affect;
+   AFFECT_DATA *last_affect;
    const char *name;
    int min_level;
    int hit_gain;
@@ -2820,6 +2822,11 @@ typedef enum
 {
    COST_MANA, COST_MOVE, COST_BOTH, MAX_COST
 } cost_types;
+
+typedef enum
+{
+   APPLY_JOINF, APPLY_JOINE, APPLY_OVERRIDEF, APPLY_OVERRIDEE, MAX_APPLYTYPE
+} applytype_types;
 struct auction_data
 {
    OBJ_DATA *item;   /* a pointer to the item */
@@ -3392,6 +3399,7 @@ extern const char *const ability_name[MAX_ABILITY];
 extern const char *const factor_names[MAX_FACTOR];
 extern const char *const skilltype_names[MAX_TYPE];
 extern const char *const cost_type[MAX_COST];
+extern const char *const applytypes_type[MAX_APPLYTYPE];
 
 extern const char *const style_type[STYLE_MAX];
 extern const char *const skill_tname[];
@@ -3511,6 +3519,8 @@ extern THREAT_DATA *first_threat;
 extern THREAT_DATA *last_threat;
 extern QTIMER *first_qtimer;
 extern QTIMER *last_qtimer;
+extern DISC_DATA *first_discipline;
+extern DISC_DATA *last_discipline;
 
 extern time_t current_time;
 extern bool fLogAll;
@@ -4169,7 +4179,8 @@ DECLARE_SPELL_FUN( spell_cure_addiction );
 #define HERB_FILE	SYSTEM_DIR "herbs.dat"  /* Herb table       */
 #define SOCIAL_FILE	SYSTEM_DIR "socials.dat"   /* Socials       */
 #define COMMAND_FILE	SYSTEM_DIR "commands.dat"  /* Commands      */
-#define USAGE_FILE	SYSTEM_DIR "usage.txt"  /* How many people are on 
+#define DISCIPLINE_FILE SYSTEM_DIR "disciplines.dat"
+#define USAGE_FILE	SYSTEM_DIR "usage.txt"  /* How many people are on
 * every half hour - trying to
 * determine best reboot time */
 
@@ -4317,6 +4328,7 @@ int get_npc_sex( const char *sex );
 void smush_tilde( char *str );
 void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot );
 void fwrite_skill_data( FILE *fpout, MOB_INDEX_DATA * pMobIndex );
+void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -4821,6 +4833,10 @@ void save_herb_table args( ( void ) );
 void sort_player_skill_table( CHAR_DATA * ch );
 void fwrite_skill( FILE * fpout, SKILLTYPE * skill );
 SKILLTYPE *fread_skill( FILE *fp );
+void load_disciplines( void );
+void save_disciplines( void );
+DISC_DATA *fread_discipline( FILE * fp );
+void fwrite_discipline( FILE *fpout, DISC_DATA *discipline );
 
 /* track.c */
 void found_prey args( ( CHAR_DATA * ch, CHAR_DATA * victim ) );
