@@ -529,6 +529,15 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       fprintf( fp, "\n" );
    }
 
+   for( sn = 0; sn < ch->top_sn; sn++ )
+   {
+      if( !ch->pc_skills[sn]->name || ch->pc_skills[sn]->name[0] == '\0' )
+         break;
+
+      fprintf( fp, "#SKILL\n" );
+      fwrite_skill( fp, ch->pc_skills[sn] );
+   }
+
 #ifdef IMC
    imc_savechar( ch, fp );
 #endif
@@ -834,6 +843,7 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
          if( !str_cmp( word, "PLAYER" ) )
          {
             fread_char( ch, fp, preload, copyover );
+            sort_player_skill_table( ch );
             if( preload )
                break;
          }
@@ -942,7 +952,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
    int max_colors = 0;  /* Color code */
    time_t lastplayed = 0;
    int sn, extra;
-
+   ch->top_sn = 0;
    file_ver = 0;
    killcnt = 0;
    /*
@@ -966,6 +976,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             fMatch = TRUE;
             fread_to_eol( fp );
             break;
+
+         case '#':
+            if( !str_cmp( word, "#SKILL" ) )
+            {
+               fMatch = TRUE;
+               ch->pc_skills[ch->top_sn] = fread_skill( fp );
+               ch->top_sn++;
+            }
 
          case 'A':
             KEY( "Act", ch->act, fread_number( fp ) );

@@ -95,6 +95,14 @@ void sort_skill_table(  )
    qsort( &skill_table[1], top_sn - 1, sizeof( SKILLTYPE * ), ( int ( * )( const void *, const void * ) )skill_comp );
 }
 
+void sort_player_skill_table(  CHAR_DATA *ch )
+{
+   if( IS_NPC( ch ) )
+      return;
+
+   qsort( &ch->pc_skills[1], ch->top_sn -1, sizeof( SKILLTYPE * ), ( int( * )(const void *, const void * ) )skill_comp );
+   return;
+}
 
 /*
  * Write skill data to a file

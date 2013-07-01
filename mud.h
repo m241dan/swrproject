@@ -1969,9 +1969,9 @@ struct timer_data
 #define AFLAG_NOPKILL               BV00
 #define AFLAG_PROTOTYPE             BV01
 
-#define MAX_PC_SKILL  50
-#define MAX_NPC_SKILL 20
-
+#define MAX_PC_SKILL   50
+#define MAX_NPC_SKILL  20
+#define MAX_SKILL_SLOT 30
 /*
 * Prototype for a mob.
 * This is the in-memory version of #MOBILES.
@@ -2264,7 +2264,9 @@ struct char_data
    double tspeed; /* mob thought speed */
    int fom; /* Mob Frame of Mind */
    double next_thought; /* when a mob will have its next thought */
-   SKILLTYPE *skills[MAX_PC_SKILL];
+   SKILLTYPE *pc_skills[MAX_PC_SKILL];
+   int skill_slots[MAX_SKILL_SLOT];
+   int top_sn;
 };
 
 typedef enum
@@ -4248,6 +4250,7 @@ int get_npc_sex( const char *sex );
 void smush_tilde( char *str );
 void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot );
 void fwrite_skill_data( FILE *fpout, MOB_INDEX_DATA * pMobIndex );
+
 /* clans.c */
 CL *get_clan( const char *name );
 void load_clans args( ( void ) );
@@ -4744,6 +4747,9 @@ SPELL_FUN *spell_function( const char *name );
 DO_FUN *skill_function( const char *name );
 void load_herb_table args( ( void ) );
 void save_herb_table args( ( void ) );
+void sort_player_skill_table( CHAR_DATA * ch );
+void fwrite_skill( FILE * fpout, SKILLTYPE * skill );
+SKILLTYPE *fread_skill( FILE *fp );
 
 /* track.c */
 void found_prey args( ( CHAR_DATA * ch, CHAR_DATA * victim ) );
