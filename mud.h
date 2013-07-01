@@ -4671,6 +4671,8 @@ double get_next_thought( CHAR_DATA *ch );
 int get_num_skills( CHAR_DATA *ch );
 bool is_charging( CHAR_DATA *ch );
 bool is_skill_set( CHAR_DATA *ch, int gsn );
+int get_player_skill_sn( CHAR_DATA *ch, const char *argument );
+int get_skill_slot( CHAR_DATA *ch, int gsn );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

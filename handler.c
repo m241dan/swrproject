@@ -4636,9 +4636,32 @@ bool is_skill_set( CHAR_DATA *ch, int gsn )
    int x;
 
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
-   {
       if( ch->skill_slots[x] == gsn )
          return TRUE;
-   }
    return FALSE;
+}
+int get_player_skill_sn( CHAR_DATA *ch, const char *argument ) 
+{
+   int x;
+
+   for( x = 0; x < MAX_PC_SKILL; x++ )
+   {
+      if( !ch->pc_skills[x] )
+         continue;
+      if( ch->pc_skills[x]->name[0] == '\0' )
+         continue;
+      if( !str_cmp( ch->pc_skills[x]->name, argument ) )
+         return x;
+   }
+   return -1;
+}
+
+int get_skill_slot( CHAR_DATA *ch, int gsn )
+{
+   int x;
+
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
+      if( ch->skill_slots[x] == gsn )
+         return x;
+   return -1;
 }

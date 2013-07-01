@@ -3997,10 +3997,14 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
 void do_skills( CHAR_DATA *ch, const char *argument )
 {
    char arg[MAX_INPUT_LENGTH];
-   int x, slot;
+   char arg2[MAX_INPUT_LENGTH];
+   char arg3[MAX_INPUT_LENGTH];
+   int x, slot, gsn;
    int column = 0;
 
    argument = one_argument( argument, arg );
+   argument = one_argument( argument, arg2 );
+   argument = one_argument( argument, arg3 );
 
    if( arg[0] == '\0' )
    {
@@ -4037,5 +4041,70 @@ void do_skills( CHAR_DATA *ch, const char *argument )
       }
       return;
    }
+   if( !str_cmp( arg, "unset" ) )
+   {
+      if( arg2[0] == '\0' )
+      {
+         send_to_char( "Proper Usage: skills unset all\r\n", ch );
+         send_to_char( "Or:           skills unset <skill_name>\r\n", ch );
+         send_to_char( "Or:           skills unset slot <slot number>\r\n", ch );
+         send_to_char( "Or:           skills unset level <slot level number>\r\n", ch );
+         return;
+      }
+      else if( !str_cmp( arg2, "all" ) )
+      {
+         for( x = 0; x < MAX_SKILL_SLOT; x++ )
+            ch->skill_slots[x] = -1;
+         send_to_char( "All skills unset.\r\n", ch );
+      }
+      else if( !str_cmp( arg2, "slot" ) )
+      {
+         if( ( slot = is_number( arg3 ) ? atoi( arg3 ) : -1 ) <= 0 || slot > 30 ) /* Gets tricky here because slots actually start at 0 but most players won't know that */
+         {
+            send_to_char( "Not a valid slot number.\r\n", ch );
+            do_skills( ch, "unset" );
+            return;
+         }
+         slot--;
+         ch->skill_slots[slot] = -1;
+         send_to_char( "Skill unset\r\n", ch );
+      }
+      else if( !str_cmp( arg2, "level" ) )
+      {
+         if( ( slot = is_number( arg3 ) ? atoi( arg3 ) : -1 ) == -1 || slot > 150 )
+         {
+            send_to_char( "Not a valid slot number.\r\n", ch );
+            do_skills( ch, "unset" );
+            return;
+         }
+         slot /= 5;
+         ch->skill_slots[slot] = -1;
+         send_to_char( "Skill unset\r\n", ch );
+      }
+      else
+      {
+         if( ( gsn = get_player_skill_sn( ch, arg2 ) ) == -1 )
+         {
+            send_to_char( "You have no skill with that name.\r\n", ch );
+            return;
+         }
+         if( !is_skill_set( ch, gsn ) )
+         {
+            send_to_char( "No skill with that name is set.\r\n", ch );
+            return;
+         }
+         if( ( slot = get_skill_slot( ch, gsn ) ) == -1 )
+         {
+            send_to_char( "Something is messed up, contact your nearest Imm.\r\n", ch );
+            return;
+         }
+         ch->skill_slots[slot] = -1;
+         ch_printf( ch, "%s unset.\r\n", ch->pc_skills[gsn]->name );
+      }
+      do_save( ch, "" );
+      return;
+   }
+   send_to_char( "Not a valid input.\r\n", ch );
    return;
 }
+
