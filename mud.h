@@ -4518,7 +4518,7 @@ void redirect_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-
+void sort_mob_skills( CHAR_DATA *ch );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
@@ -4662,6 +4662,8 @@ double get_round( CHAR_DATA *ch );
 double get_haste( CHAR_DATA *ch );
 void change_mind( CHAR_DATA *ch, int fom );
 double get_next_thought( CHAR_DATA *ch );
+int get_num_skills( CHAR_DATA *ch );
+
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

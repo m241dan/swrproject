@@ -1309,6 +1309,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          return;
       }
       victim->pIndexData->npc_skills[value] = -1;
+      sort_mob_skills( victim );
       send_to_char( "Skill Slot Reset.\r\n", ch );
       return;
    }

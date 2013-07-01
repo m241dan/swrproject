@@ -2922,6 +2922,10 @@ void split_timers_update(  )
                      break;
                   }
                   add_queue( ch, COMBAT_ROUND );
+
+                  int num_skills;
+
+                  num_skills = get_num_skills( ch );
                   break;
                case FOM_HUNTING:
                   if( (victim = most_threat( ch ) ) == NULL )
