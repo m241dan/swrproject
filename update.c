@@ -2907,6 +2907,8 @@ void split_timers_update(  )
                case FOM_IDLE:
                   break;
                case FOM_FIGHTING:
+                  if( is_charging( ch ) )
+                     break;
                   if( ( victim = who_fighting( ch ) ) == NULL )
                   {
                      if( is_angered( ch ) )
