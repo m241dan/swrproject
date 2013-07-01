@@ -751,6 +751,9 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
    clear_char( ch );
    loading_char = ch;
 
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
+      ch->skill_slots[x] = -1;
+
    CREATE( ch->pcdata, PC_DATA, 1 );
    d->character = ch;
    ch->desc = d;

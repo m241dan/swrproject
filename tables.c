@@ -405,7 +405,9 @@ SKILLTYPE *fread_skill( FILE * fp )
                const char *w = fread_word( fp );
 
                fMatch = TRUE;
-               if( !str_prefix( "do_", w ) && ( dofun = skill_function(w) ) != skill_notfound )
+               if( !str_cmp( word, "(null)" ) )
+                  break;
+               else if( !str_prefix( "do_", w ) && ( dofun = skill_function(w) ) != skill_notfound )
                {
                   skill->skill_fun = dofun;
                   skill->spell_fun = NULL;

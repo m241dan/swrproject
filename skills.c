@@ -187,6 +187,8 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
       if( !mob_has_skill( ch, sn ) )
          return FALSE;
    }
+   else
+      return FALSE;
 
 
    if( is_on_cooldown( ch, sn ) )
@@ -3987,6 +3989,50 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       ch->top_sn++;
       send_to_char( "Skill created.\r\n", ch );
       do_save( ch, "" );
+      return;
+   }
+   return;
+}
+
+void do_skills( CHAR_DATA *ch, const char *argument )
+{
+   char arg[MAX_INPUT_LENGTH];
+   int x, slot;
+   int column = 0;
+
+   argument = one_argument( argument, arg );
+
+   if( arg[0] == '\0' )
+   {
+      send_to_char( "&BSkill Slots\r\n-----------\r\n", ch );
+      for( x = 0; x < MAX_SKILL_SLOT; x++ )
+      {
+           slot = ( x + 1 ) * 5;
+           ch_printf( ch, "%s(%-3d) %-22.22s&w",
+                      ch->skill_level[COMBAT_ABILITY] >= slot ? "&C" : "&z",
+                      slot,
+                      ch->skill_slots[x] != -1 ? ch->pc_skills[ch->skill_slots[x]]->name : "none" );
+          if( ++column == 3 )
+          {
+             column = 0;
+             send_to_char( "\r\n", ch );
+          }
+      }
+      send_to_char( "\r\n&BAvailable Skills\r\n----------------\r\n", ch );
+      for( x = 0; x < MAX_PC_SKILL; x++ )
+      {
+         if( ch->pc_skills[x]->name[0] != '\0' )
+         {
+            ch_printf( ch, "%-3s: %-21.21s&w",
+                       is_skill_set( ch, x ) ? "&WAva" : "&zSet",
+                       ch->pc_skills[x]->name );
+             if( ++column == 3 )
+             {
+                column = 0;
+                send_to_char( "\r\n", ch );
+             }
+         }
+      }
       return;
    }
    return;

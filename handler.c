@@ -4630,3 +4630,15 @@ bool is_charging( CHAR_DATA *ch )
       return TRUE;
    return FALSE;
 }
+
+bool is_skill_set( CHAR_DATA *ch, int gsn )
+{
+   int x;
+
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
+   {
+      if( ch->skill_slots[x] == gsn )
+         return TRUE;
+   }
+   return FALSE;
+}

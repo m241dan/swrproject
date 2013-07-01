@@ -3460,6 +3460,7 @@ extern struct act_prog_data *mob_act_list;
 * Command functions.
 * Defined in act_*.c (mostly).
 */
+DECLARE_DO_FUN( do_skills );
 DECLARE_DO_FUN( do_skillcraft );
 DECLARE_DO_FUN( do_skill );
 DECLARE_DO_FUN( do_showthreat );
@@ -4669,6 +4670,7 @@ void change_mind( CHAR_DATA *ch, int fom );
 double get_next_thought( CHAR_DATA *ch );
 int get_num_skills( CHAR_DATA *ch );
 bool is_charging( CHAR_DATA *ch );
+bool is_skill_set( CHAR_DATA *ch, int gsn );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
