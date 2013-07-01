@@ -4665,3 +4665,14 @@ int get_skill_slot( CHAR_DATA *ch, int gsn )
          return x;
    return -1;
 }
+
+bool is_skill_usable( CHAR_DATA *ch, int gsn )
+{
+   SKILLTYPE *skill;
+
+   if( ( skill = skill_table[gsn] ) == NULL )
+      return FALSE;
+   if( skill->type == SKILL_UNSET || skill->style == STYLE_UNSET || skill->target == TAR_CHAR_UNSET || ( skill->min_mana == 0 && skill->min_move == 0 ) )
+      return FALSE;
+   return TRUE;
+}

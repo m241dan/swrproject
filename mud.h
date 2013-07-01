@@ -2678,20 +2678,21 @@ struct teleport_data
 typedef enum
 {
    TAR_IGNORE, TAR_CHAR_OFFENSIVE, TAR_CHAR_DEFENSIVE, TAR_CHAR_SELF,
-   TAR_OBJ_INV, TAR_CHAR_ANY, TAR_AOE_FRIENDLY, TAR_AOE_ENEMY, TAR_AOE_ENEMYGROUP
+   TAR_OBJ_INV, TAR_CHAR_ANY, TAR_AOE_FRIENDLY, TAR_AOE_ENEMY, TAR_AOE_ENEMYGROUP,
+   TAR_CHAR_UNSET
 } target_types;
 
 typedef enum
 {
    SKILL_UNKNOWN, SKILL_SPELL, SKILL_SKILL, SKILL_WEAPON, SKILL_TONGUE,
-   SKILL_HERB, SKILL_PASSIVE
+   SKILL_HERB, SKILL_PASSIVE, SKILL_UNSET
 } skill_types;
 
 typedef enum
 {
    STYLE_HEALING, STYLE_DAMAGE, STYLE_BUFF, STYLE_ENFEEBLE,
    STYLE_REDIRECT, STYLE_CLEANSE, STYLE_SUMMON, STYLE_POLYMORPH,
-   STYLE_MAX
+   STYLE_UNSET, STYLE_MAX
 } style_types;
 
 struct timerset
@@ -4673,6 +4674,7 @@ bool is_charging( CHAR_DATA *ch );
 bool is_skill_set( CHAR_DATA *ch, int gsn );
 int get_player_skill_sn( CHAR_DATA *ch, const char *argument );
 int get_skill_slot( CHAR_DATA *ch, int gsn );
+bool is_skill_usable( CHAR_DATA *ch, int gsn );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

@@ -41,7 +41,7 @@ const char *const spell_power[] = { "none", "minor", "greater", "major" };
 
 const char *const spell_class[] = { "none", "lunar", "solar", "travel", "summon", "life", "death", "illusion" };
 
-const char *const target_type[] = { "ignore", "offensive", "defensive", "self", "objinv", "any", "aoe_friendly", "aoe_enemy", "aoe_enemy_friend" };
+const char *const target_type[] = { "ignore", "offensive", "defensive", "self", "objinv", "any", "aoe_friendly", "aoe_enemy", "aoe_enemy_friend", "unset" };
 
 void show_char_to_char( CHAR_DATA * list, CHAR_DATA * ch );
 bool validate_spec_fun( const char *name );
@@ -3984,7 +3984,9 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       skill->noun_damage = str_dup( "" );
       skill->msg_off = str_dup( "" );
       skill->spell_fun = spell_null;
-      skill->type = SKILL_SKILL;
+      skill->type = SKILL_UNSET;
+      skill->style = STYLE_UNSET;
+      skill->target = TAR_CHAR_UNSET;
       ch->pc_skills[ch->top_sn] = skill;
       ch->top_sn++;
       send_to_char( "Skill created.\r\n", ch );
@@ -4030,7 +4032,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
          if( ch->pc_skills[x]->name[0] != '\0' )
          {
             ch_printf( ch, "%-3s: %-21.21s&w",
-                       is_skill_set( ch, x ) ? "&WAva" : "&zSet",
+                       !is_skill_set( ch, x ) ? "&CAva" : "&zSet",
                        ch->pc_skills[x]->name );
              if( ++column == 3 )
              {
@@ -4039,6 +4041,8 @@ void do_skills( CHAR_DATA *ch, const char *argument )
              }
          }
       }
+      send_to_char( "\r\nOther Usages: skills <command>\r\n", ch );
+      send_to_char( "  Commands: unset set\r\n", ch );
       return;
    }
    if( !str_cmp( arg, "unset" ) )
@@ -4071,14 +4075,14 @@ void do_skills( CHAR_DATA *ch, const char *argument )
       }
       else if( !str_cmp( arg2, "level" ) )
       {
-         if( ( slot = is_number( arg3 ) ? atoi( arg3 ) : -1 ) == -1 || slot > 150 )
+         if( ( slot = is_number( arg3 ) ? atoi( arg3 ) : -1 ) <= 0 || slot > 150 || slot % 5 != 0 )
          {
             send_to_char( "Not a valid slot number.\r\n", ch );
             do_skills( ch, "unset" );
             return;
          }
          slot /= 5;
-         ch->skill_slots[slot] = -1;
+         ch->skill_slots[( slot - 1 )] = -1;
          send_to_char( "Skill unset\r\n", ch );
       }
       else
@@ -4103,6 +4107,51 @@ void do_skills( CHAR_DATA *ch, const char *argument )
       }
       do_save( ch, "" );
       return;
+   }
+   if( !str_cmp( arg, "set" ) )
+   {
+      if( arg2[0] == '\0' )
+      {
+         send_to_char( "Proper Usage: skills set '<skill>' level <slot level number>\r\n", ch );
+         send_to_char( "Or:           skills set '<skill>' slot  <slot number>>\r\n", ch );
+         return;
+      }
+      else
+      {
+         if( ( gsn = get_player_skill_sn( ch, arg2 ) ) == -1 )
+         {
+            send_to_char( "You have no skill with that name.\r\n", ch );
+            return;
+         }
+         if( !str_cmp( arg3, "level" ) )
+         {
+            if( ( slot = is_number( argument ) ? atoi( argument ) : -1 ) <= 0 || slot > 150 || slot % 5 != 0)
+            {
+               send_to_char( "Not a valid slot.\r\n", ch );
+               return;
+            }
+            ch->skill_slots[(slot / 5) - 1] = gsn;
+            ch_printf( ch, "%s set at level %d\r\n", ch->pc_skills[gsn]->name, slot );
+         }
+         else if( !str_cmp( arg3, "slot" ) )
+         {
+           if( ( slot = is_number( argument ) ? atoi( argument ) : -1  ) <= 0 || slot > 30 )
+           {
+              send_to_char( "Not a valid slot.\r\n", ch );
+              return;
+           }
+           ch->skill_slots[(slot - 1)] = gsn;
+           ch_printf( ch, "%s set at slot %d\r\n", ch->pc_skills[gsn]->name, slot );
+         }
+         else
+         {
+            send_to_char( "Not proper usage.\r\n", ch );
+            do_skills( ch, "set" );
+            return;
+         }
+         do_save( ch, "" );
+         return;
+      }
    }
    send_to_char( "Not a valid input.\r\n", ch );
    return;
