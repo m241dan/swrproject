@@ -8275,9 +8275,9 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    {
       send_to_char( "Syntax: dset 'discipline name' <command> <etc>\r\n", ch );
       send_to_char( "Or:     dset create <discipline name>\r\n", ch );
-      send_to_char( "Or:     dset delete <discipline name>\r\n\r\n", ch );
+      send_to_char( "Or:     dset delete <discipline name>(not implemented yet)\r\n\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
-      send_to_char( "  addfactor <location> <modifier> <duration> <type>\r\n", ch );
+      send_to_char( "  addfactor <factor_type> <location> <modifier> <duration> <apply_type>\r\n", ch );
       send_to_char( "  remfactor <number>\r\n", ch );
       send_to_char( "  show hit_gain move_gain mana_gain minlevel\r\n", ch );
       send_to_char( "  cost skill_type skill_style damtype target_type\r\n", ch );
@@ -8301,6 +8301,60 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    if( ( discipline = get_discipline( arg ) ) == NULL )
    {
       send_to_char( "No such discipline.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "addfactor" ) )
+   {
+      int factor_type, location, duration, apply_type;
+      double modifier;
+
+      argument = one_argument( argument, arg3 );
+      if( ( factor_type = get_factor_type( arg3 ) ) == -1 )
+      {
+         ch_printf( ch, "%s not a valid factor type.\r\n", arg3 );
+         return;
+      }
+
+      argument = one_argument( argument, arg3 );
+      if( ( location = get_atype( arg3 ) ) == -1 )
+      {
+         ch_printf( ch, "%s not a valid location.\r\n", arg3 );
+         return;
+      }
+
+      argument = one_argument( argument, arg3 );
+      if( !is_number( arg3 ) )
+      {
+         ch_printf( ch, "%s is not a valid modifier value.\r\n", arg3 );
+         return;
+      }
+      modifier = atof( arg3 );
+
+      argument = one_argument( argument, arg3 );
+      if( !is_number( arg3 ) )
+      {
+         ch_printf( ch, "%s is not a valid duration value.\r\n", arg3 );
+         return;
+      }
+      duration = atoi( arg3 );
+
+      argument = one_argument( argument, arg3 );
+      if( ( apply_type = get_apply_type( arg3 ) ) == -1 )
+      {
+         ch_printf( ch, "%s is not a valid apply type.\r\n", arg3 );
+         return;
+      }
+
+      CREATE( factor, FACTOR_DATA, 1 );
+      factor->factor_type = factor_type;
+      factor->location = location;
+      factor->duration = duration;
+      factor->apply_type = apply_type;
+      factor->modifier = modifier;
+      LINK( factor, discipline->first_factor, discipline->last_factor, next, prev );
+      send_to_char( "Ok.\r\n", ch );
+      save_disciplines( );
       return;
    }
 

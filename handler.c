@@ -4699,3 +4699,23 @@ int get_cost_type( const char *cost )
          return x;
    return -1;
 }
+
+int get_factor_type( const char *factor )
+{
+   int x;
+
+   for( x = 0; x < MAX_FACTOR; x++ )
+      if( !str_cmp( factor, factor_names[x] ) )
+         return x;
+   return -1;
+}
+
+int get_apply_type( const char *apply )
+{
+   int x;
+
+   for( x = 0; x < MAX_APPLYTYPE; x++ )
+      if( !str_cmp( apply, applytypes_type[x] ) )
+         return x;
+   return -1;
+}

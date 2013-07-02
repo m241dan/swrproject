@@ -2819,7 +2819,7 @@ typedef enum
 
 typedef enum
 {
-   APPLY_JOINF, APPLY_JOINE, APPLY_OVERRIDEF, APPLY_OVERRIDEE, MAX_APPLYTYPE
+   APPLY_JOINF, APPLY_JOINE, APPLY_OVERRIDEF, APPLY_OVERRIDEE, NO_APPLY, MAX_APPLYTYPE
 } applytype_types;
 struct auction_data
 {
@@ -4751,6 +4751,8 @@ int get_skill_slot( CHAR_DATA *ch, int gsn );
 bool is_skill_usable( CHAR_DATA *ch, int gsn );
 DISC_DATA *get_discipline( const char *disc_name );
 int get_cost_type( const char *argument );
+int get_factor_type( const char *factor );
+int get_apply_type( const char *apply );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

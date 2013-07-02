@@ -41,7 +41,7 @@ const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cos
 
 const char *const cost_type[MAX_COST] = { "hp", "mana", "move", "both" };
 
-const char *const applytypes_type[MAX_APPLYTYPE] = { "join_friendly", "join_enemy", "override_friendly", "override_enemy" };
+const char *const applytypes_type[MAX_APPLYTYPE] = { "join_friendly", "join_enemy", "override_friendly", "override_enemy", "no_apply" };
 
 SPELL_FUN *spell_function( const char *name )
 {
