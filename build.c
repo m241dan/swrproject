@@ -8259,3 +8259,161 @@ bool is_valid_vnum( int vnum, short type )
    return isValid;
 }
 
+void do_dset( CHAR_DATA *ch, const char *argument )
+{
+   DISC_DATA *discipline;
+   FACTOR_DATA *factor;
+   int x;
+
+   char arg[MAX_STRING_LENGTH];
+   char arg2[MAX_STRING_LENGTH];
+
+   argument = one_argument( argument, arg );
+
+   if( arg[0] == '\0' )
+   {
+      send_to_char( "Syntax: dset 'discipline name' <command> <etc>\r\n", ch );
+      send_to_char( "Or:     dset create <discipline name>\r\n", ch );
+      send_to_char( "Or:     dset delete <discipline name>\r\n\r\n", ch );
+      send_to_char( "Commands:\r\n", ch );
+      send_to_char( "  addfactor <location> <modifier> <duration> <type>\r\n", ch );
+      send_to_char( "  remfactor <number>\r\n", ch );
+      send_to_char( "  show hit_gain move_gain mana_gain minlevel\r\n", ch );
+      send_to_char( "  cost skill_type skill_style damtype target_type\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg, "create" ) )
+   {
+      CREATE( discipline, DISC_DATA, 1 );
+      discipline->name = str_dup( argument );
+      LINK( discipline, first_discipline, last_discipline, next, prev );
+      ch_printf( ch, "The %s discipline has been created.\r\n", discipline->name );
+      save_disciplines( );
+      return;
+   }
+   if( !str_cmp( arg, "delete" ) )
+      return;
+
+   argument = one_argument( argument, arg2 );
+
+   if( ( discipline = get_discipline( arg ) ) == NULL )
+   {
+      send_to_char( "No such discipline.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "show" ) )
+   {
+      ch_printf( ch, "*=- %s -=*\r\n", discipline->name );
+      ch_printf( ch, "MinLevel: %d Hit Gains: %d Move Gains: %d Mana Gains: %d\r\n", discipline->min_level, discipline->hit_gain, discipline->move_gain, discipline->mana_gain );
+
+      send_to_char( "Grants Skill Types: ", ch );
+      if( xIS_EMPTY( discipline->skill_type ) )
+         send_to_char( "none\r\n", ch );
+      else
+      {
+         for( x = 0; x < MAX_SKILLTYPE; x++ )
+            if( xIS_SET( discipline->skill_type, x ) )
+               ch_printf( ch, "%s ", skill_tname[x] );
+         send_to_char( "\r\n", ch );
+      }
+
+      send_to_char( "Grants Target Types: ", ch );
+      if( xIS_EMPTY( discipline->target_type ) )
+         send_to_char( "none\r\n", ch );
+      else
+      {
+         for( x = 0; x < TAR_CHAR_MAX; x++ )
+            if( xIS_SET( discipline->target_type, x ) )
+               ch_printf( ch, "%s ", target_type[x] );
+         send_to_char( "\r\n", ch );
+      }
+
+      send_to_char( "Grants Cost Types: ", ch );
+      if( xIS_EMPTY( discipline->cost ) )
+         send_to_char( "none\r\n", ch );
+      else
+      {
+         for( x = 0; x < MAX_COST; x++ )
+            if( xIS_SET( discipline->cost, x ) )
+               ch_printf( ch, "%s ", cost_type[x] );
+         send_to_char( "\r\n", ch );
+      }
+
+      send_to_char( "Grants Skill Styles: ", ch );
+      if( xIS_EMPTY( discipline->skill_style ) )
+         send_to_char( "none", ch );
+      else
+      {
+         for( x = 0; x < STYLE_MAX; x++ )
+            if( xIS_SET( discipline->skill_style, x ) )
+               ch_printf( ch, "%s ", style_type[x] );
+         send_to_char( "\r\n", ch );
+      }
+
+      send_to_char( "Grants Damtypes: ", ch );
+      if( xIS_EMPTY( discipline->damtype ) )
+         send_to_char( "none\r\n", ch );
+      else
+      {
+         for( x = 0; x < MAX_DAMTYPE; x++ )
+            if( xIS_SET( discipline->damtype, x ) )
+               ch_printf( ch, "%s ", d_type[x] );
+         send_to_char( "\r\n", ch );
+      }
+
+      send_to_char( "Factors\r\n---------------------------------------------------------------\r\n", ch );
+      if( !discipline->first_factor )
+         send_to_char( "No factor.\r\n", ch );
+      else
+      {
+         for( factor = discipline->first_factor; factor; factor = factor->next )
+         {
+            if( factor->factor_type == APPLY_FACTOR )
+            {
+               ch_printf( ch, "Factor Type: %-10.10s | Location: %-10.10s | Apply Type: %-10.10s | Duration: %-10.10d |\r\n",
+                          factor_names[factor->factor_type],
+                          a_types[factor->location],
+                          applytypes_type[factor->apply_type],
+                          factor->duration );
+
+               if( factor->location == APPLY_AFFECT )
+               {
+                  for( x = 0; x < MAX_AFF; x++ )
+                     if( xIS_SET( factor->affect, x ) )
+                        ch_printf( ch, " %s,", a_flags[x] );
+                  send_to_char( "\r\n", ch );
+               }
+               else
+                  ch_printf( ch, " Modifier: %d\r\n", factor->modifier );
+            }
+            else if( factor->factor_type == STAT_FACTOR )
+            {
+               int stat;
+               double mod;
+
+               stat = factor->modifier / 1;
+               mod = factor->modifier - stat;
+               ch_printf( ch, "Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n",
+                          factor_names[factor->factor_type],
+                          mod,
+                          a_types[stat] );
+            }
+            else if( factor->factor_type == ATTACK_FACTOR )
+               ch_printf( ch, "Factor Type: %-10.10s | Multiplies Damroll Effect by %f\r\n",
+                          factor_names[factor->factor_type],
+                          factor->modifier );
+            else if( factor->factor_type == DEFENSE_FACTOR )
+               ch_printf( ch, "Factor Type: %-10.10s | Adds %f%% of players global armor to skill damage\r\n",
+                          factor_names[factor->factor_type],
+                          factor->modifier );
+            else if( factor->factor_type == BASEROLL_FACTOR )
+               ch_printf( ch, "Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n",
+                          factor_names[factor->factor_type],
+                          factor->modifier );
+         }
+      }
+   }
+
+}

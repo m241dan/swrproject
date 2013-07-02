@@ -123,7 +123,6 @@ typedef struct threat_data THREAT_DATA;
 typedef struct queue_timers QTIMER;
 typedef struct cooldown_data CD_DATA;
 typedef struct discipline_data DISC_DATA;
-typedef struct type_data TYPE_DATA;
 typedef struct factor_data FACTOR_DATA;
 /*
 * Function types.
@@ -2685,13 +2684,13 @@ typedef enum
 {
    TAR_IGNORE, TAR_CHAR_OFFENSIVE, TAR_CHAR_DEFENSIVE, TAR_CHAR_SELF,
    TAR_OBJ_INV, TAR_CHAR_ANY, TAR_AOE_FRIENDLY, TAR_AOE_ENEMY, TAR_AOE_ENEMYGROUP,
-   TAR_CHAR_UNSET
+   TAR_CHAR_UNSET, TAR_CHAR_MAX
 } target_types;
 
 typedef enum
 {
    SKILL_UNKNOWN, SKILL_SPELL, SKILL_SKILL, SKILL_WEAPON, SKILL_TONGUE,
-   SKILL_HERB, SKILL_PASSIVE, SKILL_UNSET
+   SKILL_HERB, SKILL_PASSIVE, SKILL_UNSET, MAX_SKILLTYPE
 } skill_types;
 
 typedef enum
@@ -2775,8 +2774,6 @@ struct discipline_data
    DISC_DATA *prev;
    FACTOR_DATA *first_factor;
    FACTOR_DATA *last_factor;
-   TYPE_DATA *first_type;
-   TYPE_DATA *last_type;
    AFFECT_DATA *first_affect;
    AFFECT_DATA *last_affect;
    const char *name;
@@ -2784,6 +2781,12 @@ struct discipline_data
    int hit_gain;
    int move_gain;
    int mana_gain;
+   /* Resuable Types */
+   EXT_BV cost;
+   EXT_BV skill_type;
+   EXT_BV skill_style;
+   EXT_BV damtype;
+   EXT_BV target_type;
 };
 
 struct factor_data
@@ -2794,33 +2797,24 @@ struct factor_data
    int factor_type;
    int location;
    EXT_BV affect;
-   int modifier;
+   double modifier;
    int apply_type;
    int duration;
 };
 
-struct type_data
-{
-   DISC_DATA *owner;
-   TYPE_DATA *next;
-   TYPE_DATA *prev;
-   int type;
-   int value;
-};
-
 typedef enum
 {
-   APPLY_FACTOR, AFFECT_FACTOR, DAMAGE_FACTOR, MAX_FACTOR
+   APPLY_FACTOR, STAT_FACTOR, ATTACK_FACTOR, DEFENSE_FACTOR, BASEROLL_FACTOR, MAX_FACTOR
 } factor_types;
 
 typedef enum
 {
-   SKILLTYPE_TYPE, STYLE_TYPE, COST_TYPE, DAMTYPE_TYPE, STATCALC_TYPE, TARGET_TYPE, MAX_TYPE
+   SKILLTYPE_TYPE, STYLE_TYPE, COST_TYPE, DAMTYPE_TYPE, TARGET_TYPE, MAX_TYPE
 } skilltype_types;
 
 typedef enum
 {
-   COST_MANA, COST_MOVE, COST_BOTH, MAX_COST
+   COST_HP, COST_MANA, COST_MOVE, COST_BOTH, MAX_COST
 } cost_types;
 
 typedef enum
@@ -3401,8 +3395,9 @@ extern const char *const skilltype_names[MAX_TYPE];
 extern const char *const cost_type[MAX_COST];
 extern const char *const applytypes_type[MAX_APPLYTYPE];
 
+extern const char *const target_type[TAR_CHAR_MAX];
 extern const char *const style_type[STYLE_MAX];
-extern const char *const skill_tname[];
+extern const char *const skill_tname[MAX_SKILLTYPE];
 extern short const movement_loss[SECT_MAX];
 extern const char *const dir_name[];
 extern const char *const where_name[];
@@ -3535,6 +3530,7 @@ extern struct act_prog_data *mob_act_list;
 * Command functions.
 * Defined in act_*.c (mostly).
 */
+DECLARE_DO_FUN( do_dset );
 DECLARE_DO_FUN( do_skills );
 DECLARE_DO_FUN( do_skillcraft );
 DECLARE_DO_FUN( do_skill );
@@ -4751,6 +4747,7 @@ bool is_skill_set( CHAR_DATA *ch, int gsn );
 int get_player_skill_sn( CHAR_DATA *ch, const char *argument );
 int get_skill_slot( CHAR_DATA *ch, int gsn );
 bool is_skill_usable( CHAR_DATA *ch, int gsn );
+DISC_DATA *get_discipline( const char *disc_name );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

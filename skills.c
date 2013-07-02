@@ -41,7 +41,7 @@ const char *const spell_power[] = { "none", "minor", "greater", "major" };
 
 const char *const spell_class[] = { "none", "lunar", "solar", "travel", "summon", "life", "death", "illusion" };
 
-const char *const target_type[] = { "ignore", "offensive", "defensive", "self", "objinv", "any", "aoe_friendly", "aoe_enemy", "aoe_enemy_friend", "unset" };
+const char *const target_type[TAR_CHAR_MAX] = { "ignore", "offensive", "defensive", "self", "objinv", "any", "aoe_friendly", "aoe_enemy", "aoe_enemy_friend", "unset" };
 
 void show_char_to_char( CHAR_DATA * list, CHAR_DATA * ch );
 bool validate_spec_fun( const char *name );

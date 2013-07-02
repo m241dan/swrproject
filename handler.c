@@ -4676,3 +4676,16 @@ bool is_skill_usable( CHAR_DATA *ch, int gsn )
       return FALSE;
    return TRUE;
 }
+
+DISC_DATA *get_discipline( const char *disc_name )
+{
+   DISC_DATA *disc;
+
+   for( disc = first_discipline; disc; disc = disc->next )
+      if( !str_cmp( disc_name, disc->name ) )
+         return disc;
+   for( disc = first_discipline; disc; disc = disc->next )
+      if( str_prefix( disc_name, disc->name ) )
+         return disc;
+   return NULL;
+}

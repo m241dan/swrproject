@@ -31,15 +31,15 @@ int top_herb;
 SKILLTYPE *skill_table[MAX_SKILL];
 SKILLTYPE *herb_table[MAX_HERB];
 
-const char *const skill_tname[] = { "unknown", "Spell", "Skill", "Weapon", "Tongue", "Herb", "Passive", "Unset" };
+const char *const skill_tname[MAX_SKILLTYPE] = { "unknown", "Spell", "Skill", "Weapon", "Tongue", "Herb", "Passive", "Unset" };
 
 const char *const style_type[STYLE_MAX] = { "Healing", "Damage", "Buff", "Enfeeble", "Redirect", "Cleanse", "Summon", "Polymorph", "Unset" };
 
-const char *const factor_names[MAX_FACTOR] = { "apply_factor", "affect_factor", "damage_factor" };
+const char *const factor_names[MAX_FACTOR] = { "apply_factor", "damage_factor" };
 
-const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cost_type", "damtype_type", "statcalc_type", "target_type" };
+const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cost_type", "damtype_type", "target_type" };
 
-const char *const cost_type[MAX_COST] = { "mana", "move", "both" };
+const char *const cost_type[MAX_COST] = { "hp", "mana", "move", "both" };
 
 const char *const applytypes_type[MAX_APPLYTYPE] = { "join_friendly", "join_enemy", "override_friendly", "override_enemy" };
 
@@ -621,25 +621,17 @@ DISC_DATA *fread_discipline( FILE * fp )
                factor->factor_type = fread_number( fp );
                factor->location = fread_number( fp );
                factor->affect = fread_bitvector( fp );
-               factor->modifier = fread_number( fp );
+               factor->modifier = fread_float( fp );
                factor->apply_type = fread_number( fp );
                factor->duration = fread_number( fp );
                factor->owner = disc;
                LINK( factor, disc->first_factor, disc->last_factor, next, prev );
                break;
             }
-            if( !str_cmp( word, "#TypeData" ) )
-            {
-               fMatch = TRUE;
-               TYPE_DATA *type_data;
-               CREATE( type_data, TYPE_DATA, 1 );
-               type_data->type = fread_number( fp );
-               type_data->value = fread_number( fp );
-               type_data->owner = disc;
-               LINK( type_data, disc->first_type, disc->last_type, next, prev );
-               break;
-            }
             break;
+         case 'E':
+            if( !str_cmp( word, "End" ) )
+               return disc;
          case 'G':
             if( !str_cmp( word, "Gains" ) )
             {
@@ -693,12 +685,16 @@ void save_disciplines(  )
 void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
 {
    FACTOR_DATA *factor;
-   TYPE_DATA *type_data;
    AFFECT_DATA *aff;
 
    fprintf( fpout, "Name       %s~\n", discipline->name );
    fprintf( fpout, "Gains      %d %d %d\n", discipline->hit_gain, discipline->move_gain, discipline->mana_gain );
    fprintf( fpout, "MinLevel   %d\n", discipline->min_level );
+   fprintf( fpout, "Cost       %s\n", print_bitvector( &discipline->cost ) );
+   fprintf( fpout, "SkillType  %s\n", print_bitvector( &discipline->skill_type ) );
+   fprintf( fpout, "SkillStyle %s\n", print_bitvector( &discipline->skill_style ) );
+   fprintf( fpout, "Damtype    %s\n", print_bitvector( &discipline->damtype ) );
+   fprintf( fpout, "TargetType %s\n", print_bitvector( &discipline->target_type ) );
 
    for( factor = discipline->first_factor; factor; factor = factor->next )
    {
@@ -706,16 +702,9 @@ void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
       fprintf( fpout, "FactorType  %d\n", factor->factor_type );
       fprintf( fpout, "Location    %d\n", factor->location );
       fprintf( fpout, "Affect      %s\n", print_bitvector( &factor->affect ) );
-      fprintf( fpout, "Modifier    %d\n", factor->modifier );
+      fprintf( fpout, "Modifier    %f\n", factor->modifier );
       fprintf( fpout, "ApplyType   %d\n", factor->apply_type );
       fprintf( fpout, "Duration    %d\n", factor->duration );
-   }
-
-   for( type_data = discipline->first_type; type_data; type_data = type_data->next )
-   {
-      fprintf( fpout, "#TypeData\n" );
-      fprintf( fpout, "Type        %d\n", type_data->type );
-      fprintf( fpout, "Value       %d\n", type_data->value );
    }
 
    for( aff = discipline->first_affect; aff; aff = aff->next )
