@@ -538,8 +538,8 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       else
          fprintf( fp, "0 0\n" );
    }
-   fprintf( fp, "EndDisciplines\n" );
 
+   fprintf( fp, "SkillSlot " );
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
       fprintf( fp, " %d", ch->skill_slots[x] );
    fprintf( fp, "\n\n" );
@@ -1204,22 +1204,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             if( !str_cmp( word, "Disciplines" ) )
             {
                int x, y;
-               x = y = 0;
 
-               for( ;; )
+               for( x = 0, y = -1; x < MAX_DISCIPLINE; x++ )
                {
-                  word = ( feof( fp ) ? "End" : fread_word( fp ) );
-                  if( !str_cmp( word, "EndDisciplines" ) )
-                     break;
                   ch->known_disciplines[x] = get_discipline_from_id( fread_number( fp ) );
                   if( fread_number( fp ) == 1 && ch->known_disciplines[x] != NULL )
-                  {
-                     ch->equipped_disciplines[y] = ch->known_disciplines[x];
-                     y++;
-                  }
-                  if( ++x >= MAX_DISCIPLINE ) /* prevent it from overfilling out arrays in case of a glitch */
-                     break;
+                     ch->equipped_disciplines[y++] = ch->known_disciplines[x];
                }
+               fMatch = TRUE;
                break;
             }
             if( !str_cmp( word, "Druglevel" ) )
