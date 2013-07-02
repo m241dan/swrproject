@@ -4221,7 +4221,10 @@ void add_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
 
    for( x = 0; x < MAX_DISCIPLINE; x++ )
       if( ch->known_disciplines[x] == NULL )
+      {
          ch->known_disciplines[x] = discipline;
+         break;
+      }
 
    do_save( ch, "" );
    return;
@@ -4256,7 +4259,7 @@ bool is_discipline_set( CHAR_DATA *ch, DISC_DATA *discipline )
    int x;
 
    for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
-      if( ch->known_disciplines[x] == discipline )
+      if( ch->equipped_disciplines[x] == discipline )
          return TRUE;
    return FALSE;
 }
