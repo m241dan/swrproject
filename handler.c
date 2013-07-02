@@ -4689,3 +4689,13 @@ DISC_DATA *get_discipline( const char *disc_name )
          return disc;
    return NULL;
 }
+
+int get_cost_type( const char *cost )
+{
+   int x;
+
+   for( x = 0; x < MAX_COST; x++ )
+      if( !str_cmp( cost, cost_type[x] ) )
+         return x;
+   return -1;
+}

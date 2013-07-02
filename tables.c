@@ -314,17 +314,12 @@ void save_socials(  )
 
 int get_skill( const char *skilltype )
 {
-   if( !str_cmp( skilltype, "Spell" ) )
-      return SKILL_SPELL;
-   if( !str_cmp( skilltype, "Skill" ) )
-      return SKILL_SKILL;
-   if( !str_cmp( skilltype, "Weapon" ) )
-      return SKILL_WEAPON;
-   if( !str_cmp( skilltype, "Tongue" ) )
-      return SKILL_TONGUE;
-   if( !str_cmp( skilltype, "Herb" ) )
-      return SKILL_HERB;
-   return SKILL_UNKNOWN;
+   int x;
+
+   for( x = 0; x < MAX_SKILLTYPE; x++ )
+      if( !str_cmp( skilltype, skill_tname[x] ) )
+         return x;
+   return 0;
 }
 
 /*

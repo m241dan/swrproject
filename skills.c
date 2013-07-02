@@ -71,12 +71,12 @@ int get_ssave( const char *name )
 
 int get_starget( const char *name )
 {
-  size_t x;
+   int x;
 
-  for( x = 0; x < sizeof( target_type ) / sizeof( target_type[0] ); x++ )
-    if( !str_cmp( name, target_type[x] ) )
-      return x;
-  return -1;
+   for( x = 0; x < TAR_CHAR_MAX; x++ )
+      if( !str_cmp( name, target_type[x] ) )
+         return x;
+    return -1;
 }
 
 int get_style_type( const char *ability )

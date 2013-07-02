@@ -4599,6 +4599,7 @@ void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void sort_mob_skills( CHAR_DATA *ch );
 bool mob_has_skill( CHAR_DATA *ch, int gsn );
+int get_starget( const char *name );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
@@ -4749,6 +4750,7 @@ int get_player_skill_sn( CHAR_DATA *ch, const char *argument );
 int get_skill_slot( CHAR_DATA *ch, int gsn );
 bool is_skill_usable( CHAR_DATA *ch, int gsn );
 DISC_DATA *get_discipline( const char *disc_name );
+int get_cost_type( const char *argument );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

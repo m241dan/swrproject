@@ -8263,7 +8263,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 {
    DISC_DATA *discipline;
    FACTOR_DATA *factor;
-   int x;
+   int x, value;
 
    char arg[MAX_STRING_LENGTH];
    char arg2[MAX_STRING_LENGTH];
@@ -8324,6 +8324,91 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
       send_to_char( "Ok.\r\n", ch );
       save_disciplines( );
+      return;
+   }
+
+   if( !str_cmp( arg2, "cost" ) )
+   {
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_cost_type( arg3 ) ) == -1 )
+         {
+            ch_printf( ch, "%s is an invalid cost type.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( discipline->cost, value );
+      }
+      save_disciplines( );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "skill_type" ) )
+   {
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_skill( arg3 ) ) == 0 )
+         {
+            ch_printf( ch, "%s is an invalid skill type.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( discipline->skill_type, value );
+      }
+      save_disciplines( );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "skill_style" ) )
+   {
+      while( argument[0] != '\0' ) 
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_style_type( arg3 ) ) == -1 )
+         { 
+            ch_printf( ch, "%s is an invalid style type.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( discipline->skill_style, value );
+      }
+      save_disciplines( );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "damtype" ) )
+   {
+      while( argument[0] != '\0' ) 
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_damtype( arg3 ) ) == -1 )
+         { 
+            ch_printf( ch, "%s is an invalid damtype.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( discipline->damtype, value );
+      }
+      save_disciplines( );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "target_type" ) )
+   {
+      while( argument[0] != '\0' ) 
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_starget( arg3 ) ) == -1 )
+         { 
+            ch_printf( ch, "%s is an invalid target type.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( discipline->target_type, value );
+      }
+      save_disciplines( );
+      send_to_char( "Ok.\r\n", ch );
       return;
    }
 
