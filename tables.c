@@ -624,6 +624,12 @@ DISC_DATA *fread_discipline( FILE * fp )
                break;
             }
             break;
+         case 'C':
+            KEY( "Cost", disc->cost, fread_bitvector( fp ) );
+            break;
+         case 'D':
+            KEY( "Damtype", disc->damtype, fread_bitvector( fp ) );
+            break;
          case 'E':
             if( !str_cmp( word, "End" ) )
                return disc;
@@ -643,6 +649,13 @@ DISC_DATA *fread_discipline( FILE * fp )
 
          case 'N':
             KEY( "Name", disc->name, fread_string( fp ) );
+            break;
+         case 'S':
+            KEY( "SkillStyle", disc->skill_style, fread_bitvector( fp ) );
+            KEY( "SkillType", disc->skill_type, fread_bitvector( fp ) );
+            break;
+         case 'T':
+            KEY( "TargetType", disc->target_type, fread_bitvector( fp ) );
             break;
       }
       if( !fMatch )
@@ -693,13 +706,7 @@ void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
 
    for( factor = discipline->first_factor; factor; factor = factor->next )
    {
-      fprintf( fpout, "#Factor\n" );
-      fprintf( fpout, "FactorType  %d\n", factor->factor_type );
-      fprintf( fpout, "Location    %d\n", factor->location );
-      fprintf( fpout, "Affect      %s\n", print_bitvector( &factor->affect ) );
-      fprintf( fpout, "Modifier    %f\n", factor->modifier );
-      fprintf( fpout, "ApplyType   %d\n", factor->apply_type );
-      fprintf( fpout, "Duration    %d\n", factor->duration );
+      fprintf( fpout, "#Factor %d %d %s %f %d %d", factor->factor_type, factor->location, print_bitvector( &factor->affect ), factor->modifier, factor->apply_type, factor->duration );
    }
 
    for( aff = discipline->first_affect; aff; aff = aff->next )
