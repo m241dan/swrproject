@@ -531,7 +531,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "Disciplines\n" );
    for( x = 0; x < MAX_DISCIPLINE; x++ )
    {
-      if( ch->known_disciplines[x] )
+      if( ch->known_disciplines[x] != NULL && ch->known_disciplines[x]->id > 999 )
          fprintf( fp, "%d %d\n",
                   ch->known_disciplines[x]->id,
                   is_discipline_set( ch, ch->known_disciplines[x] ) ? 1 : 0 );
@@ -539,7 +539,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
          fprintf( fp, "0 0\n" );
    }
 
-   fprintf( fp, "SkillSlot " );
+   fprintf( fp, "\nSkillSlot " );
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
       fprintf( fp, " %d", ch->skill_slots[x] );
    fprintf( fp, "\n\n" );

@@ -8294,6 +8294,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          if( !get_discipline_from_id( id ) )
             break;
       }
+      discipline->id = id;
       LINK( discipline, first_discipline, last_discipline, next, prev );
       ch_printf( ch, "The %s discipline has been created.\r\n", discipline->name );
       save_disciplines( );
@@ -8364,6 +8365,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          if( !get_factor_from_id( id ) )
             break;
       }
+      factor->id = id;
       LINK( factor, discipline->first_factor, discipline->last_factor, next, prev );
       send_to_char( "Ok.\r\n", ch );
       save_disciplines( );
