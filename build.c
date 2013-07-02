@@ -8668,12 +8668,13 @@ void do_discipline( CHAR_DATA *ch, const char *argument )
          send_to_char( "Displaying All Disciplines:\r\n", ch );
          for( disc = first_discipline; disc; disc = disc->next )
             ch_printf( ch, "  %s", disc->name );
+         send_to_char( "\r\n", ch );
       }
 
-      send_to_char( "Your Disciplines:\r\n", ch );
+      send_to_char( "&wYour Disciplines: &zGrey = Set &WWhite = Unset&w\r\n", ch );
       for( x = 0; x < MAX_DISCIPLINE; x++ )
          if( ch->known_disciplines[x] != NULL )
-            ch_printf( ch, " %s%s\r\n",
+            ch_printf( ch, " %s%s&w\r\n",
             is_discipline_set( ch, ch->known_disciplines[x] ) ? "&z" : "&W",
             ch->known_disciplines[x]->name );
       send_to_char( "Commands: set unset\r\n", ch );
