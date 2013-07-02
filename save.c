@@ -528,7 +528,18 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       fprintf( fp, "\n\n" );
    }
 
-   fprintf( fp, "SkillSlot   " );
+   fprintf( fp, "Disciplines\n" );
+   for( x = 0; x < MAX_DISCIPLINE; x++ )
+   {
+      if( ch->known_disciplines[x] )
+         fprintf( fp, "%d %d\n",
+                  ch->known_disciplines[x]->id,
+                  is_discipline_set( ch, ch->known_disciplines[x] ) ? 1 : 0 );
+      else
+         fprintf( fp, "0 0\n" );
+   }
+   fprintf( fp, "EndDisciplines\n" );
+
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
       fprintf( fp, " %d", ch->skill_slots[x] );
    fprintf( fp, "\n\n" );
@@ -1190,6 +1201,27 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             }
             KEY( "Deaf", ch->deaf, fread_number( fp ) );
             KEY( "Description", ch->description, fread_string( fp ) );
+            if( !str_cmp( word, "Disciplines" ) )
+            {
+               int x, y;
+               x = y = 0;
+
+               for( ;; )
+               {
+                  word = ( feof( fp ) ? "End" : fread_word( fp ) );
+                  if( !str_cmp( word, "EndDisciplines" ) )
+                     break;
+                  ch->known_disciplines[x] = get_discipline_from_id( fread_number( fp ) );
+                  if( fread_number( fp ) == 1 && ch->known_disciplines[x] != NULL )
+                  {
+                     ch->equipped_disciplines[y] = ch->known_disciplines[x];
+                     y++;
+                  }
+                  if( ++x >= MAX_DISCIPLINE ) /* prevent it from overfilling out arrays in case of a glitch */
+                     break;
+               }
+               break;
+            }
             if( !str_cmp( word, "Druglevel" ) )
             {
                line = fread_line( fp );
