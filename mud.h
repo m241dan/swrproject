@@ -4609,6 +4609,9 @@ bool is_discipline_set( CHAR_DATA *ch, DISC_DATA *discipline );
 bool player_has_discipline( CHAR_DATA *ch, DISC_DATA *discipline );
 void add_discipline( CHAR_DATA *ch, DISC_DATA *discipline );
 void rem_discipline( CHAR_DATA *ch, DISC_DATA *discipline );
+bool player_has_discipline_setslot( CHAR_DATA *ch );
+void set_discipline( CHAR_DATA *ch, DISC_DATA *disc );
+void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );

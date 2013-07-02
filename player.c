@@ -102,7 +102,7 @@ void do_score( CHAR_DATA * ch, const char *argument )
             {
                for( x = 0; x < MAX_DISCIPLINE; x++ )
                   if( ch->known_disciplines[x] != NULL )
-                     ch_printf( ch, " %s%s\r\n",
+                     ch_printf( ch, " %s%s&g\r\n",
                                 is_discipline_set( ch, ch->known_disciplines[x] ) ? "&W" : "&z",
                                 ch->known_disciplines[x]->name );
             }

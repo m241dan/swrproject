@@ -8656,11 +8656,75 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 void do_discipline( CHAR_DATA *ch, const char *argument )
 {
    DISC_DATA *disc;
+   char arg[MAX_STRING_LENGTH];
+   int x;
 
-   if( IS_IMMORTAL( ch ) )
+   argument = one_argument( argument, arg );
+
+   if( arg[0] == '\0' || argument[0] == '\0' )
    {
-      send_to_char( "Displaying All Disciplines:\r\n", ch );
-      for( disc = first_discipline; disc; disc = disc->next )
-         ch_printf( ch, "  %s", disc->name );
+      if( IS_IMMORTAL( ch ) )
+      {
+         send_to_char( "Displaying All Disciplines:\r\n", ch );
+         for( disc = first_discipline; disc; disc = disc->next )
+            ch_printf( ch, "  %s", disc->name );
+      }
+
+      send_to_char( "Your Disciplines:\r\n", ch );
+      for( x = 0; x < MAX_DISCIPLINE; x++ )
+         if( ch->known_disciplines[x] != NULL )
+            ch_printf( ch, " %s%s\r\n",
+            is_discipline_set( ch, ch->known_disciplines[x] ) ? "&z" : "&W",
+            ch->known_disciplines[x]->name );
+      send_to_char( "Commands: set unset\r\n", ch );
    }
+
+   if( !str_cmp( arg, "set" ) )
+   {
+      if( ( disc = get_discipline( argument ) ) == NULL )
+      {
+         ch_printf( ch, "%s is not a discipline.\r\n", ch );
+         return;
+      }
+      if( !player_has_discipline( ch, disc ) )
+      {
+         ch_printf( ch, "You don't know %s.\r\n", disc->name );
+         return;
+      }
+      if( is_discipline_set( ch, disc ) )
+      {
+         ch_printf( ch, "%s is already set.\r\n", disc->name );
+         return;
+      }
+      if( !player_has_discipline_setslot( ch ) )
+      {
+         send_to_char( "You don't have a free slot, try unsetting one first.\r\n", ch );
+         return;
+      }
+      set_discipline( ch, disc );
+      send_to_char( "Discipline Set.\r\n", ch );
+      return;
+   }
+   if( !str_cmp( arg, "unset" ) )
+   {
+      if( ( disc = get_discipline( argument ) ) == NULL )
+      {
+         ch_printf( ch, "%s is not a discipline.\r\n", ch );
+         return;
+      }
+      if( !player_has_discipline( ch, disc ) )
+      {
+         ch_printf( ch, "You don't know %s.\r\n", disc->name );
+         return;
+      }
+      if( !is_discipline_set( ch, disc ) )
+      {
+         ch_printf( ch, "%s is not set.\r\n", disc->name );
+         return;
+      }
+      unset_discipline( ch, disc );
+      send_to_char( "Discipline Unset.\r\n", ch );
+      return;
+   }
+   return;
 }

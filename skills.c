@@ -4274,3 +4274,51 @@ bool player_has_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
    return FALSE;
 }
 
+bool player_has_discipline_setslot( CHAR_DATA *ch )
+{
+   int x;
+
+   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+      if( ch->equipped_disciplines[x] == NULL;
+         return TRUE;
+   return FALSE;
+}
+
+void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
+{
+   int x;
+
+   if( !player_has_discipline_setslot( ch ) )
+   {
+      bug( "%s: attempting to set a discipline to a character that doesn't have a free slot.", __FUNCTION__ );
+      return;
+   }
+   if( !player_has_discipline( ch, disc ) )
+   {
+      bug( "%s: attempting to set a discipline to a character that doesn't know the discipline.", __FUNCTION__ );
+      return;
+   }
+
+   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+      if( ch->equipped_disciplines[x] == NULL )
+         ch->equipped_disciplines[x] = disc;
+   do_save( ch, "" );
+   return;
+}
+
+void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
+{
+   int x;
+
+   if( !is_discipline_set( ch, disc ) )
+   {
+      bug( "%s: attempting to unset a discipline that the character doesn't have set.", __FUNCTION__ );
+      return;
+   }
+
+   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+      if( ch->equipped_disciplines[x] == disc )
+         ch->equipped_disciplines[x] = NULL;
+   do_save( ch, "" );
+   return;
+}
