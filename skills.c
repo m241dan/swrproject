@@ -4279,7 +4279,7 @@ bool player_has_discipline_setslot( CHAR_DATA *ch )
    int x;
 
    for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
-      if( ch->equipped_disciplines[x] == NULL;
+      if( ch->equipped_disciplines[x] == NULL )
          return TRUE;
    return FALSE;
 }
