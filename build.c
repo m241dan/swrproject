@@ -1044,7 +1044,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  resistant immune susceptible (see RIS)\r\n", ch );
       send_to_char( "  penetration resistance damtype_potency\r\n", ch );
       send_to_char( "  attack defense numattacks addskill remskill\r\n", ch );
-      send_to_char( "  speaking speaks (see LANGUAGES)\r\n", ch );
+      send_to_char( "  discipline speaking speaks (see LANGUAGES)\r\n", ch );
       send_to_char( "  name short long description title spec spec2\r\n", ch );
       send_to_char( "  clan vip wanted\r\n", ch );
       send_to_char( "\r\n", ch );
@@ -1316,6 +1316,64 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       victim->pIndexData->npc_skills[value] = -1;
       sort_mob_skills( victim );
       send_to_char( "Skill Slot Reset.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "discipline" ) )
+   {
+      DISC_DATA *disc;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( IS_NPC( victim ) )
+      {
+         send_to_char( "Not on Mobiles.\r\n", ch );
+         return;
+      }
+
+      if( !has_empty_discipline_slot( victim ) )
+      {
+         send_to_char( "They have too many disciplines.\r\n", ch );
+         return;
+      }
+
+      if( ( disc = get_discipline( arg3 ) ) == NULL )
+      {
+         ch_printf( ch, "%s is not a discipline.\r\n", arg3 );
+         return;
+      }
+      add_discipline( victim, disc );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "remdiscipline" ) )
+   {
+      DISC_DATA *disc;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( IS_NPC( victim ) )
+      {
+         send_to_char( "Not on Mobiles.\r\n", ch );
+         return;
+      }
+
+      if( ( disc = get_discipline( arg3 ) ) == NULL )
+      {
+         ch_printf( ch, "%s is not a discipline.\r\n", arg3 );
+         return;
+      }
+
+      if( !player_has_discipline( victim, disc ) )
+      {
+         ch_printf( ch, "%s does not have %s learned.\r\n", victim->name, disc->name );
+         return;
+      }
+      rem_discipline( victim, disc );
+      send_to_char( "Ok.\r\n", ch );
       return;
    }
 

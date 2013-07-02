@@ -4193,3 +4193,81 @@ FACTOR_DATA *get_factor_from_id( int id )
             return factor;
    return NULL;
 }
+
+bool has_empty_discipline_slot( CHAR_DATA *ch )
+{
+   int x;
+
+   for( x = 0; x < MAX_DISCIPLINE; x++ )
+      if( ch->known_disciplines[x] == NULL )
+         return TRUE;
+   return FALSE;
+}
+
+void add_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
+{
+   int x;
+
+   if( !has_empty_discipline_slot( ch ) )
+   {
+      bug( "%s: trying to add discipline to a character with no empty slot.", __FUNCTION__ );
+      return;
+   }
+   if( IS_NPC( ch ) )
+   {
+      bug( "%s: trying to add discipline to an NPC.", __FUNCTION__ );
+      return;
+   }
+
+   for( x = 0; x < MAX_DISCIPLINE; x++ )
+      if( ch->known_disciplines[x] == NULL )
+         ch->known_disciplines[x] = discipline;
+
+   do_save( ch, "" );
+   return;
+}
+
+void rem_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
+{
+   int x;
+
+   if( !player_has_discipline( ch, discipline ) )
+   {
+      bug( "%s: trying to remove a discipline that player does not know.", __FUNCTION__ );
+      return;
+   }
+   if( IS_NPC( ch ) )
+   {
+      bug( "%s: trying to rem discipline to an NPC.", __FUNCTION__ );
+      return;
+   }
+
+   for( x = 0; x < MAX_DISCIPLINE; x++ )
+       if( ch->known_disciplines[x] == discipline )
+          ch->known_disciplines[x] = NULL;
+
+   do_save( ch, "" );
+   return;
+
+}
+
+bool is_discipline_set( CHAR_DATA *ch, DISC_DATA *discipline )
+{
+   int x;
+
+   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+      if( ch->known_disciplines[x] == discipline )
+         return TRUE;
+   return FALSE;
+}
+
+bool player_has_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
+{
+   int x;
+
+   for( x = 0; x < MAX_DISCIPLINE; x++ )
+      if( ch->known_disciplines[x] == discipline )
+         return TRUE;
+   return FALSE;
+}
+

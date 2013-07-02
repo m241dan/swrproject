@@ -92,13 +92,25 @@ void do_score( CHAR_DATA * ch, const char *argument )
       int ability;
 
       for( ability = 0; ability < MAX_ABILITY; ability++ )
+      {
          if( ability != FORCE_ABILITY || ch->skill_level[FORCE_ABILITY] > 1 )
+         {
             ch_printf( ch, "%-15s   Level: %-3d   Max: %-3d   Exp: %-10ld   Next: %-10ld\r\n",
                        ability_name[ability], ch->skill_level[ability], max_level( ch, ability ), ch->experience[ability],
                        exp_level( ch->skill_level[ability] + 1 ) );
+            if( ability == COMBAT_ABILITY )
+            {
+               for( x = 0; x < MAX_DISCIPLINE; x++ )
+                  if( ch->known_disciplines[x] != NULL )
+                     ch_printf( ch, " %s%s\r\n",
+                                is_discipline_set( ch, ch->known_disciplines[x] ) ? "&W" : "&z",
+                                ch->known_disciplines[x]->name );
+            }
+         }
          else
             ch_printf( ch, "%-15s   Level: %-3d   Max: ???   Exp: ???          Next: ???\r\n",
                        ability_name[ability], ch->skill_level[ability], ch->experience[ability] );
+      }
    }
 
    send_to_char( "----------------------------------------------------------------------------\r\n", ch );

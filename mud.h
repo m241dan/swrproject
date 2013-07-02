@@ -4604,6 +4604,11 @@ bool mob_has_skill( CHAR_DATA *ch, int gsn );
 int get_starget( const char *name );
 DISC_DATA *get_discipline_from_id( int id );
 FACTOR_DATA *get_factor_from_id( int id );
+bool has_empty_discipline_slot( CHAR_DATA *ch );
+bool is_discipline_set( CHAR_DATA *ch, DISC_DATA *discipline );
+bool player_has_discipline( CHAR_DATA *ch, DISC_DATA *discipline );
+void add_discipline( CHAR_DATA *ch, DISC_DATA *discipline );
+void rem_discipline( CHAR_DATA *ch, DISC_DATA *discipline );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
@@ -4757,7 +4762,6 @@ DISC_DATA *get_discipline( const char *disc_name );
 int get_cost_type( const char *argument );
 int get_factor_type( const char *factor );
 int get_apply_type( const char *apply );
-bool is_discipline_set( CHAR_DATA *ch, DISC_DATA *discipline );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

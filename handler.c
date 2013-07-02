@@ -4720,12 +4720,3 @@ int get_apply_type( const char *apply )
    return -1;
 }
 
-bool is_discipline_set( CHAR_DATA *ch, DISC_DATA *discipline )
-{
-   int x;
-
-   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
-      if( ch->known_disciplines[x] == discipline )
-         return TRUE;
-   return FALSE;
-}
