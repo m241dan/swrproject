@@ -4172,3 +4172,24 @@ void do_skills( CHAR_DATA *ch, const char *argument )
    return;
 }
 
+DISC_DATA *get_discipline_from_id( int id )
+{
+   DISC_DATA *disc;
+
+   for( disc = first_discipline; disc; disc = disc->next )
+      if( disc->id == id )
+         return disc;
+   return NULL;
+}
+
+FACTOR_DATA *get_factor_from_id( int id )
+{
+   DISC_DATA *disc;
+   FACTOR_DATA *factor;
+
+   for( disc = first_discipline; disc; disc = disc->next )
+      for( factor = disc->first_factor; factor; factor = factor->next )
+         if( factor->id == id )
+            return factor;
+   return NULL;
+}

@@ -2777,6 +2777,7 @@ struct discipline_data
    AFFECT_DATA *first_affect;
    AFFECT_DATA *last_affect;
    const char *name;
+   int id;
    int min_level;
    int hit_gain;
    int move_gain;
@@ -2794,6 +2795,7 @@ struct factor_data
    DISC_DATA *owner;
    FACTOR_DATA *next;
    FACTOR_DATA *prev;
+   int id;
    int factor_type;
    int location;
    EXT_BV affect;
@@ -4600,6 +4602,8 @@ void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
 void sort_mob_skills( CHAR_DATA *ch );
 bool mob_has_skill( CHAR_DATA *ch, int gsn );
 int get_starget( const char *name );
+DISC_DATA *get_discipline_from_id( int id );
+FACTOR_DATA *get_factor_from_id( int id );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
@@ -4753,6 +4757,7 @@ DISC_DATA *get_discipline( const char *disc_name );
 int get_cost_type( const char *argument );
 int get_factor_type( const char *factor );
 int get_apply_type( const char *apply );
+bool is_discipline_set( CHAR_DATA *ch, DISC_DATA *discipline );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

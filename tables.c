@@ -613,6 +613,7 @@ DISC_DATA *fread_discipline( FILE * fp )
                fMatch = TRUE;
                FACTOR_DATA *factor;
                CREATE( factor, FACTOR_DATA, 1 );
+               factor->id = fread_number( fp );
                factor->factor_type = fread_number( fp );
                factor->location = fread_number( fp );
                factor->affect = fread_bitvector( fp );
@@ -643,6 +644,8 @@ DISC_DATA *fread_discipline( FILE * fp )
                break;
             }
             break;
+         case 'I':
+            KEY( "ID", disc->id, fread_number( fp ) );
          case 'M':
             KEY( "MinLevel", disc->min_level, fread_number( fp ) );
             break;
@@ -695,6 +698,7 @@ void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
    FACTOR_DATA *factor;
    AFFECT_DATA *aff;
 
+   fprintf( fpout, "ID         %d\n", discipline->id );
    fprintf( fpout, "Name       %s~\n", discipline->name );
    fprintf( fpout, "Gains      %d %d %d\n", discipline->hit_gain, discipline->move_gain, discipline->mana_gain );
    fprintf( fpout, "MinLevel   %d\n", discipline->min_level );
@@ -706,7 +710,7 @@ void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
 
    for( factor = discipline->first_factor; factor; factor = factor->next )
    {
-      fprintf( fpout, "#Factor %d %d %s %f %d %d", factor->factor_type, factor->location, print_bitvector( &factor->affect ), factor->modifier, factor->apply_type, factor->duration );
+      fprintf( fpout, "#Factor %d %d %d %s %f %d %d", factor->id, factor->factor_type, factor->location, print_bitvector( &factor->affect ), factor->modifier, factor->apply_type, factor->duration );
    }
 
    for( aff = discipline->first_affect; aff; aff = aff->next )

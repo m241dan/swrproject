@@ -8263,7 +8263,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 {
    DISC_DATA *discipline;
    FACTOR_DATA *factor;
-   int x, value;
+   int x, value, id;
 
    char arg[MAX_STRING_LENGTH];
    char arg2[MAX_STRING_LENGTH];
@@ -8288,6 +8288,12 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    {
       CREATE( discipline, DISC_DATA, 1 );
       discipline->name = str_dup( argument );
+      for( ;; )
+      {
+         id = number_range( 1000, 9999 );
+         if( !get_discipline_from_id( id ) )
+            break;
+      }
       LINK( discipline, first_discipline, last_discipline, next, prev );
       ch_printf( ch, "The %s discipline has been created.\r\n", discipline->name );
       save_disciplines( );
@@ -8352,6 +8358,12 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       factor->duration = duration;
       factor->apply_type = apply_type;
       factor->modifier = modifier;
+      for( ;; )
+      {
+         id = number_range( 1000, 9999 );
+         if( !get_factor_from_id( id ) )
+            break;
+      }
       LINK( factor, discipline->first_factor, discipline->last_factor, next, prev );
       send_to_char( "Ok.\r\n", ch );
       save_disciplines( );
