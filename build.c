@@ -8267,6 +8267,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    char arg[MAX_STRING_LENGTH];
    char arg2[MAX_STRING_LENGTH];
+   char arg3[MAX_STRING_LENGTH];
 
    argument = one_argument( argument, arg );
 
@@ -8300,6 +8301,29 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    if( ( discipline = get_discipline( arg ) ) == NULL )
    {
       send_to_char( "No such discipline.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "hit_gain" ) || !str_cmp( arg2, "move_gain" ) || !str_cmp( arg2, "mana_gain" ) || !str_cmp( arg2, "minlevel" ) )
+   {
+      argument = one_argument( argument, arg3 );
+      if( !is_number( arg3 ) )
+      {
+         ch_printf( ch, "%s must be a number.\r\n", arg2 );
+         return;
+      }
+
+      if( !str_cmp( arg2, "hit_gain" ) )
+         discipline->hit_gain = atoi( arg3 );
+      else if( !str_cmp( arg2, "move_gain" ) )
+         discipline->move_gain = atoi( arg3 );
+      else if( !str_cmp( arg2, "mana_gain" ) )
+         discipline->mana_gain = atoi( arg3 );
+      else if( !str_cmp( arg2, "minlevel" ) )
+         discipline->min_level = atoi( arg3 );
+
+      send_to_char( "Ok.\r\n", ch );
+      save_disciplines( );
       return;
    }
 
@@ -8343,7 +8367,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
       send_to_char( "Grants Skill Styles: ", ch );
       if( xIS_EMPTY( discipline->skill_style ) )
-         send_to_char( "none", ch );
+         send_to_char( "none\r\n", ch );
       else
       {
          for( x = 0; x < STYLE_MAX; x++ )
@@ -8365,7 +8389,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
       send_to_char( "Factors\r\n---------------------------------------------------------------\r\n", ch );
       if( !discipline->first_factor )
-         send_to_char( "No factor.\r\n", ch );
+         send_to_char( "No factors\r\n", ch );
       else
       {
          for( factor = discipline->first_factor; factor; factor = factor->next )
@@ -8416,4 +8440,16 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       }
    }
 
+}
+
+void do_discipline( CHAR_DATA *ch, const char *argument )
+{
+   DISC_DATA *disc;
+
+   if( IS_IMMORTAL( ch ) )
+   {
+      send_to_char( "Displaying All Disciplines:\r\n", ch );
+      for( disc = first_discipline; disc; disc = disc->next )
+         ch_printf( ch, "  %s", disc->name );
+   }
 }
