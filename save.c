@@ -1000,8 +1000,6 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             if( !str_cmp( word, "#SKILL" ) )
             {
                fMatch = TRUE;
-               log_string( word );
-               bug( "%d", ch->top_sn );
                ch->pc_skills[ch->top_sn] = fread_skill( fp );
                ch->top_sn++;
             }
