@@ -8377,21 +8377,29 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       argument = one_argument( argument, arg3 );
       if( ( factor_type = get_factor_type( arg3 ) ) == -1 )
       {
-         ch_printf( ch, "%s not a valid factor type.\r\n", arg3 );
+         ch_printf( ch, "'%s' not a valid factor type.\r\n", arg3 );
+         send_to_char( "Valid Options are:\r\n", ch );
+         for( x = 0; x < MAX_FACTOR; x++ )
+            ch_printf( ch, "%s ", factor_names[x] );
+         send_to_char( "\r\n", ch );
          return;
       }
 
       argument = one_argument( argument, arg3 );
       if( ( location = get_atype( arg3 ) ) == -1 )
       {
-         ch_printf( ch, "%s not a valid location.\r\n", arg3 );
+         ch_printf( ch, "'%s' not a valid location.\r\n", arg3 );
+         send_to_char( "Valid Options are:\r\n", ch );
+         for( x = 0; x < MAX_APPLY_TYPE; x++ )
+            ch_printf( ch, "%s ", a_types[x] );
+         send_to_char( "\r\n", ch );
          return;
       }
 
       argument = one_argument( argument, arg3 );
       if( !is_number( arg3 ) )
       {
-         ch_printf( ch, "%s is not a valid modifier value.\r\n", arg3 );
+         ch_printf( ch, "'%s' is not a valid modifier value.\r\n", arg3 );
          return;
       }
       modifier = atof( arg3 );
@@ -8399,7 +8407,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       argument = one_argument( argument, arg3 );
       if( !is_number( arg3 ) )
       {
-         ch_printf( ch, "%s is not a valid duration value.\r\n", arg3 );
+         ch_printf( ch, "'%s' is not a valid duration value.\r\n", arg3 );
          return;
       }
       duration = atoi( arg3 );
@@ -8407,7 +8415,12 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       argument = one_argument( argument, arg3 );
       if( ( apply_type = get_apply_type( arg3 ) ) == -1 )
       {
-         ch_printf( ch, "%s is not a valid apply type.\r\n", arg3 );
+         ch_printf( ch, "'%s' is not a valid apply type.\r\n", arg3 );
+         send_to_char( "Valid Options are:\r\n", ch );
+         for( x = 0; x < MAX_APPLYTYPE; x++ )
+            ch_printf( ch, "%s ", applytypes_type[x] );
+         send_to_char( "\r\n", ch );
+
          return;
       }
 
