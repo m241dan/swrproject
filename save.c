@@ -1000,6 +1000,8 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             if( !str_cmp( word, "#SKILL" ) )
             {
                fMatch = TRUE;
+               log_string( word );
+               bug( "%d", ch->top_sn );
                ch->pc_skills[ch->top_sn] = fread_skill( fp );
                ch->top_sn++;
             }
@@ -1205,11 +1207,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             {
                int x, y;
 
-               for( x = 0, y = -1; x < MAX_DISCIPLINE; x++ )
+               for( x = 0, y = 0; x < MAX_DISCIPLINE; x++ )
                {
                   ch->known_disciplines[x] = get_discipline_from_id( fread_number( fp ) );
                   if( fread_number( fp ) == 1 && ch->known_disciplines[x] != NULL )
-                     ch->equipped_disciplines[y++] = ch->known_disciplines[x];
+                  {
+                     ch->equipped_disciplines[y] = ch->known_disciplines[x];
+                     y++;
+                  }
                }
                fMatch = TRUE;
                break;
