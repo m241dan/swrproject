@@ -4668,12 +4668,28 @@ int get_skill_slot( CHAR_DATA *ch, int gsn )
 
 bool is_skill_usable( CHAR_DATA *ch, int gsn )
 {
+   FACTOR_DATA *factor;
    SKILLTYPE *skill;
 
    if( ( skill = ch->pc_skills[gsn] ) == NULL )
       return FALSE;
    if( skill->type == SKILL_UNSET || skill->style == STYLE_UNSET || skill->target == TAR_CHAR_UNSET || ( skill->min_mana == 0 && skill->min_move == 0 ) )
       return FALSE;
+   for( factor = skill->first_factor; factor; factor = factor->next )
+      if( !is_discipline_set( ch, factor->owner ) )
+         return FALSE;
+
+   if( !xHAS_BITS( ch->avail_costtypes, skill->cost ) )
+      return FALSE;
+   if( !xIS_SET( ch->avail_targettypes, skill->target ) )
+      return FALSE;
+   if( !xHAS_BITS( ch->avail_damtypes, skill->damtype ) )
+      return FALSE;
+   if( !xIS_SET( ch->avail_skilltypes, skill->type ) )
+      return FALSE;
+   if( !xIS_SET( ch->avail_skillstyles, skill->style ) )
+      return FALSE;
+
    return TRUE;
 }
 
