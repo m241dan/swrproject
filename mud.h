@@ -2272,6 +2272,8 @@ struct char_data
    int top_sn;
    DISC_DATA *equipped_disciplines[MAX_EQUIPPED_DISCIPLINE];
    DISC_DATA *known_disciplines[MAX_DISCIPLINE];
+   FACTOR_DATA *first_factor; /* Available factors that can be used on skills */
+   FACTOR_DATA *last_factor;
 };
 
 typedef enum
