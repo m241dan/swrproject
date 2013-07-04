@@ -4311,12 +4311,20 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
       LINK( new_factor, ch->first_factor, ch->last_factor, next, prev );
    }
 
+   xSET_BITS( disc->cost, ch->avail_costtypes );
+   xSET_BITS( disc->skill_type, ch->avail_skilltypes );
+   xSET_BITS( disc->skill_style, ch->avail_skillstyles );
+   xSET_BITS( disc->damtype, ch->avail_damtypes );
+   xSET_BITS( disc->target_types, ch->avail_targettypes );
+
    do_save( ch, "" );
    return;
 }
 
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
+   FACTOR_DATA *factor;
+
    int x;
 
    if( !is_discipline_set( ch, disc ) )
@@ -4328,6 +4336,12 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
    for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
       if( ch->equipped_disciplines[x] == disc )
          ch->equipped_disciplines[x] = NULL;
+
+   for( x = 0; x < MAX_PC_SKILL; x++ )
+   {
+      
+   }
+
    do_save( ch, "" );
    return;
 }

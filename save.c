@@ -542,6 +542,14 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
 
    fprintf( fp, "\n" ); /* Some nice spacing in the pfile */
 
+   fprintf( fp, "AvailableTargets     %s\n", print_bitvector( &ch->avail_targettypes );
+   fprintf( fp, "AvailableDamtypes    %s\n", print_bitvector( &ch->avail_damtypes );
+   fprintf( fp, "AvailableCosts       %s\n", print_bitvector( &ch->avail_costtypes );
+   fprintf( fp, "AvailableSkillTypes  %s\n", print_bitvector( &ch->avail_skilltypes );
+   fprintf( fp, "AvailableSkillStyles %s\n", print_bitvector( &ch->avail_skillstyles );
+
+   fprintf( fp, \n" );
+
    for( factor = ch->first_factor; factor; factor = factor->next )
       fprintf( fp, "AvailableFactor    %d\n", factor->id );
 
@@ -1127,6 +1135,8 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             }
             KEY( "Armor", ch->armor, fread_number( fp ) );
             KEY( "AuthedBy", ch->pcdata->authed_by, fread_string( fp ) );
+            KEY( "AvailableCosts", ch->avail_costtypes, fread_bitvector( fp ) );
+            KEY( "AvailableDamtypes", ch->avail_damtypes, fread_bitvector( fp ) );
             if( !str_cmp( word, "AvailableFactor" ) )
             {
                FACTOR_DATA *factor;
@@ -1138,6 +1148,9 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                LINK( factor, ch->first_factor, ch->last_factor, next, prev );
                break;
             }
+            KEY( "AvailableSkillStyles", ch->avail_skillstyles, fread_bitvector( fp ) );
+            KEY( "AvailableSkillTypes", ch->avail_skilltypes, fread_bitvector( fp ) );
+            KEY( "AvailableTargets", ch->avail_targettypes, fread_bitvector( fp ) );
             break;
 
          case 'B':

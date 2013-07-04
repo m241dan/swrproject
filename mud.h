@@ -2274,6 +2274,12 @@ struct char_data
    DISC_DATA *known_disciplines[MAX_DISCIPLINE];
    FACTOR_DATA *first_factor; /* Available factors that can be used on skills */
    FACTOR_DATA *last_factor;
+   EXT_BV avail_targettypes;
+   EXT_BV avail_damtypes;
+   EXT_BV avail_costtypes;
+   EXT_BV avail_skilltypes;
+   EXT_BV avail_skillstyles;
+
 };
 
 typedef enum
