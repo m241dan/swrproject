@@ -4286,6 +4286,7 @@ bool player_has_discipline_setslot( CHAR_DATA *ch )
 
 void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
+   FACTOR_DATA *factor;
    int x;
 
    if( !player_has_discipline_setslot( ch ) )
@@ -4302,6 +4303,14 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
    for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
       if( ch->equipped_disciplines[x] == NULL )
          ch->equipped_disciplines[x] = disc;
+
+   for( factor = disc->first_factor; factor; factor = factor->next )
+   {
+      FACTOR_DATA *new_factor;
+      new_factor = copy_factor( factor );
+      LINK( new_factor, ch->first_factor, ch->last_factor, next, prev );
+   }
+
    do_save( ch, "" );
    return;
 }
@@ -4321,4 +4330,20 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
          ch->equipped_disciplines[x] = NULL;
    do_save( ch, "" );
    return;
+}
+
+FACTOR_DATA *copy_factor( FACTOR_DATA *factor )
+{
+   FACTOR_DATA *new_factor;
+
+   CREATE( new_factor, FACTOR_DATA, 1 );
+   new_factor->id = factor->id;
+   new_factor->factor_type = factor->factor_type;
+   new_factor->location = factor->location;
+   new_factor->affect = factor->affect;
+   new_factor->modifier = factor->modifier;
+   new_factor->apply_type = factor->apply_type;
+   new_factor->duration = factor->duration;
+
+   return new_factor;
 }

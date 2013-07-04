@@ -4614,6 +4614,7 @@ void rem_discipline( CHAR_DATA *ch, DISC_DATA *discipline );
 bool player_has_discipline_setslot( CHAR_DATA *ch );
 void set_discipline( CHAR_DATA *ch, DISC_DATA *disc );
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc );
+FACTOR_DATA *copy_factor( FACTOR_DATA *factor );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
