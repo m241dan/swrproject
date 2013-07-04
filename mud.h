@@ -2767,11 +2767,13 @@ struct skill_type
    double defense_mod;
    double base_roll_boost;
    EXT_BV damtype;
+   EXT_BV cost;
    int charge;
    int threat;
    int cooldown;
    const char *cdmsg;
-   int factors;
+   FACTOR_DATA *first_factor; /* What factors are set on the skill */
+   FACTOR_DATA *last_factor;
 };
 
 
@@ -4621,6 +4623,8 @@ bool player_has_discipline_setslot( CHAR_DATA *ch );
 void set_discipline( CHAR_DATA *ch, DISC_DATA *disc );
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc );
 FACTOR_DATA *copy_factor( FACTOR_DATA *factor );
+void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill );
+void skills_checksum( CHAR_DATA *ch );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );

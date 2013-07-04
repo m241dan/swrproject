@@ -542,13 +542,13 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
 
    fprintf( fp, "\n" ); /* Some nice spacing in the pfile */
 
-   fprintf( fp, "AvailableTargets     %s\n", print_bitvector( &ch->avail_targettypes );
-   fprintf( fp, "AvailableDamtypes    %s\n", print_bitvector( &ch->avail_damtypes );
-   fprintf( fp, "AvailableCosts       %s\n", print_bitvector( &ch->avail_costtypes );
-   fprintf( fp, "AvailableSkillTypes  %s\n", print_bitvector( &ch->avail_skilltypes );
-   fprintf( fp, "AvailableSkillStyles %s\n", print_bitvector( &ch->avail_skillstyles );
+   fprintf( fp, "AvailableTargets     %s\n", print_bitvector( &ch->avail_targettypes ) );
+   fprintf( fp, "AvailableDamtypes    %s\n", print_bitvector( &ch->avail_damtypes ) );
+   fprintf( fp, "AvailableCosts       %s\n", print_bitvector( &ch->avail_costtypes ) );
+   fprintf( fp, "AvailableSkillTypes  %s\n", print_bitvector( &ch->avail_skilltypes ) );
+   fprintf( fp, "AvailableSkillStyles %s\n", print_bitvector( &ch->avail_skillstyles ) );
 
-   fprintf( fp, \n" );
+   fprintf( fp, "\n" );
 
    for( factor = ch->first_factor; factor; factor = factor->next )
       fprintf( fp, "AvailableFactor    %d\n", factor->id );

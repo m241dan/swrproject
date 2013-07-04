@@ -3990,7 +3990,8 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       ch->pc_skills[ch->top_sn] = skill;
       ch->top_sn++;
       send_to_char( "Skill created.\r\n", ch );
-      do_save( ch, "" );
+      save_char_obj( ch );
+      saving_char = NULL;
       return;
    }
    send_to_char( "Improper Usage...\r\n", ch );
@@ -4107,15 +4108,10 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             send_to_char( "No skill with that name is set.\r\n", ch );
             return;
          }
-         if( ( slot = get_skill_slot( ch, gsn ) ) == -1 )
-         {
-            send_to_char( "Something is messed up, contact your nearest Imm.\r\n", ch );
-            return;
-         }
-         ch->skill_slots[slot] = -1;
-         ch_printf( ch, "%s unset.\r\n", ch->pc_skills[gsn]->name );
+         unset_skill( ch, ch->pc_skills[gsn] );
       }
-      do_save( ch, "" );
+      save_char_obj( ch );
+      saving_char = NULL;
       return;
    }
    if( !str_cmp( arg, "set" ) )
@@ -4164,7 +4160,8 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             do_skills( ch, "set" );
             return;
          }
-         do_save( ch, "" );
+         save_char_obj( ch );
+         saving_char = NULL;
          return;
       }
    }
@@ -4226,7 +4223,8 @@ void add_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
          break;
       }
 
-   do_save( ch, "" );
+   save_char_obj( ch );
+   saving_char = NULL;
    return;
 }
 
@@ -4249,7 +4247,8 @@ void rem_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
        if( ch->known_disciplines[x] == discipline )
           ch->known_disciplines[x] = NULL;
 
-   do_save( ch, "" );
+   save_char_obj( ch );
+   saving_char = NULL;
    return;
 
 }
@@ -4311,20 +4310,19 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
       LINK( new_factor, ch->first_factor, ch->last_factor, next, prev );
    }
 
-   xSET_BITS( disc->cost, ch->avail_costtypes );
-   xSET_BITS( disc->skill_type, ch->avail_skilltypes );
-   xSET_BITS( disc->skill_style, ch->avail_skillstyles );
-   xSET_BITS( disc->damtype, ch->avail_damtypes );
-   xSET_BITS( disc->target_types, ch->avail_targettypes );
+   xSET_BITS( ch->avail_costtypes, disc->cost );
+   xSET_BITS( ch->avail_skilltypes, disc->skill_type );
+   xSET_BITS( ch->avail_skillstyles, disc->skill_style );
+   xSET_BITS( ch->avail_damtypes, disc->damtype );
+   xSET_BITS( ch->avail_targettypes, disc->target_type );
 
-   do_save( ch, "" );
+   save_char_obj( ch );
+   saving_char = NULL;
    return;
 }
 
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
-   FACTOR_DATA *factor;
-
    int x;
 
    if( !is_discipline_set( ch, disc ) )
@@ -4333,16 +4331,31 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
       return;
    }
 
-   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
-      if( ch->equipped_disciplines[x] == disc )
-         ch->equipped_disciplines[x] = NULL;
+   /* Remove the Bits and then we will re-add the still equipped disciplines bits */
 
-   for( x = 0; x < MAX_PC_SKILL; x++ )
+   xCLEAR_BITS( ch->avail_targettypes );
+   xCLEAR_BITS( ch->avail_damtypes );
+   xCLEAR_BITS( ch->avail_costtypes );
+   xCLEAR_BITS( ch->avail_skilltypes );
+   xCLEAR_BITS( ch->avail_skillstyles );
+
+   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
    {
-      
+      if( ch->equipped_disciplines[x] == disc )
+      {
+         ch->equipped_disciplines[x] = NULL;
+         continue;
+      }
+      xSET_BITS( ch->avail_costtypes, ch->equipped_disciplines[x]->cost );
+      xSET_BITS( ch->avail_skilltypes, ch->equipped_disciplines[x]->skill_type );
+      xSET_BITS( ch->avail_skillstyles, ch->equipped_disciplines[x]->skill_style );
+      xSET_BITS( ch->avail_damtypes, ch->equipped_disciplines[x]->damtype );
+      xSET_BITS( ch->avail_targettypes, ch->equipped_disciplines[x]->target_type );
    }
 
-   do_save( ch, "" );
+   skills_checksum( ch );
+   save_char_obj( ch );
+   saving_char = NULL;
    return;
 }
 
@@ -4358,6 +4371,76 @@ FACTOR_DATA *copy_factor( FACTOR_DATA *factor )
    new_factor->modifier = factor->modifier;
    new_factor->apply_type = factor->apply_type;
    new_factor->duration = factor->duration;
-
    return new_factor;
+}
+
+void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill )
+{
+   int gsn, slot;
+
+   if( ( gsn = get_player_skill_sn( ch, skill->name ) ) == -1 )
+   {
+      bug( "%s: can't find skill gsn.", __FUNCTION__ );
+      return;
+   }
+
+   if( ( slot = get_skill_slot( ch, gsn ) ) == -1 )
+   {
+      bug( "%s: skill not set to a slot, can't unset.", __FUNCTION__ );
+      return;
+   }
+   ch->skill_slots[slot] = -1;
+   ch_printf( ch, "%s Unset.", skill->name );
+   save_char_obj( ch );
+   saving_char = NULL;
+   return;
+}
+
+
+void skills_checksum( CHAR_DATA * ch )
+{
+   FACTOR_DATA *factor;
+   int x;
+
+
+   for( x = 0; x < MAX_PC_SKILL; x++ )
+   {
+      if( !xIS_SET( ch->avail_targettypes, ch->pc_skills[x]->target ) )
+      {
+         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
+         unset_skill( ch, ch->pc_skills[x] );
+         continue;
+      }
+      if( !xHAS_BITS( ch->avail_costtypes, ch->pc_skills[x]->cost ) )
+      {
+         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
+         unset_skill( ch, ch->pc_skills[x] );
+         continue;
+      }
+      if( !xHAS_BITS( ch->avail_damtypes, ch->pc_skills[x]->damtype ) )
+      {
+         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
+         unset_skill( ch, ch->pc_skills[x] );
+         continue;
+      }
+      if( !xIS_SET( ch->avail_skilltypes, ch->pc_skills[x]->type ) )
+      {
+         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
+         unset_skill( ch, ch->pc_skills[x] );
+         continue;
+      }
+      if( !xIS_SET( ch->avail_skillstyles, ch->pc_skills[x]->style ) )
+      {
+         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
+         unset_skill( ch, ch->pc_skills[x] );
+         continue;
+      }
+      for( factor = ch->pc_skills[x]->first_factor; factor; factor = factor->next )
+         if( !is_discipline_set( ch, factor->owner ) )
+         {
+            ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
+            unset_skill( ch, ch->pc_skills[x] );
+            break;
+         }
+   }
 }

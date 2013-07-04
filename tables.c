@@ -135,6 +135,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Mana         %d\n", skill->min_mana );
    if( skill->min_move )
       fprintf( fpout, "Move         %d\n", skill->min_move );
+   fprintf( fpout, "Cost         %s\n", print_bitvector( &skill->cost ) );
    if( skill->beats )
       fprintf( fpout, "Rounds       %d\n", skill->beats );
    if( skill->charge )
@@ -199,8 +200,6 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Alignment   %d\n", skill->alignment );
 
    fprintf( fpout, "DamageDetails   %f %f %f %f\n", skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
-   if( skill->factors )
-      fprintf( fpout, "Factors     %d\n", skill->factors );
    if( !xIS_EMPTY( skill->damtype ) )
       fprintf( fpout, "Damtype         %s", print_bitvector( &skill->damtype ) );
    if( skill->type != SKILL_HERB )
@@ -433,6 +432,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             }
             KEY( "Components", skill->components, fread_string_nohash( fp ) );
             KEY( "Cooldown", skill->cooldown, fread_number( fp ) );
+            KEY( "Cost", skill->cost, fread_bitvector( fp ) );
             break;
 
          case 'D':
@@ -460,7 +460,6 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'F':
-            KEY( "Factors", skill->factors, fread_number( fp ) );
             KEY( "Flags", skill->flags, fread_number( fp ) );
             break;
 
