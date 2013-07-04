@@ -302,6 +302,7 @@ void save_clone( CHAR_DATA * ch )
  */
 void fwrite_char( CHAR_DATA * ch, FILE * fp )
 {
+   FACTOR_DATA *factor;
    CD_DATA *cdat;
    AFFECT_DATA *paf;
    int sn, track, drug, count, x;
@@ -538,6 +539,11 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       else
          fprintf( fp, "0 0\n" );
    }
+
+   fprintf( fp, "\n" ); /* Some nice spacing in the pfile */
+
+   for( factor = ch->first_factor; factor; factor = factor->next )
+      fprintf( fp, "AvailableFactor    %d\n", factor->id );
 
    fprintf( fp, "\nSkillSlot " );
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
@@ -1121,6 +1127,17 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             }
             KEY( "Armor", ch->armor, fread_number( fp ) );
             KEY( "AuthedBy", ch->pcdata->authed_by, fread_string( fp ) );
+            if( !str_cmp( word, "AvailableFactor" ) )
+            {
+               FACTOR_DATA *factor;
+               if( ( factor = get_factor_from_id( fread_number( fp ) ) ) == NULL )
+               {
+                  bug( "%s: reading in %n's pfile, available factor id not found.", __FUNCTION__, ch->name );
+                  break;
+               }
+               LINK( factor, ch->first_factor, ch->last_factor, next, prev );
+               break;
+            }
             break;
 
          case 'B':
