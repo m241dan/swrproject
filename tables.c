@@ -35,7 +35,7 @@ const char *const skill_tname[MAX_SKILLTYPE] = { "unknown", "Spell", "Skill", "W
 
 const char *const style_type[STYLE_MAX] = { "Healing", "Damage", "Buff", "Enfeeble", "Redirect", "Cleanse", "Summon", "Polymorph", "Unset" };
 
-const char *const factor_names[MAX_FACTOR] = { "apply_factor", "damage_factor" };
+const char *const factor_names[MAX_FACTOR] = { "apply_factor", "damage_factor", "attack_factor", "defense_factor", "base_roll_factor" };
 
 const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cost_type", "damtype_type", "target_type" };
 
@@ -710,13 +710,13 @@ void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
 
    for( factor = discipline->first_factor; factor; factor = factor->next )
    {
-      fprintf( fpout, "#Factor %d %d %d %s %f %d %d", factor->id, factor->factor_type, factor->location, print_bitvector( &factor->affect ), factor->modifier, factor->apply_type, factor->duration );
+      fprintf( fpout, "#Factor %d %d %d %s %f %d %d\n", factor->id, factor->factor_type, factor->location, print_bitvector( &factor->affect ), factor->modifier, factor->apply_type, factor->duration );
    }
 
    for( aff = discipline->first_affect; aff; aff = aff->next )
       fwrite_fuss_affect( fpout, aff );
 
-   fprintf( fpout, "End\n" );
+   fprintf( fpout, "\nEnd\n" );
 }
 void load_skill_table(  )
 {
