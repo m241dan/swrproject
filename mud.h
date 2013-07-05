@@ -2826,7 +2826,7 @@ typedef enum
 
 typedef enum
 {
-   COST_HP, COST_MANA, COST_MOVE, COST_BOTH, MAX_COST
+   COST_HP, COST_MANA, COST_MOVE, MAX_COST
 } cost_types;
 
 typedef enum
@@ -4625,6 +4625,8 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc );
 FACTOR_DATA *copy_factor( FACTOR_DATA *factor );
 void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill );
 void skills_checksum( CHAR_DATA *ch );
+void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor );
+void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );

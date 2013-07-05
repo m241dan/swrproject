@@ -3951,9 +3951,13 @@ bool mob_has_skill( CHAR_DATA *ch, int gsn )
 void do_skillcraft( CHAR_DATA *ch, const char *argument )
 {
    SKILLTYPE *skill;
+   FACTOR_DATA *factor;
    char arg[MAX_INPUT_LENGTH];
+   char arg2[MAX_INPUT_LENGTH];
+   int sn, x;
 
    argument = one_argument( argument, arg );
+   argument = one_argument( argument, arg2 );
 
    if( IS_NPC( ch ) )
    {
@@ -3961,13 +3965,91 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       return;
    }
 
-   if( arg[0] == '\0' )
+   if( arg[0] == '\0' || arg2[0] == '\0' )
    {
-      send_to_char( "Proper usage: skillcraft <command> <skill> <field> <value>\r\n", ch );
+      send_to_char( "Proper usage: skillcraft <skill> <command> <field> <value>\r\n", ch );
       send_to_char( "Or:           skillcraft create <skill>\r\n", ch );
-      send_to_char( "Or:           skillcraft delete <skill>\r\n", ch );
+      send_to_char( "Or:           skillcraft delete <skill>(Not yet in)\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
-      send_to_char( "  Start Commands Here\r\n", ch );
+      send_to_char( "  show name addfactor remfactor type taget style cost damtype\r\n\r\n", ch );
+
+      send_to_char( "Settable Skill Types:", ch );
+      for( x = 0; x < MAX_SKILLTYPE; x++ )
+         if( xIS_SET( ch->avail_skilltypes, x ) )
+            ch_printf( ch, " %s", skill_tname[x] );
+      send_to_char( "\r\n", ch );
+
+      send_to_char( "Settable Style Types:", ch );
+      for( x = 0; x < STYLE_MAX; x++ )
+         if( xIS_SET( ch->avail_skillstyles, x ) )
+            ch_printf( ch, " %s", style_type[x] );
+      send_to_char( "\r\n", ch );
+
+      send_to_char( "Settable Target Types:", ch );
+      for( x = 0; x < TAR_CHAR_MAX; x++ )
+         if( xIS_SET( ch->avail_targettypes, x ) )
+            ch_printf( ch, " %s", target_type[x] );
+      send_to_char( "\r\n", ch );
+
+      send_to_char( "Settable Cost Types:", ch );
+      for( x = 0; x < MAX_COST; x++ )
+         if( xIS_SET( ch->avail_costtypes, x ) )
+            ch_printf( ch, " %s", cost_type[x] );
+      send_to_char( "\r\n", ch );
+
+      send_to_char( "Settable Damage Types:", ch );
+      for( x = 0; x < MAX_DAMTYPE; x++ )
+         if( xIS_SET( ch->avail_damtypes, x ) )
+            ch_printf( ch, " %s", d_type[x] );
+      send_to_char( "\r\n", ch );
+
+      send_to_char( "Available Factors:\r\n", ch );
+      for( factor = ch->first_factor, x = 0; factor; factor = factor->next )
+      {
+         if( factor->factor_type == APPLY_FACTOR )
+         {
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Location: %-10.10s | Apply Type: %-10.10s | Duration: %-10d |\r\n", x,
+                       factor_names[factor->factor_type],
+                       a_types[factor->location],
+                       applytypes_type[factor->apply_type],
+                       factor->duration );
+
+            if( factor->location == APPLY_AFFECT )
+            {
+               for( x = 0; x < MAX_AFF; x++ )
+                  if( xIS_SET( factor->affect, x ) )
+                     ch_printf( ch, " %s,", a_flags[x] );
+               send_to_char( "\r\n", ch );
+            }
+            else
+               ch_printf( ch, " Modifier: %f\r\n", factor->modifier );
+         }
+         else if( factor->factor_type == STAT_FACTOR )
+         {
+            int stat;
+            double mod;
+
+            stat = factor->modifier / 1;
+            mod = factor->modifier - stat;
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n", x,
+                       factor_names[factor->factor_type],
+                       mod,
+                       a_types[stat] );
+         }
+         else if( factor->factor_type == ATTACK_FACTOR )
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Damroll Effect by %f\r\n", x,
+                       factor_names[factor->factor_type],
+                       factor->modifier );
+         else if( factor->factor_type == DEFENSE_FACTOR )
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Adds %f%% of players global armor to skill damage\r\n", x,
+                       factor_names[factor->factor_type],
+                       factor->modifier );
+         else if( factor->factor_type == BASEROLL_FACTOR )
+           ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n", x,
+                       factor_names[factor->factor_type],
+                       factor->modifier );
+         x++;
+      }
       return;
    }
 
@@ -3994,6 +4076,146 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       saving_char = NULL;
       return;
    }
+
+   if( ( sn = get_player_skill_sn( ch, arg ) ) == -1 )
+   {
+      ch_printf( ch, "You know no such skill: %s\r\n", arg );
+      return;
+   }
+   skill = ch->pc_skills[sn];
+
+   if( !str_cmp( arg2, "show" ) )
+   {
+      ch_printf( ch, "Skill Name: %s\r\n", skill->name );
+      ch_printf( ch, "Skill Type: %-10.10s Skill Style: %-10.10s Target Type: %-10.10s\r\n",
+                 skill_tname[skill->type], style_type[skill->style], target_type[skill->target] );
+
+      ch_printf(  ch, "Cost Type:" );
+      for( x = 0; x < MAX_COST; x++ )
+         if( xIS_SET( skill->cost, x ) )
+            ch_printf( ch, " %s", cost_type[x] );
+      send_to_char( "\r\n", ch );
+
+      ch_printf( ch, "Damage Type:" );
+      for( x = 0; x < MAX_DAMTYPE; x++ )
+         if( xIS_SET( skill->damtype, x  ) )
+            ch_printf( ch, " %s", d_type[x] );
+      send_to_char( "\r\n", ch );
+
+      for( factor = skill->first_factor, x = 0; factor; factor = factor->next )
+      {
+         if( factor->factor_type == APPLY_FACTOR )
+         {
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Location: %-10.10s | Apply Type: %-10.10s | Duration: %-10d |\r\n", x,
+                       factor_names[factor->factor_type],
+                       a_types[factor->location],
+                       applytypes_type[factor->apply_type],
+                       factor->duration );
+
+            if( factor->location == APPLY_AFFECT )
+            {
+               for( x = 0; x < MAX_AFF; x++ )
+                  if( xIS_SET( factor->affect, x ) )
+                     ch_printf( ch, " %s,", a_flags[x] );
+               send_to_char( "\r\n", ch );
+            }
+            else
+               ch_printf( ch, " Modifier: %f\r\n", factor->modifier );
+         }
+         else if( factor->factor_type == STAT_FACTOR )
+         {
+            int stat;
+            double mod;
+
+            stat = factor->modifier / 1;
+            mod = factor->modifier - stat;
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n", x,
+                       factor_names[factor->factor_type],
+                       mod,
+                       a_types[stat] );
+         }
+         else if( factor->factor_type == ATTACK_FACTOR )
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Damroll Effect by %f\r\n", x,
+                       factor_names[factor->factor_type],
+                       factor->modifier );
+         else if( factor->factor_type == DEFENSE_FACTOR )
+            ch_printf( ch, "%2d: Factor Type: %-10.10s | Adds %f%% of players global armor to skill damage\r\n", x,
+                       factor_names[factor->factor_type],
+                       factor->modifier );
+         else if( factor->factor_type == BASEROLL_FACTOR )
+           ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n", x,
+                       factor_names[factor->factor_type],
+                       factor->modifier );
+         x++;
+      }
+   }
+
+   if( !str_cmp( arg2, "addfactor" ) )
+   {
+      int selection;
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Please enter the number of the factor you wish to add to the skill.\r\n", ch );
+         return;
+      }
+
+      if( ( selection = atoi( argument ) ) < 0 )
+      {
+         send_to_char( "Invalid number.\r\n", ch );
+         return;
+      }
+
+      for( factor = ch->first_factor, x = 0; factor; factor = factor->next )
+      {
+         if( x == selection )
+            break;
+         x++;
+      }
+
+      if( !factor )
+      {
+         send_to_char( "Invalid number.\r\n", ch );
+         return;
+      }
+
+      addfactor( ch, skill, factor );
+      send_to_char( "Factor added.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "remfactor" ) )
+   {
+      int selection;
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Please enter the number of the factor you wish to remove from the skill.\r\n", ch );
+         return;
+      }
+
+      if( ( selection = atoi( argument ) ) < 0 )
+      {
+         send_to_char( "Invalid number.\r\n", ch );
+         return;
+      }
+
+      for( factor = skill->first_factor, x = 0; factor; factor = factor->next )
+      {
+         if( x == selection )
+            break;
+         x++;
+      }
+
+      if( !factor )
+      {
+         send_to_char( "Invalid number.\r\n", ch );
+         return;
+      }
+
+      remfactor( ch, skill, factor );
+      send_to_char( "Factor removed.\r\n", ch );
+      return;
+   }
+
    send_to_char( "Improper Usage...\r\n", ch );
    do_skillcraft( ch, "" );
    return;
@@ -4443,4 +4665,12 @@ void skills_checksum( CHAR_DATA * ch )
             break;
          }
    }
+}
+
+void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
+{
+}
+
+void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
+{
 }

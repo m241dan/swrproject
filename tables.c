@@ -39,7 +39,7 @@ const char *const factor_names[MAX_FACTOR] = { "apply_factor", "damage_factor", 
 
 const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cost_type", "damtype_type", "target_type" };
 
-const char *const cost_type[MAX_COST] = { "hp", "mana", "move", "both" };
+const char *const cost_type[MAX_COST] = { "hp", "mana", "move" };
 
 const char *const applytypes_type[MAX_APPLYTYPE] = { "join_friendly", "join_enemy", "override_friendly", "override_enemy", "no_apply" };
 
