@@ -4342,7 +4342,6 @@ ch_ret spell_affectchar( int sn, int level, CHAR_DATA * ch, void *vo )
  */
 ch_ret spell_affect( int sn, int level, CHAR_DATA * ch, void *vo )
 {
-   SMAUG_AFF *saf;
    SKILLTYPE *skill = get_skilltype( sn );
    CHAR_DATA *victim = ( CHAR_DATA * ) vo;
    bool groupsp;
@@ -4386,13 +4385,6 @@ ch_ret spell_affect( int sn, int level, CHAR_DATA * ch, void *vo )
        * Spell is already on this guy 
        */
       if( is_affected( victim, sn ) && !SPELL_FLAG( skill, SF_ACCUMULATIVE ) && !SPELL_FLAG( skill, SF_RECASTABLE ) )
-      {
-         failed_casting( skill, ch, victim, NULL );
-         return rSPELL_FAILED;
-      }
-
-      if( ( saf = skill->first_affect ) && !saf->next
-          && saf->location == APPLY_STRIPSN && !is_affected( victim, dice_parse( ch, level, saf->modifier ) ) )
       {
          failed_casting( skill, ch, victim, NULL );
          return rSPELL_FAILED;

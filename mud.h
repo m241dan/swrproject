@@ -1068,13 +1068,14 @@ struct affect_data
    AFFECT_DATA *next;
    AFFECT_DATA *prev;
    CHAR_DATA *from; /* which player isthis from */
-   int affect_type; /* override, join, etc */
+   int affect_type; /* buff or enfeeb*/
    short type; /* sn, if its from a skill */
    double duration;
    short location; /* str, dex, agi, etc */
    int modifier;
    EXT_BV bitvector; /* for "aff_"s */
    FACTOR_DATA *factor_src; /* what factor generated this affect */
+   int apply_type; /* join, override */
 };
 
 #define AFFECT_BUFF 0
@@ -4493,7 +4494,7 @@ void sort_area args( ( AREA_DATA * pArea, bool proto ) );
 void sort_area_by_name args( ( AREA_DATA * pArea ) ); /* Fireblade */
 void smash_underscore args( ( char *str ) );
 const char *smash_underscore args( ( const char *str ) );
-
+AFFECT_DATA *fread_fuss_affect( FILE *fp, const char *word );
 
 /* fight.c */
 int max_fight args( ( CHAR_DATA * ch ) );

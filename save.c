@@ -1068,7 +1068,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                   break;
                }
                if( paf )
-                  LINK( af, ch->first_affect, ch->last_affect, next, prev );
+                  LINK( paf, ch->first_affect, ch->last_affect, next, prev );
                add_queue( ch, AFFECT_TIMER );
                fMatch = TRUE;
                break;

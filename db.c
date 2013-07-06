@@ -5436,7 +5436,7 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
    if( ( paf->factor_src = copy_factor( get_factor_from_id( fread_number( fp ) ) ) ) == NULL )
       paf->duration = 1;
    paf->affect_type = fread_number( fp );
-   if( ( paf->from = get_char_world( ch, fread_word( fp ) ) ) == NULL )
+   if( ( paf->from = get_char_world( first_char, fread_word( fp ) ) ) == NULL )
       paf->duration = 1;
    paf->bitvector = fread_bitvector( fp );
 

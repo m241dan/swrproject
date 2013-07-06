@@ -434,45 +434,9 @@ void damage_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 }
 void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
-   SMAUG_AFF *saf;
-   AFFECT_DATA af;
-
-   af.type = gsn;
-   af.from = ch;
-   af.affect_type = AFFECT_BUFF;
-
-   for( saf = skill_table[gsn]->first_affect; saf; saf = saf->next )
-   {
-      af.location = saf->location;
-      af.duration = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->duration );
-      af.modifier = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->modifier );
-      xCLEAR_BITS( af.bitvector );
-      xSET_BITS( af.bitvector, saf->bitvector );
-      affect_to_char( victim, &af );
-   }
-   buff_msg( ch, victim, gsn );
-   return;
 }
 void enfeeble_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
-   SMAUG_AFF *saf;
-   AFFECT_DATA af;
-
-   af.type = gsn;
-   af.from = ch;
-   af.affect_type = AFFECT_ENFEEBLE;
-
-   for( saf = skill_table[gsn]->first_affect; saf; saf = saf->next )
-   {
-      af.location = saf->location;
-      af.duration = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->duration );
-      af.modifier = dice_parse( ch, ch->skill_level[COMBAT_ABILITY], saf->modifier );
-      xCLEAR_BITS( af.bitvector );
-      xSET_BITS( af.bitvector, saf->bitvector );
-      affect_to_char( victim, &af );
-   }
-   buff_msg( ch, victim, gsn );
-   return;
 }
 void redirect_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
 {
@@ -679,7 +643,8 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
    }
    else
    {
-      SMAUG_AFF *aff;
+      AFFECT_DATA *aff;
+      char num[MAX_STRING_LENGTH];
       int cnt = 0;
 
       if( arg[0] == 'h' && is_number( arg + 1 ) )
@@ -760,7 +725,8 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
             strcat( buf, " modifies " );
             strcat( buf, a_types[aff->location % REVERSE_APPLY] );
             strcat( buf, " by '" );
-            strcat( buf, aff->modifier );
+            sprintf( num, "%d", aff->modifier );
+            strcat( buf, num);
             if( !xIS_EMPTY( aff->bitvector ) )
                strcat( buf, "' and" );
             else
@@ -776,10 +742,11 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
                   strcat( buf, a_flags[x] );
                }
          }
-         if( aff->duration[0] != '\0' && aff->duration[0] != '0' )
+         if( aff->duration > 0 )
          {
             strcat( buf, " for '" );
-            strcat( buf, aff->duration );
+            sprintf( num, "%f", aff->duration );
+            strcat( buf, num );
             strcat( buf, "' rounds" );
          }
          if( aff->location >= REVERSE_APPLY )
@@ -1163,7 +1130,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
       }
       if( !str_cmp( arg2, "rmaffect" ) )
       {
-         SMAUG_AFF *aff, *aff_next;
+         AFFECT_DATA *aff, *aff_next;
          int num = atoi( argument );
          int cnt = 0;
 
@@ -1179,8 +1146,9 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             if( ++cnt == num )
             {
                UNLINK( aff, skill->first_affect, skill->last_affect, next, prev );
-               DISPOSE( aff->duration );
-               DISPOSE( aff->modifier );
+               aff->from = NULL;
+               if( aff->factor_src )
+                  remfactor( NULL, skill, aff->factor_src, FALSE );
                DISPOSE( aff );
                send_to_char( "Removed.\r\n", ch );
                return;
@@ -1201,7 +1169,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          char bitvector[MAX_INPUT_LENGTH];
          int loc, tmpbit;
          EXT_BV bit;
-         SMAUG_AFF *aff;
+         AFFECT_DATA *aff;
 
          argument = one_argument( argument, location );
          argument = one_argument( argument, modifier );
@@ -1225,23 +1193,10 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             else
                xSET_BIT( bit, tmpbit );
          }
-         CREATE( aff, SMAUG_AFF, 1 );
-         if( !str_cmp( duration, "0" ) )
-            duration[0] = '\0';
-         if( !str_cmp( modifier, "0" ) )
-            modifier[0] = '\0';
-         aff->duration = str_dup( duration );
+         CREATE( aff, AFFECT_DATA, 1 );
+         aff->modifier = atoi( modifier );
+         aff->duration = atoi( duration );
          aff->location = loc;
-         if( loc == APPLY_AFFECT || loc == APPLY_RESISTANT || loc == APPLY_IMMUNE || loc == APPLY_SUSCEPTIBLE )
-         {
-            int modval = get_aflag( modifier );
-
-            /* Sanitize the flag input for the modifier if needed -- Samson */
-            if( modval < 0 )
-               modval = 0;
-            snprintf( modifier, MAX_INPUT_LENGTH, "%d", modval );
-         }
-         aff->modifier = str_dup( modifier );
          xSET_BITS( aff->bitvector, bit );
          LINK( aff, skill->first_affect, skill->last_affect, next, prev );
          send_to_char( "Ok.\r\n", ch );
@@ -4671,7 +4626,7 @@ void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
 {
    UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
    LINK( factor, skill->first_factor, skill->last_factor, next, prev );
-   factor_apply( skill, factor, TRUE );
+ //  factor_apply( skill, factor, TRUE );
    return;
 }
 
