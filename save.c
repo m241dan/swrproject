@@ -1059,7 +1059,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
 
             if( !str_cmp( word, "Affect" ) || !str_cmp( word, "AffectData" ) )
             {
-               AFFECT_DATA *paf;
+               AFFECT_DATA *paf = fread_fuss_affect( fp, word );
 
                if( preload )
                {
@@ -1067,30 +1067,8 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                   fread_to_eol( fp );
                   break;
                }
-               CREATE( paf, AFFECT_DATA, 1 );
-               if( !str_cmp( word, "Affect" ) )
-               {
-                  paf->type = fread_number( fp );
-               }
-               else
-               {
-		 const char *sname = fread_word( fp );
-
-                  if( ( sn = skill_lookup( sname ) ) < 0 )
-                  {
-                     if( ( sn = herb_lookup( sname ) ) < 0 )
-                        bug( "Fread_char: unknown skill.", 0 );
-                     else
-                        sn += TYPE_HERB;
-                  }
-                  paf->type = sn;
-               }
-
-               paf->duration = fread_float( fp );
-               paf->modifier = fread_number( fp );
-               paf->location = fread_number( fp );
-               paf->bitvector = fread_bitvector( fp );
-               LINK( paf, ch->first_affect, ch->last_affect, next, prev );
+               if( paf )
+                  LINK( af, ch->first_affect, ch->last_affect, next, prev );
                add_queue( ch, AFFECT_TIMER );
                fMatch = TRUE;
                break;

@@ -1067,13 +1067,14 @@ struct affect_data
 {
    AFFECT_DATA *next;
    AFFECT_DATA *prev;
-   CHAR_DATA *from;
-   int affect_type;
-   short type;
+   CHAR_DATA *from; /* which player isthis from */
+   int affect_type; /* override, join, etc */
+   short type; /* sn, if its from a skill */
    double duration;
-   short location;
+   short location; /* str, dex, agi, etc */
    int modifier;
-   EXT_BV bitvector;
+   EXT_BV bitvector; /* for "aff_"s */
+   FACTOR_DATA *factor_src; /* what factor generated this affect */
 };
 
 #define AFFECT_BUFF 0
@@ -2753,8 +2754,8 @@ struct skill_type
    int value;  /* Misc value        */
    char saves; /* What saving spell applies  */
    char difficulty;  /* Difficulty of casting/learning */
-   SMAUG_AFF *first_affect;  /* Spell affects, if any   */
-   SMAUG_AFF *last_affect;
+   AFFECT_DATA *first_affect;  /* Spell affects, if any   */
+   AFFECT_DATA *last_affect;
    const char *components; /* Spell components, if any   */
    const char *teachers;   /* Skill requires a special teacher */
    char participants;   /* # of required participants */
@@ -4626,7 +4627,7 @@ FACTOR_DATA *copy_factor( FACTOR_DATA *factor );
 void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill );
 void skills_checksum( CHAR_DATA *ch );
 void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor );
-void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor );
+void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );

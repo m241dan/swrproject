@@ -4211,7 +4211,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          return;
       }
 
-      remfactor( ch, skill, factor );
+      remfactor( ch, skill, factor, TRUE );
       send_to_char( "Factor removed.\r\n", ch );
       return;
    }
@@ -4669,8 +4669,24 @@ void skills_checksum( CHAR_DATA * ch )
 
 void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
 {
+   UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
+   LINK( factor, skill->first_factor, skill->last_factor, next, prev );
+   factor_apply( skill, factor, TRUE );
+   return;
 }
 
-void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
+void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable )
 {
+}
+
+void factor_apply( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
+{
+/*   AFFECT_DATA *affect;
+
+   switch( factor->factor_type )
+   {
+      case APPLY_FACTOR:
+         CREATE( affect, AFF_DATA, 1 );
+         
+   }*/
 }

@@ -5372,7 +5372,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
 {
    if( paf->type < 0 || paf->type >= top_sn )
    {
-      fprintf( fp, "Affect       %d %f %d %d %s\n",
+      fprintf( fp, "Affect       %d %f %d %d %d %d '%s' %s\n",
                paf->type,
                paf->duration,
                ( ( paf->location == APPLY_WEAPONSPELL
@@ -5380,11 +5380,11 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
                    || paf->location == APPLY_REMOVESPELL
                    || paf->location == APPLY_STRIPSN )
                  && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
+               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_src->id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
    }
    else
    {
-      fprintf( fp, "AffectData   '%s' %f %d %d %s\n",
+      fprintf( fp, "AffectData   '%s' %f %d %d %d %d '%s' %s\n",
                skill_table[paf->type]->name,
                paf->duration,
                ( ( paf->location == APPLY_WEAPONSPELL
@@ -5392,7 +5392,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
                    || paf->location == APPLY_REMOVESPELL
                    || paf->location == APPLY_STRIPSN )
                  && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
+               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_src->id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
    }
 }
 

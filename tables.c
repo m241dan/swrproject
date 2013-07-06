@@ -117,7 +117,7 @@ void sort_player_skill_table(  CHAR_DATA *ch )
  */
 void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
 {
-   SMAUG_AFF *aff;
+   AFFECT_DATA *aff;
 
    fprintf( fpout, "Name         %s~\n", skill->name );
    fprintf( fpout, "Type         %s\n", skill_tname[skill->type] );
@@ -195,7 +195,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    if( skill->teachers && skill->teachers[0] != '\0' )
       fprintf( fpout, "Teachers     %s~\n", skill->teachers );
    for( aff = skill->first_affect; aff; aff = aff->next )
-      fprintf( fpout, "Affect       '%s' %d '%s' %s\n", aff->duration, aff->location, aff->modifier, print_bitvector( &aff->bitvector ) );
+      fwrite_fuss_affect( fpout, aff );
    if( skill->alignment )
       fprintf( fpout, "Alignment   %d\n", skill->alignment );
 
@@ -387,14 +387,10 @@ SKILLTYPE *fread_skill( FILE * fp )
             KEY( "Alignment", skill->alignment, fread_number( fp ) );
             if( !str_cmp( word, "Affect" ) )
             {
-               SMAUG_AFF *aff;
+               AFFECT_DATA *aff = fread_fuss_affect( fp, word );
 
-               CREATE( aff, SMAUG_AFF, 1 );
-               aff->duration = str_dup( fread_word( fp ) );
-               aff->location = fread_number( fp );
-               aff->modifier = str_dup( fread_word( fp ) );
-               aff->bitvector = fread_bitvector( fp );
-               LINK( aff, skill->first_affect, skill->last_affect, next, prev );
+               if( aff )
+                  LINK( aff, skill->first_affect, skill->last_affect, next, prev );
                fMatch = TRUE;
                break;
             }
