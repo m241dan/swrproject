@@ -132,6 +132,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Saves        %d\n", skill->saves );
    if( skill->slot )
       fprintf( fpout, "Slot         %d\n", skill->slot );
+   if( skill->min_hp )
+      fprintf( fpout, "HP           %d\n", skill->min_hp );
    if( skill->min_mana )
       fprintf( fpout, "Mana         %d\n", skill->min_mana );
    if( skill->min_move )
@@ -476,6 +478,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             KEY( "Hitchar", skill->hit_char, fread_string_nohash( fp ) );
             KEY( "Hitroom", skill->hit_room, fread_string_nohash( fp ) );
             KEY( "Hitvict", skill->hit_vict, fread_string_nohash( fp ) );
+            KEY( "HP", skill->min_hp, fread_number( fp ) );
             break;
 
          case 'I':

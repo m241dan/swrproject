@@ -4134,7 +4134,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
 
       addfactor( ch, skill, factor );
-      update_skill( skill );
+      update_skill( ch, skill );
       send_to_char( "Factor added.\r\n", ch );
       return;
    }
@@ -4168,7 +4168,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
 
       remfactor( ch, skill, factor, TRUE );
-      update_skill( skill );
+      update_skill( ch, skill );
       send_to_char( "Factor removed.\r\n", ch );
       return;
    }
@@ -4705,16 +4705,111 @@ void update_skills( CHAR_DATA *ch )
 
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
       if( ch->skill_slots[x] != NULL )
-         update_skill( ch->skill_slots[x] );
+         update_skill( ch, ch->skill_slots[x] );
 
    return;
 }
 
-void update_skill( SKILLTYPE *skill )
+void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
 {
+   int num_factors = get_num_factors( skill );
+   int num_cost_type = get_num_cost_types( skill );
+   int slot_level;
+   int charge = skill->charge;
+
+   if( ( slot_level = get_slot_level( ch, skill ) ) == -1 )
+   {
+      bug( "%s: bad slot level: %s", __FUNCTION__, skill->name );
+      return;
+   }
+
+   /* Cooldowns First */
+
+   switch( skill->type )
+   {
+      case SKILL_SKILL:
+         skill->cooldown = (int)( ( ( slot_level / 5 ) * num_factors ) - ( charge / 2 ) );
+         break;
+      case SKILL_SPELL:
+         skill->cooldown = (int)( ( ( slot_level / 10 ) * ( num_factors * 1.5 ) ) - ( charge * 3 ) );
+         break;
+   }
+
+   /* Now Cost */
+   if( xIS_SET( skill->cost, COST_HP ) )
+   {
+      switch( skill->type )
+      {
+         case SKILL_SKILL:
+            skill->min_hp = (int)( ( slot_level * 2 ) / num_cost_type );
+            break;
+         case SKILL_SPELL:
+            skill->min_hp = (int)( ( slot_level * 4 ) / ( num_cost_type * .9 ) );
+            break;
+      }
+   }
+   if( xIS_SET( skill->cost, COST_MANA ) )
+   {
+      switch( skill->type )
+      {
+         case SKILL_SKILL:
+            skill->min_mana = (int)( ( slot_level * 3 ) / ( num_cost_type *.8 ) );
+            break;
+         case SKILL_SPELL:
+            skill->min_mana = (int)( ( slot_level * 1.5 ) / ( num_cost_type * 1.2 ) );
+            break;
+      }
+   }
+   if( xIS_SET( skill->cost, COST_MOVE ) )
+   {
+      switch( skill->type )
+      {
+         case SKILL_SKILL:
+            skill->min_move = (int)( ( slot_level * 1.5 ) / ( num_cost_type * 1.2 ) );
+            break;
+         case SKILL_SPELL:
+            skill->min_move = (int)( ( slot_level * 3 ) / ( num_cost_type *.8 ) );
+            break;
+      }
+   }
+
 }
 
-int get_slot_level( SKILLTYPE *skill )
+int get_slot_level( CHAR_DATA *ch, SKILLTYPE *skill )
 {
-   return 0;
+   int x;
+
+   if( !is_skill_set( ch, skill ) )
+   {
+      bug( "%s: trying to grab slot level of unset skill: %s", __FUNCTION__, skill->name );
+      return 0;
+   }
+
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
+      if( ch->skill_slots[x] == skill )
+         return ( ( x + 1 ) * 5 );
+
+   return -1;
+}
+
+int get_num_factors( SKILLTYPE *skill )
+{
+   FACTOR_DATA *factor;
+   int count = 0;
+
+   for( factor = skill->first_factor; factor; factor = factor->next )
+      count++;
+
+   return count;
+}
+
+int get_num_cost_types( SKILLTYPE *skill )
+{
+   int x, count;
+
+   for( x = 0, count = 0; x < MAX_COST; x++ )
+      if( xIS_SET( skill->cost, x ) )
+         count++;
+
+   return count;
 }

@@ -2763,6 +2763,7 @@ struct skill_type
    struct timerset userec; /* Usage record         */
    int alignment; /* for jedi powers */
    short min_move;
+   short min_hp;
    short style;
    double stat_boost;
    double attack_boost;
@@ -4629,9 +4630,12 @@ void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill );
 void skills_checksum( CHAR_DATA *ch );
 void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor );
 void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable );
-void update_skill args( ( SKILLTYPE * skill ) );
+void update_skill args( ( CHAR_DATA *ch, SKILLTYPE * skill ) );
 void update_skills args( ( CHAR_DATA *ch ) );
 void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add );
+int get_num_factors( SKILLTYPE *skill );
+int get_num_cost_types( SKILLTYPE *skill );
+int get_slot_level( CHAR_DATA *ch, SKILLTYPE *skill );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
