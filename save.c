@@ -553,11 +553,6 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    for( factor = ch->first_factor; factor; factor = factor->next )
       fprintf( fp, "AvailableFactor    %d\n", factor->id );
 
-   fprintf( fp, "\nSkillSlot " );
-   for( x = 0; x < MAX_SKILL_SLOT; x++ )
-      fprintf( fp, " %d", ch->skill_slots[x] );
-   fprintf( fp, "\n\n" );
-
    for( sn = 0; sn < ch->top_sn; sn++ )
    {
       if( !ch->pc_skills[sn]->name || ch->pc_skills[sn]->name[0] == '\0' )
@@ -566,6 +561,12 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       fprintf( fp, "#SKILL\n" );
       fwrite_skill( fp, ch->pc_skills[sn] );
    }
+
+   fprintf( fp, "\nSkillSlot " );
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
+      fprintf( fp, " %d", get_player_skill_sn( ch, ch->skill_slots[x]->name ) );
+   fprintf( fp, "\n\n" );
+
 
 #ifdef IMC
    imc_savechar( ch, fp );
@@ -777,7 +778,7 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
    loading_char = ch;
 
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
-      ch->skill_slots[x] = -1;
+      ch->skill_slots[x] = NULL;
 
    CREATE( ch->pcdata, PC_DATA, 1 );
    d->character = ch;
@@ -1500,7 +1501,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             {
                int x;
                for( x = 0; x < MAX_SKILL_SLOT; x++ )
-                  ch->skill_slots[x] = fread_number( fp );
+                  ch->skill_slots[x] = ch->pc_skills[fread_number( fp )];
                fMatch = TRUE;
                break;
             }

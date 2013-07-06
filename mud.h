@@ -2270,7 +2270,7 @@ struct char_data
    int fom; /* Mob Frame of Mind */
    double next_thought; /* when a mob will have its next thought */
    SKILLTYPE *pc_skills[MAX_PC_SKILL];
-   int skill_slots[MAX_SKILL_SLOT];
+   SKILLTYPE *skill_slots[MAX_SKILL_SLOT];
    int top_sn;
    DISC_DATA *equipped_disciplines[MAX_EQUIPPED_DISCIPLINE];
    DISC_DATA *known_disciplines[MAX_DISCIPLINE];
@@ -4629,6 +4629,9 @@ void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill );
 void skills_checksum( CHAR_DATA *ch );
 void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor );
 void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable );
+void update_skill args( ( SKILLTYPE * skill ) );
+void update_skills args( ( CHAR_DATA *ch ) );
+void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
@@ -4774,10 +4777,11 @@ void change_mind( CHAR_DATA *ch, int fom );
 double get_next_thought( CHAR_DATA *ch );
 int get_num_skills( CHAR_DATA *ch );
 bool is_charging( CHAR_DATA *ch );
-bool is_skill_set( CHAR_DATA *ch, int gsn );
+bool is_skill_set( CHAR_DATA *ch, SKILLTYPE *skill );
 int get_player_skill_sn( CHAR_DATA *ch, const char *argument );
-int get_skill_slot( CHAR_DATA *ch, int gsn );
-bool is_skill_usable( CHAR_DATA *ch, int gsn );
+int get_skill_slot( CHAR_DATA *ch, SKILLTYPE *skill );
+int get_skill_slot_level( CHAR_DATA *ch, SKILLTYPE *skill );
+bool is_skill_usable( CHAR_DATA *ch, SKILLTYPE *skill );
 DISC_DATA *get_discipline( const char *disc_name );
 int get_cost_type( const char *argument );
 int get_factor_type( const char *factor );

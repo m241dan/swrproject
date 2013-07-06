@@ -117,6 +117,7 @@ void sort_player_skill_table(  CHAR_DATA *ch )
  */
 void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
 {
+   FACTOR_DATA *factor;
    AFFECT_DATA *aff;
 
    fprintf( fpout, "Name         %s~\n", skill->name );
@@ -206,6 +207,8 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    {
       fprintf( fpout, "Minlevel     %d\n", skill->min_level );
    }
+   for( factor = skill->first_factor; factor; factor = factor->next )
+      fprintf( fpout, "FactorID     %d\n", factor->id );
    fprintf( fpout, "End\n\n" );
 }
 
@@ -456,6 +459,12 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'F':
+            if( !str_cmp( word, "FactorID" ) )
+            {
+               FACTOR_DATA *factor = copy_factor( get_factor_from_id( fread_number( fp ) ) );
+               LINK( factor, skill->first_factor, skill->last_factor, next, prev );
+               fMatch = TRUE;
+            }
             KEY( "Flags", skill->flags, fread_number( fp ) );
             break;
 

@@ -4134,6 +4134,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
 
       addfactor( ch, skill, factor );
+      update_skill( skill );
       send_to_char( "Factor added.\r\n", ch );
       return;
    }
@@ -4167,6 +4168,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
 
       remfactor( ch, skill, factor, TRUE );
+      update_skill( skill );
       send_to_char( "Factor removed.\r\n", ch );
       return;
    }
@@ -4198,7 +4200,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
            ch_printf( ch, "%s(%-3d) %-22.22s&w",
                       ch->skill_level[COMBAT_ABILITY] >= slot ? "&C" : "&z",
                       slot,
-                      ch->skill_slots[x] != -1 ? ch->pc_skills[ch->skill_slots[x]]->name : "none" );
+                      ch->skill_slots[x] != NULL ? ch->skill_slots[x]->name : "none" );
           if( ++column == 3 )
           {
              column = 0;
@@ -4212,9 +4214,9 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             break;
          if( ch->pc_skills[x]->name[0] != '\0' )
          {
-            if( !is_skill_usable( ch, x ) )
+            if( !is_skill_usable( ch, ch->pc_skills[x] ) )
                sprintf( buf, "&zInc" );
-            else if( is_skill_set( ch, x ) )
+            else if( is_skill_set( ch, ch->pc_skills[x] ) )
                sprintf( buf, "&zSet" );
             else
                sprintf( buf, "&CAva" );
@@ -4246,7 +4248,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
       else if( !str_cmp( arg2, "all" ) )
       {
          for( x = 0; x < MAX_SKILL_SLOT; x++ )
-            ch->skill_slots[x] = -1;
+            ch->skill_slots[x] = NULL;
          send_to_char( "All skills unset.\r\n", ch );
       }
       else if( !str_cmp( arg2, "slot" ) )
@@ -4258,7 +4260,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             return;
          }
          slot--;
-         ch->skill_slots[slot] = -1;
+         ch->skill_slots[slot] = NULL;
          send_to_char( "Skill unset\r\n", ch );
       }
       else if( !str_cmp( arg2, "level" ) )
@@ -4270,7 +4272,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             return;
          }
          slot /= 5;
-         ch->skill_slots[( slot - 1 )] = -1;
+         ch->skill_slots[( slot - 1 )] = NULL;
          send_to_char( "Skill unset\r\n", ch );
       }
       else
@@ -4280,7 +4282,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             send_to_char( "You have no skill with that name.\r\n", ch );
             return;
          }
-         if( !is_skill_set( ch, gsn ) )
+         if( !is_skill_set( ch, ch->pc_skills[gsn] ) )
          {
             send_to_char( "No skill with that name is set.\r\n", ch );
             return;
@@ -4306,7 +4308,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             send_to_char( "You have no skill with that name.\r\n", ch );
             return;
          }
-         if( !is_skill_usable( ch, gsn ) )
+         if( !is_skill_usable( ch, ch->pc_skills[gsn] ) )
          {
             send_to_char( "Skill is not usable.\r\n", ch );
             return;
@@ -4318,7 +4320,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
                send_to_char( "Not a valid slot.\r\n", ch );
                return;
             }
-            ch->skill_slots[(slot / 5) - 1] = gsn;
+            ch->skill_slots[(slot / 5) - 1] = ch->pc_skills[gsn];
             ch_printf( ch, "%s set at level %d\r\n", ch->pc_skills[gsn]->name, slot );
          }
          else if( !str_cmp( arg3, "slot" ) )
@@ -4328,7 +4330,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
               send_to_char( "Not a valid slot.\r\n", ch );
               return;
            }
-           ch->skill_slots[(slot - 1)] = gsn;
+           ch->skill_slots[(slot - 1)] = ch->pc_skills[gsn];
            ch_printf( ch, "%s set at slot %d\r\n", ch->pc_skills[gsn]->name, slot );
          }
          else
@@ -4561,12 +4563,12 @@ void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill )
       return;
    }
 
-   if( ( slot = get_skill_slot( ch, gsn ) ) == -1 )
+   if( ( slot = get_skill_slot( ch, ch->pc_skills[gsn] ) ) == -1 )
    {
       bug( "%s: skill not set to a slot, can't unset.", __FUNCTION__ );
       return;
    }
-   ch->skill_slots[slot] = -1;
+   ch->skill_slots[slot] = NULL;
    ch_printf( ch, "%s Unset.", skill->name );
    save_char_obj( ch );
    saving_char = NULL;
@@ -4626,22 +4628,93 @@ void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
 {
    UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
    LINK( factor, skill->first_factor, skill->last_factor, next, prev );
- //  factor_apply( skill, factor, TRUE );
+   factor_to_skill( skill, factor, TRUE );
    return;
 }
 
 void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable )
 {
+   UNLINK( factor, skill->first_factor, skill->last_factor, next, prev );
+   if( MakeAvailable )
+      LINK( factor, ch->first_factor, ch->last_factor, next, prev );
+   else
+   {
+      factor->owner = NULL;
+      DISPOSE( factor );
+   }
+   factor_to_skill( skill, factor, FALSE );
 }
 
-void factor_apply( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
+void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
 {
-/*   AFFECT_DATA *affect;
+   AFFECT_DATA *affect, *next_affect;
+   int mod = factor->modifier;
+
+   if( !Add )
+      mod *= -1;
 
    switch( factor->factor_type )
    {
       case APPLY_FACTOR:
-         CREATE( affect, AFF_DATA, 1 );
-         
-   }*/
+         if( Add )
+         {
+            CREATE( affect, AFFECT_DATA, 1 );
+            affect->duration = factor->duration;
+            affect->location = factor->location;
+            affect->modifier = factor->modifier;
+            affect->bitvector = factor->affect;
+            affect->factor_src = factor;
+            affect->apply_type = factor->apply_type;
+            LINK( affect, skill->first_affect, skill->last_affect, next, prev );
+            break;
+         }
+         else
+         {
+            for( affect = skill->first_affect; affect; affect = next_affect )
+            {
+               next_affect = affect->next;
+               if( affect->factor_src == factor )
+               {
+                     UNLINK( affect, skill->first_affect, skill->last_affect, next, prev );
+                     affect->from = NULL;
+                     affect->factor_src = NULL;
+                     DISPOSE( affect );
+               }
+            }
+            break;
+         }
+
+      case STAT_FACTOR:
+         skill->stat_boost += mod;
+         break;
+      case ATTACK_FACTOR:
+         skill->attack_boost += mod;
+         break;
+      case DEFENSE_FACTOR:
+         skill->defense_mod += mod;
+         break;
+      case BASEROLL_FACTOR:
+         skill->base_roll_boost += mod;
+         break;
+   }
+}
+
+void update_skills( CHAR_DATA *ch )
+{
+   int x;
+
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
+      if( ch->skill_slots[x] != NULL )
+         update_skill( ch->skill_slots[x] );
+
+   return;
+}
+
+void update_skill( SKILLTYPE *skill )
+{
+}
+
+int get_slot_level( SKILLTYPE *skill )
+{
+   return 0;
 }

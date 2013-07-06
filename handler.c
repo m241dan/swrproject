@@ -4631,12 +4631,12 @@ bool is_charging( CHAR_DATA *ch )
    return FALSE;
 }
 
-bool is_skill_set( CHAR_DATA *ch, int gsn )
+bool is_skill_set( CHAR_DATA *ch, SKILLTYPE *skill )
 {
    int x;
 
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
-      if( ch->skill_slots[x] == gsn )
+      if( ch->skill_slots[x] == skill )
          return TRUE;
    return FALSE;
 }
@@ -4656,23 +4656,25 @@ int get_player_skill_sn( CHAR_DATA *ch, const char *argument )
    return -1;
 }
 
-int get_skill_slot( CHAR_DATA *ch, int gsn )
+int get_skill_slot( CHAR_DATA *ch, SKILLTYPE *skill )
 {
    int x;
 
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
-      if( ch->skill_slots[x] == gsn )
+      if( ch->skill_slots[x] == skill )
          return x;
    return -1;
 }
 
-bool is_skill_usable( CHAR_DATA *ch, int gsn )
+int get_skill_slot_level( CHAR_DATA *ch, SKILLTYPE *skill )
+{
+   return ( ( get_skill_slot( ch, skill ) + 1 ) * 5 );
+}
+
+bool is_skill_usable( CHAR_DATA *ch, SKILLTYPE *skill )
 {
    FACTOR_DATA *factor;
-   SKILLTYPE *skill;
 
-   if( ( skill = ch->pc_skills[gsn] ) == NULL )
-      return FALSE;
    if( skill->type == SKILL_UNSET || skill->style == STYLE_UNSET || skill->target == TAR_CHAR_UNSET || ( skill->min_mana == 0 && skill->min_move == 0 ) )
       return FALSE;
    for( factor = skill->first_factor; factor; factor = factor->next )
