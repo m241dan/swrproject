@@ -4057,6 +4057,10 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
             ch_printf( ch, " %s", d_type[x] );
       send_to_char( "\r\n", ch );
 
+      ch_printf( ch, "Base Roll Boost: %-10f Stat %d%% %s Added to Base Roll\r\nAttack Boost: %-10f Defense Boost: %-10f\r\n",
+                 skill->base_roll_boost, ((int)skill->stat_boost%1), a_types[(int)(skill->stat_boost/1)],
+                 skill->attack_boost, skill->defense_mod );
+
       for( factor = skill->first_factor, x = 0; factor; factor = factor->next )
       {
          if( factor->factor_type == APPLY_FACTOR )
