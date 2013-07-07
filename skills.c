@@ -4187,6 +4187,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
             if( xIS_SET( ch->avail_skilltypes, x ) )
                ch_printf( ch, " %s", skill_tname[x] );
          ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_skilltypes ) ? "none" : "" );
+         return;
       }
       if( !xIS_SET( ch->avail_skilltypes, value ) )
       {
@@ -4207,6 +4208,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
             if( xIS_SET( ch->avail_costtypes, x ) )
                ch_printf( ch, " %s", cost_type[x] );
          ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_costtypes ) ? "none" : "" );
+         return;
       }
       if( !xIS_SET( ch->avail_costtypes, value ) )
       {
@@ -4227,6 +4229,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
             if( xIS_SET( ch->avail_damtypes, x ) )
                ch_printf( ch, " %s", d_type[x] );
          ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_damtypes ) ? "none" : "" );
+         return;
       }
       if( !xIS_SET( ch->avail_damtypes, value ) )
       {
@@ -4247,6 +4250,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
             if( xIS_SET( ch->avail_targettypes, value ) )
                ch_printf( ch, " %s", target_type[x] );
          ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_targettypes ) ? "none" : "" );
+         return;
       }
       if( !xIS_SET( ch->avail_targettypes, value ) )
       {
@@ -4266,6 +4270,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
             if( xIS_SET( ch->avail_skillstyles, value ) )
                ch_printf( ch, " %s", style_type[x] );
          ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_skillstyles ) ? "none" : "" );
+         return;
       }
       if( !xIS_SET( ch->avail_skillstyles, value ) )
       {
