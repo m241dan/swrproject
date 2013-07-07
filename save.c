@@ -1125,6 +1125,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                   break;
                }
                LINK( factor, ch->first_factor, ch->last_factor, next, prev );
+               fMatch = TRUE;
                break;
             }
             KEY( "AvailableSkillStyles", ch->avail_skillstyles, fread_bitvector( fp ) );
