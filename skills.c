@@ -4587,6 +4587,9 @@ void skills_checksum( CHAR_DATA * ch )
 
    for( x = 0; x < MAX_PC_SKILL; x++ )
    {
+      if( !ch->pc_skills[x] )
+         continue;
+
       if( !xIS_SET( ch->avail_targettypes, ch->pc_skills[x]->target ) )
       {
          ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
