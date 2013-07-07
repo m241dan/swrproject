@@ -4139,7 +4139,8 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
 
       addfactor( ch, skill, factor );
-      update_skill( ch, skill );
+      if( is_skill_set( ch, skill ) )
+         update_skill( ch, skill );
       send_to_char( "Factor added.\r\n", ch );
       return;
    }
@@ -4173,7 +4174,8 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
 
       remfactor( ch, skill, factor, TRUE );
-      update_skill( ch, skill );
+      if( is_skill_set( ch, skill ) )
+         update_skill( ch, skill );
       send_to_char( "Factor removed.\r\n", ch );
       return;
    }
@@ -4237,6 +4239,8 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          return;
       }
       xTOGGLE_BIT( skill->damtype, value );
+      if( is_skill_set( ch, skill ) )
+         update_skill( ch, skill );
       send_to_char( "Damage Type Set\r\n", ch );
       return;
    }

@@ -4675,7 +4675,7 @@ bool is_skill_usable( CHAR_DATA *ch, SKILLTYPE *skill )
 {
    FACTOR_DATA *factor;
 
-   if( skill->type == SKILL_UNSET || skill->style == STYLE_UNSET || skill->target == TAR_CHAR_UNSET || ( skill->min_mana == 0 && skill->min_move == 0 ) )
+   if( skill->type == SKILL_UNSET || skill->style == STYLE_UNSET || skill->target == TAR_CHAR_UNSET || xIS_EMPTY( skill->cost ) )
       return FALSE;
    for( factor = skill->first_factor; factor; factor = factor->next )
       if( !is_discipline_set( ch, factor->owner ) )
