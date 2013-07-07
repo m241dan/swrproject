@@ -8468,6 +8468,14 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg2, "cost" ) )
    {
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Valid Cost Types:", ch );
+         for( x = 0; x < MAX_COST; x++ );
+            ch_printf( ch, " %s", cost_type[x] );
+         send_to_char( "\r\n", ch );
+         return;
+      }
       while( argument[0] != '\0' )
       {
          argument = one_argument( argument, arg3 );
@@ -8485,6 +8493,12 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg2, "skill_type" ) )
    {
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Valid Skill Types: Skill or Spell", ch );
+         return;
+      }
+
       while( argument[0] != '\0' )
       {
          argument = one_argument( argument, arg3 );
@@ -8502,6 +8516,14 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg2, "skill_style" ) )
    {
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Valid Skill Styles:", ch );
+         for( x = 0; x < STYLE_MAX; x++ )
+            ch_printf( ch, " %s", style_type[x] );
+         send_to_char( "\r\n", ch );
+      }
+
       while( argument[0] != '\0' ) 
       {
          argument = one_argument( argument, arg3 );
@@ -8519,7 +8541,15 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg2, "damtype" ) )
    {
-      while( argument[0] != '\0' ) 
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Valid DamTypes:", ch );
+         for( x = 0; x < MAX_DAMTYPE; x++ )
+            ch_printf( ch, " %s", d_type[x] );
+         send_to_char( "\r\n", ch );
+      }
+
+      while( argument[0] != '\0' )
       {
          argument = one_argument( argument, arg3 );
          if( ( value = get_damtype( arg3 ) ) == -1 )
@@ -8536,7 +8566,15 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg2, "target_type" ) )
    {
-      while( argument[0] != '\0' ) 
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Valid Target Types:", ch );
+         for( x = 0; x < TAR_CHAR_MAX; x++ )
+            ch_printf( ch, " %s", target_type[x] );
+         send_to_char( "\r\n", ch );
+      }
+
+      while( argument[0] != '\0' )
       {
          argument = one_argument( argument, arg3 );
          if( ( value = get_starget( arg3 ) ) == -1 )
@@ -8663,7 +8701,8 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          }
       }
    }
-
+   do_dset( ch, "" );
+   return;
 }
 
 void do_discipline( CHAR_DATA *ch, const char *argument )
