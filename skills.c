@@ -4200,7 +4200,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
            ch_printf( ch, "%s(%-3d) %-22.22s&w",
                       ch->skill_level[COMBAT_ABILITY] >= slot ? "&C" : "&z",
                       slot,
-                      ch->skill_slots[x] != NULL ? ch->skill_slots[x]->name : "none" );
+                      ch->skill_slots[x] ? ch->skill_slots[x]->name : "none" );
           if( ++column == 3 )
           {
              column = 0;

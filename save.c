@@ -564,8 +564,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
 
    fprintf( fp, "\nSkillSlot " );
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
-      if( ch->skill_slots[x] != NULL )
-         fprintf( fp, " %d", get_player_skill_sn( ch, ch->skill_slots[x]->name ) );
+         fprintf( fp, " %d", ch->skill_slots[x] ? get_player_skill_sn( ch, ch->skill_slots[x]->name ) : -1 );
    fprintf( fp, "\n\n" );
 
 
@@ -1500,9 +1499,12 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             KEY( "ShortDescr", ch->short_descr, fread_string( fp ) );
             if( !str_cmp( word, "SkillSlot" ) )
             {
-               int x;
+               int x, gsn;
                for( x = 0; x < MAX_SKILL_SLOT; x++ )
-                  ch->skill_slots[x] = ch->pc_skills[fread_number( fp )];
+                  if( ( gsn = fread_number( fp ) ) != -1 ) 
+                     ch->skill_slots[x] = ch->pc_skills[gsn];
+                  else
+                     ch->skill_slots[x] = NULL;
                fMatch = TRUE;
                break;
             }
