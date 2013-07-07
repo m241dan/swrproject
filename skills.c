@@ -4525,6 +4525,9 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
          ch->equipped_disciplines[x] = NULL;
          continue;
       }
+      if( ch->equipped_disciplines[x] == NULL )
+         continue;
+
       xSET_BITS( ch->avail_costtypes, ch->equipped_disciplines[x]->cost );
       xSET_BITS( ch->avail_skilltypes, ch->equipped_disciplines[x]->skill_type );
       xSET_BITS( ch->avail_skillstyles, ch->equipped_disciplines[x]->skill_style );

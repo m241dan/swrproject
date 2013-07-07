@@ -8471,7 +8471,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       if( argument[0] == '\0' )
       {
          send_to_char( "Valid Cost Types:", ch );
-         for( x = 0; x < MAX_COST; x++ );
+         for( x = 0; x < MAX_COST; x++ )
             ch_printf( ch, " %s", cost_type[x] );
          send_to_char( "\r\n", ch );
          return;
@@ -8700,6 +8700,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                           factor->modifier );
          }
       }
+      return;
    }
    do_dset( ch, "" );
    return;
