@@ -204,7 +204,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
 
    fprintf( fpout, "DamageDetails   %f %f %f %f\n", skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
    if( !xIS_EMPTY( skill->damtype ) )
-      fprintf( fpout, "Damtype         %s", print_bitvector( &skill->damtype ) );
+      fprintf( fpout, "Damtype         %s\n", print_bitvector( &skill->damtype ) );
    if( skill->type != SKILL_HERB )
    {
       fprintf( fpout, "Minlevel     %d\n", skill->min_level );
