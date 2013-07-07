@@ -3909,7 +3909,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    FACTOR_DATA *factor;
    char arg[MAX_INPUT_LENGTH];
    char arg2[MAX_INPUT_LENGTH];
-   int sn, x;
+   int sn, x, value;
 
    argument = one_argument( argument, arg );
 
@@ -3919,13 +3919,13 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       return;
    }
 
-   if( arg[0] == '\0' || arg2[0] == '\0' )
+   if( arg[0] == '\0' || argument[0] == '\0' )
    {
       send_to_char( "Proper usage: skillcraft <skill> <command> <field> <value>\r\n", ch );
       send_to_char( "Or:           skillcraft create <skill>\r\n", ch );
       send_to_char( "Or:           skillcraft delete <skill>(Not yet in)\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
-      send_to_char( "  show name addfactor remfactor type taget style cost damtype\r\n\r\n", ch );
+      send_to_char( "  show name addfactor remfactor type target style cost damtype\r\n\r\n", ch );
 
       send_to_char( "Settable Skill Types:", ch );
       for( x = 0; x < MAX_SKILLTYPE; x++ )
@@ -4103,6 +4103,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
                        factor->modifier );
          x++;
       }
+      return;
    }
 
    if( !str_cmp( arg2, "addfactor" ) )
@@ -4173,6 +4174,105 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "type" ) )
+   {
+      if( argument[0] == '\0' || ( value = get_skill( argument ) ) == 0 )
+      {
+         send_to_char( "Available Skill Types:", ch );
+         for( x = 0; x < MAX_SKILLTYPE; x++ )
+            if( xIS_SET( ch->avail_skilltypes, x ) )
+               ch_printf( ch, " %s", skill_tname[x] );
+         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_skilltypes ) ? "none" : "" );
+      }
+      if( !xIS_SET( ch->avail_skilltypes, value ) )
+      {
+         send_to_char( "Skill Type not available\r\n", ch );
+         return;
+      }
+      skill->type = value;
+      send_to_char( "Skill Type Set\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "cost" ) )
+   {
+      if( argument[0] == '\0' || ( value = get_cost_type( argument ) ) == -1 )
+      {
+         send_to_char( "Available Cost Types:", ch );
+         for( x = 0; x < MAX_COST; x++ )
+            if( xIS_SET( ch->avail_costtypes, x ) )
+               ch_printf( ch, " %s", cost_type[x] );
+         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_costtypes ) ? "none" : "" );
+      }
+      if( !xIS_SET( ch->avail_costtypes, value ) )
+      {
+         send_to_char( "Cost Type not available\r\n", ch );
+         return;
+      }
+      xTOGGLE_BIT( skill->cost, value );
+      send_to_char( "Cost Type Set\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "damtype" ) )
+   {
+      if( argument[0] == '\0' || ( value = get_damtype( argument ) ) == -1 )
+      {
+         send_to_char( "Available Damage Types:", ch );
+         for( x = 0; x < MAX_DAMTYPE; x++ )
+            if( xIS_SET( ch->avail_damtypes, x ) )
+               ch_printf( ch, " %s", d_type[x] );
+         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_damtypes ) ? "none" : "" );
+      }
+      if( !xIS_SET( ch->avail_damtypes, value ) )
+      {
+         send_to_char( "Damage Type not available\r\n", ch );
+         return;
+      }
+      xTOGGLE_BIT( skill->damtype, value );
+      send_to_char( "Damage Type Set\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "target" ) )
+   {
+      if( argument[0] == '\0' || ( value = get_starget( argument ) ) == -1 )
+      {
+         send_to_char( "Available Target Types:", ch );
+         for( x = 0; x < TAR_CHAR_MAX; x++ )
+            if( xIS_SET( ch->avail_targettypes, value ) )
+               ch_printf( ch, " %s", target_type[x] );
+         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_targettypes ) ? "none" : "" );
+      }
+      if( !xIS_SET( ch->avail_targettypes, value ) )
+      {
+         send_to_char( "Target Type not available\r\n", ch );
+         return;
+      }
+      skill->target = value;
+      send_to_char( "Target Type Set\r\n", ch );
+      return;
+   }
+   if( !str_cmp( arg2, "style" ) )
+   {
+      if( argument[0] == '\0' || ( value = get_style_type( argument ) ) == -1 )
+      {
+         send_to_char( "Available Skill Styles:", ch );
+         for( x = 0; x < STYLE_MAX; x++ )
+            if( xIS_SET( ch->avail_skillstyles, value ) )
+               ch_printf( ch, " %s", style_type[x] );
+         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_skillstyles ) ? "none" : "" );
+      }
+      if( !xIS_SET( ch->avail_skillstyles, value ) )
+      {
+         send_to_char( "Skill Style not available\r\n", ch );
+         return;
+      }
+      skill->style = value;
+      send_to_char( "Skill Style Set\r\n", ch );
+      return;
+   }
+
    send_to_char( "Improper Usage...\r\n", ch );
    do_skillcraft( ch, "" );
    return;
@@ -4231,7 +4331,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
              }
          }
       }
-      send_to_char( "\r\nOther Usages: skills <command>\r\n", ch );
+      ch_printf( ch, "%s\r\nOther Usages: skills <command>\r\n", column != 0 ? "\r\n" : "" );
       send_to_char( "  Commands: unset set\r\n", ch );
       return;
    }
