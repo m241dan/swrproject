@@ -556,7 +556,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    for( sn = 0; sn < ch->top_sn; sn++ )
    {
       if( !ch->pc_skills[sn]->name || ch->pc_skills[sn]->name[0] == '\0' )
-         break;
+         continue;
 
       fprintf( fp, "#SKILL\n" );
       fwrite_skill( fp, ch->pc_skills[sn] );

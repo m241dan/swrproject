@@ -3912,7 +3912,6 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    int sn, x;
 
    argument = one_argument( argument, arg );
-   argument = one_argument( argument, arg2 );
 
    if( IS_NPC( ch ) )
    {
@@ -4015,7 +4014,6 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          send_to_char( "You have too many skills.\r\n", ch );
          return;
       }
-
       CREATE( skill, SKILLTYPE, 1 );
       skill->name = str_dup( argument );
       skill->noun_damage = str_dup( "" );
@@ -4031,6 +4029,8 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       saving_char = NULL;
       return;
    }
+
+   argument = one_argument( argument, arg2 );
 
    if( ( sn = get_player_skill_sn( ch, arg ) ) == -1 )
    {
@@ -4479,8 +4479,10 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
    }
 
    for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+   {
       if( ch->equipped_disciplines[x] == NULL )
          ch->equipped_disciplines[x] = disc;
+   }
 
    for( factor = disc->first_factor; factor; factor = factor->next )
    {
@@ -4502,6 +4504,7 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
+   FACTOR_DATA *factor;
    int x;
 
    if( !is_discipline_set( ch, disc ) )
@@ -4533,6 +4536,13 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
       xSET_BITS( ch->avail_skillstyles, ch->equipped_disciplines[x]->skill_style );
       xSET_BITS( ch->avail_damtypes, ch->equipped_disciplines[x]->damtype );
       xSET_BITS( ch->avail_targettypes, ch->equipped_disciplines[x]->target_type );
+   }
+
+   for( factor = ch->first_factor; factor; factor = factor->next )
+   {
+      UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
+      factor->owner = NULL;
+      DISPOSE( factor );
    }
 
    skills_checksum( ch );
