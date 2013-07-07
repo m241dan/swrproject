@@ -399,9 +399,6 @@ void boot_db( bool fCopyOver )
    log_string( "Loading socials" );
    load_socials(  );
 
-   log_string( "Loading disciplines" );
-   load_disciplines(  );
-
    log_string( "Loading skill table" );
    load_skill_table(  );
    sort_skill_table(  );
@@ -635,6 +632,9 @@ void boot_db( bool fCopyOver )
       load_bounties(  );
       log_string( "Loading governments" );
       load_planets(  );
+      log_string( "Loading disciplines" );
+      load_disciplines(  );
+
       if( fCopyOver )
       {
          log_string( "Loading world state..." );

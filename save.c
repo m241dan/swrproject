@@ -564,7 +564,8 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
 
    fprintf( fp, "\nSkillSlot " );
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
-      fprintf( fp, " %d", get_player_skill_sn( ch, ch->skill_slots[x]->name ) );
+      if( ch->skill_slots[x] != NULL )
+         fprintf( fp, " %d", get_player_skill_sn( ch, ch->skill_slots[x]->name ) );
    fprintf( fp, "\n\n" );
 
 
