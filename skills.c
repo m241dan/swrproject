@@ -4593,7 +4593,10 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
    for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
    {
       if( ch->equipped_disciplines[x] == NULL )
+      {
          ch->equipped_disciplines[x] = disc;
+         break;
+      }
    }
 
    update_disciplines( ch );
@@ -4725,9 +4728,14 @@ void skills_checksum( CHAR_DATA * ch )
            free_factor( factor );
            continue;
          }
+         else
+            free_factor( factor );
+
          if( !is_discipline_set( ch, updated_factor->owner ) )
          {
             ch_printf( ch, "You no longer meet the factor requirements for %s.\r\n", ch->pc_skills[x]->name );
+            if( !player_has_discipline( ch, updated_factor->owner ) )
+               remfactor( ch, ch->pc_skills[x], updated_factor, FALSE );
             if( is_skill_set( ch, ch->pc_skills[x] ) )
                unset_skill( ch, ch->pc_skills[x] );
             continue;
@@ -4993,27 +5001,22 @@ void update_disciplines( CHAR_DATA *ch, int changed )
          break;
 
       case DISC_FACTORS:
-         for( factor = ch->first_factor; factor; factor = next_factor )
+         for( factor = ch->first_factor; factor; factor = next_factor ) /* Unlink and dispose all the old factors */
          {
             next_factor = factor->next;
             UNLINK( factor, ch->first_factor, ch->last_factor, next, prev ); /* Unlink the "Old" Factor */
-            if( (  updated_factor = copy_factor( get_factor_from_id( factor->id ) ) ) == NULL ) /* If that factor no longer exists, destroy old one and continue */
-            {
-               free_factor( factor );
+            free_factor( factor );
+         }
+         for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+         {
+            if( ch->equipped_disciplines[x] == NULL )
                continue;
-            }
-            free_factor( factor );/* Dispose of old Factor */
-            if( !is_discipline_set( ch, updated_factor->owner ) ) /* If the Factor that discipline belongs too is not set, dispose of it */
+
+            for( factor = ch->equipped_disciplines[x]->first_factor; factor; factor = factor->next )
             {
-               free_factor( updated_factor );
-               continue;
+               updated_factor = copy_factor( factor );
+               LINK( updated_factor, ch->first_factor, ch->last_factor, next, prev );
             }
-            if( has_factor_already( ch, updated_factor ) ) /* bug checking */
-            {
-               free_factor( updated_factor );
-                continue;
-            }
-            LINK( updated_factor, ch->first_factor, ch->last_factor, next, prev ); /* Link the Updated Factor because disc is set and we have an updated version */
          }
          break;
    }
