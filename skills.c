@@ -4597,21 +4597,7 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
          ch->equipped_disciplines[x] = disc;
    }
 
-   for( factor = disc->first_factor; factor; factor = factor->next )
-   {
-      if( has_factor_already( ch, factor ) ) /* Bug Checking */
-         continue;
-      FACTOR_DATA *new_factor;
-      new_factor = copy_factor( factor );
-      LINK( new_factor, ch->first_factor, ch->last_factor, next, prev );
-   }
-
-   xSET_BITS( ch->avail_costtypes, disc->cost );
-   xSET_BITS( ch->avail_skilltypes, disc->skill_type );
-   xSET_BITS( ch->avail_skillstyles, disc->skill_style );
-   xSET_BITS( ch->avail_damtypes, disc->damtype );
-   xSET_BITS( ch->avail_targettypes, disc->target_type );
-
+   update_disciplines( ch );
    save_char_obj( ch );
    saving_char = NULL;
    return;
@@ -4619,7 +4605,6 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
-   FACTOR_DATA *factor, *next_factor;
    int x;
 
    if( !is_discipline_set( ch, disc ) )
@@ -4630,41 +4615,14 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 
    /* Remove the Bits and then we will re-add the still equipped disciplines bits */
 
-   xCLEAR_BITS( ch->avail_targettypes );
-   xCLEAR_BITS( ch->avail_damtypes );
-   xCLEAR_BITS( ch->avail_costtypes );
-   xCLEAR_BITS( ch->avail_skilltypes );
-   xCLEAR_BITS( ch->avail_skillstyles );
-
    for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
-   {
       if( ch->equipped_disciplines[x] == disc )
       {
          ch->equipped_disciplines[x] = NULL;
-         continue;
+         break;
       }
-      if( ch->equipped_disciplines[x] == NULL )
-         continue;
 
-      xSET_BITS( ch->avail_costtypes, ch->equipped_disciplines[x]->cost );
-      xSET_BITS( ch->avail_skilltypes, ch->equipped_disciplines[x]->skill_type );
-      xSET_BITS( ch->avail_skillstyles, ch->equipped_disciplines[x]->skill_style );
-      xSET_BITS( ch->avail_damtypes, ch->equipped_disciplines[x]->damtype );
-      xSET_BITS( ch->avail_targettypes, ch->equipped_disciplines[x]->target_type );
-   }
-
-   for( factor = ch->first_factor; factor; factor = next_factor )
-   {
-      next_factor = factor->next;
-      if( factor->owner == disc )
-      {
-         UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
-         factor->owner = NULL;
-         DISPOSE( factor );
-      }
-   }
-
-   skills_checksum( ch );
+   update_disciplines( ch );
    save_char_obj( ch );
    saving_char = NULL;
    return;
@@ -4711,9 +4669,11 @@ void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill )
 
 void skills_checksum( CHAR_DATA * ch )
 {
-   FACTOR_DATA *factor;
+   FACTOR_DATA *factor, *next_factor, *updated_factor;
    int x;
 
+   if( IS_NPC( ch ) )
+      return;
 
    for( x = 0; x < MAX_SKILL_SLOT; x++ )
    {
@@ -4755,15 +4715,27 @@ void skills_checksum( CHAR_DATA * ch )
             unset_skill( ch, ch->pc_skills[x] );
          ch->pc_skills[x]->style = STYLE_UNSET;
       }
-      for( factor = ch->pc_skills[x]->first_factor; factor; factor = factor->next )
-         if( !is_discipline_set( ch, factor->owner ) )
+      for( factor = ch->pc_skills[x]->first_factor; factor; factor = next_factor )
+      {
+         next_factor = factor->next;
+         UNLINK( factor, ch->pc_skills[x]->first_factor, ch->pc_skills[x]->last_factor, next, prev ); /* Remove Factor and Its affects on skills */
+         factor_to_skill( ch->pc_skills[x], factor, FALSE );
+
+         if( ( updated_factor = copy_factor( get_factor_from_id( factor->id ) ) ) == NULL )
+         {
+           free_factor( factor );
+           continue;
+         }
+         if( !is_discipline_set( ch, updated_factor->owner ) )
          {
             ch_printf( ch, "You no longer meet the factor requirements for %s.\r\n", ch->pc_skills[x]->name );
             if( is_skill_set( ch, ch->pc_skills[x] ) )
                unset_skill( ch, ch->pc_skills[x] );
-            remfactor( ch, ch->pc_skills[x], factor, FALSE );
-            break;
+            continue;
          }
+         LINK( updated_factor, ch->pc_skills[x]->first_factor, ch->pc_skills[x]->last_factor, next, prev );
+         factor_to_skill( ch->pc_skills[x], factor, TRUE );
+      }
    }
 }
 
@@ -4777,15 +4749,13 @@ void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
 
 void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable )
 {
+   factor_to_skill( skill, factor, FALSE );
    UNLINK( factor, skill->first_factor, skill->last_factor, next, prev );
    if( MakeAvailable )
       LINK( factor, ch->first_factor, ch->last_factor, next, prev );
    else
-   {
-      factor->owner = NULL;
-      DISPOSE( factor );
-   }
-   factor_to_skill( skill, factor, FALSE );
+      free_factor( factor );
+   return;
 }
 
 void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
@@ -4965,4 +4935,80 @@ bool has_factor_already( CHAR_DATA *ch, FACTOR_DATA *factor ) /* Bug Checking Fu
       if( ch_factor == factor )
          return TRUE;
    return FALSE;
+}
+
+void update_disciplines( CHAR_DATA *ch )
+{
+   update_disciplines( ch, DISC_TYPES );
+   update_disciplines( ch, DISC_FACTORS );
+   return;
+}
+
+void update_disciplines( CHAR_DATA *ch, int changed )
+{
+   FACTOR_DATA *factor, *next_factor, *updated_factor;
+   int x;
+
+   if( IS_NPC( ch ) )
+   {
+      bug( "Trying to run %s on NPC.", __FUNCTION__ );
+      return;
+   }
+
+   switch( changed )
+   {
+      case DISC_TYPES:
+         xCLEAR_BITS( ch->avail_targettypes );
+         xCLEAR_BITS( ch->avail_damtypes );
+         xCLEAR_BITS( ch->avail_costtypes );
+         xCLEAR_BITS( ch->avail_skilltypes );
+         xCLEAR_BITS( ch->avail_skillstyles );
+
+         for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+         {
+            if( ch->equipped_disciplines[x] == NULL )
+               continue;
+
+            xSET_BITS( ch->avail_costtypes, ch->equipped_disciplines[x]->cost );
+            xSET_BITS( ch->avail_skilltypes, ch->equipped_disciplines[x]->skill_type );
+            xSET_BITS( ch->avail_skillstyles, ch->equipped_disciplines[x]->skill_style );
+            xSET_BITS( ch->avail_damtypes, ch->equipped_disciplines[x]->damtype );
+            xSET_BITS( ch->avail_targettypes, ch->equipped_disciplines[x]->target_type );
+         }
+         break;
+
+      case DISC_FACTORS:
+         for( factor = ch->first_factor; factor; factor = next_factor )
+         {
+            next_factor = factor->next;
+            UNLINK( factor, ch->first_factor, ch->last_factor, next, prev ); /* Unlink the "Old" Factor */
+            if( (  updated_factor = copy_factor( get_factor_from_id( factor->id ) ) ) == NULL ) /* If that factor no longer exists, destroy old one and continue */
+            {
+               free_factor( factor );
+               continue;
+            }
+            free_factor( factor );/* Dispose of old Factor */
+            if( !is_discipline_set( ch, updated_factor->owner ) ) /* If the Factor that discipline belongs too is not set, dispose of it */
+            {
+               free_factor( updated_factor );
+               continue;
+            }
+            if( has_factor_already( ch, updated_factor ) ) /* bug checking */
+            {
+               free_factor( updated_factor );
+                continue;
+            }
+            LINK( updated_factor, ch->first_factor, ch->last_factor, next, prev ); /* Link the Updated Factor because disc is set and we have an updated version */
+         }
+         break;
+   }
+   skills_checksum( ch );
+   return;
+}
+
+void free_factor( FACTOR_DATA *factor )
+{
+   factor->owner = NULL;
+   DISPOSE( factor );
+   return;
 }

@@ -1977,6 +1977,10 @@ struct timer_data
 #define MAX_SKILL_SLOT 30
 #define MAX_DISCIPLINE 8
 #define MAX_EQUIPPED_DISCIPLINE 5
+
+#define DISC_TYPES     0
+#define DISC_FACTORS   1
+
 /*
 * Prototype for a mob.
 * This is the in-memory version of #MOBILES.
@@ -4637,6 +4641,10 @@ int get_num_factors( SKILLTYPE *skill );
 int get_num_cost_types( SKILLTYPE *skill );
 int get_slot_level( CHAR_DATA *ch, SKILLTYPE *skill );
 bool has_factor_already( CHAR_DATA *ch, FACTOR_DATA *factor );
+void free_factor( FACTOR_DATA *factor );
+void update_disciplines args( ( CHAR_DATA *ch ) );
+void update_disciplines args( ( CHAR_DATA *ch, int changed ) );
+
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
