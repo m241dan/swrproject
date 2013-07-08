@@ -5392,7 +5392,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
                    || paf->location == APPLY_REMOVESPELL
                    || paf->location == APPLY_STRIPSN )
                  && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_src->id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
+               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_src->id, paf->affect_type, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
    }
 }
 
@@ -8737,7 +8737,7 @@ void do_discipline( CHAR_DATA *ch, const char *argument )
    {
       if( ( disc = get_discipline( argument ) ) == NULL )
       {
-         ch_printf( ch, "%s is not a discipline.\r\n", ch );
+         ch_printf( ch, "%s is not a discipline.\r\n", argument );
          return;
       }
       if( !player_has_discipline( ch, disc ) )

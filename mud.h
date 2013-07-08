@@ -4636,6 +4636,7 @@ void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add );
 int get_num_factors( SKILLTYPE *skill );
 int get_num_cost_types( SKILLTYPE *skill );
 int get_slot_level( CHAR_DATA *ch, SKILLTYPE *skill );
+bool has_factor_already( CHAR_DATA *ch, FACTOR_DATA *factor );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );

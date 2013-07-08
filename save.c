@@ -552,6 +552,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
 
    for( factor = ch->first_factor; factor; factor = factor->next )
       fprintf( fp, "AvailableFactor    %d\n", factor->id );
+   fprintf( fp, "\n" );
 
    for( sn = 0; sn < ch->top_sn; sn++ )
    {

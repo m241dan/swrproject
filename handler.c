@@ -4685,7 +4685,7 @@ bool is_skill_usable( CHAR_DATA *ch, SKILLTYPE *skill )
       return FALSE;
    if( !xIS_SET( ch->avail_targettypes, skill->target ) )
       return FALSE;
-   if( !xHAS_BITS( ch->avail_damtypes, skill->damtype ) )
+   if( !xIS_EMPTY( skill->damtype ) && !xHAS_BITS( ch->avail_damtypes, skill->damtype ) )
       return FALSE;
    if( !xIS_SET( ch->avail_skilltypes, skill->type ) )
       return FALSE;

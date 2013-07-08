@@ -1147,8 +1147,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             {
                UNLINK( aff, skill->first_affect, skill->last_affect, next, prev );
                aff->from = NULL;
-               if( aff->factor_src )
-                  remfactor( NULL, skill, aff->factor_src, FALSE );
+               aff->factor_src = NULL;
                DISPOSE( aff );
                send_to_char( "Removed.\r\n", ch );
                return;
@@ -4452,6 +4451,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
             do_skills( ch, "set" );
             return;
          }
+         update_skill( ch, ch->pc_skills[gsn] );
          save_char_obj( ch );
          saving_char = NULL;
          return;
@@ -4676,6 +4676,7 @@ FACTOR_DATA *copy_factor( FACTOR_DATA *factor )
    new_factor->modifier = factor->modifier;
    new_factor->apply_type = factor->apply_type;
    new_factor->duration = factor->duration;
+   new_factor->owner = factor->owner;
    return new_factor;
 }
 
@@ -4708,46 +4709,53 @@ void skills_checksum( CHAR_DATA * ch )
    int x;
 
 
-   for( x = 0; x < MAX_PC_SKILL; x++ )
+   for( x = 0; x < MAX_SKILL_SLOT; x++ )
    {
       if( !ch->pc_skills[x] )
          continue;
 
       if( !xIS_SET( ch->avail_targettypes, ch->pc_skills[x]->target ) )
       {
-         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
-         unset_skill( ch, ch->pc_skills[x] );
-         continue;
+         ch_printf( ch, "You no longer meet the target target requirements for %s.\r\n", ch->pc_skills[x]->name );
+         if( is_skill_set( ch, ch->pc_skills[x] ) )
+            unset_skill( ch, ch->pc_skills[x] );
+         ch->pc_skills[x]->target = TAR_CHAR_UNSET;
       }
       if( !xHAS_BITS( ch->avail_costtypes, ch->pc_skills[x]->cost ) )
       {
-         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
-         unset_skill( ch, ch->pc_skills[x] );
-         continue;
+         ch_printf( ch, "You no longer meet the cost type requirements for %s.\r\n", ch->pc_skills[x]->name );
+         if( is_skill_set( ch, ch->pc_skills[x] ) )
+            unset_skill( ch, ch->pc_skills[x] );
+         xCLEAR_BITS( ch->pc_skills[x]->cost );
       }
       if( !xHAS_BITS( ch->avail_damtypes, ch->pc_skills[x]->damtype ) )
       {
-         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
-         unset_skill( ch, ch->pc_skills[x] );
-         continue;
+         ch_printf( ch, "You no longer meet the damtype requirements for %s.\r\n", ch->pc_skills[x]->name );
+         if( is_skill_set( ch, ch->pc_skills[x] ) )
+            unset_skill( ch, ch->pc_skills[x] );
+         xCLEAR_BITS( ch->pc_skills[x]->damtype );
       }
       if( !xIS_SET( ch->avail_skilltypes, ch->pc_skills[x]->type ) )
       {
-         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
-         unset_skill( ch, ch->pc_skills[x] );
-         continue;
+         ch_printf( ch, "You no longer meet the skill type requirements for %s.\r\n", ch->pc_skills[x]->name );
+         if( is_skill_set( ch, ch->pc_skills[x] ) )
+            unset_skill( ch, ch->pc_skills[x] );
+         ch->pc_skills[x]->type = SKILL_UNSET;
       }
       if( !xIS_SET( ch->avail_skillstyles, ch->pc_skills[x]->style ) )
       {
-         ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
-         unset_skill( ch, ch->pc_skills[x] );
-         continue;
+         ch_printf( ch, "You no longer meet the skill style requirements for %s.\r\n", ch->pc_skills[x]->name );
+         if( is_skill_set( ch, ch->pc_skills[x] ) )
+            unset_skill( ch, ch->pc_skills[x] );
+         ch->pc_skills[x]->style = STYLE_UNSET;
       }
       for( factor = ch->pc_skills[x]->first_factor; factor; factor = factor->next )
          if( !is_discipline_set( ch, factor->owner ) )
          {
-            ch_printf( ch, "You no longer meet the requirements for %s.\r\n", ch->pc_skills[x]->name );
-            unset_skill( ch, ch->pc_skills[x] );
+            ch_printf( ch, "You no longer meet the factor requirements for %s.\r\n", ch->pc_skills[x]->name );
+            if( is_skill_set( ch, ch->pc_skills[x] ) )
+               unset_skill( ch, ch->pc_skills[x] );
+            remfactor( ch, ch->pc_skills[x], factor, FALSE );
             break;
          }
    }
@@ -4941,4 +4949,14 @@ int get_num_cost_types( SKILLTYPE *skill )
          count++;
 
    return count;
+}
+
+bool has_factor_already( CHAR_DATA *ch, FACTOR_DATA *factor ) /* Bug Checking Function */
+{
+   FACTOR_DATA *ch_factor;
+
+   for( ch_factor = ch->first_factor; ch_factor; ch_factor = ch_factor->next )
+      if( ch_factor == factor )
+         return TRUE;
+   return FALSE;
 }
