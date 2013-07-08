@@ -8372,13 +8372,14 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    if( !str_cmp( arg2, "remfactor" ) )
    {
       int selection;
-      if( !is_number( arg3 ) )
+
+      if( !is_number( argument ) )
       {
-         send_to_char( "Removed factor by number\r\n", ch );
+         send_to_char( "Remove factor by number\r\n", ch );
          return;
       }
 
-      if( ( selection = atoi( arg3 ) ) < 0 )
+      if( ( selection = atoi( argument ) ) < 0 )
       {
          send_to_char( "There are no factors that low.\r\n", ch );
          return;

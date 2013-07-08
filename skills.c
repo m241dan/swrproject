@@ -4679,35 +4679,35 @@ void skills_checksum( CHAR_DATA * ch )
       if( !ch->pc_skills[x] )
          continue;
 
-      if( !xIS_SET( ch->avail_targettypes, ch->pc_skills[x]->target ) )
+      if( !xIS_SET( ch->avail_targettypes, ch->pc_skills[x]->target ) && ch->pc_skills[x]->target != TAR_CHAR_UNSET )
       {
          ch_printf( ch, "You no longer meet the target target requirements for %s.\r\n", ch->pc_skills[x]->name );
          if( is_skill_set( ch, ch->pc_skills[x] ) )
             unset_skill( ch, ch->pc_skills[x] );
          ch->pc_skills[x]->target = TAR_CHAR_UNSET;
       }
-      if( !xHAS_BITS( ch->avail_costtypes, ch->pc_skills[x]->cost ) )
+      if( !xHAS_BITS( ch->avail_costtypes, ch->pc_skills[x]->cost ) && !xIS_EMPTY( ch->pc_skills[x]->cost ) )
       {
          ch_printf( ch, "You no longer meet the cost type requirements for %s.\r\n", ch->pc_skills[x]->name );
          if( is_skill_set( ch, ch->pc_skills[x] ) )
             unset_skill( ch, ch->pc_skills[x] );
          xCLEAR_BITS( ch->pc_skills[x]->cost );
       }
-      if( !xHAS_BITS( ch->avail_damtypes, ch->pc_skills[x]->damtype ) )
+      if( !xHAS_BITS( ch->avail_damtypes, ch->pc_skills[x]->damtype ) && !xIS_EMPTY( ch->pc_skills[x]->damtype ) )
       {
          ch_printf( ch, "You no longer meet the damtype requirements for %s.\r\n", ch->pc_skills[x]->name );
          if( is_skill_set( ch, ch->pc_skills[x] ) )
             unset_skill( ch, ch->pc_skills[x] );
          xCLEAR_BITS( ch->pc_skills[x]->damtype );
       }
-      if( !xIS_SET( ch->avail_skilltypes, ch->pc_skills[x]->type ) )
+      if( !xIS_SET( ch->avail_skilltypes, ch->pc_skills[x]->type ) && ch->pc_skills[x]->type != SKILL_UNSET )
       {
          ch_printf( ch, "You no longer meet the skill type requirements for %s.\r\n", ch->pc_skills[x]->name );
          if( is_skill_set( ch, ch->pc_skills[x] ) )
             unset_skill( ch, ch->pc_skills[x] );
          ch->pc_skills[x]->type = SKILL_UNSET;
       }
-      if( !xIS_SET( ch->avail_skillstyles, ch->pc_skills[x]->style ) )
+      if( !xIS_SET( ch->avail_skillstyles, ch->pc_skills[x]->style ) && ch->pc_skills[x]->style != STYLE_UNSET )
       {
          ch_printf( ch, "You no longer meet the skill style requirements for %s.\r\n", ch->pc_skills[x]->name );
          if( is_skill_set( ch, ch->pc_skills[x] ) )

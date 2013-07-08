@@ -968,6 +968,7 @@ bool load_char_obj( DESCRIPTOR_DATA * d, char *name, bool preload, bool copyover
          load_plr_home( ch );
    }
 
+   update_disciplines( ch );
 
    loading_char = NULL;
    return found;
