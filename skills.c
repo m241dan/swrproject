@@ -4599,6 +4599,8 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 
    for( factor = disc->first_factor; factor; factor = factor->next )
    {
+      if( has_factor_already( ch, factor ) ) /* Bug Checking */
+         continue;
       FACTOR_DATA *new_factor;
       new_factor = copy_factor( factor );
       LINK( new_factor, ch->first_factor, ch->last_factor, next, prev );
@@ -4617,7 +4619,7 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
-   FACTOR_DATA *factor;
+   FACTOR_DATA *factor, *next_factor;
    int x;
 
    if( !is_discipline_set( ch, disc ) )
@@ -4651,11 +4653,15 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
       xSET_BITS( ch->avail_targettypes, ch->equipped_disciplines[x]->target_type );
    }
 
-   for( factor = ch->first_factor; factor; factor = factor->next )
+   for( factor = ch->first_factor; factor; factor = next_factor )
    {
-      UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
-      factor->owner = NULL;
-      DISPOSE( factor );
+      next_factor = factor->next;
+      if( factor->owner == disc )
+      {
+         UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
+         factor->owner = NULL;
+         DISPOSE( factor );
+      }
    }
 
    skills_checksum( ch );
