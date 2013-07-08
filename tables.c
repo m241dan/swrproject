@@ -516,6 +516,8 @@ SKILLTYPE *fread_skill( FILE * fp )
             {
                STAT_BOOST *stat_boost;
 
+               fMatch = TRUE;
+
                CREATE( stat_boost, STAT_BOOST, 1 );
                stat_boost->from_id = fread_number( fp );
                stat_boost->location = fread_number( fp );

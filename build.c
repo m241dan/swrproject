@@ -8429,13 +8429,11 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       }
 
       argument = one_argument( argument, arg3 );
-      if( !is_number( arg3 ) )
+      if( ( modifier = atof( arg3 ) ) < 0 )
       {
          ch_printf( ch, "'%s' is not a valid modifier value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
          return;
       }
-      modifier = atof( arg3 );
-
       argument = one_argument( argument, arg3 );
       if( !is_number( arg3 ) )
       {
@@ -8457,6 +8455,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       }
 
       CREATE( factor, FACTOR_DATA, 1 );
+      factor->owner = discipline;
       factor->factor_type = factor_type;
       factor->location = location;
       factor->duration = duration;

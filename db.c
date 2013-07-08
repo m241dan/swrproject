@@ -2610,7 +2610,7 @@ void clear_char( CHAR_DATA * ch )
    ch->mod_lck = 0;
    ch->mod_agi = 0;
    ch->plr_home = NULL;
-   ch->casting_skill = -1;
+   ch->casting_skill = NULL;
    ch->skill_target = NULL;
    return;
 }

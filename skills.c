@@ -333,7 +333,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
             return;
          }
          charge_message( ch, victim, skill, FALSE );
-         return;
+         break;
 
       case 1:
          victim = ch->skill_target;
@@ -4683,6 +4683,9 @@ void skills_checksum( CHAR_DATA * ch )
    AFFECT_DATA *saf, *next_saf;
    int x;
 
+   first_factor_list = NULL;
+   last_factor_list = NULL;
+
    if( IS_NPC( ch ) )
       return;
 
@@ -5062,6 +5065,8 @@ void update_disciplines( CHAR_DATA *ch, int changed )
 
             for( factor = ch->equipped_disciplines[x]->first_factor; factor; factor = factor->next )
             {
+               if( factor_in_use( ch, factor ) )
+                   continue;
                updated_factor = copy_factor( factor );
                LINK( updated_factor, ch->first_factor, ch->last_factor, next, prev );
             }
@@ -5077,4 +5082,17 @@ void free_factor( FACTOR_DATA *factor )
    factor->owner = NULL;
    DISPOSE( factor );
    return;
+}
+
+bool factor_in_use( CHAR_DATA *ch, FACTOR_DATA *factor )
+{
+   FACTOR_DATA *skill_factor;
+   int x;
+
+   for( x = 0; x < MAX_PC_SKILL; x++ )
+      for( skill_factor = ch->pc_skills[x]->first_factor; skill_factor; skill_factor = skill_factor->next )
+         if( factor->id == skill_factor->id )
+            return TRUE;
+
+   return FALSE;
 }
