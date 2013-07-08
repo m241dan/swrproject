@@ -4799,6 +4799,7 @@ DISC_DATA *get_discipline( const char *disc_name );
 int get_cost_type( const char *argument );
 int get_factor_type( const char *factor );
 int get_apply_type( const char *apply );
+void free_affect( AFFECT_DATA *aff );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

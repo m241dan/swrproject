@@ -463,9 +463,12 @@ SKILLTYPE *fread_skill( FILE * fp )
          case 'F':
             if( !str_cmp( word, "FactorID" ) )
             {
-               FACTOR_DATA *factor = copy_factor( get_factor_from_id( fread_number( fp ) ) );
-               LINK( factor, skill->first_factor, skill->last_factor, next, prev );
+               FACTOR_DATA *factor;
                fMatch = TRUE;
+               if( ( factor = copy_factor( get_factor_from_id( fread_number( fp ) ) ) ) == NULL )
+                  break;
+               LINK( factor, skill->first_factor, skill->last_factor, next, prev );
+               break;
             }
             KEY( "Flags", skill->flags, fread_number( fp ) );
             break;

@@ -4634,6 +4634,9 @@ FACTOR_DATA *copy_factor( FACTOR_DATA *factor )
 {
    FACTOR_DATA *new_factor;
 
+   if( !factor )
+      return NULL;
+
    CREATE( new_factor, FACTOR_DATA, 1 );
    new_factor->id = factor->id;
    new_factor->factor_type = factor->factor_type;
@@ -4672,6 +4675,8 @@ void unset_skill( CHAR_DATA *ch, SKILLTYPE *skill )
 void skills_checksum( CHAR_DATA * ch )
 {
    FACTOR_DATA *factor, *next_factor, *updated_factor;
+   FACTOR_DATA *first_factor_list, *last_factor_list, *next_factor_list;
+   AFFECT_DATA *saf, *next_saf;
    int x;
 
    if( IS_NPC( ch ) )
@@ -4717,14 +4722,32 @@ void skills_checksum( CHAR_DATA * ch )
             unset_skill( ch, ch->pc_skills[x] );
          ch->pc_skills[x]->style = STYLE_UNSET;
       }
+
       for( factor = ch->pc_skills[x]->first_factor; factor; factor = next_factor )
       {
          next_factor = factor->next;
          UNLINK( factor, ch->pc_skills[x]->first_factor, ch->pc_skills[x]->last_factor, next, prev ); /* Remove Factor and Its affects on skills */
-         factor_to_skill( ch->pc_skills[x], factor, FALSE );
+         LINK( factor, first_factor_list, last_factor_list, next, prev );
+      }
 
+      for( saf = ch->pc_skills[x]->first_affect; saf; saf = next_saf ) /* Reset all things hving to do with the skill factors */
+      {
+         next_saf = saf->next;
+         UNLINK( saf, ch->pc_skills[x]->first_affect, ch->pc_skills[x]->last_affect, next, prev );
+         free_affect( saf );
+      }
+
+      ch->pc_skills[x]->stat_boost = 0;
+      ch->pc_skills[x]->base_roll_boost = 0;
+      ch->pc_skills[x]->attack_boost = 0;
+      ch->pc_skills[x]->defense_mod = 0;
+
+      for( factor = first_factor_list; factor; factor = next_factor_list )
+      {
+         next_factor_list = factor->next;
          if( ( updated_factor = copy_factor( get_factor_from_id( factor->id ) ) ) == NULL )
          {
+           ch_printf( ch, "A factor from %s has been removed.\r\n", ch->pc_skills[x]->name );
            free_factor( factor );
            continue;
          }

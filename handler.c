@@ -4702,9 +4702,6 @@ DISC_DATA *get_discipline( const char *disc_name )
    for( disc = first_discipline; disc; disc = disc->next )
       if( !str_cmp( disc_name, disc->name ) )
          return disc;
-   for( disc = first_discipline; disc; disc = disc->next )
-      if( str_prefix( disc_name, disc->name ) )
-         return disc;
    return NULL;
 }
 
@@ -4738,3 +4735,9 @@ int get_apply_type( const char *apply )
    return -1;
 }
 
+void free_affect( AFFECT_DATA *aff )
+{
+   aff->from = NULL;
+   aff->factor_src = NULL;
+   DISPOSE( aff );
+}
