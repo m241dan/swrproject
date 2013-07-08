@@ -4518,23 +4518,35 @@ double get_skill_cooldown( CHAR_DATA *ch, int gsn )
 {
    double cooldown;
 
-   cooldown = skill_table[gsn]->cooldown;
+   if( IS_NPC( ch ) )
+      cooldown = skill_table[gsn]->cooldown;
+   else
+      cooldown = ch->pc_skills[gsn]->cooldown;
+
    cooldown *= get_haste( ch );
 
    return cooldown;
 }
 
-void set_on_cooldown( CHAR_DATA *ch, int gsn )
+void set_on_cooldown( CHAR_DATA *ch, SKILLTYPE *skill )
 {
    CD_DATA *cdat;
-   double cooldown = get_skill_cooldown( ch, gsn );
+   double cooldown;
+
+   if( IS_NPC( ch ) )
+      cooldown = get_skill_cooldown( ch, get_skill( skill->name ) );
+   else
+      cooldown = get_skill_cooldown( ch, get_player_skill_sn( ch, skill->name ) );
 
    if( cooldown <= 0 )
       return;
 
    CREATE( cdat, CD_DATA, 1 );
-   cdat->message = str_dup( skill_table[gsn]->cdmsg );
-   cdat->sn = gsn;
+   cdat->message = str_dup( skill->cdmsg );
+   if( IS_NPC( ch ) )
+      cdat->sn = get_skill( skill->name );
+   else
+      cdat->sn = get_player_skill_sn( ch, skill->name );
    cdat->time_remaining = cooldown;
    LINK( cdat, ch->first_cooldown, ch->last_cooldown, next, prev );
    add_queue( ch, COOLDOWN_TIMER );
@@ -4738,6 +4750,63 @@ int get_apply_type( const char *apply )
 void free_affect( AFFECT_DATA *aff )
 {
    aff->from = NULL;
-   aff->factor_src = NULL;
    DISPOSE( aff );
+   return;
+}
+
+void free_statboost( STAT_BOOST *stat_boost )
+{
+   DISPOSE( stat_boost);
+   return;
+}
+
+int get_stat_value( CHAR_DATA *ch, int stat )
+{
+   switch( stat )
+   {
+      default: return 0;
+
+      case APPLY_STR:
+         return get_curr_str( ch );
+      case APPLY_DEX:
+         return get_curr_dex( ch );
+      case APPLY_INT:
+         return get_curr_int( ch );
+      case APPLY_WIS:
+         return get_curr_wis( ch );
+      case APPLY_CON:
+         return get_curr_con( ch );
+      case APPLY_AGI:
+         return get_curr_agi( ch );
+      case APPLY_SEX:
+         return ch->sex;
+      case APPLY_LEVEL:
+         return ch->skill_level[COMBAT_ABILITY];
+      case APPLY_HEIGHT:
+         return ch->height;
+      case APPLY_WEIGHT:
+         return ch->weight;
+      case APPLY_MANA:
+         return ch->max_mana;
+      case APPLY_HIT:
+         return ch->max_hit;
+      case APPLY_MOVE:
+         return ch->max_move;
+      case APPLY_GOLD:
+         return ch->gold;
+      case APPLY_EXP:
+         return ch->experience[COMBAT_ABILITY];
+      case APPLY_EVASION:
+         return GET_EVASION( ch );
+      case APPLY_HITROLL:
+         return GET_HITROLL( ch );
+      case APPLY_DAMROLL:
+         return GET_DAMROLL( ch );
+      case APPLY_CHA:
+         return get_curr_cha( ch );
+      case APPLY_LCK:
+         return get_curr_lck( ch );
+      case APPLY_ARMOR:
+         return GET_ARMOR( ch );
+   }
 }

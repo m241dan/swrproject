@@ -124,6 +124,7 @@ typedef struct queue_timers QTIMER;
 typedef struct cooldown_data CD_DATA;
 typedef struct discipline_data DISC_DATA;
 typedef struct factor_data FACTOR_DATA;
+typedef struct stat_boost STAT_BOOST;
 /*
 * Function types.
 */
@@ -1074,7 +1075,7 @@ struct affect_data
    short location; /* str, dex, agi, etc */
    int modifier;
    EXT_BV bitvector; /* for "aff_"s */
-   FACTOR_DATA *factor_src; /* what factor generated this affect */
+   int factor_id; /* what factor generated this affect */
    int apply_type; /* join, override */
 };
 
@@ -2260,7 +2261,7 @@ struct char_data
    GROUP_DATA *in_group;
    GROUP_DATA *group_invite;
    int threat;
-   int casting_skill;
+   SKILLTYPE *casting_skill;
    CHAR_DATA *skill_target;
    CD_DATA *first_cooldown;
    CD_DATA *last_cooldown;
@@ -2769,10 +2770,9 @@ struct skill_type
    short min_move;
    short min_hp;
    short style;
-   double stat_boost;
-   double attack_boost;
-   double defense_mod;
    double base_roll_boost;
+   STAT_BOOST *first_statboost;
+   STAT_BOOST *last_statboost;
    EXT_BV damtype;
    EXT_BV cost;
    int charge;
@@ -2783,6 +2783,14 @@ struct skill_type
    FACTOR_DATA *last_factor;
 };
 
+struct stat_boost
+{
+   STAT_BOOST *next;
+   STAT_BOOST *prev;
+   int from_id;
+   int location;
+   double modifier;
+};
 
 
 struct discipline_data
@@ -2823,7 +2831,7 @@ struct factor_data
 
 typedef enum
 {
-   APPLY_FACTOR, STAT_FACTOR, ATTACK_FACTOR, DEFENSE_FACTOR, BASEROLL_FACTOR, MAX_FACTOR
+   APPLY_FACTOR, STAT_FACTOR, BASEROLL_FACTOR, MAX_FACTOR
 } factor_types;
 
 typedef enum
@@ -4604,18 +4612,18 @@ bool check_grip( CHAR_DATA * ch, CHAR_DATA * victim );
 void disarm( CHAR_DATA * ch, CHAR_DATA * victim );
 void trip( CHAR_DATA * ch, CHAR_DATA * victim );
 void generate_buff_threat( CHAR_DATA *ch, CHAR_DATA *victim, int amount );
-void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, int gsn, bool StartCasting );
+void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill, bool StartCasting );
 void heal_msg( CHAR_DATA *ch, CHAR_DATA *victim, int amount );
-void buff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn );
-void rbuff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn );
-void heal_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-void damage_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-void enfeeble_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-void redirect_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
-void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim );
+void buff_msg( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill );
+void rbuff_msg( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill );
+void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
+void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
+void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
+void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
+void redirect_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
+void cleanse_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
+void summon_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
+void polymorph_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim );
 void sort_mob_skills( CHAR_DATA *ch );
 bool mob_has_skill( CHAR_DATA *ch, int gsn );
 int get_starget( const char *name );
@@ -4783,7 +4791,7 @@ bool is_queued( CHAR_DATA *ch, int type );
 void extract_cooldown( CHAR_DATA *ch, CD_DATA *cdat );
 bool is_on_cooldown( CHAR_DATA *ch, int gsn );
 double get_skill_cooldown( CHAR_DATA *ch, int gsn );
-void set_on_cooldown( CHAR_DATA *ch, int gsn );
+void set_on_cooldown( CHAR_DATA *ch, SKILLTYPE *skill );
 double get_round( CHAR_DATA *ch );
 double get_haste( CHAR_DATA *ch );
 void change_mind( CHAR_DATA *ch, int fom );
@@ -4800,6 +4808,8 @@ int get_cost_type( const char *argument );
 int get_factor_type( const char *factor );
 int get_apply_type( const char *apply );
 void free_affect( AFFECT_DATA *aff );
+void free_statboost( STAT_BOOST *stat_boost );
+int get_stat_value( CHAR_DATA *ch, int stat );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

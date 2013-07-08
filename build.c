@@ -5380,7 +5380,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
                    || paf->location == APPLY_REMOVESPELL
                    || paf->location == APPLY_STRIPSN )
                  && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_src->id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
+               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
    }
    else
    {
@@ -5392,7 +5392,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
                    || paf->location == APPLY_REMOVESPELL
                    || paf->location == APPLY_STRIPSN )
                  && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_src->id, paf->affect_type, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
+               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
    }
 }
 
@@ -8725,14 +8725,6 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                           mod,
                           a_types[stat] );
             }
-            else if( factor->factor_type == ATTACK_FACTOR )
-               ch_printf( ch, "Factor Type: %-10.10s | Multiplies Damroll Effect by %f\r\n",
-                          factor_names[factor->factor_type],
-                          factor->modifier );
-            else if( factor->factor_type == DEFENSE_FACTOR )
-               ch_printf( ch, "Factor Type: %-10.10s | Adds %f%% of players global armor to skill damage\r\n",
-                          factor_names[factor->factor_type],
-                          factor->modifier );
             else if( factor->factor_type == BASEROLL_FACTOR )
                ch_printf( ch, "Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n",
                           factor_names[factor->factor_type],

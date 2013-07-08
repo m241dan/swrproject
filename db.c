@@ -5434,11 +5434,9 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
    paf->duration = fread_number( fp );
    pafmod = fread_number( fp );
    paf->location = fread_number( fp );
-   if( ( paf->factor_src = copy_factor( get_factor_from_id( fread_number( fp ) ) ) ) == NULL )
-      paf->duration = 1;
+   paf->factor_id = fread_number( fp );
    paf->affect_type = fread_number( fp );
-   if( ( paf->from = get_char_world( first_char, fread_word( fp ) ) ) == NULL )
-      paf->duration = 1;
+   paf->from = get_char_world( first_char, fread_word( fp ) );
    paf->bitvector = fread_bitvector( fp );
 
    if( paf->location == APPLY_WEAPONSPELL

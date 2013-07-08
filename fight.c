@@ -501,6 +501,8 @@ short off_shld_lvl( CHAR_DATA * ch, CHAR_DATA * victim )
  */
 ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 {
+   STAT_BOOST *stat_boost;
+   SKILLTYPE *skill;
    OBJ_DATA *wield;
    int victim_ac;
    int thac0;
@@ -522,6 +524,14 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    if( victim->position == POS_DEAD || ch->in_room != victim->in_room )
       return rVICT_DIED;
 
+   /* Figure out if our skill */
+   if( dt != TYPE_UNDEFINED )
+   {
+      if( IS_NPC( ch ) )
+         skill = skill_table[dt];
+      else
+         skill = ch->pc_skills[dt];
+   }
 
    /*
     * Figure out the weapon doing the damage         -Thoric
@@ -555,8 +565,8 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    }
    else
    {
-      damtype = skill_table[dt]->damtype;
-      if( skill_table[dt]->type == SKILL_SKILL )
+      damtype = skill->damtype;
+      if( skill->type == SKILL_SKILL )
       {
          if( wield )
             xSET_BITS( damtype, wield->damtype );
@@ -617,8 +627,9 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
     * Hit.
     * Calc damage.
     */
+
    /* Let's get our base roll */
-   if( dt >= TYPE_HIT || skill_table[dt]->type == SKILL_SKILL )
+   if( dt >= TYPE_HIT || skill->type == SKILL_SKILL )
    {
       if( !wield )   /* dice formula fixed by Thoric */
          dam = number_range( ch->barenumdie, ch->baresizedie * ch->barenumdie ) + ch->damplus;
@@ -641,7 +652,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    }
    else
    {
-      dam = number_range( skill_table[dt]->min_level , UMAX( 1, skill_table[dt]->min_level / 3 ) );
+      dam = number_range( skill->min_level , UMAX( 1, skill->min_level * 3 ) );
       dam += get_curr_int( ch ) - get_curr_wis( victim );
    }
    /*
@@ -649,73 +660,33 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
     */
 
    /* Apply our base roll modifier from skills */
-   if( dt < TYPE_HIT && skill_table[dt]->base_roll_boost > 0 )
-      dam = (int)( dam * skill_table[dt]->base_roll_boost );
+   if( dt < TYPE_HIT && skill->base_roll_boost > 0 )
+      dam = (int)( dam * ( 1 + skill_table[dt]->base_roll_boost ) );
 
    ch_printf( ch, "Damage After Base Roll Mod: %d\r\n", dam );
 
-   /* Apply our physical stat attribute */
-   if( dt < TYPE_HIT && skill_table[dt]->stat_boost > 0 )
-   {
-      int stat;
-      double mod;
 
-      stat = skill_table[dt]->stat_boost / 1;
-      mod = skill_table[dt]->stat_boost - stat;
-      if( mod == 0 )
-         mod = 1;
-
-      ch_printf( ch, "Stat: %d Mod: %f\r\n", stat, mod );
-
-      switch( stat )
-      {
-         case APPLY_STR:
-            dam += (int)( get_curr_str( ch ) * mod );
-            break;
-         case APPLY_DEX:
-            dam += (int)( get_curr_dex( ch ) * mod );
-            break;
-         case APPLY_CON:
-            dam += (int)( get_curr_con( ch ) * mod );
-            break;
-         case APPLY_AGI:
-            dam += (int)( get_curr_agi( ch ) * mod );
-            break;
-         case APPLY_INT:
-            dam += (int)( get_curr_int( ch ) * mod );
-            break;
-         case APPLY_WIS:
-            dam += (int)( get_curr_wis( ch ) * mod );
-            break;
-      }
-   }
-
-   ch_printf( ch, "Damage after Attribute Boost: %d\r\n", dam );
 
    /* Handle Damroll Stuff */
-   if( dt >= TYPE_HIT || skill_table[dt]->type == SKILL_SKILL || skill_table[dt]->attack_boost > 0 )
+   if( dt >= TYPE_HIT || skill->type == SKILL_SKILL )
    {
       OBJ_DATA *hit_loc_armor;
 
-      damroll = is_skill( dt ) ? (int)( GET_DAMROLL( ch ) * skill_table[dt]->attack_boost ) : GET_DAMROLL( ch );
+      damroll = GET_DAMROLL( ch );
       dam += damroll;
       dam -= GET_ARMOR( victim );
-      if( ( hit_loc_armor = get_eq_char( victim, hit_wear ) ) != NULL && skill_table[dt]->type != SKILL_SPELL )
+      if( ( hit_loc_armor = get_eq_char( victim, hit_wear ) ) != NULL )
          dam -= hit_loc_armor->value[2];
    }
 
    ch_printf( ch, "Damage after Damroll: %d\r\n", dam );
 
-   /* Handle Defense Mod */
-   if( dt < TYPE_HIT && skill_table[dt]->defense_mod > 0 )
+   if( skill )
    {
-      int armor_dam_mod;
-      armor_dam_mod = (int)( GET_ARMOR( ch ) * skill_table[dt]->defense_mod );
-      dam += armor_dam_mod;
-
+      for( stat_boost = skill_table[dt]->first_statboost; stat_boost; stat_boost = stat_boost->next )
+         dam += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );
+      ch_printf( ch, "Damage after Stat Boosts: %d\r\n", dam );
    }
-
-   ch_printf( ch, "Damage after Defense Mod: %d\r\n", dam );
 
    /* Handle DType Potency */
    dam = dtype_potency( ch, dam, damtype );
@@ -826,22 +797,22 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    {
       if( dt >= 0 && dt < top_sn )
       {
-         SKILLTYPE *skill = skill_table[dt];
+         SKILLTYPE *skill_oth = skill_table[dt];
          bool found = FALSE;
 
-         if( skill->imm_char && skill->imm_char[0] != '\0' )
+         if( skill_oth->imm_char && skill_oth->imm_char[0] != '\0' )
          {
-            act( AT_HIT, skill->imm_char, ch, NULL, victim, TO_CHAR );
+            act( AT_HIT, skill_oth->imm_char, ch, NULL, victim, TO_CHAR );
             found = TRUE;
          }
-         if( skill->imm_vict && skill->imm_vict[0] != '\0' )
+         if( skill_oth->imm_vict && skill_oth->imm_vict[0] != '\0' )
          {
-            act( AT_HITME, skill->imm_vict, ch, NULL, victim, TO_VICT );
+            act( AT_HITME, skill_oth->imm_vict, ch, NULL, victim, TO_VICT );
             found = TRUE;
          }
-         if( skill->imm_room && skill->imm_room[0] != '\0' )
+         if( skill_oth->imm_room && skill_oth->imm_room[0] != '\0' )
          {
-            act( AT_ACTION, skill->imm_room, ch, NULL, victim, TO_NOTVICT );
+            act( AT_ACTION, skill_oth->imm_room, ch, NULL, victim, TO_NOTVICT );
             found = TRUE;
          }
          if( found )

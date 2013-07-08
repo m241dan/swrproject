@@ -158,14 +158,15 @@ extern const char *target_name;  /* from magic.c */
  */
 bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
 {
+   SKILLTYPE *skill;
    int sn;
    int first = 1;
    int top = gsn_first_tongue - 1;
    struct timeval time_used;
-   int mana, move;
+   int mana, move, hit;
 
    /*
-    * bsearch for the skill 
+    * bsearch for the skill
     */
    if( IS_NPC( ch ) )
    {
@@ -188,13 +189,24 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
          return FALSE;
    }
    else
-      return FALSE;
-
+   {
+      for( sn = 0; sn < MAX_PC_SKILL; sn++ )
+      {
+         if( LOWER( command[0] ) == LOWER( ch->pc_skills[sn]->name[0] )
+             && !str_prefix( command, ch->pc_skills[sn]->name ) )
+            break;
+      }
+   }
 
    if( is_on_cooldown( ch, sn ) )
       return TRUE;
 
-   if( !check_pos( ch, skill_table[sn]->minimum_position ) )
+   if( IS_NPC( ch ) )
+      skill = skill_table[sn];
+   else
+      skill = ch->pc_skills[sn];
+
+   if( !check_pos( ch, skill->minimum_position ) )
       return TRUE;
 
    if( IS_NPC( ch ) && ( IS_AFFECTED( ch, AFF_CHARM ) || IS_AFFECTED( ch, AFF_POSSESS ) ) )
@@ -207,11 +219,11 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    /*
     * check if mana is required
     */
-   if( skill_table[sn]->min_mana )
+   if( skill->min_mana )
    {
-      mana = skill_table[sn]->min_mana;
+      mana = skill->min_mana;
 
-      if( !IS_NPC( ch ) && ch->mana < mana )
+      if( ch->mana < mana )
       {
          send_to_char( "You need to rest before using the Force any more.\r\n", ch );
          return TRUE;
@@ -223,11 +235,11 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    /*
     * check if move is required
     */
-   if( skill_table[sn]->min_move )
+   if( skill->min_move )
    {
-      move = skill_table[sn]->min_move;
+      move = skill->min_move;
 
-      if( !IS_NPC( ch ) && ch->move < move )
+      if( ch->move < move )
       {
          send_to_char( "You need to more stamina to use this skill.\r\n", ch );
          return TRUE;
@@ -236,7 +248,18 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    else
       move = 0;
 
-   ch->casting_skill = sn;
+   if( skill->min_hp )
+   {
+      hit = skill->min_hp;
+
+      if( ch->hit < hit )
+      {
+         send_to_char( "You need more health points to use this skill.\r\n", ch );
+         return TRUE;
+      }
+   }
+
+   ch->casting_skill = skill;
    start_timer( &time_used );
    do_skill( ch, argument );
    end_timer( &time_used );
@@ -249,10 +272,10 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
 void do_skill( CHAR_DATA *ch, const char *argument )
 {
    CHAR_DATA *victim;
+   SKILLTYPE *skill;
    char arg[MAX_INPUT_LENGTH];
-   int gsn, schance;
 
-   gsn = ch->casting_skill;
+   skill = ch->casting_skill;
    argument = one_argument( argument, arg );
 
    send_to_char( "do_skill getting called.\r\n", ch );
@@ -260,13 +283,13 @@ void do_skill( CHAR_DATA *ch, const char *argument )
    switch( ch->substate )
    {
       default:
-         if( ( skill_table[gsn]->target != TAR_IGNORE && skill_table[gsn]->target != TAR_CHAR_SELF ) && ( victim = get_char_room( ch, arg ) ) == NULL )
+         if( ( skill->target != TAR_IGNORE && skill->target != TAR_CHAR_SELF ) && ( victim = get_char_room( ch, arg ) ) == NULL )
          {
             send_to_char( "That person is not here.\r\n", ch );
             return;
          }
 
-         switch( skill_table[gsn]->target )
+         switch( skill->target )
          {
             default:
                bug( "Skill using uncoded type.", 0 );
@@ -301,147 +324,112 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                break;
          }
 
-         schance = IS_NPC( ch ) ? 100 : (int)( ch->pcdata->learned[gsn] );
-         if( number_percent( ) < schance )
+         if( skill->charge > 0 )
          {
-            if( skill_table[gsn]->charge > 0 )
-            {
-               send_to_char( "Getting here.\r\n", ch );
-               charge_message( ch, victim, gsn, TRUE );
-               add_timer( ch, TIMER_DO_FUN, skill_table[gsn]->charge, do_skill, 1 );
-               ch->skill_target = victim;
-               return;
-            }
-            charge_message( ch, victim, gsn, FALSE );
-            break;
-         }
-         else
-         {
-            send_to_char( "You can't seem to focus enough.\r\n", ch );
-            learn_from_failure( ch, gsn );
+            send_to_char( "Getting here.\r\n", ch );
+            charge_message( ch, victim, skill, TRUE );
+            add_timer( ch, TIMER_DO_FUN, skill->charge, do_skill, 1 );
+            ch->skill_target = victim;
             return;
          }
+         charge_message( ch, victim, skill, FALSE );
          return;
 
       case 1:
          victim = ch->skill_target;
-         gsn = ch->casting_skill;
+         skill = ch->casting_skill;
          ch->skill_target = NULL;
-         ch->casting_skill = -1;
-         adjust_stat( ch, STAT_MANA, -skill_table[gsn]->min_mana );
-         adjust_stat( ch, STAT_MOVE, -skill_table[gsn]->min_move );
-         charge_message( ch, victim, gsn, FALSE );
+         ch->casting_skill = NULL;
+         adjust_stat( ch, STAT_MANA, -skill->min_mana );
+         adjust_stat( ch, STAT_MOVE, -skill->min_move );
+         adjust_stat( ch, STAT_HIT, -skill->min_hp );
+         charge_message( ch, victim, skill, FALSE );
          break;
 
       case SUB_TIMER_DO_ABORT:
          ch->substate = SUB_NONE;
          ch->skill_target = NULL;
-         ch->casting_skill = -1;
+         ch->casting_skill = NULL;
          send_to_char( "You are interrupted before completing the use of your ability.\r\n", ch );
          return;
    }
 
    ch->substate = SUB_NONE;
-   learn_from_success( ch, gsn );
    /*
     * Handle skill based on ability style
     */
-   switch( skill_table[gsn]->style )
+   switch( skill->style )
    {
       default:
          bug( "Unknown Skill Style being used by %s.", ch->name );
          break;
       case STYLE_HEALING:
-         heal_skill( ch, gsn, victim );
+         heal_skill( ch, skill, victim );
          break;
       case STYLE_DAMAGE:
-         damage_skill( ch, gsn, victim );
+         damage_skill( ch, skill, victim );
          break;
       case STYLE_BUFF:
-         buff_skill( ch, gsn, victim );
+         buff_skill( ch, skill, victim );
          break;
       case STYLE_ENFEEBLE:
-         enfeeble_skill( ch, gsn, victim );
+         enfeeble_skill( ch, skill, victim );
          break;
       case STYLE_REDIRECT:
-         redirect_skill( ch, gsn, victim );
+         redirect_skill( ch, skill, victim );
          break;
       case STYLE_CLEANSE:
-         cleanse_skill( ch, gsn, victim );
+         cleanse_skill( ch, skill, victim );
          break;
       case STYLE_SUMMON:
-         summon_skill( ch, gsn, victim );
+         summon_skill( ch, skill, victim );
          break;
       case STYLE_POLYMORPH:
-         polymorph_skill( ch, gsn, victim );
+         polymorph_skill( ch, skill, victim );
          break;
    }
-   set_on_cooldown( ch, gsn );
+   set_on_cooldown( ch, skill );
    return;
 }
 
-void heal_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
+   STAT_BOOST *stat_boost;
    int amount;
 
    amount = ch->skill_level[COMBAT_ABILITY] + get_curr_wis( ch );
-   if( skill_table[gsn]->stat_boost )
-   {
-      int stat;
-      double mod;
 
-      stat = skill_table[gsn]->stat_boost / 1;
-      mod = skill_table[gsn]->stat_boost - stat;
-      if( !mod )
-         mod = 1;
+   if( skill->base_roll_boost )
+      amount *= skill->base_roll_boost;
 
-      switch( stat )
-      {
-         case APPLY_STR:
-            amount += (int)( get_curr_str( ch ) * mod );
-            break;
-         case APPLY_DEX:
-            amount += (int)( get_curr_dex( ch ) * mod );
-            break;
-         case APPLY_CON:
-            amount += (int)( get_curr_con( ch ) * mod );
-            break;
-         case APPLY_AGI:
-            amount += (int)( get_curr_agi( ch ) * mod );
-            break;
-         case APPLY_INT:
-            amount += (int)( get_curr_int( ch ) * mod );
-            break;
-         case APPLY_WIS:
-            amount += (int)( get_curr_wis( ch ) * mod );
-            break;
-      }
-   }
-   if( skill_table[gsn]->base_roll_boost )
-      amount *= skill_table[gsn]->base_roll_boost;
+   for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
+      amount += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );
 
-   amount = res_pen( ch, victim, amount, skill_table[gsn]->damtype );
+   amount = res_pen( ch, victim, amount, skill->damtype );
 
    adjust_stat( victim, STAT_HIT, amount );
    generate_buff_threat( ch, victim, (int)( .8 * amount ) );
    heal_msg( ch, victim, amount );
    return;
 }
-void damage_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   multi_hit( ch, victim, gsn );
+   if( IS_NPC( ch ) )
+      multi_hit( ch, victim, get_skill( skill->name ) );
+   else
+      multi_hit( ch, victim, get_player_skill_sn( ch, skill->name ) );
    return;
 }
-void buff_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
 }
-void enfeeble_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
 }
-void redirect_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void redirect_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
 }
-void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void cleanse_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
    AFFECT_DATA *aff, *aff_next;
    bool friendly;
@@ -465,61 +453,61 @@ void cleanse_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
          break;
       }
    }
-   generate_buff_threat( ch, victim, ( skill_table[gsn]->threat * ch->skill_level[COMBAT_ABILITY] ) );
-   rbuff_msg( ch, victim, gsn );
+   generate_buff_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
+   rbuff_msg( ch, victim, skill );
 }
-void summon_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void summon_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
 }
-void polymorph_skill( CHAR_DATA *ch, int gsn, CHAR_DATA *victim )
+void polymorph_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
 }
 
-void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, int gsn, bool StartCasting )
+void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill, bool StartCasting )
 {
    char to_char[MAX_INPUT_LENGTH], to_vict[MAX_INPUT_LENGTH], to_room[MAX_INPUT_LENGTH];
 
-   switch( skill_table[gsn]->target )
+   switch( skill->target )
    {
       case TAR_CHAR_OFFENSIVE:
       case TAR_CHAR_DEFENSIVE:
       case TAR_CHAR_ANY:
          if( StartCasting )
          {
-            sprintf( to_char, "You start %s %s on %s.", skill_table[gsn]->type == SKILL_SKILL ? "charging" : "casting",
-                               smash_underscore( skill_table[gsn]->name ),
+            sprintf( to_char, "You start %s %s on %s.", skill->type == SKILL_SKILL ? "charging" : "casting",
+                               smash_underscore( skill->name ),
                                IS_NPC( victim ) ? victim->short_descr : victim->name );
             sprintf( to_vict, "%s starts %s %s on you.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                               skill_table[gsn]->type == SKILL_SKILL ? "charging" : "casting",
-                               smash_underscore( skill_table[gsn]->name ) );
+                               skill->type == SKILL_SKILL ? "charging" : "casting",
+                               smash_underscore( skill->name ) );
             sprintf( to_room, "%s starts %s %s on %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                               skill_table[gsn]->type == SKILL_SKILL ? "charging" : "casting",
-                               smash_underscore( skill_table[gsn]->name ),
+                               skill->type == SKILL_SKILL ? "charging" : "casting",
+                               smash_underscore( skill->name ),
                                IS_NPC( victim ) ? victim->short_descr : victim->name );
          }
          else
          {
-            sprintf( to_char, "You %s %s on %s.", skill_table[gsn]->type == SKILL_SKILL ? "use" : "cast",
-                               smash_underscore( skill_table[gsn]->name ),
+            sprintf( to_char, "You %s %s on %s.", skill->type == SKILL_SKILL ? "use" : "cast",
+                               smash_underscore( skill->name ),
                                IS_NPC( victim ) ? victim->short_descr : victim->name );
             sprintf( to_vict, "%s %s %s on you.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                               skill_table[gsn]->type == SKILL_SKILL ? "uses" : "casts",
-                               smash_underscore( skill_table[gsn]->name ) );
+                               skill->type == SKILL_SKILL ? "uses" : "casts",
+                               smash_underscore( skill->name ) );
             sprintf( to_room, "%s %s %s on %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                               skill_table[gsn]->type == SKILL_SKILL ? "uses" : "casts",
-                               smash_underscore( skill_table[gsn]->name ),
+                               skill->type == SKILL_SKILL ? "uses" : "casts",
+                               smash_underscore( skill->name ),
                                IS_NPC( victim ) ? victim->short_descr : victim->name );
          }
       case TAR_CHAR_SELF:
          if( StartCasting )
          {
-            sprintf( to_char, "You begin to %s %s.", skill_table[gsn]->type == SKILL_SKILL ? "charge" : "cast", smash_underscore( skill_table[gsn]->name ) );
-            sprintf( to_room, "%s begins to %s %s.", IS_NPC( ch ) ? ch->short_descr : ch->name, skill_table[gsn]->type == SKILL_SKILL ? "charge" : "cast", smash_underscore( skill_table[gsn]->name ) );
+            sprintf( to_char, "You begin to %s %s.", skill->type == SKILL_SKILL ? "charge" : "cast", smash_underscore( skill->name ) );
+            sprintf( to_room, "%s begins to %s %s.", IS_NPC( ch ) ? ch->short_descr : ch->name, skill->type == SKILL_SKILL ? "charge" : "cast", smash_underscore( skill->name ) );
          }
          else
          {
-            sprintf( to_char, "You %s %s.", skill_table[gsn]->type == SKILL_SKILL ? "use" : "cast", smash_underscore( skill_table[gsn]->name ) );
-            sprintf( to_room, "%s  %s %s.", IS_NPC( ch ) ? ch->short_descr : ch->name, skill_table[gsn]->type == SKILL_SKILL ? "uses" : "casts", smash_underscore( skill_table[gsn]->name ) );
+            sprintf( to_char, "You %s %s.", skill->type == SKILL_SKILL ? "use" : "cast", smash_underscore( skill->name ) );
+            sprintf( to_room, "%s  %s %s.", IS_NPC( ch ) ? ch->short_descr : ch->name, skill->type == SKILL_SKILL ? "uses" : "casts", smash_underscore( skill->name ) );
          }
    }
    act( AT_YELLOW, to_char, ch, NULL, victim, TO_CHAR );
@@ -529,29 +517,29 @@ void charge_message( CHAR_DATA *ch, CHAR_DATA *victim, int gsn, bool StartCastin
    return;
 }
 
-void buff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn )
+void buff_msg( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill )
 {
    char to_char[MAX_INPUT_LENGTH], to_vict[MAX_INPUT_LENGTH], to_room[MAX_INPUT_LENGTH];
 
    if( ch != victim )
    {
-      sprintf( to_char, "You %s %s with the affects of %s.", skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeeble" : "buff",
+      sprintf( to_char, "You %s %s with the affects of %s.", skill->target == TAR_CHAR_OFFENSIVE ? "enfeeble" : "buff",
                          IS_NPC( victim ) ? victim->short_descr : victim->name,
-                         smash_underscore( skill_table[gsn]->name ) );
+                         smash_underscore( skill->name ) );
       sprintf( to_vict, "%s %s you with the affects of %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                         skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
-                         smash_underscore( skill_table[gsn]->name ) );
+                         skill->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
+                         smash_underscore( skill->name ) );
       sprintf( to_room, "%s %s %s with the affects of %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                         skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
+                         skill->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
                          IS_NPC( victim ) ? victim->short_descr : victim->name,
-                         smash_underscore( skill_table[gsn]->name ) );
+                         smash_underscore( skill->name ) );
    }
    else
    {
-      sprintf( to_char, "You %s yourself with the affects of %s.", skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeeble" : "buff", smash_underscore( skill_table[gsn]->name ) );
+      sprintf( to_char, "You %s yourself with the affects of %s.", skill->target == TAR_CHAR_OFFENSIVE ? "enfeeble" : "buff", smash_underscore( skill->name ) );
       sprintf( to_room, "%s %s themselves with the affect of %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                         skill_table[gsn]->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
-                         smash_underscore( skill_table[gsn]->name ) );
+                         skill->target == TAR_CHAR_OFFENSIVE ? "enfeebles" : "buffs",
+                         smash_underscore( skill->name ) );
    }
 
    act( AT_PLAIN, to_char, ch, NULL, victim, TO_CHAR );
@@ -560,26 +548,26 @@ void buff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn )
    act( AT_PLAIN, to_room, ch, NULL, victim, TO_NOTVICT );
 }
 
-void rbuff_msg( CHAR_DATA *ch, CHAR_DATA *victim, int gsn )
+void rbuff_msg( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill )
 {
    char to_char[MAX_INPUT_LENGTH], to_vict[MAX_INPUT_LENGTH], to_room[MAX_INPUT_LENGTH];
 
    if( ch != victim )
    {
       sprintf( to_char, "You remove the affects of %s from %s.",
-                         smash_underscore( skill_table[gsn]->name ),
+                         smash_underscore( skill->name ),
                          IS_NPC( victim ) ? victim->short_descr : victim->name );
       sprintf( to_vict, "%s removes the affects of %s from you.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                         smash_underscore( skill_table[gsn]->name ) );
+                         smash_underscore( skill->name ) );
       sprintf( to_room, "%s removes the affects of %s from %s.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                         smash_underscore( skill_table[gsn]->name ),
+                         smash_underscore( skill->name ),
                          IS_NPC( victim ) ? victim->short_descr : victim->name );
    }
    else
    {
-      sprintf( to_char, "You remove the affects of %s on yourself.", smash_underscore( skill_table[gsn]->name ) );
+      sprintf( to_char, "You remove the affects of %s on yourself.", smash_underscore( skill->name ) );
       sprintf( to_room, "%s removes the affects of %s on themselves.", IS_NPC( ch ) ? ch->short_descr : ch->name,
-                         smash_underscore( skill_table[gsn]->name ) );
+                         smash_underscore( skill->name ) );
    }
 
    act( AT_PLAIN, to_char, ch, NULL, victim, TO_CHAR );
@@ -644,6 +632,7 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
    else
    {
       AFFECT_DATA *aff;
+      STAT_BOOST *stat_boost;
       char num[MAX_STRING_LENGTH];
       int cnt = 0;
 
@@ -687,7 +676,8 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
                  skill_tname[skill->type],
                  target_type[skill->target],
                  skill->minimum_position, skill->min_mana, skill->min_move, skill->beats, skill->charge );
-      ch_printf( ch, "Cooldown: %d Style Type: %s Damtype:",
+      ch_printf( ch, "Base Roll Boost: %f Cooldown: %d Style Type: %s Damtype:",
+                 skill->base_roll_boost,
                  skill->cooldown,
                  style_type[skill->style] );
       if( xIS_EMPTY( skill->damtype ) )
@@ -699,8 +689,8 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
                ch_printf( ch, " %s,", d_type[x] );
           send_to_char( "\r\n", ch );
       }
-      ch_printf( ch, "Stat Boost: %f, Attack Boost: %f\r\nDefense Mod: %f, Base Roll Boost: %f\r\n",
-                 skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
+      for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
+         ch_printf( ch, "%d%% of %s", (int)( stat_boost->modifier * 100 ), a_types[stat_boost->location] );
       ch_printf( ch, "Flags: %d  Guild: %d  Code: %s\r\n",
                  skill->flags,
                  skill->guild, skill->skill_fun ? skill->skill_fun_name : skill->spell_fun_name );
@@ -802,7 +792,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
    char arg2[MAX_INPUT_LENGTH];
    CHAR_DATA *victim;
    int value;
-   int sn;
+   int sn, y;
    bool fAll;
 
    argument = one_argument( argument, arg1 );
@@ -1146,9 +1136,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             if( ++cnt == num )
             {
                UNLINK( aff, skill->first_affect, skill->last_affect, next, prev );
-               aff->from = NULL;
-               aff->factor_src = NULL;
-               DISPOSE( aff );
+               free_affect( aff );
                send_to_char( "Removed.\r\n", ch );
                return;
             }
@@ -1371,22 +1359,65 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          send_to_char( "Ok.\r\n", ch );
          return;
       }
-      if( !str_cmp( arg2, "statboost" ) )
+      if( !str_cmp( arg2, "addstatboost" ) )
       {
-         skill->stat_boost = atof( argument );
+         STAT_BOOST *stat_boost;
+         int location;
+         double mod;
+
+         argument = one_argument( argument, arg2 );
+
+         if( arg2[0] == '\0' || argument[0] == '\0' )
+         {
+            send_to_char( "sset skill addstatboost <location> <modifier>\r\n", ch );
+            return;
+         }
+
+         if( ( location = get_atype( arg2 ) ) == -1 )
+         {
+            send_to_char( "Invalid location.\r\n", ch );
+            return;
+         }
+         if( !is_number( argument ) )
+         {
+            send_to_char( "Modifier must be a decimal number.\r\n", ch );
+            return;
+         }
+         mod = atof( argument );
+
+         CREATE( stat_boost, STAT_BOOST, 1 );
+         stat_boost->from_id = -1;
+         stat_boost->location = location;
+         stat_boost->modifier = mod;
+         LINK( stat_boost, skill->first_statboost, skill->last_statboost, next, prev );
          send_to_char( "Ok.\r\n", ch );
-         return;
       }
-      if( !str_cmp( arg2, "attackboost" ) )
+      if( !str_cmp( arg2, "remstatboost" ) )
       {
-         skill->attack_boost = atof( argument );
-         send_to_char( "Ok.\r\n", ch );
-         return;
-      }
-      if( !str_cmp( arg2, "defensemod" ) )
-      {
-         skill->defense_mod = atof( argument );
-         send_to_char( "Ok.\r\n", ch );
+         STAT_BOOST *stat_boost;
+         if( !is_number( argument ) )
+         {
+            send_to_char( "Enter the number of the stat boost you want to remove.\r\n", ch );
+            return;
+         }
+         if( ( value = atoi( argument ) ) < 0 )
+         {
+            send_to_char( "There are no stat_boosts under 0.\r\n", ch );
+            return;
+         }
+
+         for( y = 0, stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
+         {
+            if( value == y )
+            {
+               UNLINK( stat_boost, skill->first_statboost, skill->last_statboost, next, prev );
+               free_statboost( stat_boost );
+               send_to_char( "Ok.\r\n", ch );
+               return;
+            }
+            y++;
+         }
+         send_to_char( "No stat_boosts that high.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "baserollboost" ) )
@@ -3979,24 +4010,11 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          }
          else if( factor->factor_type == STAT_FACTOR )
          {
-            int stat;
-            double mod;
-
-            stat = factor->modifier / 1;
-            mod = factor->modifier - stat;
             ch_printf( ch, "%2d: Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n", x,
                        factor_names[factor->factor_type],
-                       mod,
-                       a_types[stat] );
+                       (int)( factor->modifier * 100 ),
+                       a_types[factor->location] );
          }
-         else if( factor->factor_type == ATTACK_FACTOR )
-            ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Damroll Effect by %f\r\n", x,
-                       factor_names[factor->factor_type],
-                       factor->modifier );
-         else if( factor->factor_type == DEFENSE_FACTOR )
-            ch_printf( ch, "%2d: Factor Type: %-10.10s | Adds %f%% of players global armor to skill damage\r\n", x,
-                       factor_names[factor->factor_type],
-                       factor->modifier );
          else if( factor->factor_type == BASEROLL_FACTOR )
            ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n", x,
                        factor_names[factor->factor_type],
@@ -4056,9 +4074,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
             ch_printf( ch, " %s", d_type[x] );
       send_to_char( "\r\n", ch );
 
-      ch_printf( ch, "Base Roll Boost: %-10f Stat %d%% %s Added to Base Roll\r\nAttack Boost: %-10f Defense Boost: %-10f\r\n",
-                 skill->base_roll_boost, ((int)skill->stat_boost%1), a_types[(int)(skill->stat_boost/1)],
-                 skill->attack_boost, skill->defense_mod );
+      ch_printf( ch, "Base Roll Boost: %-10f\r\n", skill->base_roll_boost );
 
       for( factor = skill->first_factor, x = 0; factor; factor = factor->next )
       {
@@ -4082,24 +4098,11 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          }
          else if( factor->factor_type == STAT_FACTOR )
          {
-            int stat;
-            double mod;
-
-            stat = factor->modifier / 1;
-            mod = factor->modifier - stat;
             ch_printf( ch, "%2d: Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n", x,
                        factor_names[factor->factor_type],
-                       mod,
-                       a_types[stat] );
+                       (int)( factor->modifier * 100 ),
+                       a_types[factor->location] );
          }
-         else if( factor->factor_type == ATTACK_FACTOR )
-            ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Damroll Effect by %f\r\n", x,
-                       factor_names[factor->factor_type],
-                       factor->modifier );
-         else if( factor->factor_type == DEFENSE_FACTOR )
-            ch_printf( ch, "%2d: Factor Type: %-10.10s | Adds %f%% of players global armor to skill damage\r\n", x,
-                       factor_names[factor->factor_type],
-                       factor->modifier );
          else if( factor->factor_type == BASEROLL_FACTOR )
            ch_printf( ch, "%2d: Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n", x,
                        factor_names[factor->factor_type],
@@ -4676,6 +4679,7 @@ void skills_checksum( CHAR_DATA * ch )
 {
    FACTOR_DATA *factor, *next_factor, *updated_factor;
    FACTOR_DATA *first_factor_list, *last_factor_list, *next_factor_list;
+   STAT_BOOST *stat_boost, *stat_boost_next;
    AFFECT_DATA *saf, *next_saf;
    int x;
 
@@ -4737,10 +4741,14 @@ void skills_checksum( CHAR_DATA * ch )
          free_affect( saf );
       }
 
-      ch->pc_skills[x]->stat_boost = 0;
+      for( stat_boost = ch->pc_skills[x]->first_statboost; stat_boost; stat_boost = stat_boost_next )
+      {
+         stat_boost_next = stat_boost->next;
+         UNLINK( stat_boost, ch->pc_skills[x]->first_statboost, ch->pc_skills[x]->last_statboost, next, prev );
+         free_statboost( stat_boost );
+      }
+
       ch->pc_skills[x]->base_roll_boost = 0;
-      ch->pc_skills[x]->attack_boost = 0;
-      ch->pc_skills[x]->defense_mod = 0;
 
       for( factor = first_factor_list; factor; factor = next_factor_list )
       {
@@ -4791,6 +4799,7 @@ void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeA
 void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
 {
    AFFECT_DATA *affect, *next_affect;
+   STAT_BOOST *stat_boost, *stat_boost_next;
    int mod = factor->modifier;
 
    if( !Add )
@@ -4806,7 +4815,7 @@ void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
             affect->location = factor->location;
             affect->modifier = factor->modifier;
             affect->bitvector = factor->affect;
-            affect->factor_src = factor;
+            affect->factor_id = factor->id;
             affect->apply_type = factor->apply_type;
             LINK( affect, skill->first_affect, skill->last_affect, next, prev );
             break;
@@ -4816,26 +4825,39 @@ void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
             for( affect = skill->first_affect; affect; affect = next_affect )
             {
                next_affect = affect->next;
-               if( affect->factor_src == factor )
+               if( affect->factor_id== factor->id )
                {
                      UNLINK( affect, skill->first_affect, skill->last_affect, next, prev );
-                     affect->from = NULL;
-                     affect->factor_src = NULL;
-                     DISPOSE( affect );
+                     free_affect( affect );
                }
             }
             break;
          }
 
       case STAT_FACTOR:
-         skill->stat_boost += mod;
-         break;
-      case ATTACK_FACTOR:
-         skill->attack_boost += mod;
-         break;
-      case DEFENSE_FACTOR:
-         skill->defense_mod += mod;
-         break;
+         if( Add )
+         {
+            CREATE( stat_boost, STAT_BOOST, 1 );
+            stat_boost->from_id = factor->id;
+            stat_boost->location = factor->location;
+            stat_boost->modifier = factor->modifier;
+            LINK( stat_boost, skill->first_statboost, skill->last_statboost, next, prev );
+            break;
+         }
+         else
+         {
+            for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost_next )
+            {
+               stat_boost_next = stat_boost->next;
+               if( stat_boost->from_id == factor->id )
+               {
+                  UNLINK( stat_boost, skill->first_statboost, skill->last_statboost, next, prev );
+                  free_statboost( stat_boost );
+               }
+            }
+            break;
+         }
+
       case BASEROLL_FACTOR:
          skill->base_roll_boost += mod;
          break;
@@ -4865,6 +4887,9 @@ void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
       bug( "%s: bad slot level: %s", __FUNCTION__, skill->name );
       return;
    }
+
+   /* Set our Skill Level */
+   skill->min_level = slot_level;
 
    /* Cooldowns First */
 

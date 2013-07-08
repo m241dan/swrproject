@@ -35,7 +35,7 @@ const char *const skill_tname[MAX_SKILLTYPE] = { "unknown", "Spell", "Skill", "W
 
 const char *const style_type[STYLE_MAX] = { "Healing", "Damage", "Buff", "Enfeeble", "Redirect", "Cleanse", "Summon", "Polymorph", "Unset" };
 
-const char *const factor_names[MAX_FACTOR] = { "apply_factor", "damage_factor", "attack_factor", "defense_factor", "base_roll_factor" };
+const char *const factor_names[MAX_FACTOR] = { "apply_factor", "stat_factor", "base_roll_factor" };
 
 const char *const skilltype_names[MAX_TYPE] = { "skill_type", "style_type", "cost_type", "damtype_type", "target_type" };
 
@@ -119,6 +119,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
 {
    FACTOR_DATA *factor;
    AFFECT_DATA *aff;
+   STAT_BOOST *stat_boost;
 
    fprintf( fpout, "Name         %s~\n", skill->name );
    fprintf( fpout, "Type         %s\n", skill_tname[skill->type] );
@@ -202,7 +203,11 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    if( skill->alignment )
       fprintf( fpout, "Alignment   %d\n", skill->alignment );
 
-   fprintf( fpout, "DamageDetails   %f %f %f %f\n", skill->stat_boost, skill->attack_boost, skill->defense_mod, skill->base_roll_boost );
+   fprintf( fpout, "DamageDetails   %f\n", skill->base_roll_boost );
+
+   for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
+      fprintf( fpout, "StatBoost  %d %d %f\n", stat_boost->from_id, stat_boost->location, stat_boost->modifier );
+
    if( !xIS_EMPTY( skill->damtype ) )
       fprintf( fpout, "Damtype         %s\n", print_bitvector( &skill->damtype ) );
    if( skill->type != SKILL_HERB )
@@ -437,15 +442,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'D':
-            if( !str_cmp( word, "DamageDetails" ) )
-            {
-               fMatch = TRUE;
-               skill->stat_boost = fread_float( fp );
-               skill->attack_boost = fread_float( fp );
-               skill->defense_mod = fread_float( fp );
-               skill->base_roll_boost = fread_float( fp );
-               break;
-            }
+            KEY( "DamageDetails", skill->base_roll_boost, fread_float( fp ) );
             KEY( "Dammsg", skill->noun_damage, fread_string_nohash( fp ) );
             KEY( "Damtype", skill->damtype, fread_bitvector( fp ) );
             KEY( "Dice", skill->dice, fread_string_nohash( fp ) );
@@ -515,6 +512,16 @@ SKILLTYPE *fread_skill( FILE * fp )
          case 'S':
             KEY( "Saves", skill->saves, fread_number( fp ) );
             KEY( "Slot", skill->slot, fread_number( fp ) );
+            if( !str_cmp( word, "StatBoost" ) )
+            {
+               STAT_BOOST *stat_boost;
+
+               CREATE( stat_boost, STAT_BOOST, 1 );
+               stat_boost->from_id = fread_number( fp );
+               stat_boost->location = fread_number( fp );
+               stat_boost->modifier = fread_float( fp );
+               LINK( stat_boost, skill->first_statboost, skill->last_statboost, next, prev );
+            }
             KEY( "Style", skill->style, fread_number( fp ) );
             break;
 
