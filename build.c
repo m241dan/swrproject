@@ -8369,6 +8369,37 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "remfactor" ) )
+   {
+      int selection;
+      if( !is_number( arg3 ) )
+      {
+         send_to_char( "Removed factor by number\r\n", ch );
+         return;
+      }
+
+      if( ( selection = atoi( arg3 ) ) < 0 )
+      {
+         send_to_char( "There are no factors that low.\r\n", ch );
+         return;
+      }
+      for( x = 0, factor = discipline->first_factor; factor; factor = factor->next )
+      {
+         if( x == selection )
+         {
+            UNLINK( factor, discipline->first_factor, discipline->last_factor, next, prev );
+            free_factor( factor );
+            update_disciplines( );
+            save_disciplines( );
+            send_to_char( "Factor removed.\r\n", ch );
+            return;
+         }
+         x++;
+      }
+      send_to_char( "There are no factors that high on this discipline.\r\n", ch );
+      return;
+   }
+
    if( !str_cmp( arg2, "addfactor" ) )
    {
       int factor_type, location, duration, apply_type;
@@ -8439,6 +8470,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       factor->id = id;
       LINK( factor, discipline->first_factor, discipline->last_factor, next, prev );
       send_to_char( "Ok.\r\n", ch );
+      update_disciplines( );
       save_disciplines( );
       return;
    }
@@ -8462,6 +8494,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          discipline->min_level = atoi( arg3 );
 
       send_to_char( "Ok.\r\n", ch );
+      update_disciplines( );
       save_disciplines( );
       return;
    }
@@ -8486,6 +8519,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          }
          xTOGGLE_BIT( discipline->cost, value );
       }
+      update_disciplines( );
       save_disciplines( );
       send_to_char( "Ok.\r\n", ch );
       return;
@@ -8509,6 +8543,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          }
          xTOGGLE_BIT( discipline->skill_type, value );
       }
+      update_disciplines( );
       save_disciplines( );
       send_to_char( "Ok.\r\n", ch );
       return;
@@ -8534,6 +8569,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          }
          xTOGGLE_BIT( discipline->skill_style, value );
       }
+      update_disciplines( );
       save_disciplines( );
       send_to_char( "Ok.\r\n", ch );
       return;
@@ -8559,6 +8595,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          }
          xTOGGLE_BIT( discipline->damtype, value );
       }
+      update_disciplines( );
       save_disciplines( );
       send_to_char( "Ok.\r\n", ch );
       return;
@@ -8584,6 +8621,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          }
          xTOGGLE_BIT( discipline->target_type, value );
       }
+      update_disciplines( );
       save_disciplines( );
       send_to_char( "Ok.\r\n", ch );
       return;

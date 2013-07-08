@@ -4577,7 +4577,6 @@ bool player_has_discipline_setslot( CHAR_DATA *ch )
 
 void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
-   FACTOR_DATA *factor;
    int x;
 
    if( !player_has_discipline_setslot( ch ) )
@@ -4935,6 +4934,22 @@ bool has_factor_already( CHAR_DATA *ch, FACTOR_DATA *factor ) /* Bug Checking Fu
       if( ch_factor == factor )
          return TRUE;
    return FALSE;
+}
+
+void update_disciplines( void )
+{
+   CHAR_DATA *ch, *next_ch;
+
+   for( ch = first_char; ch; ch = next_ch )
+   {
+      next_ch = ch->next;
+      set_cur_char( ch );
+
+      if( IS_NPC( ch ) )
+         continue;
+
+      update_disciplines( ch );
+   }
 }
 
 void update_disciplines( CHAR_DATA *ch )

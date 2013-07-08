@@ -4644,7 +4644,7 @@ bool has_factor_already( CHAR_DATA *ch, FACTOR_DATA *factor );
 void free_factor( FACTOR_DATA *factor );
 void update_disciplines args( ( CHAR_DATA *ch ) );
 void update_disciplines args( ( CHAR_DATA *ch, int changed ) );
-
+void update_disciplines args( ( void ) );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
