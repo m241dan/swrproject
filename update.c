@@ -2822,7 +2822,11 @@ void split_timers_update(  )
                   {
                      if( !paf_next || paf_next->type != paf->type || paf_next->duration > 0 )
                      {
-                        skill = get_skilltype( paf->type );
+                        if( IS_NPC( paf->from ) )
+                           skill = get_skilltype( paf->type );
+                        else
+                           skill = paf->from->pc_skills[paf->type];
+
                         if( paf->type > 0 && skill && skill->msg_off )
                         {
                            set_char_color( AT_WEAROFF, ch );
@@ -2830,7 +2834,7 @@ void split_timers_update(  )
                            send_to_char( "\r\n", ch );
                         }
                      }
-                     if( paf->type == gsn_possess )
+                     if( IS_NPC( paf->from ) && paf->type == gsn_possess )
                      {
                         ch->desc->character = ch->desc->original;
                         ch->desc->original = NULL;

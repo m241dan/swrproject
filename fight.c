@@ -502,7 +502,7 @@ short off_shld_lvl( CHAR_DATA * ch, CHAR_DATA * victim )
 ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 {
    STAT_BOOST *stat_boost;
-   SKILLTYPE *skill;
+   SKILLTYPE *skill = NULL;
    OBJ_DATA *wield;
    int victim_ac;
    int thac0;
@@ -681,7 +681,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    ch_printf( ch, "Damage after Damroll: %d\r\n", dam );
 
-   if( skill )
+   if( skill && skill->name && skill->name[0] != '\0' )
    {
       for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
          dam += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );

@@ -4540,7 +4540,7 @@ void set_on_cooldown( CHAR_DATA *ch, SKILLTYPE *skill )
    double cooldown;
 
    if( IS_NPC( ch ) )
-      cooldown = get_skill_cooldown( ch, get_skill( skill->name ) );
+      cooldown = get_skill_cooldown( ch, skill_lookup( skill->name ) );
    else
       cooldown = get_skill_cooldown( ch, get_player_skill_sn( ch, skill->name ) );
 
@@ -4550,7 +4550,7 @@ void set_on_cooldown( CHAR_DATA *ch, SKILLTYPE *skill )
    CREATE( cdat, CD_DATA, 1 );
    cdat->message = str_dup( skill->cdmsg );
    if( IS_NPC( ch ) )
-      cdat->sn = get_skill( skill->name );
+      cdat->sn = skill_lookup( skill->name );
    else
       cdat->sn = get_player_skill_sn( ch, skill->name );
    cdat->time_remaining = cooldown;
