@@ -683,7 +683,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    if( skill )
    {
-      for( stat_boost = skill_table[dt]->first_statboost; stat_boost; stat_boost = stat_boost->next )
+      for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
          dam += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );
       ch_printf( ch, "Damage after Stat Boosts: %d\r\n", dam );
    }
@@ -2681,6 +2681,9 @@ void do_slay( CHAR_DATA * ch, const char *argument )
 void generate_threat( CHAR_DATA *angry_at, CHAR_DATA *angered, int amount )
 {
    THREAT_DATA *threat;
+
+   if( angry_at == angered || is_same_group( angry_at, angered ) )
+      return;
 
    int fickle = UMAX( 1, ( (int)( amount *.75 ) + angry_at->threat * 2 ) );
    int constant = UMAX( 1, (int)( amount *.25 ) );

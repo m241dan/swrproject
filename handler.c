@@ -4497,16 +4497,22 @@ void extract_cooldown( CHAR_DATA * ch, CD_DATA * cdat )
 
 bool is_on_cooldown( CHAR_DATA *ch, int gsn )
 {
+   SKILLTYPE *skill;
    CD_DATA *cdat;
 
    if( !ch->first_cooldown )
       return FALSE;
 
+   if( IS_NPC( ch ) )
+      skill = skill_table[gsn];
+   else
+      skill = ch->pc_skills[gsn];
+
    for( cdat = ch->first_cooldown; cdat; cdat = cdat->next )
    {
       if( gsn == cdat->sn )
       {
-         ch_printf( ch, "%s is on cooldown for %d more seconds.\r\n", skill_table[gsn]->name, (int)cdat->time_remaining );
+         ch_printf( ch, "%s is on cooldown for %d more seconds.\r\n", skill->name, (int)cdat->time_remaining );
          return TRUE;
       }
    }

@@ -5370,29 +5370,31 @@ void fwrite_fuss_exit( FILE * fpout, EXIT_DATA * pexit )
 
 void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
 {
-   if( paf->type < 0 || paf->type >= top_sn )
+   bool npc = FALSE;
+   int top_skill;
+
+   if( paf->from )
+      if( IS_NPC( paf->from ) )
+         npc = TRUE;
+
+   if( npc )
+      top_skill = top_sn;
+   else
+      top_skill = paf->from->top_sn;
+
+   if( paf->type < 0 || paf->type >= top_skill )
    {
       fprintf( fp, "Affect       %d %f %d %d %d %d '%s' %s\n",
                paf->type,
                paf->duration,
-               ( ( paf->location == APPLY_WEAPONSPELL
-                   || paf->location == APPLY_WEARSPELL
-                   || paf->location == APPLY_REMOVESPELL
-                   || paf->location == APPLY_STRIPSN )
-                 && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
+               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
    }
    else
    {
       fprintf( fp, "AffectData   '%s' %f %d %d %d %d '%s' %s\n",
-               skill_table[paf->type]->name,
+               npc ? skill_table[paf->type]->name : paf->from->pc_skills[paf->type]->name,
                paf->duration,
-               ( ( paf->location == APPLY_WEAPONSPELL
-                   || paf->location == APPLY_WEARSPELL
-                   || paf->location == APPLY_REMOVESPELL
-                   || paf->location == APPLY_STRIPSN )
-                 && IS_VALID_SN( paf->modifier ) )
-               ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
+               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
    }
 }
 
@@ -8429,7 +8431,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       }
 
       argument = one_argument( argument, arg3 );
-      if( ( modifier = atof( arg3 ) ) < 0 )
+      if( arg3[0] == '\0' || ( modifier = atof( arg3 ) ) < 0 )
       {
          ch_printf( ch, "'%s' is not a valid modifier value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
          return;
@@ -8714,15 +8716,10 @@ void do_dset( CHAR_DATA *ch, const char *argument )
             }
             else if( factor->factor_type == STAT_FACTOR )
             {
-               int stat;
-               double mod;
-
-               stat = factor->modifier / 1;
-               mod = factor->modifier - stat;
                ch_printf( ch, "Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n",
                           factor_names[factor->factor_type],
-                          mod,
-                          a_types[stat] );
+                          (int)( factor->modifier * 100 ),
+                          a_types[factor->location] );
             }
             else if( factor->factor_type == BASEROLL_FACTOR )
                ch_printf( ch, "Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n",

@@ -5414,39 +5414,45 @@ EXTRA_DESCR_DATA *fread_fuss_exdesc( FILE * fp )
 AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
 {
    AFFECT_DATA *paf;
-   int pafmod;
+   const char *skill_name;
+   bool npc = FALSE;
+   int sn;
 
    CREATE( paf, AFFECT_DATA, 1 );
    if( !strcmp( word, "Affect" ) )
-   {
       paf->type = fread_number( fp );
-   }
    else
-   {
-      int sn;
+      skill_name = fread_word( fp );
 
-      sn = skill_lookup( fread_word( fp ) );
-      if( sn < 0 )
-         bug( "%s: unknown skill.", __FUNCTION__ );
-      else
-         paf->type = sn;
-   }
-   paf->duration = fread_number( fp );
-   pafmod = fread_number( fp );
+   paf->duration = fread_float( fp );
+   paf->modifier = fread_number( fp );
    paf->location = fread_number( fp );
    paf->factor_id = fread_number( fp );
    paf->affect_type = fread_number( fp );
    paf->from = get_char_world( first_char, fread_word( fp ) );
    paf->bitvector = fread_bitvector( fp );
 
-   if( paf->location == APPLY_WEAPONSPELL
-       || paf->location == APPLY_WEARSPELL
-       || paf->location == APPLY_STRIPSN || paf->location == APPLY_REMOVESPELL )
-      paf->modifier = slot_lookup( pafmod );
-   else
-      paf->modifier = pafmod;
-
    ++top_affect;
+
+   if( !paf->from )
+   {
+      paf->type = -1;
+      return paf;
+   }
+
+   if( IS_NPC( paf->from ) )
+      npc = TRUE;
+
+   if( npc )
+      sn = skill_lookup( skill_name );
+   else
+      sn = get_player_skill_sn( paf->from, skill_name );
+
+   if( sn < 0 )
+      bug( "%s: unknown skill.", __FUNCTION__ );
+   else
+      paf->type = sn;
+
    return paf;
 }
 

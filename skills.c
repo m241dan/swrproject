@@ -192,10 +192,13 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    {
       for( sn = 0; sn < MAX_PC_SKILL; sn++ )
       {
-         if( LOWER( command[0] ) == LOWER( ch->pc_skills[sn]->name[0] )
-             && !str_prefix( command, ch->pc_skills[sn]->name ) )
+         if( ch->pc_skills[sn] == NULL )
+            continue;
+         if( !str_cmp( command, ch->pc_skills[sn]->name ) )
             break;
       }
+      if( sn == MAX_PC_SKILL )
+         return FALSE;
    }
 
    if( is_on_cooldown( ch, sn ) )
@@ -340,6 +343,8 @@ void do_skill( CHAR_DATA *ch, const char *argument )
          skill = ch->casting_skill;
          ch->skill_target = NULL;
          ch->casting_skill = NULL;
+         if( !check_pos( ch, skill->minimum_position ) )
+            return;
          adjust_stat( ch, STAT_MANA, -skill->min_mana );
          adjust_stat( ch, STAT_MOVE, -skill->min_move );
          adjust_stat( ch, STAT_HIT, -skill->min_hp );
@@ -394,6 +399,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
 
 void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
+   AFFECT_DATA *saf;
    STAT_BOOST *stat_boost;
    int amount;
 
@@ -407,6 +413,14 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    amount = res_pen( ch, victim, amount, skill->damtype );
 
+   for( saf = skill->first_affect; saf; saf = saf->next )
+   {
+      if( saf->apply_type == APPLY_JOIN_TARGET || saf->apply_type == APPLY_OVERRIDE_TARGET )
+         affect_to_char( victim, saf );
+      else if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_OVERRIDE_SELF )
+         affect_to_char( ch, saf );
+   }
+
    adjust_stat( victim, STAT_HIT, amount );
    generate_buff_threat( ch, victim, (int)( .8 * amount ) );
    heal_msg( ch, victim, amount );
@@ -414,14 +428,55 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 }
 void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
+   AFFECT_DATA *saf;
+
    if( IS_NPC( ch ) )
-      multi_hit( ch, victim, get_skill( skill->name ) );
+   {
+      int sn;
+      int first = 1;
+      int top = gsn_first_tongue - 1;
+      for( ;; )
+      {
+         sn = ( first + top ) >> 1;
+
+         if( LOWER( skill->name[0] ) == LOWER( skill_table[sn]->name[0] )
+             && !str_prefix( skill->name, skill_table[sn]->name ) )
+            break;
+         if( first >= top )
+            return;
+         if( strcasecmp( skill->name, skill_table[sn]->name ) < 1 )
+            top = sn - 1;
+         else
+            first = sn + 1;
+      }
+      multi_hit( ch, victim, sn );
+   }
    else
       multi_hit( ch, victim, get_player_skill_sn( ch, skill->name ) );
+
+   for( saf = skill->first_affect; saf; saf = saf->next )
+   {
+      if( saf->apply_type == APPLY_JOIN_TARGET || saf->apply_type == APPLY_OVERRIDE_TARGET )
+         affect_to_char( victim, saf );
+      else if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_OVERRIDE_SELF )
+         affect_to_char( ch, saf );
+   }
+
    return;
 }
 void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
+   AFFECT_DATA *saf;
+
+   for( saf = skill->first_affect; saf; saf = saf->next )
+   {
+      if( saf->apply_type == APPLY_JOIN_TARGET || saf->apply_type == APPLY_OVERRIDE_TARGET )
+         affect_to_char( victim, saf );
+      else if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_OVERRIDE_SELF )
+         affect_to_char( ch, saf );
+   }
+
+   return;
 }
 void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
@@ -4775,7 +4830,7 @@ void skills_checksum( CHAR_DATA * ch )
             continue;
          }
          LINK( updated_factor, ch->pc_skills[x]->first_factor, ch->pc_skills[x]->last_factor, next, prev );
-         factor_to_skill( ch->pc_skills[x], factor, TRUE );
+         	factor_to_skill( ch, ch->pc_skills[x], factor, TRUE );
       }
    }
 }
@@ -4784,13 +4839,13 @@ void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
 {
    UNLINK( factor, ch->first_factor, ch->last_factor, next, prev );
    LINK( factor, skill->first_factor, skill->last_factor, next, prev );
-   factor_to_skill( skill, factor, TRUE );
+   factor_to_skill( ch, skill, factor, TRUE );
    return;
 }
 
 void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable )
 {
-   factor_to_skill( skill, factor, FALSE );
+   factor_to_skill( ch, skill, factor, FALSE );
    UNLINK( factor, skill->first_factor, skill->last_factor, next, prev );
    if( MakeAvailable )
       LINK( factor, ch->first_factor, ch->last_factor, next, prev );
@@ -4799,7 +4854,7 @@ void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeA
    return;
 }
 
-void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
+void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
 {
    AFFECT_DATA *affect, *next_affect;
    STAT_BOOST *stat_boost, *stat_boost_next;
@@ -4814,12 +4869,14 @@ void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add )
          if( Add )
          {
             CREATE( affect, AFFECT_DATA, 1 );
+            affect->type = get_player_skill_sn( ch, skill->name );
             affect->duration = factor->duration;
             affect->location = factor->location;
             affect->modifier = factor->modifier;
             affect->bitvector = factor->affect;
             affect->factor_id = factor->id;
             affect->apply_type = factor->apply_type;
+            affect->from = ch;
             LINK( affect, skill->first_affect, skill->last_affect, next, prev );
             break;
          }
@@ -5090,9 +5147,13 @@ bool factor_in_use( CHAR_DATA *ch, FACTOR_DATA *factor )
    int x;
 
    for( x = 0; x < MAX_PC_SKILL; x++ )
+   {
+      if( ch->pc_skills[x] == NULL )
+         continue;
       for( skill_factor = ch->pc_skills[x]->first_factor; skill_factor; skill_factor = skill_factor->next )
          if( factor->id == skill_factor->id )
             return TRUE;
+   }
 
    return FALSE;
 }

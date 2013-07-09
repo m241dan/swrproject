@@ -2846,7 +2846,7 @@ typedef enum
 
 typedef enum
 {
-   APPLY_JOINF, APPLY_JOINE, APPLY_OVERRIDEF, APPLY_OVERRIDEE, NO_APPLY, MAX_APPLYTYPE
+   APPLY_JOIN_SELF, APPLY_JOIN_TARGET, APPLY_OVERRIDE_SELF, APPLY_OVERRIDE_TARGET, NO_APPLY, MAX_APPLYTYPE
 } applytype_types;
 struct auction_data
 {
@@ -4644,7 +4644,7 @@ void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor );
 void remfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool MakeAvailable );
 void update_skill args( ( CHAR_DATA *ch, SKILLTYPE * skill ) );
 void update_skills args( ( CHAR_DATA *ch ) );
-void factor_to_skill( SKILLTYPE *skill, FACTOR_DATA *factor, bool Add );
+void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool Add );
 int get_num_factors( SKILLTYPE *skill );
 int get_num_cost_types( SKILLTYPE *skill );
 int get_slot_level( CHAR_DATA *ch, SKILLTYPE *skill );
