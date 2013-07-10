@@ -1347,12 +1347,28 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
          ch_printf( ch, "&cLoot: Vnum &w%d &cPercent &w%d &cAmount &w%d\r\n", loot->vnum, loot->percent, loot->amount );
    }
    for( paf = victim->first_affect; paf; paf = paf->next )
-      if( ( skill = get_skilltype( paf->type ) ) != NULL )
+   {
+      if( !paf->from )
+      {
+         if( IS_NPC( paf->from ) )
+         {
+            if( ( skill = get_skilltype( paf->type ) ) == NULL )
+               continue;
+         }
+         else
+         {
+            if( ( skill = paf->from->pc_skills[paf->type] ) == NULL )
+               continue;
+         }
          ch_printf( ch,
                     "%s: '%s' modifies %s by %d for %d rounds with bits %s.\r\n",
                     skill_tname[skill->type],
                     skill->name,
                     affect_loc_name( paf->location ), paf->modifier, paf->duration, affect_bit_name( &paf->bitvector ) );
+      }
+      else
+         bug( "%s: Player: %s has affect not from player or npc, how?", __FUNCTION__, victim->name );
+   }
    send_to_char( "\r\nAI STUFF\r\n-------------------------------------------------------------------------------------\r\n", ch );
    ch_printf( ch, "Thought Speed   : %f (seconds)\r\n", victim->tspeed );
    ch_printf( ch, "Next Thought    : %f (secodns)\r\n", victim->next_thought );

@@ -315,8 +315,21 @@ void do_score( CHAR_DATA * ch, const char *argument )
       send_to_char( "AFFECT DATA:                            ", ch );
       for( paf = ch->first_affect; paf; paf = paf->next )
       {
-         if( ( sktmp = get_skilltype( paf->type ) ) == NULL )
+         if( !paf->from )
+         {
+            bug( "%s: Player %s has skill not from another player or NPC.", __FUNCTION__, ch->name );
             continue;
+         }
+         if( IS_NPC( paf->from ) )
+         {
+            if( ( sktmp = get_skilltype( paf->type ) ) == NULL )
+               continue;
+         }
+         else
+         {
+            if( ( sktmp = paf->from->pc_skills[paf->type] ) == NULL )
+               continue;
+         }
          if( ch->top_level < 20 )
          {
             ch_printf( ch, "[%-34.34s]    ", sktmp->name );

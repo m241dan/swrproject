@@ -2824,9 +2824,9 @@ struct factor_data
    int factor_type;
    int location;
    EXT_BV affect;
-   double modifier;
+   int modifier;
    int apply_type;
-   int duration;
+   double duration;
 };
 
 typedef enum
