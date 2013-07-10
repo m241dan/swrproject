@@ -5414,8 +5414,7 @@ EXTRA_DESCR_DATA *fread_fuss_exdesc( FILE * fp )
 AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
 {
    AFFECT_DATA *paf;
-   const char *skill_name;
-   bool npc = FALSE;
+   const char *skill_name, *from_name;
    int sn;
 
    CREATE( paf, AFFECT_DATA, 1 );
@@ -5429,21 +5428,21 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
    paf->location = fread_number( fp );
    paf->factor_id = fread_number( fp );
    paf->affect_type = fread_number( fp );
-   paf->from = get_char_world( first_char, fread_word( fp ) );
+   from_name = fread_word( fp );
+   paf->from = !str_cmp( from_name, loading_char->name ) ? loading_char : get_char_world( first_char, fread_word( fp ) ); /* Rather a moot point, but just in case somethign slips through */
    paf->bitvector = fread_bitvector( fp );
 
    ++top_affect;
 
    if( !paf->from )
    {
+      DISPOSE( skill_name );
+      DISPOSE( from_name );
       paf->type = -1;
       return paf;
    }
 
    if( IS_NPC( paf->from ) )
-      npc = TRUE;
-
-   if( npc )
       sn = skill_lookup( skill_name );
    else
       sn = get_player_skill_sn( paf->from, skill_name );
@@ -5452,6 +5451,9 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
       bug( "%s: unknown skill.", __FUNCTION__ );
    else
       paf->type = sn;
+
+   DISPOSE( skill_name );
+   DISPOSE( from_name );
 
    return paf;
 }

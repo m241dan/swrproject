@@ -2814,6 +2814,17 @@ void split_timers_update(  )
                for( paf = ch->first_affect; paf; paf = paf_next )
                {
                   paf_next = paf->next;
+
+                  if( !paf->from && paf->affect_type == AFFECT_BUFF )
+                  {
+                     ch_printf( ch, "You have lost %s buff because the castor is no longer around.\r\n", a_types[paf->location] );
+                     set_char_color( AT_WEAROFF, ch );
+                     send_to_char( skill->msg_off, ch );
+                     send_to_char( "\r\n", ch );
+                     affect_remove( ch, paf );
+                     continue;
+                  }
+
                   if( paf->duration > 0 )
                      paf->duration -= .25;
                   else if( paf->duration < 0 )
@@ -2834,7 +2845,7 @@ void split_timers_update(  )
                            send_to_char( "\r\n", ch );
                         }
                      }
-                     if( IS_NPC( paf->from ) && paf->type == gsn_possess )
+                     if( paf->from && IS_NPC( paf->from ) && paf->type == gsn_possess )
                      {
                         ch->desc->character = ch->desc->original;
                         ch->desc->original = NULL;
