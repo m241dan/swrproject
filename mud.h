@@ -4811,6 +4811,7 @@ int get_apply_type( const char *apply );
 void free_affect( AFFECT_DATA *aff );
 void free_statboost( STAT_BOOST *stat_boost );
 int get_stat_value( CHAR_DATA *ch, int stat );
+AFFECT_DATA *copy_affect( AFFECT_DATA *aff );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

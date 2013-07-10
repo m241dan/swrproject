@@ -889,15 +889,8 @@ void affect_to_char( CHAR_DATA * ch,  AFFECT_DATA * paf )
       return;
    }
 
-   CREATE( paf_new, AFFECT_DATA, 1 );
+   paf_new = copy_affect( paf );
    LINK( paf_new, ch->first_affect, ch->last_affect, next, prev );
-   paf_new->type = paf->type;
-   paf_new->from = paf->from;
-   paf_new->affect_type = paf->affect_type;
-   paf_new->duration = paf->duration;
-   paf_new->location = paf->location;
-   paf_new->modifier = paf->modifier;
-   paf_new->bitvector = paf->bitvector;
    affect_modify( ch, paf_new, TRUE );
 
    if( paf_new->from )
@@ -980,7 +973,7 @@ void affect_join( CHAR_DATA * ch, AFFECT_DATA * paf )
    AFFECT_DATA *paf_old;
 
    for( paf_old = ch->first_affect; paf_old; paf_old = paf_old->next )
-      if( paf_old->type == paf->type )
+      if( paf_old->type == paf->type && paf_old->factor_id == paf->factor_id )
       {
          paf->duration = UMIN( 1000000, paf->duration + paf_old->duration );
          if( paf->modifier )
@@ -4695,6 +4688,10 @@ bool is_skill_usable( CHAR_DATA *ch, SKILLTYPE *skill )
 
    if( skill->type == SKILL_UNSET || skill->style == STYLE_UNSET || skill->target == TAR_CHAR_UNSET || xIS_EMPTY( skill->cost ) )
       return FALSE;
+
+   if( skill->type == SKILL_SPELL && xIS_EMPTY( skill->damtype ) )
+      return FALSE;
+
    for( factor = skill->first_factor; factor; factor = factor->next )
       if( !is_discipline_set( ch, factor->owner ) )
          return FALSE;
@@ -4815,4 +4812,24 @@ int get_stat_value( CHAR_DATA *ch, int stat )
       case APPLY_ARMOR:
          return GET_ARMOR( ch );
    }
+}
+
+AFFECT_DATA *copy_affect( AFFECT_DATA *aff )
+{
+   AFFECT_DATA *caf;
+
+   if( !aff )  /* A little protection */
+      return NULL;
+
+   CREATE( caf, AFFECT_DATA, 1 );
+   caf->from = aff->from;
+   caf->affect_type = aff->affect_type;
+   caf->type = aff->type;
+   caf->duration = aff->duration;
+   caf->location = aff->location;
+   caf->modifier = aff->modifier;
+   caf->bitvector = aff->bitvector;
+   caf->factor_id = aff->factor_id;
+   caf->apply_type = aff->apply_type;
+   return caf;
 }

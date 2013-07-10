@@ -415,10 +415,21 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
-      if( saf->apply_type == APPLY_JOIN_TARGET || saf->apply_type == APPLY_OVERRIDE_TARGET )
-         affect_to_char( victim, saf );
-      else if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_OVERRIDE_SELF )
-         affect_to_char( ch, saf );
+      switch( saf->apply_type )
+      {
+         case APPLY_JOIN_TARGET:
+            affect_join( victim, saf );
+            break;
+         case APPLY_JOIN_SELF:
+            affect_join( ch, saf );
+            break;
+         case APPLY_OVERRIDE_TARGET:
+            affect_to_char( victim, saf );
+            break;
+         case APPLY_OVERRIDE_SELF:
+            affect_to_char( ch, saf );
+            break;
+      }
    }
 
    adjust_stat( victim, STAT_HIT, amount );
@@ -456,30 +467,104 @@ void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
-      if( saf->apply_type == APPLY_JOIN_TARGET || saf->apply_type == APPLY_OVERRIDE_TARGET )
-         affect_to_char( victim, saf );
-      else if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_OVERRIDE_SELF )
-         affect_to_char( ch, saf );
+      switch( saf->apply_type )
+      {
+         case APPLY_JOIN_TARGET:
+            affect_join( victim, saf );
+            break;
+         case APPLY_JOIN_SELF:
+            affect_join( ch, saf );
+            break;
+         case APPLY_OVERRIDE_TARGET:
+            affect_to_char( victim, saf );
+            break;
+         case APPLY_OVERRIDE_SELF:
+            affect_to_char( ch, saf );
+            break;
+      }
    }
 
    return;
 }
 void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   AFFECT_DATA *saf;
+   AFFECT_DATA *saf, *caf;
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
-      if( saf->apply_type == APPLY_JOIN_TARGET || saf->apply_type == APPLY_OVERRIDE_TARGET )
-         affect_to_char( victim, saf );
-      else if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_OVERRIDE_SELF )
-         affect_to_char( ch, saf );
-   }
+      caf = copy_affect( saf );
 
+      if( caf->location != APPLY_AFFECT )
+         caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
+
+      switch( caf->apply_type )
+      {
+         case APPLY_JOIN_TARGET:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier /= 2;
+            affect_join( victim, caf );
+            break;
+         case APPLY_JOIN_SELF:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier /= 2;
+            affect_join( ch, caf );
+            break;
+         case APPLY_OVERRIDE_TARGET:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier *= 4;
+            affect_to_char( victim, caf );
+            break;
+         case APPLY_OVERRIDE_SELF:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier *= 4;
+            affect_to_char( ch, caf );
+            break;
+      }
+   }
+   free_affect( caf );
    return;
 }
 void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
+   AFFECT_DATA *saf, *caf;
+
+   for( saf = skill->first_affect; saf; saf = saf->next )
+   {
+      caf = copy_affect( saf );
+
+      if( caf->location != APPLY_AFFECT )
+      {
+         caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
+         caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
+      }
+
+      if( caf->location != APPLY_AFFECT )
+      switch( saf->apply_type )
+      {
+         case APPLY_JOIN_TARGET:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier = (int)( caf->modifier * 1.5 );
+            affect_join( victim, saf );
+            break;
+         case APPLY_JOIN_SELF:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier = (int)( caf->modifier * 1.5 );
+            affect_join( ch, saf );
+            break;
+         case APPLY_OVERRIDE_TARGET:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier = (int)( caf->modifier * 3 );
+            affect_to_char( victim, saf );
+            break;
+         case APPLY_OVERRIDE_SELF:
+            if( caf->location != APPLY_AFFECT )
+               caf->modifier = (int)( caf->modifier * 3 );
+            affect_to_char( ch, saf );
+            break;
+      }
+   }
+   free_affect( caf );
+   return;
 }
 void redirect_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
