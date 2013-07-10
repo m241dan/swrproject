@@ -1374,6 +1374,8 @@ void do_quit( CHAR_DATA * ch, const char *argument )
    int x, y;
    int level;
    QTIMER *qtimer, *next_qtimer;
+   CHAR_DATA *wch, *wch_next;
+   AFFECT_DATA *paf, *paf_next;
 
    if( IS_NPC( ch ) && IS_SET( ch->act, ACT_POLYMORPHED ) )
    {
@@ -1410,6 +1412,25 @@ void do_quit( CHAR_DATA * ch, const char *argument )
       send_to_char( "You will have to find a safer resting place such as a hotel...\r\n", ch );
       send_to_char( "Maybe you could HAIL a speeder.\r\n", ch );
       return;
+   }
+
+   for( wch = first_char; wch; wch = wch_next )
+   {
+      wch_next = wch->next;
+
+      if( wch == ch )
+         continue;
+
+      for( paf = wch->first_affect; paf; paf = paf_next )
+      {
+         paf_next = paf->next;
+         if( paf->from == ch )
+         {
+            affect_remove( wch, paf );
+            ch_printf( wch, "%s is no longer around to support their %s.", ch->name, paf->affect_type == AFFECT_BUFF ? "Buff" : "Enfeeble" );
+         }
+      }
+
    }
 
    for( qtimer = first_qtimer; qtimer; qtimer = next_qtimer )
