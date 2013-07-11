@@ -1046,7 +1046,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  attack defense numattacks addskill remskill\r\n", ch );
       send_to_char( "  discipline speaking speaks (see LANGUAGES)\r\n", ch );
       send_to_char( "  name short long description title spec spec2\r\n", ch );
-      send_to_char( "  clan vip wanted teach remteach\r\n", ch );
+      send_to_char( "  clan vip wanted addteach remteach\r\n", ch );
       send_to_char( "\r\n", ch );
       send_to_char( "For editing index/prototype mobiles:\r\n", ch );
       send_to_char( "  hitnumdie hitsizedie hitplus (hit points)\r\n", ch );
@@ -5822,7 +5822,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    }
 
    for( teach = pMobIndex->first_teach; teach; teach = teach->next )
-      fprintf( fpout, "TeachData  %d %d", teach->disc_id, teach->credits );
+      fprintf( fpout, "TeachData  %d %d\n", teach->disc_id, teach->credits );
 
    if( pMobIndex->mudprogs )
    {

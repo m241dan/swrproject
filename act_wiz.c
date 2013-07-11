@@ -1343,7 +1343,7 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
       TEACH_DATA *teach;
       DISC_DATA *disc;
 
-      for( teach = ch->pIndexData->first_teach; teach; teach = teach->next )
+      for( teach = victim->pIndexData->first_teach; teach; teach = teach->next )
       {
          if( ( disc = get_discipline_from_id( teach->disc_id ) ) == NULL )
          {

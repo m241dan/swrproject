@@ -536,6 +536,7 @@ void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
       {
          caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
          caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
+         caf->modifier *= -1;
       }
 
       if( caf->location != APPLY_AFFECT )
@@ -4943,7 +4944,7 @@ void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool
 {
    AFFECT_DATA *affect, *next_affect;
    STAT_BOOST *stat_boost, *stat_boost_next;
-   int mod = factor->modifier;
+   double mod = factor->modifier;
 
    if( !Add )
       mod *= -1;
@@ -4957,7 +4958,7 @@ void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool
             affect->type = get_player_skill_sn( ch, skill->name );
             affect->duration = factor->duration;
             affect->location = factor->location;
-            affect->modifier = factor->modifier;
+            affect->modifier = (int)factor->modifier;
             affect->bitvector = factor->affect;
             affect->factor_id = factor->id;
             affect->apply_type = factor->apply_type;
@@ -5241,4 +5242,201 @@ bool factor_in_use( CHAR_DATA *ch, FACTOR_DATA *factor )
    }
 
    return FALSE;
+}
+
+void do_learn( CHAR_DATA *ch, const char *argument )
+{
+   DISC_DATA *disc;
+   TEACH_DATA *teach;
+   CHAR_DATA *mob;
+   FACTOR_DATA *factor;
+   char arg[MAX_INPUT_LENGTH];
+   char arg2[MAX_INPUT_LENGTH];
+   int count = 0;
+   int value, x;
+
+   if( IS_NPC( ch ) )
+      return;
+
+   if( argument[0] == '\0' )
+   {
+      send_to_char( "Proper Usage: learn <mob> <list|show#|'discipline'>\r\n", ch );
+      return;
+   }
+
+   argument = one_argument( argument, arg );
+   if( ( mob = get_char_room( ch, arg ) ) == NULL )
+   {
+      send_to_char( "That mob is not here.\r\n", ch );
+      return;
+   }
+
+   if( !IS_NPC( mob ) )
+   {
+      send_to_char( "You can currently only learn disciplines from mobs!\r\n", ch );
+      return;
+   }
+
+   if( !mob->pIndexData->first_teach )
+   {
+      send_to_char( "That mob is not a teacher.\r\n", ch );
+      return;
+   }
+
+   argument = one_argument( argument, arg2 );
+   if( !str_cmp( arg2, "list" ) )
+   {
+      ch_printf( ch, "%s Teaches:\r\n", mob->name );
+      for( teach = mob->pIndexData->first_teach; teach; teach = teach->next )
+      {
+         if( ( disc = get_discipline_from_id( teach->disc_id ) ) == NULL )
+         {
+            bug( "%s: Bad DISC on %s vnum %d", __FUNCTION__, mob->name, mob->pIndexData->vnum );
+            continue;
+         }
+         ch_printf( ch, "Index %-2d: %-20.20s Cost: %d credits\r\n", count++, disc->name, teach->credits );
+      }
+      return;
+   }
+
+   if( !str_cmp( arg2, "show" ) )
+   {
+      if( argument[0] == '\0' || !is_number( argument ) )
+      {
+         send_to_char( "Enter a proper Index Data\r\n", ch );
+         return;
+      }
+      if( ( value = atoi( argument ) ) < 0 )
+      {
+         send_to_char( "No disciplines with an index that low.\r\n", ch );
+         return;
+      }
+
+      for( teach = mob->pIndexData->first_teach; teach; teach = teach->next )
+      {
+         if( value == count++ )
+            break;
+      }
+
+      if( !teach )
+      {
+         send_to_char( "no disciplines iwth an idnex that high.\r\n", ch );
+         return;
+      }
+
+      if( ( disc = get_discipline_from_id( teach->disc_id ) ) == NULL )
+      {
+         send_to_char( "Something has gone terribly wrong. Contact nearest Immortal immediately.\r\n", ch );
+         bug( "%s: Bad Disc_ID", __FUNCTION__ );
+         return;
+      }
+
+      ch_printf( ch, "The %s disciplines grants the following...\r\n", disc->name );
+      send_to_char(  "------------------------------------------\r\n", ch );
+      send_to_char(  "Settable Types:\r\n", ch );
+
+      send_to_char(  "  Skills  |", ch );
+      for( x = 0; x < MAX_SKILLTYPE; x++ )
+         if( xIS_SET( disc->skill_type, x ) )
+            ch_printf( ch, " %s", skill_tname[x] );
+      send_to_char(  "\r\n", ch );
+
+      send_to_char(  "  Targets |", ch );
+      for( x = 0; x < TAR_CHAR_MAX; x++ )
+         if( xIS_SET( disc->target_type, x ) )
+            ch_printf( ch, " %s", target_type[x] );
+      send_to_char(  "\r\n", ch );
+
+      send_to_char(  "  Styles  |", ch );
+      for( x = 0; x < STYLE_MAX; x++ )
+         if( xIS_SET( disc->skill_style, x ) )
+            ch_printf( ch, " %s", style_type[x] );
+      send_to_char(  "\r\n", ch );
+
+      send_to_char(  "   Cost   |", ch );
+      for( x  = 0; x < MAX_COST; x++ )
+         if( xIS_SET( disc->cost, x ) )
+            ch_printf( ch, " %s", cost_type[x] );
+      send_to_char(  "\r\n", ch );
+
+      send_to_char(  "  Damages |", ch );
+      for( x = 0; x < MAX_DAMTYPE; x++ )
+         if( xIS_SET( disc->damtype, x ) )
+            ch_printf( ch, " %s", d_type[x] );
+      send_to_char(  "\r\n\r\n", ch );
+
+      if( disc->first_factor )
+         ch_printf( ch, "%s will allow you to add the following factors to skills...\r\nKeep in mind, the style of the skill may modify some of these base values.", disc->name );
+
+      for( factor = disc->first_factor; factor; factor = factor->next )
+      {
+         switch( factor->factor_type )
+         {
+            case APPLY_FACTOR:
+               ch_printf( ch, "   Factor %d is an Apply Factor. When a skill it has been added to is used, it will create an affect of %d %s and send it to the %s for a duration of %d. This affect will %s an affect from this same factor already on the target.\r\n",
+                          count++,
+                          factor->location != APPLY_AFFECT ? (int)factor->modifier : get_num_affects( &factor->affect ),
+                          factor->location == APPLY_AFFECT ? "affects listed below": a_types[factor->location],
+                          ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_OVERRIDE_SELF ) ? "castor" : "target",
+                          factor->duration,
+                          ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_JOIN_TARGET ) ? "join" : "override" );
+               if( !xIS_EMPTY( factor->affect ) )
+               {
+                  send_to_char( " AFFECTS:", ch );
+                  for( x = 0; x < MAX_AFF; x++ )
+                     if( xIS_SET( factor->affect, x ) )
+                        ch_printf( ch, " %s", a_flags[x] );
+                  send_to_char( "\r\n", ch );
+               }
+               break;
+            case STAT_FACTOR:
+               ch_printf( ch, "   Factor %d is a Stat Factor. It will add %d%% of your %s to the base roll of damage and healing style abilities.\r\n",
+                          count++,
+                          (int)( factor->modifier * 100 ),
+                          a_types[factor->location] );
+               break;
+            case BASEROLL_FACTOR:
+               ch_printf( ch, "   Factor %d is a Base Roll Factor. This will modify the initiate base roll(before any stat factors are added) by %d%%.\r\n",
+                          count++,
+                          (int)( factor->modifier * 100 ) );
+         }
+      }
+   }
+
+   if( ( disc = get_discipline( arg2 ) ) != NULL )
+   {
+      if( player_has_discipline( ch, disc ) )
+      {
+         send_to_char( "You already know this discipline.\r\n", ch );
+         return;
+      }
+      if( !can_teach( mob, disc ) )
+      {
+         send_to_char( "Mob does not teach that discipline.\r\n", ch );
+         return;
+      }
+      if( ( value = get_discipline_cost( mob, disc ) ) == -1 )
+      {
+         send_to_char( "You can't learn this discipline.\r\n", ch );
+         bug( "%s: returning 0 cost for some reason.", __FUNCTION__ );
+         return;
+      }
+      if( ch->gold < value )
+      {
+         send_to_char( "You can't afford the lessons.\r\n", ch );
+         return;
+      }
+
+      adjust_stat( ch, STAT_GOLD, -value );
+      add_discipline( ch, disc);
+      ch_printf( ch, "You hand %s %d credits to learn %s.\r\nCongratulations, you have learned %s!\r\n", mob->name, value, disc->name, disc->name );
+      return;
+   }
+   else
+   {
+      send_to_char( "No such discipline\r\n", ch );
+      do_learn( ch, "" );
+      return;
+   }
+   return;
 }

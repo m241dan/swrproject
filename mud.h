@@ -1224,7 +1224,7 @@ typedef enum
    STAT_REGEN, STAT_REFRESH, STAT_DOUBLEATTACK, STAT_CRITCHANCE, STAT_CRITDAM,
    STAT_DODGE, STAT_PARRY, STAT_COUNTER, STAT_BLOCK, STAT_PHASE, STAT_COMBODMG,
    STAT_CHARMEDDMG, STAT_CHARMEDDEF, STAT_FEEDBACKPOTENCY, STAT_GRAVITY, STAT_HITROLL,
-   STAT_ARMOR, STAT_EVASION, STAT_CHARISMA, STAT_PERMCHA, STAT_LUCK,
+   STAT_ARMOR, STAT_EVASION, STAT_CHARISMA, STAT_PERMCHA, STAT_LUCK, STAT_GOLD,
    MAX_STATTYPE
 } stat_types;
 
@@ -2836,7 +2836,7 @@ struct factor_data
    int factor_type;
    int location;
    EXT_BV affect;
-   int modifier;
+   double modifier;
    int apply_type;
    double duration;
 };
@@ -4824,6 +4824,9 @@ void free_affect( AFFECT_DATA *aff );
 void free_statboost( STAT_BOOST *stat_boost );
 int get_stat_value( CHAR_DATA *ch, int stat );
 AFFECT_DATA *copy_affect( AFFECT_DATA *aff );
+bool can_teach( CHAR_DATA *teacher, DISC_DATA *discipline );
+int get_discipline_cost( CHAR_DATA *teacher, DISC_DATA *discipline );
+int get_num_affects( EXT_BV *affect );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

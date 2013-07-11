@@ -4288,6 +4288,9 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
       case STAT_GRAVITY:
          ch->gravity += amount;
          break; */
+      case STAT_GOLD:
+         ch->gold += amount;
+         break;
    }
 }
 
@@ -4832,4 +4835,42 @@ AFFECT_DATA *copy_affect( AFFECT_DATA *aff )
    caf->factor_id = aff->factor_id;
    caf->apply_type = aff->apply_type;
    return caf;
+}
+
+bool can_teach( CHAR_DATA *teacher, DISC_DATA *discipline )
+{
+   TEACH_DATA *teach;
+
+   if( !IS_NPC( teacher ) )
+      return FALSE;
+
+   for( teach = teacher->pIndexData->first_teach; teach; teach = teach->next )
+      if( teach->disc_id == discipline->id )
+         return TRUE;
+   return FALSE;
+}
+
+int get_discipline_cost( CHAR_DATA *teacher, DISC_DATA *discipline )
+{
+   TEACH_DATA *teach;
+
+   if( !IS_NPC( teacher ) )
+      return -1;
+
+   for( teach = teacher->pIndexData->first_teach; teach; teach = teach->next )
+      if( teach->disc_id == discipline->id )
+         return teach->credits;
+   return -1;
+}
+
+int get_num_affects( EXT_BV *affect )
+{
+   int count = 0;
+   int x;
+
+   for( x = 0; x < MAX_AFF; x++ )
+      if( xIS_SET( *affect, x ) )
+         ++count;
+
+   return count;
 }

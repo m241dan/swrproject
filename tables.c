@@ -638,7 +638,7 @@ DISC_DATA *fread_discipline( FILE * fp )
                factor->affect = fread_bitvector( fp );
                factor->modifier = fread_float( fp );
                factor->apply_type = fread_number( fp );
-               factor->duration = fread_number( fp );
+               factor->duration = fread_float( fp );
                factor->owner = disc;
                LINK( factor, disc->first_factor, disc->last_factor, next, prev );
                break;
@@ -729,7 +729,7 @@ void fwrite_discipline( FILE *fpout, DISC_DATA *discipline )
 
    for( factor = discipline->first_factor; factor; factor = factor->next )
    {
-      fprintf( fpout, "#Factor %d %d %d %s %d %d %f\n", factor->id, factor->factor_type, factor->location, print_bitvector( &factor->affect ), factor->modifier, factor->apply_type, factor->duration );
+      fprintf( fpout, "#Factor %d %d %d %s %f %d %f\n", factor->id, factor->factor_type, factor->location, print_bitvector( &factor->affect ), factor->modifier, factor->apply_type, factor->duration );
    }
 
    for( aff = discipline->first_affect; aff; aff = aff->next )
