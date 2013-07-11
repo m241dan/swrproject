@@ -511,6 +511,9 @@ void show_char_to_char_0( CHAR_DATA * victim, CHAR_DATA * ch )
       strcat( buf, "(PROTO) " );
    if( victim->desc && victim->desc->connected == CON_EDITING )
       strcat( buf, "(Writing) " );
+   if( IS_NPC( victim ) && victim->pIndexData->first_teach )
+      strcat( buf, "(Teacher)&w " );
+
 
    set_char_color( AT_PERSON, ch );
    if( victim->position == victim->defposition && victim->long_descr[0] != '\0' )

@@ -125,6 +125,8 @@ typedef struct cooldown_data CD_DATA;
 typedef struct discipline_data DISC_DATA;
 typedef struct factor_data FACTOR_DATA;
 typedef struct stat_boost STAT_BOOST;
+typedef struct teach_data TEACH_DATA;
+
 /*
 * Function types.
 */
@@ -367,6 +369,14 @@ struct cooldown_data
    double time_remaining;
 };
 
+struct teach_data
+{
+   TEACH_DATA *next;
+   TEACH_DATA *prev;
+   int disc_id;
+   int credits;
+
+};
 
 /*
 * do_who output structure -- Narn
@@ -2064,6 +2074,8 @@ struct mob_index_data
    int haste;
    double tspeed; /* thought speed, how often a mob thinks */
    int npc_skills[MAX_NPC_SKILL];
+   TEACH_DATA *first_teach;
+   TEACH_DATA *last_teach;
 };
 
 struct loot_data

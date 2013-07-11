@@ -6940,7 +6940,6 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                   pMobIndex->spec_funname2 = STRALLOC( temp );
                break;
             }
-            
             if( !str_cmp( word, "Stats1" ) )
             {
                char *ln = fread_line( fp );
@@ -7034,6 +7033,19 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                   else
                      SET_BIT( pMobIndex->susceptible, 1 << value );
                }
+               break;
+            }
+            break;
+
+         case 'T':
+            if( !str_cmp( word, "TeachData" ) )
+            {
+               TEACH_DATA *teach;
+
+               CREATE( teach, TEACH_DATA, 1 );
+               LINK( teach, pMobIndex->first_teach, pMobIndex->last_teach, next, prev );
+               teach->disc_id = fread_number( fp );
+               teach->credits = fread_number( fp );
                break;
             }
             break;

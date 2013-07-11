@@ -5645,6 +5645,7 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
 
 void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install )
 {
+   TEACH_DATA *teach;
    SHOP_DATA *pShop;
    REPAIR_DATA *pRepair;
    MPROG_DATA *mprog;
@@ -5737,6 +5738,9 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
                pRepair->fix_type[0], pRepair->fix_type[1], pRepair->fix_type[2], pRepair->profit_fix, pRepair->shop_type,
                pRepair->open_hour, pRepair->close_hour );
    }
+
+   for( teach = pMobIndex->first_teach; teach; teach = teach->next )
+      fprintf( fpout, "TeachData  %d %d", teach->disc_id, teach->credits );
 
    if( pMobIndex->mudprogs )
    {
