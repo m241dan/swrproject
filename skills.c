@@ -4683,6 +4683,7 @@ void rem_discipline( CHAR_DATA *ch, DISC_DATA *discipline )
        if( ch->known_disciplines[x] == discipline )
           ch->known_disciplines[x] = NULL;
 
+   update_disciplines( ch );
    save_char_obj( ch );
    saving_char = NULL;
    return;
@@ -5286,7 +5287,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
    argument = one_argument( argument, arg2 );
    if( !str_cmp( arg2, "list" ) )
    {
-      ch_printf( ch, "%s Teaches:\r\n", mob->name );
+      ch_printf( ch, "%s teaches:\r\n", mob->name );
       for( teach = mob->pIndexData->first_teach; teach; teach = teach->next )
       {
          if( ( disc = get_discipline_from_id( teach->disc_id ) ) == NULL )
@@ -5294,7 +5295,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
             bug( "%s: Bad DISC on %s vnum %d", __FUNCTION__, mob->name, mob->pIndexData->vnum );
             continue;
          }
-         ch_printf( ch, "Index %-2d: %-20.20s Cost: %d credits\r\n", count++, disc->name, teach->credits );
+         ch_printf( ch, "index %-2d: %-20.20s Cost: %d credits\r\n", count++, disc->name, teach->credits );
       }
       return;
    }
@@ -5303,7 +5304,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
    {
       if( argument[0] == '\0' || !is_number( argument ) )
       {
-         send_to_char( "Enter a proper Index Data\r\n", ch );
+         send_to_char( "Enter a proper index data.\r\n", ch );
          return;
       }
       if( ( value = atoi( argument ) ) < 0 )
@@ -5332,41 +5333,42 @@ void do_learn( CHAR_DATA *ch, const char *argument )
       }
 
       ch_printf( ch, "The %s disciplines grants the following...\r\n", disc->name );
-      send_to_char(  "------------------------------------------\r\n", ch );
-      send_to_char(  "Settable Types:\r\n", ch );
+      send_to_char(  "-------------------------------------------------------------\r\n", ch );
+      send_to_char(  "Settable Types |\r\n", ch );
+      send_to_char(  "----------------\r\n", ch );
 
-      send_to_char(  "  Skills  |", ch );
+      send_to_char(  "Skills  |", ch );
       for( x = 0; x < MAX_SKILLTYPE; x++ )
          if( xIS_SET( disc->skill_type, x ) )
             ch_printf( ch, " %s", skill_tname[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "  Targets |", ch );
+      send_to_char(  "Targets |", ch );
       for( x = 0; x < TAR_CHAR_MAX; x++ )
          if( xIS_SET( disc->target_type, x ) )
             ch_printf( ch, " %s", target_type[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "  Styles  |", ch );
+      send_to_char(  "Styles  |", ch );
       for( x = 0; x < STYLE_MAX; x++ )
          if( xIS_SET( disc->skill_style, x ) )
             ch_printf( ch, " %s", style_type[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "   Cost   |", ch );
+      send_to_char(  "Cost    |", ch );
       for( x  = 0; x < MAX_COST; x++ )
          if( xIS_SET( disc->cost, x ) )
             ch_printf( ch, " %s", cost_type[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "  Damages |", ch );
+      send_to_char(  "Damages |", ch );
       for( x = 0; x < MAX_DAMTYPE; x++ )
          if( xIS_SET( disc->damtype, x ) )
             ch_printf( ch, " %s", d_type[x] );
       send_to_char(  "\r\n\r\n", ch );
 
       if( disc->first_factor )
-         ch_printf( ch, "%s will allow you to add the following factors to skills...\r\nKeep in mind, the style of the skill may modify some of these base values.", disc->name );
+         ch_printf( ch, "The %s will allow you to add the following factors to skills...\r\n  (Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );
 
       for( factor = disc->first_factor; factor; factor = factor->next )
       {
@@ -5378,7 +5380,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
                           factor->location != APPLY_AFFECT ? (int)factor->modifier : get_num_affects( &factor->affect ),
                           factor->location == APPLY_AFFECT ? "affects listed below": a_types[factor->location],
                           ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_OVERRIDE_SELF ) ? "castor" : "target",
-                          factor->duration,
+                          (int)factor->duration,
                           ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_JOIN_TARGET ) ? "join" : "override" );
                if( !xIS_EMPTY( factor->affect ) )
                {
@@ -5401,6 +5403,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
                           (int)( factor->modifier * 100 ) );
          }
       }
+      return;
    }
 
    if( ( disc = get_discipline( arg2 ) ) != NULL )
