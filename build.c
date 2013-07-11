@@ -1447,6 +1447,76 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "addteach" ) )
+   {
+      DISC_DATA *disc;
+      TEACH_DATA *teach;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Only on Mobs.\r\n", ch );
+         return;
+      }
+
+      argument = one_argument( argument, arg3 );
+      if( ( disc = get_discipline( arg3 ) ) == NULL )
+      {
+         send_to_char( "No such discipline exists.\r\n", ch );
+         return;
+      }
+
+      argument = one_argument( argument, arg3 );
+      if( !is_number( arg3 ) )
+      {
+         send_to_char( "Enter a credit value for the teacher to charge.\r\n", ch );
+         return;
+      }
+
+      CREATE( teach, TEACH_DATA, 1 );
+      teach->disc_id = disc->id;
+      teach->credits = atoi( arg3 );
+      LINK( teach, victim->pIndexData->first_teach, victim->pIndexData->last_teach, next, prev );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "remteach" ) )
+   {
+      TEACH_DATA *teach;
+      int count = 0;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Only on Mobs.\r\n", ch );
+         return;
+      }
+
+      if( value < 0 )
+      {
+         send_to_char( "There are no teach datas with that low an index.\r\n", ch );
+         return;
+      }
+
+      for( teach = victim->pIndexData->first_teach; teach; teach = teach->next )
+      {
+         if( value == count++ )
+         {
+            UNLINK( teach, victim->pIndexData->first_teach, victim->pIndexData->last_teach, next, prev );
+            DISPOSE( teach );
+            send_to_char( "Ok.\r\n", ch );
+            return;
+         }
+      }
+      send_to_char(" There are no teach datas with that high an index.\r\n", ch );
+      return;
+   }
+
    if( !str_cmp( arg2, "penetration" ) )
    {
       int value2;
