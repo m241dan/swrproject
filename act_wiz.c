@@ -1338,6 +1338,22 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Susceptible: %s\r\n", flag_string( victim->susceptible, ris_flags ) );
    ch_printf( ch, "Attacks    : %s\r\n", flag_string( victim->attacks, attack_flags ) );
    ch_printf( ch, "Defenses   : %s\r\n", flag_string( victim->defenses, defense_flags ) );
+   if( IS_NPC( victim ) )
+   {
+      TEACH_DATA *teach;
+      DISC_DATA *disc;
+
+      for( teach = ch->pIndexData->first_teach; teach; teach = teach->next )
+      {
+         if( ( disc = get_discipline_from_id( teach->disc_id ) ) == NULL )
+         {
+            bug( "NPC with bad discipline ID.", 0 );
+            continue;
+         }
+         ch_printf( ch, "Teaches    : %-20s For: %d\r\n", disc->name, teach->credits );
+      }
+   }
+
 
    if( IS_NPC( victim ) )
    {

@@ -1046,7 +1046,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  attack defense numattacks addskill remskill\r\n", ch );
       send_to_char( "  discipline speaking speaks (see LANGUAGES)\r\n", ch );
       send_to_char( "  name short long description title spec spec2\r\n", ch );
-      send_to_char( "  clan vip wanted\r\n", ch );
+      send_to_char( "  clan vip wanted teach remteach\r\n", ch );
       send_to_char( "\r\n", ch );
       send_to_char( "For editing index/prototype mobiles:\r\n", ch );
       send_to_char( "  hitnumdie hitsizedie hitplus (hit points)\r\n", ch );
@@ -1461,6 +1461,12 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          return;
       }
 
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Proper Usage: mset <mob> addteach 'discipline name' <credit cost>\r\n", ch );
+         return;
+      }
+
       argument = one_argument( argument, arg3 );
       if( ( disc = get_discipline( arg3 ) ) == NULL )
       {
@@ -1494,6 +1500,12 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       if( !IS_NPC( victim ) )
       {
          send_to_char( "Only on Mobs.\r\n", ch );
+         return;
+      }
+
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Proper Usage: mset <mob> remteach <index num>\r\n", ch );
          return;
       }
 
