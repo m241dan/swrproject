@@ -2301,6 +2301,10 @@ struct char_data
 
 };
 
+#define PC_BASE_HP 200
+#define PC_BASE_MOVE 0
+#define PC_BASE_MANA 0
+
 typedef enum
 {
    FOM_IDLE, FOM_FIGHTING, FOM_HUNTING, MAX_FOM
@@ -4932,6 +4936,7 @@ void reboot_check args( ( char *arg ) );
 void auction_update args( ( void ) );
 void remove_portal args( ( OBJ_DATA * portal ) );
 int max_level( CHAR_DATA * ch, int ability );
+void update_stats( CHAR_DATA *ch );
 
 /* hashstr.c */
 const char *str_alloc( const char *str );

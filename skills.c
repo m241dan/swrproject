@@ -5178,6 +5178,7 @@ void update_disciplines( CHAR_DATA *ch )
 {
    update_disciplines( ch, DISC_TYPES );
    update_disciplines( ch, DISC_FACTORS );
+   update_stats( ch );
    return;
 }
 

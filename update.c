@@ -301,11 +301,47 @@ void advance_level( CHAR_DATA * ch, int ability )
    {
       ch->top_level = URANGE( 1, ch->skill_level[ability], LEVEL_HERO );
    }
+   update_stats( ch );
+
+   ch->hit  = ch->max_hit;
+   ch->mana = ch->max_mana;
+   ch->move = ch->max_move;
 
    if( !IS_NPC( ch ) )
       REMOVE_BIT( ch->act, PLR_BOUGHT_PET );
 
    return;
+}
+
+void update_stats( CHAR_DATA *ch )
+{
+   int x, level;
+   int hit_per_level, mana_per_level, move_per_level;
+   hit_per_level = mana_per_level = move_per_level = 0;
+
+   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+   {
+      if( ch->equipped_disciplines[x] == NULL )
+         continue;
+
+      hit_per_level += ch->equipped_disciplines[x]->hit_gain;
+      mana_per_level += ch->equipped_disciplines[x]->mana_gain;
+      move_per_level += ch->equipped_disciplines[x]->move_gain;
+   }
+
+   level = ch->skill_level[COMBAT_ABILITY];
+
+   ch->max_hit = PC_BASE_HP + ( hit_per_level * level );
+   ch->max_mana = PC_BASE_MANA + ( mana_per_level * level );
+   ch->max_move = PC_BASE_MOVE + ( move_per_level * level );
+
+   if( ch->hit > ch->max_hit )
+      ch->hit = ch->max_hit;
+   if( ch->mana > ch->max_mana )
+      ch->mana = ch->max_mana;
+   if( ch->move > ch->max_move )
+      ch->move = ch->max_move;
+
 }
 
 void gain_exp( CHAR_DATA * ch, int gain, int ability )
