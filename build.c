@@ -149,7 +149,7 @@ const char *const a_types[] = {
 };
 
 const char *const a_flags[] = {
-   "blind", "invisible", "detect_evil", "detect_invis", "detect_magic",
+   "none", "blind", "invisible", "detect_evil", "detect_invis", "detect_magic",
    "detect_hidden", "weaken", "sanctuary", "faerie_fire", "infrared", "curse",
    "_flaming", "poison", "protect", "paralysis", "sneak", "hide", "sleep",
    "charm", "flying", "pass_door", "floating", "truesight", "detect_traps",
@@ -8518,6 +8518,9 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          }
          xSET_BIT( factor->affect, value );
       }
+      update_disciplines( );
+      save_disciplines( );
+      send_to_char( "Affect(s) added.\r\n", ch );
       return;
    }
 
