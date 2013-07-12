@@ -8871,8 +8871,8 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                           selection,
                           factor_names[factor->factor_type],
                           factor->modifier );
+            selection++;
          }
-         selection++;
       }
       return;
    }
