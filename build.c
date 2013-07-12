@@ -8425,7 +8425,8 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       send_to_char( "Or:     dset delete <discipline name>(not implemented yet)\r\n\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
       send_to_char( "  addfactor <factor_type> <location> <modifier> <duration> <apply_type>\r\n", ch );
-      send_to_char( "  remfactor <number>\r\n", ch );
+      send_to_char( "  remfactor <factor_number>\r\n", ch );
+      send_to_char( "  addaffect <factor_number> <affects...>\r\n", ch );
       send_to_char( "  show hit_gain move_gain mana_gain minlevel\r\n", ch );
       send_to_char( "  cost skill_type skill_style damtype target_type\r\n", ch );
       return;
