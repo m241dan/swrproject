@@ -1121,9 +1121,9 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             if( !str_cmp( word, "AvailableFactor" ) )
             {
                FACTOR_DATA *factor;
-               if( ( factor = get_factor_from_id( fread_number( fp ) ) ) == NULL )
+               if( ( factor = copy_factor( get_factor_from_id( fread_number( fp ) ) ) ) == NULL )
                {
-                  bug( "%s: reading in %n's pfile, available factor id not found.", __FUNCTION__, ch->name );
+                  bug( "%s: reading in %s's pfile, available factor id not found.", __FUNCTION__, ch->name );
                   break;
                }
                LINK( factor, ch->first_factor, ch->last_factor, next, prev );

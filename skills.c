@@ -4137,10 +4137,11 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
                        factor_names[factor->factor_type],
                        a_types[factor->location],
                        applytypes_type[factor->apply_type],
-                       factor->duration );
+                       (int)factor->duration );
 
             if( factor->location == APPLY_AFFECT )
             {
+               ch_printf( ch, " Max Affects: %-2d Affects:", (int)factor->modifier );
                for( x = 0; x < MAX_AFF; x++ )
                   if( xIS_SET( factor->affect, x ) )
                      ch_printf( ch, " %s,", a_flags[x] );
