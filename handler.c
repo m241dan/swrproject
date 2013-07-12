@@ -894,7 +894,7 @@ void affect_to_char( CHAR_DATA * ch,  AFFECT_DATA * paf )
       for( override_paf = ch->first_affect; override_paf; override_paf = paf_next )
       {
          paf_next = override_paf->next;
-         if( override_paf->type = paf_new->type && override_paf->factor_id == paf_new->factor_id )
+         if( override_paf->type == paf_new->type && override_paf->factor_id == paf_new->factor_id )
          {
             UNLINK( override_paf, ch->first_affect, ch->last_affect, next, prev );
             free_affect( override_paf );
