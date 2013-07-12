@@ -8410,6 +8410,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    DISC_DATA *discipline;
    FACTOR_DATA *factor;
    int x, value, id;
+   int selection;
 
    char arg[MAX_STRING_LENGTH];
    char arg2[MAX_STRING_LENGTH];
@@ -8457,10 +8458,64 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "addaffect" ) )
+   {
+      argument = one_argument( argument, arg3 );
+
+      if( !is_number( arg3 ) )
+      {
+         send_to_char( "Remove factor by number\r\n", ch );
+         return;
+      }
+
+      if( ( selection = atoi( arg3 ) ) < 0 )
+      {
+         send_to_char( "No factor that low.\r\n", ch );
+         return;
+      }
+
+      for( x = 0, factor = discipline->first_factor; factor; factor = factor->next )
+      {
+         if( selection == x++ )
+            break;
+      }
+
+      if( !factor )
+      {
+         send_to_char( "No factor that high.\r\n", ch );
+         return;
+      }
+
+      if( factor->factor_type != APPLY_FACTOR && factor->location != APPLY_AFFECT )
+      {
+         send_to_char( "You can't add flags to that factor.\r\n", ch );
+         return;
+      }
+
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Valid affect flags:", ch );
+         for( x = 0; x < MAX_AFF; x++ )
+            ch_printf( ch, " %s", a_flags[x] );
+         send_to_char( "\r\n", ch );
+         return;
+      }
+
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_aflag( arg3 ) ) == -1 )
+         {
+            ch_printf( ch, "%s is an invalid affect flag.\r\n", arg3 );
+            continue;
+         }
+         xSET_BIT( factor->affect, value );
+      }
+      return;
+   }
+
    if( !str_cmp( arg2, "remfactor" ) )
    {
-      int selection;
-
       if( !is_number( argument ) )
       {
          send_to_char( "Remove factor by number\r\n", ch );
@@ -8780,11 +8835,13 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          send_to_char( "No factors\r\n", ch );
       else
       {
+         selection = 0;
          for( factor = discipline->first_factor; factor; factor = factor->next )
          {
             if( factor->factor_type == APPLY_FACTOR )
             {
-               ch_printf( ch, "Factor Type: %-10.10s | Location: %-10.10s | Apply Type: %-10.10s | Duration: %-10d |\r\n",
+               ch_printf( ch, "%-2d: Factor Type: %-10.10s | Location: %-10.10s | Apply Type: %-10.10s | Duration: %-10d |\r\n",
+                          selection,
                           factor_names[factor->factor_type],
                           a_types[factor->location],
                           applytypes_type[factor->apply_type],
@@ -8802,16 +8859,19 @@ void do_dset( CHAR_DATA *ch, const char *argument )
             }
             else if( factor->factor_type == STAT_FACTOR )
             {
-               ch_printf( ch, "Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n",
+               ch_printf( ch, "%-2d: Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n",
+                          selection,
                           factor_names[factor->factor_type],
                           (int)( factor->modifier * 100 ),
                           a_types[factor->location] );
             }
             else if( factor->factor_type == BASEROLL_FACTOR )
-               ch_printf( ch, "Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n",
+               ch_printf( ch, "%d: Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n",
+                          selection,
                           factor_names[factor->factor_type],
                           factor->modifier );
          }
+         selection++;
       }
       return;
    }
