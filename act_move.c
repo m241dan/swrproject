@@ -715,8 +715,6 @@ ch_ret move_char( CHAR_DATA * ch, EXIT_DATA * pexit, int fall )
       /*
        * int iClass;
        */
-      int move;
-
       if( in_room->sector_type == SECT_AIR || to_room->sector_type == SECT_AIR || IS_SET( pexit->exit_info, EX_FLY ) )
       {
          if( ch->mount && !IS_AFFECTED( ch->mount, AFF_FLYING ) )
@@ -848,34 +846,7 @@ ch_ret move_char( CHAR_DATA * ch, EXIT_DATA * pexit, int fall )
                break;
          }
 
-         if( !IS_AFFECTED( ch->mount, AFF_FLYING ) && !IS_AFFECTED( ch->mount, AFF_FLOATING ) )
-            move = movement_loss[UMIN( SECT_MAX - 1, in_room->sector_type )];
-         else
-            move = 1;
-         if( ch->mount->move < move )
-         {
-            send_to_char( "Your mount is too exhausted.\r\n", ch );
-            return rNONE;
-         }
       }
-      else
-      {
-         if( !IS_AFFECTED( ch, AFF_FLYING ) && !IS_AFFECTED( ch, AFF_FLOATING ) )
-            move = encumbrance( ch, movement_loss[UMIN( SECT_MAX - 1, in_room->sector_type )] );
-         else
-            move = 1;
-         if( ch->move < move )
-         {
-            send_to_char( "You are too exhausted.\r\n", ch );
-            return rNONE;
-         }
-      }
-
-      WAIT_STATE( ch, move );
-      if( ch->mount )
-         ch->mount->move -= move;
-      else
-         ch->move -= move;
    }
 
    /*

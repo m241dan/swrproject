@@ -5314,7 +5314,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
             bug( "%s: Bad DISC on %s vnum %d", __FUNCTION__, mob->name, mob->pIndexData->vnum );
             continue;
          }
-         ch_printf( ch, "  %-2d: %-20.20s Cost: %d credits\r\n", count++, disc->name, teach->credits );
+         ch_printf( ch, "  %-2d: %-20.20s MinLevel: %-3d Cost: %d credits\r\n", count++, disc->name, disc->min_level, teach->credits );
       }
       return;
    }
@@ -5352,39 +5352,51 @@ void do_learn( CHAR_DATA *ch, const char *argument )
       }
 
       ch_printf( ch, "The '%s' discipline grants the following...\r\n", disc->name );
-      send_to_char(  "-------------------------------------------------------------\r\n", ch );
+      send_to_char(  "------------------------------------------------------------------\r\n\r\n", ch );
+      send_to_char(  "----------------\r\n", ch );
       send_to_char(  "Settable Types |\r\n", ch );
       send_to_char(  "----------------\r\n", ch );
 
-      send_to_char(  "Skills  |", ch );
+      send_to_char(  "Skills         |", ch );
       for( x = 0; x < MAX_SKILLTYPE; x++ )
          if( xIS_SET( disc->skill_type, x ) )
             ch_printf( ch, " %s", skill_tname[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "Targets |", ch );
+      send_to_char(  "Targets        |", ch );
       for( x = 0; x < TAR_CHAR_MAX; x++ )
          if( xIS_SET( disc->target_type, x ) )
             ch_printf( ch, " %s", target_type[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "Styles  |", ch );
+      send_to_char(  "Styles         |", ch );
       for( x = 0; x < STYLE_MAX; x++ )
          if( xIS_SET( disc->skill_style, x ) )
             ch_printf( ch, " %s", style_type[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "Cost    |", ch );
+      send_to_char(  "Cost           |", ch );
       for( x  = 0; x < MAX_COST; x++ )
          if( xIS_SET( disc->cost, x ) )
             ch_printf( ch, " %s", cost_type[x] );
       send_to_char(  "\r\n", ch );
 
-      send_to_char(  "Damages |", ch );
+      send_to_char(  "Damages        |", ch );
       for( x = 0; x < MAX_DAMTYPE; x++ )
          if( xIS_SET( disc->damtype, x ) )
             ch_printf( ch, " %s", d_type[x] );
-      send_to_char(  "\r\n\r\n", ch );
+      send_to_char( "\r\n", ch );
+      send_to_char(  "----------------\r\n", ch );
+      send_to_char( "\r\n", ch );
+
+      send_to_char(  "----------------\r\n", ch );
+      send_to_char(  "Granted Gains  |\r\n", ch );
+      send_to_char(  "----------------\r\n", ch );
+      ch_printf( ch, "HP Per Level   | %d\r\n", disc->hit_gain );
+      ch_printf( ch, "FRC Per Level  | %d\r\n", disc->mana_gain );
+      ch_printf( ch, "MV Per Level   | %d\r\n", disc->move_gain );
+      send_to_char(  "----------------\r\n", ch );
+      send_to_char( "\r\n", ch );
 
       if( disc->first_factor )
          ch_printf( ch, "The %s will allow you to add the following factors to skills...\r\n  (Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );

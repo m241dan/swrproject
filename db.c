@@ -2577,12 +2577,12 @@ void clear_char( CHAR_DATA * ch )
    ch->evasion = 0;
    ch->armor = 0;
    ch->position = POS_STANDING;
-   ch->hit = 500;
-   ch->max_hit = 500;
-   ch->mana = 1000;
+   ch->hit = 200;
+   ch->max_hit = 200;
+   ch->mana = 0;
    ch->max_mana = 0;
-   ch->move = 1000;
-   ch->max_move = 1000;
+   ch->move = 0;
+   ch->max_move = 0;
    ch->height = 72;
    ch->weight = 180;
    ch->xflags = 0;
