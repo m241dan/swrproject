@@ -4920,6 +4920,8 @@ void skills_checksum( CHAR_DATA * ch )
          	factor_to_skill( ch, ch->pc_skills[x], updated_factor, TRUE );
       }
    }
+   update_skills( ch );
+   return;
 }
 
 void addfactor( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor )
@@ -5024,10 +5026,13 @@ void update_skills( CHAR_DATA *ch )
 
 void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
 {
+   AFFECT_DATA *saf;
    int num_factors = get_num_factors( skill );
    int num_cost_type = get_num_cost_types( skill );
    int slot_level;
    int charge = skill->charge;
+   int max_duration = 0;
+
 
    if( ( slot_level = get_slot_level( ch, skill ) ) == -1 )
    {
@@ -5038,15 +5043,24 @@ void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
    /* Set our Skill Level */
    skill->min_level = slot_level;
 
+   /* If skill has affects, find the largest duration one */
+   for( saf = skill->first_affect; saf; saf = saf->next )
+      if( (int)saf->duration > max_duration )
+      {
+         max_duration = saf->duration;
+         if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_JOIN_TARGET )
+            max_duration--;
+      }
+
    /* Cooldowns First */
 
    switch( skill->type )
    {
       case SKILL_SKILL:
-         skill->cooldown = (int)( ( ( slot_level / 5 ) * num_factors ) - ( charge / 2 ) );
+         skill->cooldown = UMAX( max_duration, (int)( ( ( slot_level / 5 ) * num_factors ) - ( charge / 2 ) ) );
          break;
       case SKILL_SPELL:
-         skill->cooldown = (int)( ( ( slot_level / 10 ) * ( num_factors * 1.5 ) ) - ( charge * 3 ) );
+         skill->cooldown = UMAX( max_duration, (int)( ( ( slot_level / 10 ) * ( num_factors * 1.5 ) ) - ( charge * 3 ) ) );
          break;
    }
 
@@ -5088,6 +5102,10 @@ void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
       }
    }
 
+   /* Calculate a skills threat(those that need it)*/
+   skill->threat = ( ( slot_level + ch->threat ) * num_factors );
+
+   return;
 }
 
 int get_slot_level( CHAR_DATA *ch, SKILLTYPE *skill )
