@@ -8410,7 +8410,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    DISC_DATA *discipline;
    FACTOR_DATA *factor;
    int x, value, id;
-   int selection;
+   int selection, count;
 
    char arg[MAX_STRING_LENGTH];
    char arg2[MAX_STRING_LENGTH];
@@ -8502,8 +8502,14 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          return;
       }
 
+      count = 0;
       while( argument[0] != '\0' )
       {
+         if( ++count > (int)factor->modifier )
+         {
+            ch_printf( ch, "Factor can't have more than %d affects. These ones have been left off: %s\r\n", count, argument );
+            return;
+         }
          argument = one_argument( argument, arg3 );
          if( ( value = get_aflag( arg3 ) ) == -1 )
          {
@@ -8846,10 +8852,11 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                           factor_names[factor->factor_type],
                           a_types[factor->location],
                           applytypes_type[factor->apply_type],
-                          factor->duration );
+                          (int)factor->duration );
 
                if( factor->location == APPLY_AFFECT )
                {
+                  ch_printf( ch, " Max Affects: %-2d Affects:", (int)factor->modifier );
                   for( x = 0; x < MAX_AFF; x++ )
                      if( xIS_SET( factor->affect, x ) )
                         ch_printf( ch, " %s,", a_flags[x] );
