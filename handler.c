@@ -875,7 +875,7 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
  */
 void affect_to_char( CHAR_DATA * ch,  AFFECT_DATA * paf )
 {
-   AFFECT_DATA *paf_new;
+   AFFECT_DATA *paf_new, *override_paf, *paf_next;
 
    if( !ch )
    {
@@ -890,6 +890,16 @@ void affect_to_char( CHAR_DATA * ch,  AFFECT_DATA * paf )
    }
 
    paf_new = copy_affect( paf );
+   if( paf_new->apply_type == APPLY_OVERRIDE_SELF || paf_new->apply_type == APPLY_OVERRIDE_TARGET )
+      for( override_paf = ch->first_affect; override_paf; override_paf = paf_next )
+      {
+         paf_next = override_paf->next;
+         if( override_paf->type = paf_new->type && override_paf->factor_id == paf_new->factor_id )
+         {
+            UNLINK( override_paf, ch->first_affect, ch->last_affect, next, prev );
+            free_affect( override_paf );
+         }
+      }
    LINK( paf_new, ch->first_affect, ch->last_affect, next, prev );
    affect_modify( ch, paf_new, TRUE );
 

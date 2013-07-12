@@ -5314,7 +5314,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
             bug( "%s: Bad DISC on %s vnum %d", __FUNCTION__, mob->name, mob->pIndexData->vnum );
             continue;
          }
-         ch_printf( ch, "index %-2d: %-20.20s Cost: %d credits\r\n", count++, disc->name, teach->credits );
+         ch_printf( ch, "  %-2d: %-20.20s Cost: %d credits\r\n", count++, disc->name, teach->credits );
       }
       return;
    }
@@ -5351,7 +5351,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
          return;
       }
 
-      ch_printf( ch, "The %s disciplines grants the following...\r\n", disc->name );
+      ch_printf( ch, "The '%s' discipline grants the following...\r\n", disc->name );
       send_to_char(  "-------------------------------------------------------------\r\n", ch );
       send_to_char(  "Settable Types |\r\n", ch );
       send_to_char(  "----------------\r\n", ch );
