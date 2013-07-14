@@ -583,7 +583,6 @@ struct frc_app_type
 #define LEADERSHIP_ABILITY	6
 #define FORCE_ABILITY		7
 
-
 /* the races */
 #define RACE_HUMAN	    0
 #define RACE_WOOKIEE		1
@@ -748,6 +747,26 @@ struct race_type
    short suscept;
    int class_restriction;  /* Flags for illegal classes  */
    int language;  /* Default racial language      */
+};
+
+typedef enum {
+   BUILD_STRONG, BUILD_RUGGED, BUILD_LEAN, BUILD_INTELLECTUAL, BUILD_WISE, MAX_STATBUILD
+} stat_enum;
+
+struct stat_build
+{
+   char build_name[30];
+   EXT_BV affected;
+   short str_plus;
+   short dex_plus;
+   short wis_plus;
+   short int_plus;
+   short con_plus;
+   short cha_plus;
+   short agi_plus;
+   short hit;
+   short mana;
+   short move;
 };
 
 typedef enum
@@ -2298,7 +2317,7 @@ struct char_data
    EXT_BV avail_costtypes;
    EXT_BV avail_skilltypes;
    EXT_BV avail_skillstyles;
-
+   int stat_build;
 };
 
 #define PC_BASE_HP 200
@@ -3429,6 +3448,7 @@ extern const struct lck_app_type lck_app[26];
 extern const struct frc_app_type frc_app[26];
 
 extern const struct race_type race_table[MAX_RACE];
+extern const struct stat_build stat_table[MAX_STATBUILD];
 extern const struct liq_type liq_table[LIQ_MAX];
 extern const char *const attack_table[13];
 extern const char *const ability_name[MAX_ABILITY];

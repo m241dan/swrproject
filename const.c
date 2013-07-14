@@ -77,6 +77,14 @@ const struct race_type race_table[MAX_RACE] = {
 
 };
 
+const struct stat_build stat_table[MAX_STATBUILD] = {
+//    name            afff        str  dex  wis  int  con  cha  agi  hp   mp   mv | +30 -15 Stat Points, 15 Points to Spread hp/mv/mp
+   { "Strong"   , meb( AFF_NONE ), 15, 8,   -9,  -6,  4,   0,   3,   8,   2,   5 },
+   { "Rugged"   , meb( AFF_NONE ), 3,  2,   8,   0,   15,  0,   2,   12,  1,   2 },
+   { "Lean"     , meb( AFF_NONE ), 4,  11,  -6,  -5,  -4,  0,   15,  4,   3,   8 },
+{ "Intelligent" , meb( AFF_NONE ), -4, -6,  9,   15,  -5,  3,   3,   4,   8,   3 },
+   { "Support"  , meb( AFF_NONE ), 0,  -5,  15,  6,   -2,  9,   -8,  6,   6,   3 }
+};
 
 const char *const npc_race[MAX_NPC_RACE] = {
    "Human", "Wookiee", "Twi'lek", "Rodian", "Hutt", "Mon Calamari", "Noghri",

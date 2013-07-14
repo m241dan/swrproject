@@ -332,6 +332,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    if( ch->plr_home != NULL )
       fprintf( fp, "PlrHome      %d\n", ch->plr_home->vnum );
 
+   fprintf( fp, "StatBuild    %d\n", ch->stat_build );
    fprintf( fp, "HpManaMove   %d %d 0 0 %d %d\n", ch->hit, ch->max_hit, ch->move, ch->max_move );
    fprintf( fp, "Force        %d %d %d %d\n", ch->perm_frc, ch->mod_frc, ch->mana, ch->max_mana );
    fprintf( fp, "Gold         %d\n", ch->gold );
@@ -1511,6 +1512,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                fMatch = TRUE;
                break;
             }
+            KEY( "StatBuild", ch->stat_build, fread_number( fp ) );
             KEY( "Susceptible", ch->susceptible, fread_number( fp ) );
             if( !str_cmp( word, "SavingThrow" ) )
             {
