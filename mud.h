@@ -4287,6 +4287,7 @@ const char *obj_short( OBJ_DATA * obj );
 int get_door( const char *arg );
 char *format_obj_to_char args( ( OBJ_DATA * obj, CHAR_DATA * ch, bool fShort ) );
 void show_list_to_char args( ( OBJ_DATA * list, CHAR_DATA * ch, bool fShort, bool fShowNothing ) );
+void spit_dash( CHAR_DATA *ch, int num_dash, short color );
 
 /* act_move.c */
 ROOM_INDEX_DATA *generate_exit( ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit );
@@ -4545,6 +4546,7 @@ void sort_area_by_name args( ( AREA_DATA * pArea ) ); /* Fireblade */
 void smash_underscore args( ( char *str ) );
 const char *smash_underscore args( ( const char *str ) );
 AFFECT_DATA *fread_fuss_affect( FILE *fp, const char *word );
+const char *smash_color( const char *str );
 
 /* fight.c */
 int max_fight args( ( CHAR_DATA * ch ) );

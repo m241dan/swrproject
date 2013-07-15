@@ -3545,6 +3545,33 @@ int interpolate( int level, int value_00, int value_32 )
    return value_00 + level * ( value_32 - value_00 ) / 32;
 }
 
+/*
+ * Smash Color
+ */
+const char *smash_color( const char *str )
+{
+   static char ret[MAX_STRING_LENGTH];
+   char *retptr;
+
+   retptr = ret;
+
+   if(str == NULL)
+      return NULL;
+
+   for ( ; *str != '\0'; str++ )
+   {
+      if (*str == '&' && *(str + 1) != '\0' )
+         str++;
+      else
+      {
+         *retptr = *str;
+
+         retptr++;
+      }
+   }
+   *retptr = '\0';
+   return ret;
+}
 
 /*
  * Removes the tildes from a string.

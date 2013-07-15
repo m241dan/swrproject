@@ -1978,7 +1978,7 @@ void nanny_get_new_build( DESCRIPTOR_DATA *d, const char *argument )
    ch->perm_wis += stat_table[iBuild].wis_plus;
    ch->perm_con += stat_table[iBuild].con_plus;
    ch->perm_agi += stat_table[iBuild].agi_plus;
-   ch->perm_agi += stat_table[iBuild].cha_plus;
+   ch->perm_cha += stat_table[iBuild].cha_plus;
 
    write_to_buffer( d, "\r\nWould you like ANSI or no graphic/color support, (R/A/N)? ", 0 );
    d->connected = CON_GET_WANT_RIPANSI;
@@ -2254,14 +2254,7 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
 	  }
       }
       ch->top_level = 1;
-      ch->hit = ch->max_hit;
-      ch->hit += race_table[ch->race].hit;
-      ch->move = ch->max_move;
-      if( ch->perm_frc > 0 )
-	ch->max_mana = 100 + 100 * ch->perm_frc;
-      else
-	ch->max_mana = 0;
-      ch->mana = ch->max_mana;
+      update_stats( ch );
       sprintf( buf, "%s the %s", ch->name, race_table[ch->race].race_name );
       set_title( ch, buf );
 

@@ -800,6 +800,7 @@ int get_door( const char *arg )
 void do_look( CHAR_DATA * ch, const char *argument )
 {
    char arg[MAX_INPUT_LENGTH], arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH];
+   char buf[MAX_STRING_LENGTH], tmpbuf[MAX_STRING_LENGTH];
    EXIT_DATA *pexit;
    CHAR_DATA *victim;
    OBJ_DATA *obj;
@@ -843,41 +844,54 @@ void do_look( CHAR_DATA * ch, const char *argument )
    if( arg1[0] == '\0' || !str_cmp( arg1, "auto" ) )
    {
       SHIP_DATA *ship;
-
+      int dash;
       /*
        * 'look' or 'look auto' 
        */
-      set_char_color( AT_RMNAME, ch );
-      send_to_char( ch->in_room->name, ch );
-      send_to_char( " ", ch );
+//      set_char_color( AT_RMNAME, ch );
+//      send_to_char( ch->in_room->name, ch );
+//      send_to_char( " ", ch );
+
+
+      sprintf( buf, "&W%s &z|", ch->in_room->name );
+      dash = strlen( smash_color( buf ) );
 
       if( !ch->desc->original )
       {
-         if( ( get_trust( ch ) >= LEVEL_IMMORTAL ) )             
+         if( ( get_trust( ch ) >= LEVEL_IMMORTAL ) )
          {
             if( IS_SET( ch->act, PLR_ROOMVNUM ) )
             {
-                set_char_color( AT_BLUE, ch );   /* Added 10/17 by Kuran of */
-                send_to_char( "{", ch );   /* SWReality */
-                ch_printf( ch, "%d", ch->in_room->vnum );
-                send_to_char( "}}", ch );
+//                set_char_color( AT_BLUE, ch );   /* Added 10/17 by Kuran of */
+//                send_to_char( "{", ch );   /* SWReality */
+//                ch_printf( ch, "%d", ch->in_room->vnum );
+//                send_to_char( "}}", ch );
+               sprintf( tmpbuf, " &z{&R%d&z}}", ch->in_room->vnum );
+               strcat( buf, tmpbuf );
             }
             if( IS_SET( ch->pcdata->flags, PCFLAG_ROOM ) )
             {
-                set_char_color( AT_CYAN, ch );
-                send_to_char( "[", ch );
-                send_to_char( flag_string( ch->in_room->room_flags, r_flags ), ch );
-                send_to_char( "]", ch );
+//                set_char_color( AT_CYAN, ch );
+//                send_to_char( "[", ch );
+//                send_to_char( flag_string( ch->in_room->room_flags, r_flags ), ch );
+//                send_to_char( "]", ch );
+               sprintf( tmpbuf, " &z[&R%s&z]&w", flag_string( ch->in_room->room_flags, r_flags )  );
+               strcat( buf, tmpbuf );
             }
          }
       }
 
+      strcat( buf, "\r\n" );
       send_to_char( "\r\n", ch );
-      set_char_color( AT_RMDESC, ch );
+      spit_dash( ch, dash, AT_DGREY );
+      send_to_char( "\r\n", ch );
+      send_to_char( buf, ch );
+      spit_dash( ch, dash, AT_DGREY );
+      send_to_char( "\r\n", ch );
 
+      set_char_color( AT_BLOOD, ch );
       if( arg1[0] == '\0' || ( !IS_NPC( ch ) && !IS_SET( ch->act, PLR_BRIEF ) ) )
          send_to_char( ch->in_room->description, ch );
-
 
       if( !IS_NPC( ch ) && IS_SET( ch->act, PLR_AUTOEXIT ) )
          do_exits( ch, "" );
@@ -1668,6 +1682,7 @@ void do_exits( CHAR_DATA * ch, const char *argument )
    EXIT_DATA *pexit;
    bool found;
    bool fAuto;
+   int dash;
 
    set_char_color( AT_EXITS, ch );
    buf[0] = '\0';
@@ -1685,7 +1700,15 @@ void do_exits( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   strcpy( buf, fAuto ? "Exits:" : "Obvious exits:\r\n" );
+   strcpy( buf, "&WExits &z|&w" );
+   dash = strlen( smash_color( buf ) );
+
+   spit_dash( ch, dash, AT_DGREY );
+   send_to_char( "\r\n", ch );
+   send_to_char( buf, ch );
+   send_to_char( "\r\n", ch );
+   spit_dash( ch, dash, AT_DGREY );
+   send_to_char( "\r\n", ch );
 
    found = FALSE;
    for( pexit = ch->in_room->first_exit; pexit; pexit = pexit->next )
@@ -1697,35 +1720,45 @@ void do_exits( CHAR_DATA * ch, const char *argument )
          {
             if( IS_SET( pexit->exit_info, EX_CLOSED ) )
             {
-               sprintf( buf + strlen( buf ), "%-5s - (closed)\r\n", capitalize( dir_name[pexit->vdir] ) );
+//               sprintf( buf + strlen( buf ), "%-5s - (closed)\r\n", capitalize( dir_name[pexit->vdir] ) );
+               ch_printf( ch, "&r%-5s &z- (&Rclosed&z)&w\r\n", capitalize( dir_name[pexit->vdir] ) );
             }
             else if( IS_SET( pexit->exit_info, EX_WINDOW ) )
             {
-               sprintf( buf + strlen( buf ), "%-5s - (window)\r\n", capitalize( dir_name[pexit->vdir] ) );
+//               sprintf( buf + strlen( buf ), "%-5s - (window)\r\n", capitalize( dir_name[pexit->vdir] ) );
+               ch_printf( ch, "&r%-5s%z - (&Rwindow&z)&w\r\n", capitalize( dir_name[pexit->vdir] ) );
             }
             else if( IS_SET( pexit->exit_info, EX_xAUTO ) )
             {
-               sprintf( buf + strlen( buf ), "%-5s - %s\r\n",
-                        capitalize( pexit->keyword ),
-                        room_is_dark( pexit->to_room ) ? "Too dark to tell" : pexit->to_room->name );
+//               sprintf( buf + strlen( buf ), "%-5s - %s\r\n",
+//                        capitalize( pexit->keyword ),
+//                        room_is_dark( pexit->to_room ) ? "Too dark to tell" : pexit->to_room->name );
+               ch_printf( ch, "&r%-5s&z - &Ws&w\r\n",
+                          capitalize( pexit->keyword ),
+                          room_is_dark( pexit->to_room ) ? "&zToo dark to tell&w" : pexit->to_room->name );
             }
             else
-               sprintf( buf + strlen( buf ), "%-5s - %s\r\n",
-                        capitalize( dir_name[pexit->vdir] ),
-                        room_is_dark( pexit->to_room ) ? "Too dark to tell" : pexit->to_room->name );
+//               sprintf( buf + strlen( buf ), "%-5s - %s\r\n",
+//                        capitalize( dir_name[pexit->vdir] ),
+//                        room_is_dark( pexit->to_room ) ? "Too dark to tell" : pexit->to_room->name );
+               ch_printf( ch, "&r%-5s &z- &W%s&w\r\n",
+                          capitalize( dir_name[pexit->vdir] ),
+                          room_is_dark( pexit->to_room ) ? "&zToo dark to tell&w" : pexit->to_room->name );
          }
          else
          {
-            sprintf( buf + strlen( buf ), " %s", capitalize( dir_name[pexit->vdir] ) );
+//            sprintf( buf + strlen( buf ), " %s", capitalize( dir_name[pexit->vdir] ) );
+              ch_printf( ch, " &r%s&w", capitalize( dir_name[pexit->vdir] ) );
          }
       }
    }
 
    if( !found )
-      strcat( buf, fAuto ? " none.\r\n" : "None.\r\n" );
+      ch_printf( ch, "%s", fAuto ? "&r none&w\r\n" : "&rNone&w\r\n" );
    else if( fAuto )
-      strcat( buf, ".\r\n" );
-   send_to_char( buf, ch );
+      send_to_char( "\r\n", ch );
+   spit_dash( ch, dash, AT_DGREY );
+   send_to_char( "\r\n", ch );
    return;
 }
 
@@ -3817,5 +3850,16 @@ void do_pager( CHAR_DATA * ch, const char *argument )
    if( ch->pcdata->pagerlen < 5 )
       ch->pcdata->pagerlen = 5;
    ch_printf( ch, "Page pausing set to %d lines.\r\n", ch->pcdata->pagerlen );
+   return;
+}
+
+void spit_dash( CHAR_DATA *ch, int num_dash, short color )
+{
+   int x;
+
+   set_char_color( color, ch );
+   for( x = 0; x < num_dash; x++ )
+      send_to_char( "-", ch );
+
    return;
 }
