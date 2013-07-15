@@ -411,6 +411,8 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
       amount += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );
 
+   amount = (int)( amount * ( 1 + ( .25 * get_num_cost_types( skill ) ) ) );
+
    amount = res_pen( ch, victim, amount, skill->damtype );
 
    for( saf = skill->first_affect; saf; saf = saf->next )

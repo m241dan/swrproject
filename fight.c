@@ -693,6 +693,10 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    ch_printf( ch, "Damage after Dtype Potency: %d\r\n", dam );
 
+   dam = (int)( dam * ( 1 + ( .25 * get_num_cost_types( skill ) ) ) );
+
+   ch_printf( ch, "Damage after Num_Cost_Types: %d\r\n", dam );
+
    /* Handle Res_Pen */
    dam = res_pen( ch, victim, dam, damtype );
 

@@ -324,9 +324,9 @@ void update_stats( CHAR_DATA *ch )
       if( ch->equipped_disciplines[x] == NULL )
          continue;
 
-      hit_per_level += ch->equipped_disciplines[x]->hit_gain;
-      mana_per_level += ch->equipped_disciplines[x]->mana_gain;
-      move_per_level += ch->equipped_disciplines[x]->move_gain;
+      hit_per_level += ch->equipped_disciplines[x]->hit_gain + stat_table[ch->stat_build].hit;
+      mana_per_level += ch->equipped_disciplines[x]->mana_gain + stat_table[ch->stat_build].mana;
+      move_per_level += ch->equipped_disciplines[x]->move_gain + stat_table[ch->stat_build].move;
    }
 
    level = ch->skill_level[COMBAT_ABILITY];
