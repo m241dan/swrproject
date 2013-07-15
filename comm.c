@@ -109,6 +109,7 @@ void nanny_get_new_password( DESCRIPTOR_DATA *d, const char *argument );
 void nanny_confirm_new_password( DESCRIPTOR_DATA *d, const char *argument );
 void nanny_get_new_sex( DESCRIPTOR_DATA *d, const char *argument );
 void nanny_get_new_race( DESCRIPTOR_DATA *d, const char *argument );
+void nanny_get_new_build( DESCRIPTOR_DATA *d, const char *argument );
 void nanny_get_new_class( DESCRIPTOR_DATA *d, const char *argument );
 void nanny_roll_stats( DESCRIPTOR_DATA *d, const char *argument );
 void nanny_stats_ok( DESCRIPTOR_DATA *d, const char *argument );
@@ -1503,6 +1504,10 @@ void nanny( DESCRIPTOR_DATA * d, const char *argument )
       nanny_get_new_race( d, argument );
       break;
 
+    case CON_GET_NEW_BUILD:
+       nanny_get_new_build( d, argument );
+       break;
+
     case CON_GET_NEW_CLASS:
       nanny_get_new_class( d, argument );
       break;
@@ -1882,7 +1887,7 @@ void nanny_get_new_race( DESCRIPTOR_DATA *d, const char *argument )
   char buf[MAX_STRING_LENGTH];
   char arg[MAX_STRING_LENGTH];
   CHAR_DATA *ch = d->character;
-  int iRace, iClass;
+  int iRace, iBuild;
 
   ch = d->character;
   argument = one_argument( argument, arg );
@@ -1910,16 +1915,16 @@ void nanny_get_new_race( DESCRIPTOR_DATA *d, const char *argument )
       return;
     }
 
-  write_to_buffer( d, "\r\nPlease choose a main ability from the folowing classes:\r\n[", 0 );
+  write_to_buffer( d, "\r\nPlease choose a build from the following build types, or type help [build](Builds Matter):\r\n[", 0 );
   buf[0] = '\0';
 
-  for( iClass = 0; iClass < MAX_ABILITY; iClass++ )
+  for( iBuild = 0; iBuild < MAX_STATBUILD; iBuild++ )
     {
-      if( ability_name[iClass] && ability_name[iClass][0] != '\0' )
+      if( stat_table[iBuild].build_name && stat_table[iBuild].build_name[0] != '\0' )
 	{
-	  if( iClass > 0 )
+	  if( iBuild > 0 )
 	    {
-	      if( strlen( buf ) + strlen( ability_name[iClass] ) > 77 )
+	      if( strlen( buf ) + strlen( stat_table[iBuild].build_name ) > 77 )
 		{
 		  strcat( buf, "\r\n" );
 		  write_to_buffer( d, buf, 0 );
@@ -1928,13 +1933,55 @@ void nanny_get_new_race( DESCRIPTOR_DATA *d, const char *argument )
 	      else
 		strcat( buf, " " );
 	    }
-	  strcat( buf, ability_name[iClass] );
+	  strcat( buf, stat_table[iBuild].build_name );
 	}
     }
 
   strcat( buf, "]\r\n: " );
   write_to_buffer( d, buf, 0 );
-  d->connected = CON_GET_NEW_CLASS;
+  d->connected = CON_GET_NEW_BUILD;
+}
+
+void nanny_get_new_build( DESCRIPTOR_DATA *d, const char *argument )
+{
+   CHAR_DATA *ch = d->character;
+   char arg[MAX_STRING_LENGTH];
+   int iBuild;
+
+   argument = one_argument( argument, arg );
+
+   if( !str_cmp( arg, "help" ) )
+   {
+      do_help( ch, argument );
+      write_to_buffer( d, "Please choose a build type.\r\n", 0 );
+      return;
+   }
+
+   for( iBuild = 0; iBuild < MAX_STATBUILD; iBuild++ )
+   {
+      if( toupper( arg[0] ) == toupper( stat_table[iBuild].build_name[0] ) && !str_prefix( arg, stat_table[iBuild].build_name ) )
+      {
+         ch->stat_build = iBuild;
+         break;
+      }
+   }
+
+   if( iBuild == MAX_STATBUILD || !stat_table[iBuild].build_name || stat_table[iBuild].build_name[0] == '\0' )
+   {
+      write_to_buffer( d, "That's not a build.\r\n Try again.\r\n", 0 );
+      return;
+   }
+
+   ch->perm_str += stat_table[iBuild].str_plus;
+   ch->perm_dex += stat_table[iBuild].dex_plus;
+   ch->perm_int += stat_table[iBuild].int_plus;
+   ch->perm_wis += stat_table[iBuild].wis_plus;
+   ch->perm_con += stat_table[iBuild].con_plus;
+   ch->perm_agi += stat_table[iBuild].agi_plus;
+   ch->perm_agi += stat_table[iBuild].cha_plus;
+
+   write_to_buffer( d, "\r\nWould you like ANSI or no graphic/color support, (R/A/N)? ", 0 );
+   d->connected = CON_GET_WANT_RIPANSI;
 }
 
 void nanny_get_new_class( DESCRIPTOR_DATA *d, const char *argument )
@@ -2153,17 +2200,7 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
       int iLang;
 
       ch->pcdata->clan = NULL;
-
-      ch->perm_agi = 10;
-      ch->perm_lck = number_range( 6, 18 );
-      ch->perm_frc = number_range( -2000, 20 );
-      ch->perm_lck += race_table[ch->race].lck_plus;
-      ch->perm_frc += race_table[ch->race].frc_plus;
-
-      if( ch->race == RACE_DUINUOGWUIN || ch->main_ability == FORCE_ABILITY )
-	ch->perm_frc = URANGE( 1, ch->perm_frc, 20 );
-      else
-	ch->perm_frc = URANGE( 0, ch->perm_frc, 20 );
+      ch->main_ability = COMBAT_ABILITY;
 
       /*
        * took out automaticly knowing common
