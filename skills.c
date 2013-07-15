@@ -406,7 +406,7 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    amount = ch->skill_level[COMBAT_ABILITY] + get_curr_wis( ch );
 
    if( skill->base_roll_boost )
-      amount *= skill->base_roll_boost;
+      amount = (int)( amount * ( 1 + skill->base_roll_boost ) );
 
    for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
       amount += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );
@@ -5050,7 +5050,7 @@ void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
    for( saf = skill->first_affect; saf; saf = saf->next )
       if( (int)saf->duration > max_duration )
       {
-         max_duration = saf->duration;
+         max_duration = (int)saf->duration;
          if( saf->apply_type == APPLY_JOIN_SELF || saf->apply_type == APPLY_JOIN_TARGET )
             max_duration--;
       }

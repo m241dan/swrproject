@@ -985,7 +985,7 @@ void affect_join( CHAR_DATA * ch, AFFECT_DATA * paf )
    for( paf_old = ch->first_affect; paf_old; paf_old = paf_old->next )
       if( paf_old->type == paf->type && paf_old->factor_id == paf->factor_id )
       {
-         paf->duration = UMIN( 1000000, paf->duration + paf_old->duration );
+         paf->duration = UMIN( 1000000, (int)( paf->duration + paf_old->duration ) );
          if( paf->modifier )
             paf->modifier = UMIN( 5000, paf->modifier + paf_old->modifier );
          else
@@ -3472,7 +3472,7 @@ TIMER *get_timerptr( CHAR_DATA * ch, short type )
    return NULL;
 }
 
-short get_timer( CHAR_DATA * ch, short type )
+double get_timer( CHAR_DATA * ch, short type )
 {
    TIMER *timer;
 

@@ -7037,7 +7037,8 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                int x1, x2, x4;
                float x3;
 
-               x1 = x2 = x3 = x4 = 0;
+               x1 = x2 = x4 = 0;
+               x3 = 0;
                sscanf( ln,"%d %d %f %d", &x1, &x2, &x3, &x4 );
 
                pMobIndex->dodge = x1;

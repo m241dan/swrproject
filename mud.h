@@ -4785,7 +4785,7 @@ void queue_extracted_char args( ( CHAR_DATA * ch, bool extract ) );
 void clean_char_queue args( ( void ) );
 void add_timer args( ( CHAR_DATA * ch, short type, short count, DO_FUN * fun, int value ) );
 TIMER *get_timerptr args( ( CHAR_DATA * ch, short type ) );
-short get_timer args( ( CHAR_DATA * ch, short type ) );
+double get_timer args( ( CHAR_DATA * ch, short type ) );
 void extract_timer args( ( CHAR_DATA * ch, TIMER * timer ) );
 void remove_timer args( ( CHAR_DATA * ch, short type ) );
 bool in_soft_range args( ( CHAR_DATA * ch, AREA_DATA * tarea ) );
