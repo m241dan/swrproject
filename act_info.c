@@ -1726,14 +1726,14 @@ void do_exits( CHAR_DATA * ch, const char *argument )
             else if( IS_SET( pexit->exit_info, EX_WINDOW ) )
             {
 //               sprintf( buf + strlen( buf ), "%-5s - (window)\r\n", capitalize( dir_name[pexit->vdir] ) );
-               ch_printf( ch, "&r%-5s%z - (&Rwindow&z)&w\r\n", capitalize( dir_name[pexit->vdir] ) );
+               ch_printf( ch, "&r%-5s &z- (&Rwindow&z)&w\r\n", capitalize( dir_name[pexit->vdir] ) );
             }
             else if( IS_SET( pexit->exit_info, EX_xAUTO ) )
             {
 //               sprintf( buf + strlen( buf ), "%-5s - %s\r\n",
 //                        capitalize( pexit->keyword ),
 //                        room_is_dark( pexit->to_room ) ? "Too dark to tell" : pexit->to_room->name );
-               ch_printf( ch, "&r%-5s&z - &Ws&w\r\n",
+               ch_printf( ch, "&r%-5s &z- &Ws&w\r\n",
                           capitalize( pexit->keyword ),
                           room_is_dark( pexit->to_room ) ? "&zToo dark to tell&w" : pexit->to_room->name );
             }
