@@ -4616,6 +4616,7 @@ double get_next_thought( CHAR_DATA *ch )
 {
    if( !IS_NPC( ch ) )
    {
+      ch_printf( ch, "%d", ch->pIndexData->vnum );
       bug( "Trying to get next thought timer from %s who is a player.", ch->name );
       return 999;
    }

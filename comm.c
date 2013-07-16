@@ -496,7 +496,7 @@ void game_loop( void )
             continue;
          }
          else if( ( !d->character && d->idle > 360 )  /* 2 mins */
-                  || ( d->connected != CON_PLAYING && d->idle > 1200 )  /* 5 mins */
+                  || ( d->connected != CON_PLAYING && d->idle > 7200 )  /* 30 mins */
                   || d->idle > 28800 ) /* 2 hrs  */
          {
             write_to_descriptor( d, "Idle timeout... disconnecting.\r\n", 0 );
