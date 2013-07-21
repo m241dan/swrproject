@@ -2949,9 +2949,14 @@ void split_timers_update(  )
                dispose_qtimer( timer );
             break;
          case AI_TIMER:
+            if( !ch )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
             if( !IS_NPC( ch ) )
             {
-               bug( "%s: %s had an AI timer...", __FUNCTION__, ch->name );
+               bug( "%s: %s had an AI timer...", __FUNCTION__,  ch->name );
                dispose_qtimer( timer );
                break;
             }
