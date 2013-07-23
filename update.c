@@ -2956,7 +2956,7 @@ void split_timers_update(  )
             }
             if( !IS_NPC( ch ) )
             {
-               bug( "%s: %s had an AI timer...", __FUNCTION__,  ch->name );
+               bug( "%s: qtimer on player being removed.", __FUNCTION__ );
                dispose_qtimer( timer );
                break;
             }
