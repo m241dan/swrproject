@@ -4895,3 +4895,17 @@ QUEST_DATA *get_quest_from_id( int id )
          return quest;
    return NULL;
 }
+
+AV_QUEST *get_available_quest( CHAR_DATA *ch, int list )
+{
+   AV_QUEST *av_quest;
+   int x = 0;
+
+   if( !IS_NPC( ch ) )
+      return NULL;
+
+   for( av_quest = ch->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
+      if( list == x++ )
+         return av_quest;
+   return NULL;
+}

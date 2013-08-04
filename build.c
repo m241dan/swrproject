@@ -9076,17 +9076,24 @@ void do_quest( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg, "accept" ) )
    {
-//      accept_quest( ch, victim, argument );
+  //    accept_mob_quest( ch, victim, argument );
       return;
    }
 }
+/*
+void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
+{
+   AV_QUEST *av_quest;
 
+
+}
+*/
 void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
 {
    QUEST_DATA *quest;
    AV_QUEST *av_quest;
    PRE_QUEST *prequest;
-   int list, x;
+   int list;
 
    if( is_number( argument ) )
       list = atoi( argument );
@@ -9096,13 +9103,7 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       return;
    }
 
-   x = 0;
-
-   for( av_quest = victim->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
-      if( list == x++ )
-         break;
-
-   if( !av_quest || !av_quest->quest)
+   if( ( av_quest = get_available_quest( victim, list ) ) == NULL || !av_quest->quest )
    {
       send_to_char( "That Mob does not contain a quest with that high of an list number.\r\n", ch );
       return;

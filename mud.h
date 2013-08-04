@@ -4927,6 +4927,7 @@ bool can_teach( CHAR_DATA *teacher, DISC_DATA *discipline );
 int get_discipline_cost( CHAR_DATA *teacher, DISC_DATA *discipline );
 int get_num_affects( EXT_BV *affect );
 QUEST_DATA *get_quest_from_id( int id );
+AV_QUEST *get_available_quest( CHAR_DATA *ch, int list );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
