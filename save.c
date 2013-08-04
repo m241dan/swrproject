@@ -49,6 +49,7 @@ void fwrite_comments( CHAR_DATA * ch, FILE * fp );
 void fread_comment( CHAR_DATA * ch, FILE * fp );
 bool check_parse_name( const char *name );
 void load_plr_home( CHAR_DATA * ch );
+PLAYER_QUEST *fread_pquest( FILE *fp );
 
 /*
  * Array of containers read for proper re-nesting of objects.
@@ -302,6 +303,7 @@ void save_clone( CHAR_DATA * ch )
  */
 void fwrite_char( CHAR_DATA * ch, FILE * fp )
 {
+   PLAYER_QUEST *pquest;
    FACTOR_DATA *factor;
    CD_DATA *cdat;
    AFFECT_DATA *paf;
@@ -528,6 +530,16 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       for( x = 0; x < MAX_COLORS; x++ )
          fprintf( fp, "%d ", ch->colors[x] );
       fprintf( fp, "\n\n" );
+   }
+
+   for( pquest = ch->first_pquest; pquest; pquest = pquest->next )
+   {
+      fprintf( fp, "PlayerQuest\n" );
+      fprintf( fp, "QuestID        %d\n", pquest->quest->id );
+      fprintf( fp, "Stage          %d\n", pquest->stage );
+      fprintf( fp, "TimesCompleted %d\n", pquest->times_completed );
+      fprintf( fp, "Progress       %s~\n", pquest->progress );
+      fprintf( fp, "EndQuest\n\n" );
    }
 
    fprintf( fp, "Disciplines\n" );
@@ -1448,6 +1460,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             }
             KEY( "PKills", ch->pcdata->pkills, fread_number( fp ) );
             KEY( "Played", ch->played, fread_number( fp ) );
+            if( !str_cmp( word, "PlayerQuest" ) )
+            {
+               PLAYER_QUEST *pquest;
+               pquest = fread_pquest( fp );
+               LINK( pquest, ch->first_pquest, ch->last_pquest, next, prev );
+               fMatch = TRUE;
+               break;
+            }
             KEY( "Position", ch->position, fread_number( fp ) );
             KEY( "Practice", extra, fread_number( fp ) );
             KEY( "Prompt", ch->pcdata->prompt, fread_string( fp ) );
@@ -2326,3 +2346,54 @@ void load_plr_home( CHAR_DATA * ch )
     }
 }
 
+PLAYER_QUEST *fread_pquest( FILE *fp )
+{
+   PLAYER_QUEST *pquest;
+   bool fMatch;
+   const char *word;
+
+   CREATE( pquest, PLAYER_QUEST, 1 );
+
+   for( ;; )
+   {
+      word = ( feof( fp ) ? "EndQuest" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         bug( "%s: EOF encountered reading file!", __FUNCTION__ );
+         word = "EndQuest";
+      }
+      fMatch = FALSE;
+
+      switch ( UPPER( word[0] ) )
+      {
+         case 'E':
+            if( !str_cmp( word, "EndQuest" ) )
+               return pquest;
+         case 'P':
+            KEY( "Progress", pquest->progress, fread_string( fp ) );
+            break;
+         case 'Q':
+            if( !str_cmp( word, "QuestID" ) )
+            {
+               pquest->quest = get_quest_from_id( fread_number( fp ) );
+               fMatch = TRUE;
+               break;
+            }
+            break;
+
+         case 'S':
+            KEY( "Stage", pquest->stage,  fread_number( fp ) );
+            break;
+
+         case 'T':
+            KEY( "TimesCompleted", pquest->times_completed, fread_number( fp ) );
+            break;
+
+      }
+
+      if( !fMatch )
+         bug( "%s: no match for %s", __FUNCTION__, word );
+   }
+
+}
