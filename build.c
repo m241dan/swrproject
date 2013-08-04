@@ -9076,34 +9076,71 @@ void do_quest( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg, "accept" ) )
    {
-  //    accept_mob_quest( ch, victim, argument );
+      accept_mob_quest( ch, victim, argument );
       return;
    }
 }
-/*
+
 void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
 {
    AV_QUEST *av_quest;
+   QUEST_DATA *quest;
+   PLAYER_QUEST *pquest;
+   PRE_QUEST *pre_quest;
 
+   if( ( av_quest = get_available_quest_from_list( victim, argument ) ) == NULL || !av_quest->quest )
+   {
+      send_to_char( "That Mob does not contain a quest with that high of an list number.\r\n", ch );
+      return;
+   }
+   else
+      quest = av_quest->quest;
 
+   if( ch->skill_level[COMBAT_ABILITY] < quest->level_req )
+   {
+      send_to_char( "You aren't high enough level.\r\n", ch );
+      return;
+   }
+
+   if( ( pquest = get_player_quest( ch, quest ) ) && ( pquest->stage == -1 || pquest->stage > 0 ) )
+   {
+      send_to_char( "You cannot accept that quest.\r\n", ch );
+      return;
+   }
+
+   for( pre_quest = quest->first_prequest; pre_quest; pre_quest = pre_quest->next )
+      if( !has_quest_completed( ch, pre_quest->quest ) )
+      {
+         send_to_char( "You have not completed all the prequests.\r\n", ch );
+         return;
+      }
+
+   if( !pquest && ( pquest = create_player_quest( ch, quest ) ) != NULL )
+      pquest->stage++;
+
+   send_to_char( "You have accepted the quest!\r\n", ch );
+   return;
 }
-*/
+
+PLAYER_QUEST *create_player_quest( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   PLAYER_QUEST *pquest;
+
+   CREATE( pquest, PLAYER_QUEST, 1 );
+   pquest->quest = quest;
+   pquest->stage = 0;
+   pquest->progress = "";
+   LINK( pquest, ch->first_pquest, ch->last_pquest, next, prev );
+   return pquest;
+}
+
 void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
 {
    QUEST_DATA *quest;
    AV_QUEST *av_quest;
    PRE_QUEST *prequest;
-   int list;
 
-   if( is_number( argument ) )
-      list = atoi( argument );
-   else
-   {
-      send_to_char( "You must enter the quest number.\r\n", ch );
-      return;
-   }
-
-   if( ( av_quest = get_available_quest( victim, list ) ) == NULL || !av_quest->quest )
+   if( ( av_quest = get_available_quest_from_list( victim, argument ) ) == NULL || !av_quest->quest )
    {
       send_to_char( "That Mob does not contain a quest with that high of an list number.\r\n", ch );
       return;
@@ -9133,16 +9170,38 @@ void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
 
    for( av_quest = victim->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
    {
-       if( !av_quest->quest )
-       {
-          bug( "%s: something real fucked up.", __FUNCTION__ );
-          continue;
-       }
-       ch_printf( ch, "Quest %d: %-15.15s Level: %-3d Type %s\r\n",
-                  x++,
-                  av_quest->quest->name,
-                  av_quest->quest->level_req,
-                  quest_types[av_quest->quest->type] );
+      if( !av_quest->quest )
+      {
+         bug( "%s: something real fucked up.", __FUNCTION__ );
+         continue;
+      }
+
+      ch_printf( ch, "Quest %d: %-15.15s Level: %-3d Type %-10.10s Status: %s\r\n",
+                 x++,
+                 av_quest->quest->name,
+                 av_quest->quest->level_req,
+                 quest_types[av_quest->quest->type],
+                 get_status( ch, av_quest->quest ) );
    }
    return;
 }
+
+const char *get_status( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   PLAYER_QUEST *pquest;
+   const char *status = "Unavailable";
+
+   if( ( pquest = get_player_quest( ch, quest ) ) == NULL )
+      status = "Not Started";
+   else if( pquest->stage == QUEST_COMPLETE )
+      status = "Complete";
+   else if( pquest->stage == QUEST_COMPLETE_REPEATABLE )
+      status = "Repeatable";
+   else if( pquest->stage == QUEST_START )
+      status = "Not Started";
+   else
+      status = "Incomplete";
+
+   return status;
+}
+

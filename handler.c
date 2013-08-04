@@ -4896,7 +4896,7 @@ QUEST_DATA *get_quest_from_id( int id )
    return NULL;
 }
 
-AV_QUEST *get_available_quest( CHAR_DATA *ch, int list )
+AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, int list )
 {
    AV_QUEST *av_quest;
    int x = 0;
@@ -4908,4 +4908,40 @@ AV_QUEST *get_available_quest( CHAR_DATA *ch, int list )
       if( list == x++ )
          return av_quest;
    return NULL;
+}
+
+AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, const char *argument )
+{
+   int list;
+
+   if( is_number( argument ) )
+      list = atoi( argument );
+   else
+   {
+      send_to_char( "You must enter the quest number.\r\n", ch );
+      return NULL;
+   }
+   return get_available_quest_from_list( ch, list );
+
+}
+
+PLAYER_QUEST *get_player_quest( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   PLAYER_QUEST *pquest;
+
+   for( pquest = ch->first_pquest; pquest; pquest = pquest->next )
+      if( quest == pquest->quest )
+         return pquest;
+    return NULL;
+}
+
+bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   PLAYER_QUEST *pquest;
+
+   if( ( pquest = get_player_quest( ch, quest ) ) != NULL )
+      if( pquest->stage == -1 || pquest->stage == -2 )
+         return TRUE;
+   return FALSE;
+
 }

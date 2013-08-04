@@ -385,6 +385,7 @@ struct player_quest
    PLAYER_QUEST *prev;
    QUEST_DATA *quest; /* This points to the global quest_data that contains the quests name */
    int stage;
+   int times_completed;
    const char *progress;
 };
 
@@ -4463,6 +4464,8 @@ void fwrite_quest( FILE *fp, QUEST_DATA *quest );
 void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim );
 void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
 void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
+const char *get_status( CHAR_DATA *ch, QUEST_DATA *quest );
+PLAYER_QUEST *create_player_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -4927,7 +4930,10 @@ bool can_teach( CHAR_DATA *teacher, DISC_DATA *discipline );
 int get_discipline_cost( CHAR_DATA *teacher, DISC_DATA *discipline );
 int get_num_affects( EXT_BV *affect );
 QUEST_DATA *get_quest_from_id( int id );
-AV_QUEST *get_available_quest( CHAR_DATA *ch, int list );
+AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *ch, const char *argument ) );
+AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *ch, int list ) );
+PLAYER_QUEST *get_player_quest( CHAR_DATA *ch, QUEST_DATA *quest );
+bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
