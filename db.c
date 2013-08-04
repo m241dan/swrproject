@@ -35,10 +35,15 @@
 void init_supermob( void );
 void fread_fuss_lootdata( FILE *fp, LOOT_DATA *loot );
 void fread_fuss_skills( FILE *fp, MOB_INDEX_DATA *pMobIndex );
+void load_quests( void );
+QUEST_DATA *fread_quest( FILE *fp );
 
 /*
  * Globals.
  */
+QUEST_DATA *first_quest;
+QUEST_DATA *last_quest;
+
 THREAT_DATA *first_threat;
 THREAT_DATA *last_threat;
 
@@ -454,6 +459,8 @@ void boot_db( bool fCopyOver )
    last_teleport = NULL;
    first_asort = NULL;
    last_asort = NULL;
+   first_quest = NULL;
+   last_quest = NULL;
    extracted_obj_queue = NULL;
    extracted_char_queue = NULL;
    cur_qobjs = 0;
@@ -634,6 +641,8 @@ void boot_db( bool fCopyOver )
       load_planets(  );
       log_string( "Loading disciplines" );
       load_disciplines(  );
+      log_string( "Loading quests" );
+      load_quests(  );
 
       if( fCopyOver )
       {
@@ -6665,6 +6674,15 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
 
                break;
             }
+            if( !str_cmp( word, "AvailableQuest" ) )
+            {
+               AV_QUEST *available_quest;
+               CREATE( available_quest, AV_QUEST, 1 );
+ 
+               available_quest->quest = get_quest_from_id( fread_number( fp ) );
+               LINK( available_quest, pMobIndex->first_available_quest, pMobIndex->last_available_quest, next, prev );
+               break;
+            }
             break;
 
          case 'B':
@@ -8552,4 +8570,101 @@ const char *fread_flagstring( FILE * fp )
             return flagstring;
       }
    }
+}
+
+void load_quests( void )
+{
+   FILE *fp;
+   const char *word;
+
+   if( ( fp = fopen( QUEST_FILE, "r" ) ) == NULL )
+   {
+      bug( "Cannot open quest.dat for read", 0 );
+      perror( QUEST_FILE );
+      return;
+   }
+
+   for( ;; )
+   {
+      word = ( feof( fp ) ? "#End" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         bug( "%s: EOF encountered reading file!", __FUNCTION__ );
+         word = "#End";
+      }
+
+      if( !str_cmp( word, "#QUEST" ) )
+      {
+         QUEST_DATA *quest;
+
+         if( ( quest = fread_quest( fp ) ) != NULL )
+            LINK( quest, first_quest, last_quest, next, prev );
+      }
+      else if( !str_cmp( word, "#END" ) )
+         break;
+      else
+         bug( "Unknown Input: %s", word );
+   }
+   fclose( fp );
+   return;
+}
+
+QUEST_DATA *fread_quest( FILE *fp )
+{
+   QUEST_DATA *quest;
+   const char *word;
+   bool fMatch;
+
+   for( ;; )
+   {
+      word = ( feof( fp ) ? "End" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         bug( "%s: EOF encountered reading file!", __FUNCTION__ );
+         word = "End";
+      }
+      fMatch = FALSE;
+
+      switch( UPPER( word[0] ) )
+      {
+         case 'D':
+            KEY( "Name", quest->description, fread_string( fp ) );
+            break;
+         case 'E':
+            if( !str_cmp( word, "End" ) )
+               return quest;
+            break;
+         case 'I':
+            if( !str_cmp( word, "ID" ) )
+            {
+               CREATE( quest, QUEST_DATA, 1 );
+               quest->id = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
+            break;
+          case 'L':
+            KEY( "LevelReq", quest->level_req, fread_number( fp ) );
+            break;
+          case 'N':
+             KEY( "Name", quest->name, fread_string( fp ) );
+             break;
+          case 'P':
+             if( !str_cmp( word, "Prequest" ) )
+             {
+                PRE_QUEST *prequest;
+                CREATE( prequest, PRE_QUEST, 1 );
+
+                prequest->quest = get_quest_from_id( fread_number( fp ) );
+                LINK( prequest, quest->first_prequest, quest->last_prequest, next, prev );
+             }
+             break;
+      }
+      if( !fMatch )
+         bug( "%s: no match: %s", __FUNCTION__, word );
+
+   }
+   return NULL;
 }

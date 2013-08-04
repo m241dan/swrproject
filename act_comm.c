@@ -832,17 +832,6 @@ void do_music( CHAR_DATA * ch, const char *argument )
 }
 
 
-void do_quest( CHAR_DATA * ch, const char *argument )
-{
-   if( NOT_AUTHED( ch ) )
-   {
-      send_to_char( "Huh?\r\n", ch );
-      return;
-   }
-   talk_channel( ch, argument, CHANNEL_QUEST, "quest" );
-   return;
-}
-
 void do_ask( CHAR_DATA * ch, const char *argument )
 {
    if( NOT_AUTHED( ch ) )

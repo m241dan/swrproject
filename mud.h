@@ -126,6 +126,10 @@ typedef struct discipline_data DISC_DATA;
 typedef struct factor_data FACTOR_DATA;
 typedef struct stat_boost STAT_BOOST;
 typedef struct teach_data TEACH_DATA;
+typedef struct quest_data QUEST_DATA;
+typedef struct player_quest PLAYER_QUEST;
+typedef struct available_quest AV_QUEST;
+typedef struct pre_quest PRE_QUEST;
 
 /*
 * Function types.
@@ -347,6 +351,61 @@ struct queue_timers
    CHAR_DATA *timer_ch;
    int type;
 };
+
+
+/*
+ * Quest Structure for Global Outline for a Quest -Davenge
+ */
+typedef enum
+{
+   QUEST_TYPE_ONETIME, QUEST_TYPE_REPEATABLE, MAX_QUESTTYPE
+} quest_type;
+
+
+struct quest_data
+{
+   QUEST_DATA *next; /* For navigating the global linked list of quests */
+   QUEST_DATA *prev;
+   int id;
+   const char *name;
+   const char *description;
+   int level_req; /* Required level */
+   int type; /* see types below */
+   PRE_QUEST *first_prequest;
+   PRE_QUEST *last_prequest;
+};
+
+/*
+ * Quest Structure for a Players Individual Quest -Davenge
+ */
+
+struct player_quest
+{
+   PLAYER_QUEST *next; /* For navigating the linked list within' the CHAR_DATA */
+   PLAYER_QUEST *prev;
+   QUEST_DATA *quest; /* This points to the global quest_data that contains the quests name */
+   int stage;
+   const char *progress;
+};
+
+#define QUEST_START                0
+#define QUEST_COMPLETE             -1
+#define QUEST_COMPLETE_REPEATABLE  -2
+
+struct available_quest
+{
+   AV_QUEST *next;
+   AV_QUEST *prev;
+   QUEST_DATA *quest;
+};
+
+struct pre_quest
+{
+   PRE_QUEST *next;
+   PRE_QUEST *prev;
+   QUEST_DATA *quest;
+};
+
 
 /*
  * Need a way to tell what timer the queue timer is cast to
@@ -2095,6 +2154,8 @@ struct mob_index_data
    int npc_skills[MAX_NPC_SKILL];
    TEACH_DATA *first_teach;
    TEACH_DATA *last_teach;
+   AV_QUEST *first_available_quest;
+   AV_QUEST *last_available_quest;
 };
 
 struct loot_data
@@ -2318,6 +2379,8 @@ struct char_data
    EXT_BV avail_skilltypes;
    EXT_BV avail_skillstyles;
    int stat_build;
+   PLAYER_QUEST *first_pquest;
+   PLAYER_QUEST *last_pquest;
 };
 
 #define PC_BASE_HP 200
@@ -3493,6 +3556,7 @@ extern const char *const lang_names_save[];
 extern const char *sector_name[SECT_MAX];
 extern const char *const d_type[MAX_DAMTYPE];
 extern const char *const frames_of_mind[MAX_FOM];
+extern const char *const quest_types[MAX_QUESTTYPE];
 /*
 * Global variables.
 */
@@ -3575,6 +3639,8 @@ extern CHAR_DATA *saving_char;
 extern OBJ_DATA *all_obj;
 extern THREAT_DATA *first_threat;
 extern THREAT_DATA *last_threat;
+extern QUEST_DATA *first_quest;
+extern QUEST_DATA *last_quest;
 extern QTIMER *first_qtimer;
 extern QTIMER *last_qtimer;
 extern DISC_DATA *first_discipline;
@@ -4241,6 +4307,7 @@ DECLARE_SPELL_FUN( spell_cure_addiction );
 #define SOCIAL_FILE	SYSTEM_DIR "socials.dat"   /* Socials       */
 #define COMMAND_FILE	SYSTEM_DIR "commands.dat"  /* Commands      */
 #define DISCIPLINE_FILE SYSTEM_DIR "disciplines.dat"
+#define QUEST_FILE      SYSTEM_DIR "quest.dat" /* Quests, duh */
 #define USAGE_FILE	SYSTEM_DIR "usage.txt"  /* How many people are on
 * every half hour - trying to
 * determine best reboot time */
@@ -4391,6 +4458,11 @@ void smush_tilde( char *str );
 void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot );
 void fwrite_skill_data( FILE *fpout, MOB_INDEX_DATA * pMobIndex );
 void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf );
+void save_quests( void );
+void fwrite_quest( FILE *fp, QUEST_DATA *quest );
+void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim );
+void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
+void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -4854,6 +4926,7 @@ AFFECT_DATA *copy_affect( AFFECT_DATA *aff );
 bool can_teach( CHAR_DATA *teacher, DISC_DATA *discipline );
 int get_discipline_cost( CHAR_DATA *teacher, DISC_DATA *discipline );
 int get_num_affects( EXT_BV *affect );
+QUEST_DATA *get_quest_from_id( int id );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

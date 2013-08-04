@@ -4885,3 +4885,13 @@ int get_num_affects( EXT_BV *affect )
 
    return count;
 }
+
+QUEST_DATA *get_quest_from_id( int id )
+{
+   QUEST_DATA *quest;
+
+   for( quest = first_quest; quest; quest = quest->next )
+      if( quest->id == id )
+         return quest;
+   return NULL;
+}

@@ -47,6 +47,14 @@ const char *const frames_of_mind[MAX_FOM] = {
    "idle", "fighting", "hunting"
 };
 
+
+/*
+ * Quest Types -Davenge
+ */
+
+const char *const quest_types[MAX_QUESTTYPE] = {
+   "one time", "repeatable"
+};
 /* planet constants for vip and wanted flags */
 
 const char *const d_type[MAX_DAMTYPE] = {
@@ -5727,6 +5735,7 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
 
 void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install )
 {
+   AV_QUEST *available_quest;
    TEACH_DATA *teach;
    SHOP_DATA *pShop;
    REPAIR_DATA *pRepair;
@@ -5823,6 +5832,9 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
 
    for( teach = pMobIndex->first_teach; teach; teach = teach->next )
       fprintf( fpout, "TeachData  %d %d\n", teach->disc_id, teach->credits );
+
+   for( available_quest = pMobIndex->first_available_quest; available_quest; available_quest = available_quest->next )
+      fprintf( fpout, "AvailableQuest   %d\n", available_quest->quest->id );
 
    if( pMobIndex->mudprogs )
    {
@@ -8963,6 +8975,173 @@ void do_discipline( CHAR_DATA *ch, const char *argument )
       unset_discipline( ch, disc );
       send_to_char( "Discipline Unset.\r\n", ch );
       return;
+   }
+   return;
+}
+
+void save_quests( void )
+{
+   FILE *fp;
+   QUEST_DATA *quest;
+
+   if( ( fp = fopen( QUEST_FILE, "w" ) ) == NULL )
+   {
+      bug( "Cannot open quest.dat for writting", 0 );
+      perror( QUEST_FILE );
+      return;
+   }
+
+   for( quest = first_quest; quest; quest = quest->next )
+   {
+      fprintf( fp, "#QUEST\n" );
+      fwrite_quest( fp, quest );
+   }
+
+   fprintf( fp, "#END\n" );
+   fclose( fp );
+}
+
+void fwrite_quest( FILE *fp, QUEST_DATA *quest )
+{
+   PRE_QUEST *prequest;
+   fprintf( fp, "ID           %d\n", quest->id );
+   fprintf( fp, "Name         %s~\n", quest->name );
+   fprintf( fp, "Desription   %s~\n", quest->description );
+   fprintf( fp, "LevelReq     %d\n", quest->level_req );
+   fprintf( fp, "Type         %d\n", quest->type );
+   for( prequest = quest->first_prequest; prequest; prequest = prequest->next )
+      fprintf( fp, "Prequest     %d\n", prequest->quest->id );
+   fprintf( fp, "End\n" );
+   return;
+}
+
+void do_quest( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   char arg[MAX_INPUT_LENGTH];
+   char arg2[MAX_INPUT_LENGTH];
+
+   argument = one_argument( argument, arg );
+
+   if( arg[0] == '\0' || argument[0] == '\0' )
+   {
+      send_to_char( "Proper Usage: quest list <mob>\r\n", ch );
+      send_to_char( "              quest show <mob> <quest#>\r\n", ch ); /* Spit out the description and perhaps requirements to accept the quest */
+      send_to_char( "              quest accept <mob> <quest#>\r\n", ch );
+      if( IS_IMMORTAL ( ch ) )
+      {
+         send_to_char( "Immortal Usage: quest create <name>\r\n", ch );
+         send_to_char( "                quest name <name/id> <new name>\r\n", ch ); /* to rename a quest */
+         send_to_char( "                quest description <name/id>\r\n", ch );
+         send_to_char( "                quest level <name/id>\r\n", ch );
+         send_to_char( "                quest type <type>\r\n", ch ); /* repeatable, one-time, etc */
+         send_to_char( "                quest addprequest <prequest id/name> <name/id>\r\n", ch );
+         send_to_char( "                quest remprequest <prequest id/name> <mame/id>\r\n", ch );
+      }
+      return;
+   }
+
+   argument = one_argument( argument, arg2 );
+
+   if( !str_cmp( arg, "list" ) || !str_cmp( arg, "show" ) || !str_cmp( arg, "accept" ) )
+   {
+      if( ( victim = get_char_room( ch, arg2 ) ) == NULL )
+      {
+         send_to_char( "That person is not here.\r\n", ch );
+         return;
+      }
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on players.\r\n", ch );
+         return;
+      }
+      if( !victim->pIndexData->first_available_quest )
+      {
+         send_to_char( "That mob has no quests.\r\n", ch );
+         return;
+      }
+   }
+
+   if( !str_cmp( arg, "list" ) )
+   {
+      list_mob_quest( ch, victim );
+      return;
+   }
+
+   if( !str_cmp( arg, "show" ) )
+   {
+      show_mob_quest( ch, victim, argument );
+      return;
+   }
+
+   if( !str_cmp( arg, "accept" ) )
+   {
+//      accept_quest( ch, victim, argument );
+      return;
+   }
+}
+
+void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
+{
+   QUEST_DATA *quest;
+   AV_QUEST *av_quest;
+   PRE_QUEST *prequest;
+   int list, x;
+
+   if( is_number( argument ) )
+      list = atoi( argument );
+   else
+   {
+      send_to_char( "You must enter the quest number.\r\n", ch );
+      return;
+   }
+
+   x = 0;
+
+   for( av_quest = victim->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
+      if( list == x++ )
+         break;
+
+   if( !av_quest || !av_quest->quest)
+   {
+      send_to_char( "That Mob does not contain a quest with that high of an list number.\r\n", ch );
+      return;
+   }
+   else
+      quest = av_quest->quest;
+
+   ch_printf( ch, "Name: %s\r\nLevel Required: %d\r\nType: %s\r\n", quest->name, quest->level_req, quest_types[quest->type] );
+   if( quest->first_prequest )
+   {
+      send_to_char( "PreQuests:", ch );
+      for( prequest = quest->first_prequest; prequest; prequest = prequest->next )
+         if( prequest->quest )
+            ch_printf( ch, " %15.15s,", prequest->quest->name );
+      send_to_char( "\r\n", ch );
+   }
+   ch_printf( ch, "Description: %s\r\n", quest->description );
+   return;
+}
+
+void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
+{
+   AV_QUEST *av_quest;
+   int x = 0;
+
+   send_to_char( "This mob has these quests available:\r\n", ch );
+
+   for( av_quest = victim->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
+   {
+       if( !av_quest->quest )
+       {
+          bug( "%s: something real fucked up.", __FUNCTION__ );
+          continue;
+       }
+       ch_printf( ch, "Quest %d: %-15.15s Level: %-3d Type %s\r\n",
+                  x++,
+                  av_quest->quest->name,
+                  av_quest->quest->level_req,
+                  quest_types[av_quest->quest->type] );
    }
    return;
 }
