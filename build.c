@@ -472,6 +472,16 @@ int get_trapflag( const char *flag )
    return -1;
 }
 
+int get_quest_type( const char *type )
+{
+   int x;
+
+   for( x = 0; x < MAX_QUESTTYPE; x++ )
+      if( !str_cmp( type, quest_types[x] ) )
+         return x;
+   return -1;
+}
+
 int get_atype( const char *type )
 {
    int x;
@@ -9031,20 +9041,21 @@ void do_quest( CHAR_DATA *ch, const char *argument )
       if( IS_IMMORTAL ( ch ) )
       {
          send_to_char( "Immortal Usage: quest create <name>\r\n", ch );
+         send_to_char( "                quest delete <name> \r\n", ch );
          send_to_char( "                quest name <name/id> <new name>\r\n", ch ); /* to rename a quest */
-         send_to_char( "                quest description <name/id>\r\n", ch );
-         send_to_char( "                quest level <name/id>\r\n", ch );
-         send_to_char( "                quest type <type>\r\n", ch ); /* repeatable, one-time, etc */
+         send_to_char( "                quest description <name/id> <description>\r\n", ch );
+         send_to_char( "                quest level <name/id> <level>\r\n", ch );
+         send_to_char( "                quest type <name/id> <type>\r\n", ch ); /* repeatable, one-time, etc */
          send_to_char( "                quest addprequest <prequest id/name> <name/id>\r\n", ch );
          send_to_char( "                quest remprequest <prequest id/name> <mame/id>\r\n", ch );
       }
       return;
    }
 
-   argument = one_argument( argument, arg2 );
-
    if( !str_cmp( arg, "list" ) || !str_cmp( arg, "show" ) || !str_cmp( arg, "accept" ) )
    {
+      argument = one_argument( argument, arg2 );
+
       if( ( victim = get_char_room( ch, arg2 ) ) == NULL )
       {
          send_to_char( "That person is not here.\r\n", ch );
@@ -9079,6 +9090,208 @@ void do_quest( CHAR_DATA *ch, const char *argument )
       accept_mob_quest( ch, victim, argument );
       return;
    }
+
+   if( IS_IMMORTAL( ch ) )
+   {
+      QUEST_DATA *quest;
+      CMDTYPE *cmd = NULL;
+      int level;
+
+      for( cmd = command_hash[LOWER( command[0] ) % 126]; cmd; cmd = cmd->next )
+         if( !str_cmp( cmd->name, "quest" ) )
+            level = cmd->level;
+
+      if( get_trust( ch ) < level )
+      {
+         send_to_char( "You aren't high enough level to use those commands.\r\n", ch );
+         return;
+      }
+      /* commands that take one argument */
+      if( !str_cmp( arg, "create" ) )
+      {
+         create_quest( ch, argument );
+         return;
+      }
+
+      /* all commands below this point take two arguments */
+      argument = one_argument( argument, arg2 );
+
+      if( ( quest = get_quest_from_id( atoi( arg2 ) ) ) == NULL && ( quest = get_quest_from_name( arg2 ) ) == NULL )
+      {
+         send_to_char( "No such quest exists.\r\n", ch );
+         return;
+      }
+
+      if( !str_cmp( arg, "name" ) )
+      {
+         change_quest_name( quest, argument );
+         return;
+      }
+      if( !str_cmp( arg, "description" ) )
+      {
+         change_quest_description( quest, argument );
+         return;
+      }
+      if( !str_cmp( arg, "level" ) )
+      {
+         change_quest_level( quest, argument );
+         return;
+      }
+      if( !str_cmp( arg, "type" ) )
+      {
+         change_quest_type( quest, argument );
+         return;
+      }
+      if( !str_cmp( arg, "addprequest" ) )
+      {
+         add_prequest( quest, argument );
+         return;
+      }
+      if( !str_cmp( arg, "remprequest" ) )
+      {
+         rem_prequest( quest, argument );
+         return;
+      }
+      if( !str_cmp( arg, "delete" ) )
+      {
+         delete_quest( quest );
+         return;
+      }
+
+
+   }
+   do_quest( ch, "" );
+   return;
+}
+
+void delete_quest( QUEST_DATA *quest )
+{
+   UNLINK( quest, first_quest, last_quest, next, prev );
+   free_quest( quest );
+   send_to_char( "Quest deleted.\r\n", ch );
+   return;
+}
+
+void rem_prequest( QUEST_DATA *quest, const char *argument )
+{
+   PRE_QUEST *pquest, *next_prequest;
+   int x, count;
+
+   if( !is_number( argument ) )
+   {
+      send_to_char( "Enter a proper index number.\r\n", ch );
+      return;
+   }
+   else if( ( count = atoi( argument ) ) < 0 )
+   {
+      send_to_char( "That number is too low.\r\n", ch );
+      return;
+   }
+
+   for( x = 0, pquest = quest->first_prequest; pquest; pquest = next_prequest )
+   {
+      next_prequest = pquest->next;
+      if( count == x++ )
+         break;
+   }
+   if( !pquest )
+   {
+      send_to_char( "This quest doesn't have that many prequests.\r\n", ch );
+      return;
+   }
+
+   UNLINK( pquest, quest->first_prequest, quest->last_prequest, next, prev );
+   free_prequest( pquest );
+   send_to_char( "Prequest removed.\r\n", ch );
+   return;
+}
+
+void add_prequest( QUEST_DATA *quest, const char *argument )
+{
+   PRE_QUEST *pquest;
+   QUEST_DATA *pre_quest_data;
+
+   if( ( pre_quest_data = get_quest_from_id( atoi( argument ) ) ) == NULL && ( pre_quest_data = get_quest_from_name( argument ) ) == NULL )
+   {
+      ch_printf( ch, "No such quest '%s' exists.\r\n", argument );
+      return;
+   }
+
+   CREATE( pquest, PRE_QUEST, 1 );
+   pquest->quest = pre_quest_data;
+   LINK( pquest, quest->first_prequest, quest->last_prequest, next, prev );
+   ch_printf( ch, "Prequest '%s' added to quest %s.\r\n", pre_quest_data->name, quest->name );
+   return;
+}
+
+void change_quest_type( QUEST_DATA *quest, const char *argument )
+{
+   int type;
+
+   if( ( type = get_quest_type( argument ) ) == -1 )
+   {
+      send_to_char( "Invalid quest type.\r\n", ch );
+      return;
+   }
+   quest->type = type;
+   ch_printf( ch, "%s type changed to %s.\r\n", quest->name, quest_types[type] );
+   return;
+}
+
+void change_quest_level( QUEST_DATA *quest, const char *argument )
+{
+   int level;
+
+   if( !is_number( argument ) )
+   {
+      send_to_char( "You must input a number.\r\n", ch );
+      return;
+   }
+   else if( ( level = atoi( argument ) ) > MAX_CLASS_LEVEL || level < 1 )
+   {
+      send_to_char( "Invalid level entered.\r\n", ch );
+      return;
+   }
+
+   quest->level = level;
+   ch_printf( ch, "%s changed to level %d.\r\n", quest->name, level );
+   return;
+}
+
+void change_quest_description( QUEST_DATA *quest, const char *argument )
+{
+   STRFREE( quest->description );
+   quest->name = str_dup( argument );
+   send_to_char( "Description changed.\r\n", ch );
+   return;
+}
+
+void change_quest_name( QUEST_DATA *quest, const char *argument )
+{
+   STRFREE( quest->name )
+   quest->name = str_dup( argument );
+   ch_printf( ch, "Quest name changed to '%s'.\r\n", quest->name );
+   return;
+}
+
+void create_quest( CHAR_DATA *ch, const char *argument )
+{
+   QUEST_DATA *new_quest;
+   int id;
+
+   CREATE( new_quest, QUEST_DATA, 1 );
+   new_quest->name = str_dup( argument );
+
+   for( ;; )
+   {
+      id = number_range( 1000, 9999 );
+      if( !(get_quest_from_id( id )) )
+         break;
+   }
+   new_quest->id = id;
+   LINK( new_quest, first_quest, last_quest, next, prev );
+   ch_printf( ch, "You have created the quest '%s'\r\n", new_quest->name );
+   return;
 }
 
 void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )

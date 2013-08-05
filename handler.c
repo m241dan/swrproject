@@ -4896,6 +4896,16 @@ QUEST_DATA *get_quest_from_id( int id )
    return NULL;
 }
 
+QUEST_DATA *get_quest_from_name( const char *argument )
+{
+   QUEST_DATA *quest;
+
+   for( quest = first_quest; quest; quest = quest->next )
+      if( !str_cmp( argument, quest->name )
+         return quest;
+   return NULL;
+}
+
 AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, int list )
 {
    AV_QUEST *av_quest;
@@ -4944,4 +4954,26 @@ bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest )
          return TRUE;
    return FALSE;
 
+}
+
+void free_prequest( PRE_QUEST *pquest )
+{
+   pquest->quest = NULL
+   DISPOSE( pquest );
+   return;
+}
+
+void free_quest( QUEST_DATA *quest )
+{
+   PRE_QUEST *pquest, *next_pquest;
+   STRFREE( quest->name );
+   STRFREE( quest->description );
+
+   for( pquest = quest->first_prequest; pquest; pquest = next_pquest )
+   {
+      next_pquest = pquest->next;
+      UNLINK( pquest, quest->first_prequest, quest->last_prequest, next, prev );
+      free_prequest( pquest );
+   }
+   DISPOSE( quest );
 }

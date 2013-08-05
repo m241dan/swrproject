@@ -204,6 +204,7 @@ typedef ch_ret SPELL_FUN( int sn, int level, CHAR_DATA * ch, void *vo );
 #define MAX_RACE		   17
 #define MAX_NPC_RACE		   91
 #define MAX_LEVEL		  105
+#define MAX_CLASS_LEVEL           150
 #define MAX_CLAN		   50
 #define MAX_PLANET		  100
 #define MAX_SHIP                 1000
@@ -4466,6 +4467,7 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
 void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
 const char *get_status( CHAR_DATA *ch, QUEST_DATA *quest );
 PLAYER_QUEST *create_player_quest( CHAR_DATA *ch, QUEST_DATA *quest );
+int get_quest_type( const char *type );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -4934,6 +4936,9 @@ AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *ch, const char *argum
 AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *ch, int list ) );
 PLAYER_QUEST *get_player_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest );
+QUEST_DATA *get_quest_from_name( const char *argument );
+void free_prequest( PRE_QUEST *pquest );
+void free_quest( QUEST_DATA *quest );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
