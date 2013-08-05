@@ -4901,7 +4901,7 @@ QUEST_DATA *get_quest_from_name( const char *argument )
    QUEST_DATA *quest;
 
    for( quest = first_quest; quest; quest = quest->next )
-      if( !str_cmp( argument, quest->name )
+      if( !str_cmp( argument, quest->name ) )
          return quest;
    return NULL;
 }
@@ -4958,7 +4958,7 @@ bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest )
 
 void free_prequest( PRE_QUEST *pquest )
 {
-   pquest->quest = NULL
+   pquest->quest = NULL;
    DISPOSE( pquest );
    return;
 }

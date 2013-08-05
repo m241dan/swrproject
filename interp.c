@@ -37,8 +37,7 @@ bool check_social( CHAR_DATA * ch, const char *command, const char *argument );
  * Log-all switch.
  */
 bool fLogAll = FALSE;
-
-CMDTYPE *command_hash[126];   /* hash table for cmd_table */
+CMDTYPE *command_hash[126]; /* hash table for commands */
 SOCIALTYPE *social_index[27]; /* hash table for socials   */
 
 /*

@@ -9095,10 +9095,11 @@ void do_quest( CHAR_DATA *ch, const char *argument )
    {
       QUEST_DATA *quest;
       CMDTYPE *cmd = NULL;
+      const char *command = "quest";
       int level;
 
-      for( cmd = command_hash[LOWER( command[0] ) % 126]; cmd; cmd = cmd->next )
-         if( !str_cmp( cmd->name, "quest" ) )
+      for( cmd = command_hash[ command[0] % 126 ]; cmd; cmd = cmd->next )
+         if( !str_cmp( cmd->name, command ) )
             level = cmd->level;
 
       if( get_trust( ch ) < level )
@@ -9124,37 +9125,37 @@ void do_quest( CHAR_DATA *ch, const char *argument )
 
       if( !str_cmp( arg, "name" ) )
       {
-         change_quest_name( quest, argument );
+         change_quest_name( ch, quest, argument );
          return;
       }
       if( !str_cmp( arg, "description" ) )
       {
-         change_quest_description( quest, argument );
+         change_quest_description( ch, quest, argument );
          return;
       }
       if( !str_cmp( arg, "level" ) )
       {
-         change_quest_level( quest, argument );
+         change_quest_level( ch, quest, argument );
          return;
       }
       if( !str_cmp( arg, "type" ) )
       {
-         change_quest_type( quest, argument );
+         change_quest_type( ch, quest, argument );
          return;
       }
       if( !str_cmp( arg, "addprequest" ) )
       {
-         add_prequest( quest, argument );
+         add_prequest( ch, quest, argument );
          return;
       }
       if( !str_cmp( arg, "remprequest" ) )
       {
-         rem_prequest( quest, argument );
+         rem_prequest( ch, quest, argument );
          return;
       }
       if( !str_cmp( arg, "delete" ) )
       {
-         delete_quest( quest );
+         delete_quest( ch, quest );
          return;
       }
 
@@ -9164,7 +9165,7 @@ void do_quest( CHAR_DATA *ch, const char *argument )
    return;
 }
 
-void delete_quest( QUEST_DATA *quest )
+void delete_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 {
    UNLINK( quest, first_quest, last_quest, next, prev );
    free_quest( quest );
@@ -9172,7 +9173,7 @@ void delete_quest( QUEST_DATA *quest )
    return;
 }
 
-void rem_prequest( QUEST_DATA *quest, const char *argument )
+void rem_prequest( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 {
    PRE_QUEST *pquest, *next_prequest;
    int x, count;
@@ -9206,7 +9207,7 @@ void rem_prequest( QUEST_DATA *quest, const char *argument )
    return;
 }
 
-void add_prequest( QUEST_DATA *quest, const char *argument )
+void add_prequest( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 {
    PRE_QUEST *pquest;
    QUEST_DATA *pre_quest_data;
@@ -9224,7 +9225,7 @@ void add_prequest( QUEST_DATA *quest, const char *argument )
    return;
 }
 
-void change_quest_type( QUEST_DATA *quest, const char *argument )
+void change_quest_type( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 {
    int type;
 
@@ -9238,7 +9239,7 @@ void change_quest_type( QUEST_DATA *quest, const char *argument )
    return;
 }
 
-void change_quest_level( QUEST_DATA *quest, const char *argument )
+void change_quest_level( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 {
    int level;
 
@@ -9253,12 +9254,12 @@ void change_quest_level( QUEST_DATA *quest, const char *argument )
       return;
    }
 
-   quest->level = level;
+   quest->level_req = level;
    ch_printf( ch, "%s changed to level %d.\r\n", quest->name, level );
    return;
 }
 
-void change_quest_description( QUEST_DATA *quest, const char *argument )
+void change_quest_description( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 {
    STRFREE( quest->description );
    quest->name = str_dup( argument );
@@ -9266,9 +9267,9 @@ void change_quest_description( QUEST_DATA *quest, const char *argument )
    return;
 }
 
-void change_quest_name( QUEST_DATA *quest, const char *argument )
+void change_quest_name( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 {
-   STRFREE( quest->name )
+   STRFREE( quest->name );
    quest->name = str_dup( argument );
    ch_printf( ch, "Quest name changed to '%s'.\r\n", quest->name );
    return;
