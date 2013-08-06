@@ -1875,7 +1875,7 @@ void mprog_act_trigger( const char *buf, CHAR_DATA * mob, CHAR_DATA * ch,
    MPROG_DATA *mprg;
    bool found = FALSE;
 
-   if( IS_NPC( mob ) && IS_SET( mob->pIndexData->progtypes, ACT_PROG ) )
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, ACT_PROG ) )
    {
       /*
        * Don't let a mob trigger itself, nor one instance of a mob
@@ -1933,7 +1933,7 @@ void mprog_bribe_trigger( CHAR_DATA * mob, CHAR_DATA * ch, int amount )
    MPROG_DATA *mprg;
    OBJ_DATA *obj;
 
-   if( IS_NPC( mob ) && ( mob->pIndexData->progtypes & BRIBE_PROG ) )
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, BRIBE_PROG ) )
    {
       /*
        * Don't let a mob trigger itself, nor one instance of a mob
@@ -1964,7 +1964,7 @@ void mprog_bribe_trigger( CHAR_DATA * mob, CHAR_DATA * ch, int amount )
 
 void mprog_death_trigger( CHAR_DATA * killer, CHAR_DATA * mob )
 {
-   if( IS_NPC( mob ) && killer != mob && ( mob->pIndexData->progtypes & DEATH_PROG ) )
+   if( IS_NPC( mob ) && killer != mob && xIS_SET( mob->pIndexData->progtypes, DEATH_PROG ) )
    {
       mprog_percent_check( mob, killer, NULL, NULL, DEATH_PROG );
    }
@@ -1975,7 +1975,7 @@ void mprog_death_trigger( CHAR_DATA * killer, CHAR_DATA * mob )
 void mprog_entry_trigger( CHAR_DATA * mob )
 {
 
-   if( IS_NPC( mob ) && ( mob->pIndexData->progtypes & ENTRY_PROG ) )
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, ENTRY_PROG ) )
       mprog_percent_check( mob, NULL, NULL, NULL, ENTRY_PROG );
 
    return;
@@ -1985,7 +1985,7 @@ void mprog_entry_trigger( CHAR_DATA * mob )
 void mprog_fight_trigger( CHAR_DATA * mob, CHAR_DATA * ch )
 {
 
-   if( IS_NPC( mob ) && ( mob->pIndexData->progtypes & FIGHT_PROG ) )
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, FIGHT_PROG ) )
       mprog_percent_check( mob, ch, NULL, NULL, FIGHT_PROG );
 
    return;
@@ -1998,11 +1998,11 @@ void mprog_give_trigger( CHAR_DATA * mob, CHAR_DATA * ch, OBJ_DATA * obj )
    char buf[MAX_INPUT_LENGTH];
    MPROG_DATA *mprg;
 
-   if( IS_NPC( mob ) && ( mob->pIndexData->progtypes & GIVE_PROG ) )
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, GIVE_PROG ) )
    {
       /*
        * Don't let a mob trigger itself, nor one instance of a mob
-       * trigger another instance. 
+       * trigger another instance.
        */
       if( IS_NPC( ch ) && ch->pIndexData == mob->pIndexData )
          return;
@@ -2011,9 +2011,8 @@ void mprog_give_trigger( CHAR_DATA * mob, CHAR_DATA * ch, OBJ_DATA * obj )
       {
          one_argument( mprg->arglist, buf );
 
-         if( ( mprg->type & GIVE_PROG ) && ( ( !str_cmp( obj->name, mprg->arglist ) ) || ( !str_cmp( "all", buf ) ) ) )
+         if( mprg->type == GIVE_PROG && ( obj->pIndexData->vnum == atoi( mprg->arglist  ) || ( !str_cmp( "all", buf ) ) ) )
          {
-
             mprog_driver( mprg->comlist, mob, ch, obj, NULL, FALSE );
             break;
          }
@@ -2045,9 +2044,9 @@ void mprog_greet_trigger( CHAR_DATA * ch )
       if( IS_NPC( ch ) && ch->pIndexData == vmob->pIndexData )
          continue;
 
-      if( vmob->pIndexData->progtypes & GREET_PROG )
+      if( xIS_SET( vmob->pIndexData->progtypes, GREET_PROG ) )
          mprog_percent_check( vmob, ch, NULL, NULL, GREET_PROG );
-      else if( vmob->pIndexData->progtypes & ALL_GREET_PROG )
+      else if( xIS_SET( vmob->pIndexData->progtypes, ALL_GREET_PROG ) )
          mprog_percent_check( vmob, ch, NULL, NULL, ALL_GREET_PROG );
    }
    return;
@@ -2058,10 +2057,9 @@ void mprog_hitprcnt_trigger( CHAR_DATA * mob, CHAR_DATA * ch )
 {
 
    MPROG_DATA *mprg;
-
-   if( IS_NPC( mob ) && ( mob->pIndexData->progtypes & HITPRCNT_PROG ) )
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, HITPRCNT_PROG ) )
       for( mprg = mob->pIndexData->mudprogs; mprg; mprg = mprg->next )
-         if( ( mprg->type & HITPRCNT_PROG ) && ( ( 100 * mob->hit / mob->max_hit ) < atoi( mprg->arglist ) ) )
+         if( ( mprg->type == HITPRCNT_PROG ) && ( ( 100 * mob->hit / mob->max_hit ) < atoi( mprg->arglist ) ) )
          {
             mprog_driver( mprg->comlist, mob, ch, NULL, NULL, FALSE );
             break;
@@ -2073,7 +2071,7 @@ void mprog_hitprcnt_trigger( CHAR_DATA * mob, CHAR_DATA * ch )
 
 void mprog_random_trigger( CHAR_DATA * mob )
 {
-   if( mob->pIndexData->progtypes & RAND_PROG )
+   if( xIS_SET( mob->pIndexData->progtypes, RAND_PROG ) )
       mprog_percent_check( mob, NULL, NULL, NULL, RAND_PROG );
 
    return;
@@ -2081,14 +2079,14 @@ void mprog_random_trigger( CHAR_DATA * mob )
 
 void mprog_time_trigger( CHAR_DATA * mob )
 {
-   if( mob->pIndexData->progtypes & TIME_PROG )
+   if( xIS_SET( mob->pIndexData->progtypes, TIME_PROG ) )
       mprog_time_check( mob, NULL, NULL, NULL, TIME_PROG );
    return;
 }
 
 void mprog_hour_trigger( CHAR_DATA * mob )
 {
-   if( mob->pIndexData->progtypes & HOUR_PROG )
+   if( xIS_SET( mob->pIndexData->progtypes, HOUR_PROG ) )
       mprog_time_check( mob, NULL, NULL, NULL, HOUR_PROG );
    return;
 }
@@ -2100,7 +2098,7 @@ void mprog_speech_trigger( const char *txt, CHAR_DATA * actor )
 
    for( vmob = actor->in_room->first_person; vmob; vmob = vmob->next_in_room )
    {
-      if( IS_NPC( vmob ) && ( vmob->pIndexData->progtypes & SPEECH_PROG ) )
+      if( IS_NPC( vmob ) && xIS_SET( vmob->pIndexData->progtypes, SPEECH_PROG ) )
       {
          if( IS_NPC( actor ) && actor->pIndexData == vmob->pIndexData )
             continue;
@@ -2115,9 +2113,9 @@ void mprog_script_trigger( CHAR_DATA * mob )
 {
    MPROG_DATA *mprg;
 
-   if( mob->pIndexData->progtypes & SCRIPT_PROG )
+   if( xIS_SET( mob->pIndexData->progtypes, SCRIPT_PROG ) )
       for( mprg = mob->pIndexData->mudprogs; mprg; mprg = mprg->next )
-         if( ( mprg->type & SCRIPT_PROG ) )
+         if( mprg->type == SCRIPT_PROG )
          {
             if( mprg->arglist[0] == '\0' || mob->mpscriptpos != 0 || atoi( mprg->arglist ) == time_info.hour )
                mprog_driver( mprg->comlist, mob, NULL, NULL, NULL, TRUE );
@@ -2129,9 +2127,9 @@ void oprog_script_trigger( OBJ_DATA * obj )
 {
    MPROG_DATA *mprg;
 
-   if( obj->pIndexData->progtypes & SCRIPT_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, SCRIPT_PROG ) )
       for( mprg = obj->pIndexData->mudprogs; mprg; mprg = mprg->next )
-         if( ( mprg->type & SCRIPT_PROG ) )
+         if( mprg->type == SCRIPT_PROG )
          {
             if( mprg->arglist[0] == '\0' || obj->mpscriptpos != 0 || atoi( mprg->arglist ) == time_info.hour )
             {
@@ -2148,9 +2146,9 @@ void rprog_script_trigger( ROOM_INDEX_DATA * room )
 {
    MPROG_DATA *mprg;
 
-   if( room->progtypes & SCRIPT_PROG )
+   if( xIS_SET( room->progtypes, SCRIPT_PROG ) )
       for( mprg = room->mudprogs; mprg; mprg = mprg->next )
-         if( ( mprg->type & SCRIPT_PROG ) )
+         if( mprg->type == SCRIPT_PROG )
          {
             if( mprg->arglist[0] == '\0' || room->mpscriptpos != 0 || atoi( mprg->arglist ) == time_info.hour )
             {
@@ -2270,7 +2268,7 @@ void oprog_greet_trigger( CHAR_DATA * ch )
    OBJ_DATA *vobj;
 
    for( vobj = ch->in_room->first_content; vobj; vobj = vobj->next_content )
-      if( vobj->pIndexData->progtypes & GREET_PROG )
+      if( xIS_SET( vobj->pIndexData->progtypes, GREET_PROG ) )
       {
          set_supermob( vobj );   /* not very efficient to do here */
          oprog_percent_check( supermob, ch, vobj, NULL, GREET_PROG );
@@ -2288,7 +2286,7 @@ void oprog_speech_trigger( const char *txt, CHAR_DATA * ch )
     * supermob is set and released in oprog_wordlist_check 
     */
    for( vobj = ch->in_room->first_content; vobj; vobj = vobj->next_content )
-      if( vobj->pIndexData->progtypes & SPEECH_PROG )
+      if( xIS_SET( vobj->pIndexData->progtypes, SPEECH_PROG ) )
       {
          oprog_wordlist_check( txt, supermob, ch, vobj, NULL, SPEECH_PROG, vobj );
       }
@@ -2306,7 +2304,7 @@ void oprog_random_trigger( OBJ_DATA * obj )
    if( !obj || !obj->pIndexData )
       return;
 
-   if( obj->pIndexData->progtypes & RAND_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, RAND_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, NULL, obj, NULL, RAND_PROG );
@@ -2321,7 +2319,7 @@ void oprog_random_trigger( OBJ_DATA * obj )
  */
 void oprog_wear_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & WEAR_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, WEAR_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, WEAR_PROG );
@@ -2334,7 +2332,7 @@ bool oprog_use_trigger( CHAR_DATA * ch, OBJ_DATA * obj, CHAR_DATA * vict, OBJ_DA
 {
    bool executed = FALSE;
 
-   if( obj->pIndexData->progtypes & USE_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, USE_PROG ) )
    {
       set_supermob( obj );
       if( obj->item_type == ITEM_STAFF )
@@ -2360,7 +2358,7 @@ bool oprog_use_trigger( CHAR_DATA * ch, OBJ_DATA * obj, CHAR_DATA * vict, OBJ_DA
  */
 void oprog_remove_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & REMOVE_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, REMOVE_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, REMOVE_PROG );
@@ -2375,7 +2373,7 @@ void oprog_remove_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_sac_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & SAC_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, SAC_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, SAC_PROG );
@@ -2390,7 +2388,7 @@ void oprog_sac_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_get_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & GET_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, GET_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, GET_PROG );
@@ -2404,7 +2402,7 @@ void oprog_get_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_damage_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & DAMAGE_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, DAMAGE_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, DAMAGE_PROG );
@@ -2419,7 +2417,7 @@ void oprog_damage_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 void oprog_repair_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
 
-   if( obj->pIndexData->progtypes & REPAIR_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, REPAIR_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, REPAIR_PROG );
@@ -2434,7 +2432,7 @@ void oprog_repair_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_drop_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & DROP_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, DROP_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, DROP_PROG );
@@ -2448,7 +2446,7 @@ void oprog_drop_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_examine_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & EXA_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, EXA_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, EXA_PROG );
@@ -2463,7 +2461,7 @@ void oprog_examine_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_zap_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & ZAP_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, ZAP_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, ZAP_PROG );
@@ -2478,7 +2476,7 @@ void oprog_zap_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_pull_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & PULL_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, PULL_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, PULL_PROG );
@@ -2493,7 +2491,7 @@ void oprog_pull_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
  */
 void oprog_push_trigger( CHAR_DATA * ch, OBJ_DATA * obj )
 {
-   if( obj->pIndexData->progtypes & PUSH_PROG )
+   if( xIS_SET( obj->pIndexData->progtypes, PUSH_PROG ) )
    {
       set_supermob( obj );
       oprog_percent_check( supermob, ch, obj, NULL, PUSH_PROG );
@@ -2506,7 +2504,7 @@ void obj_act_add( OBJ_DATA * obj );
 void oprog_act_trigger( const char *buf, OBJ_DATA * mobj, CHAR_DATA * ch,
 			OBJ_DATA * obj, void *vo )
 {
-   if( mobj->pIndexData->progtypes & ACT_PROG )
+   if( xIS_SET( mobj->pIndexData->progtypes, ACT_PROG ) )
    {
       MPROG_ACT_LIST *tmp_act, *tmp_mal;
 
@@ -2668,7 +2666,7 @@ void rprog_percent_check( CHAR_DATA * mob, CHAR_DATA * actor, OBJ_DATA * obj, vo
 void room_act_add( ROOM_INDEX_DATA * room );
 void rprog_act_trigger( const char *buf, ROOM_INDEX_DATA * room, CHAR_DATA * ch, OBJ_DATA * obj, void *vo )
 {
-   if( room->progtypes & ACT_PROG )
+   if( xIS_SET( room->progtypes, ACT_PROG ) )
    {
       MPROG_ACT_LIST *tmp_act, *tmp_mal;
 
@@ -2710,7 +2708,7 @@ void rprog_act_trigger( const char *buf, ROOM_INDEX_DATA * room, CHAR_DATA * ch,
 
 void rprog_leave_trigger( CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & LEAVE_PROG )
+   if( xIS_SET( ch->in_room->progtypes, LEAVE_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_percent_check( supermob, ch, NULL, NULL, LEAVE_PROG );
@@ -2721,7 +2719,7 @@ void rprog_leave_trigger( CHAR_DATA * ch )
 
 void rprog_enter_trigger( CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & ENTER_PROG )
+   if( xIS_SET( ch->in_room->progtypes, ENTER_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_percent_check( supermob, ch, NULL, NULL, ENTER_PROG );
@@ -2732,7 +2730,7 @@ void rprog_enter_trigger( CHAR_DATA * ch )
 
 void rprog_sleep_trigger( CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & SLEEP_PROG )
+   if( xIS_SET( ch->in_room->progtypes, SLEEP_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_percent_check( supermob, ch, NULL, NULL, SLEEP_PROG );
@@ -2743,7 +2741,7 @@ void rprog_sleep_trigger( CHAR_DATA * ch )
 
 void rprog_rest_trigger( CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & REST_PROG )
+   if( xIS_SET( ch->in_room->progtypes, REST_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_percent_check( supermob, ch, NULL, NULL, REST_PROG );
@@ -2754,7 +2752,7 @@ void rprog_rest_trigger( CHAR_DATA * ch )
 
 void rprog_rfight_trigger( CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & RFIGHT_PROG )
+   if( xIS_SET( ch->in_room->progtypes, RFIGHT_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_percent_check( supermob, ch, NULL, NULL, RFIGHT_PROG );
@@ -2765,7 +2763,7 @@ void rprog_rfight_trigger( CHAR_DATA * ch )
 
 void rprog_death_trigger( CHAR_DATA * killer, CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & RDEATH_PROG )
+   if( xIS_SET( ch->in_room->progtypes, RDEATH_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_percent_check( supermob, ch, NULL, NULL, RDEATH_PROG );
@@ -2776,7 +2774,7 @@ void rprog_death_trigger( CHAR_DATA * killer, CHAR_DATA * ch )
 
 void rprog_speech_trigger( const char *txt, CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & SPEECH_PROG )
+   if( xIS_SET( ch->in_room->progtypes, SPEECH_PROG ) )
    {
       /*
        * supermob is set and released in rprog_wordlist_check 
@@ -2789,7 +2787,7 @@ void rprog_speech_trigger( const char *txt, CHAR_DATA * ch )
 void rprog_random_trigger( CHAR_DATA * ch )
 {
 
-   if( ch->in_room->progtypes & RAND_PROG )
+   if( xIS_SET( ch->in_room->progtypes, RAND_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_percent_check( supermob, ch, NULL, NULL, RAND_PROG );
@@ -2889,7 +2887,7 @@ void rprog_time_check( CHAR_DATA * mob, CHAR_DATA * actor, OBJ_DATA * obj, void 
 
 void rprog_time_trigger( CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & TIME_PROG )
+   if( xIS_SET( ch->in_room->progtypes, TIME_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_time_check( supermob, NULL, NULL, ch->in_room, TIME_PROG );
@@ -2900,7 +2898,7 @@ void rprog_time_trigger( CHAR_DATA * ch )
 
 void rprog_hour_trigger( CHAR_DATA * ch )
 {
-   if( ch->in_room->progtypes & HOUR_PROG )
+   if( xIS_SET( ch->in_room->progtypes,  HOUR_PROG ) )
    {
       rset_supermob( ch->in_room );
       rprog_time_check( supermob, NULL, NULL, ch->in_room, HOUR_PROG );

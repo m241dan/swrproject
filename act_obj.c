@@ -800,7 +800,7 @@ void do_drop( CHAR_DATA * ch, const char *argument )
              && can_see_obj( ch, obj ) && obj->wear_loc == WEAR_NONE && can_drop_obj( ch, obj ) )
          {
             found = TRUE;
-            if( obj->pIndexData->progtypes & DROP_PROG && obj->count > 1 )
+            if( xIS_SET( obj->pIndexData->progtypes, DROP_PROG ) && obj->count > 1 )
             {
                ++cnt;
                separate_obj( obj );

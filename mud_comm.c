@@ -129,7 +129,7 @@ void do_mpstat( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !( victim->pIndexData->progtypes ) )
+   if( xIS_EMPTY( victim->pIndexData->progtypes ) )
    {
       send_to_char( "That Mobile has no Programs set.\r\n", ch );
       return;
@@ -174,7 +174,7 @@ void do_opstat( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !( obj->pIndexData->progtypes ) )
+   if( xIS_EMPTY( obj->pIndexData->progtypes ) )
    {
       send_to_char( "That object has no programs set.\r\n", ch );
       return;
@@ -196,7 +196,7 @@ void do_rpstat( CHAR_DATA * ch, const char *argument )
 {
    MPROG_DATA *mprg;
 
-   if( !( ch->in_room->progtypes ) )
+   if( xIS_EMPTY( ch->in_room->progtypes ) )
    {
       send_to_char( "This room has no programs set.\r\n", ch );
       return;

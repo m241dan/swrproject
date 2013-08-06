@@ -7461,9 +7461,9 @@ void do_mpedit( CHAR_DATA * ch, const char *argument )
          if( ++cnt == value )
          {
             mpedit( ch, mprg, mptype, argument );
-            victim->pIndexData->progtypes = 0;
+            xCLEAR_BITS( victim->pIndexData->progtypes );
             for( mprg = mprog; mprg; mprg = mprg->next )
-               victim->pIndexData->progtypes |= mprg->type;
+               xSET_BIT( victim->pIndexData->progtypes, mprg->type );
             return;
          }
       }
@@ -7526,7 +7526,7 @@ void do_mpedit( CHAR_DATA * ch, const char *argument )
       STRFREE( mprg_next->comlist );
       DISPOSE( mprg_next );
       if( num <= 1 )
-         REMOVE_BIT( victim->pIndexData->progtypes, mptype );
+         xREMOVE_BIT( victim->pIndexData->progtypes, mptype );
       send_to_char( "Program removed.\r\n", ch );
       return;
    }
@@ -7553,7 +7553,7 @@ void do_mpedit( CHAR_DATA * ch, const char *argument )
       if( value == 1 )
       {
          CREATE( mprg, MPROG_DATA, 1 );
-         victim->pIndexData->progtypes |= ( 1 << mptype );
+         xSET_BIT( victim->pIndexData->progtypes, mptype );
          mpedit( ch, mprg, mptype, argument );
          mprg->next = mprog;
          victim->pIndexData->mudprogs = mprg;
@@ -7565,7 +7565,7 @@ void do_mpedit( CHAR_DATA * ch, const char *argument )
          if( ++cnt == value && mprg->next )
          {
             CREATE( mprg_next, MPROG_DATA, 1 );
-            victim->pIndexData->progtypes |= ( 1 << mptype );
+            xSET_BIT( victim->pIndexData->progtypes, mptype );
             mpedit( ch, mprg_next, mptype, argument );
             mprg_next->next = mprg->next;
             mprg->next = mprg_next;
@@ -7591,7 +7591,7 @@ void do_mpedit( CHAR_DATA * ch, const char *argument )
          mprog->next = mprg;
       else
          victim->pIndexData->mudprogs = mprg;
-      victim->pIndexData->progtypes |= ( 1 << mptype );
+      xSET_BIT( victim->pIndexData->progtypes, mptype );
       mpedit( ch, mprg, mptype, argument );
       mprg->next = NULL;
       return;
@@ -7739,9 +7739,9 @@ void do_opedit( CHAR_DATA * ch, const char *argument )
          if( ++cnt == value )
          {
             mpedit( ch, mprg, mptype, argument );
-            obj->pIndexData->progtypes = 0;
+            xCLEAR_BITS( obj->pIndexData->progtypes );
             for( mprg = mprog; mprg; mprg = mprg->next )
-               obj->pIndexData->progtypes |= mprg->type;
+               xSET_BIT( obj->pIndexData->progtypes, mprg->type );
             return;
          }
       }
@@ -7804,7 +7804,7 @@ void do_opedit( CHAR_DATA * ch, const char *argument )
       STRFREE( mprg_next->comlist );
       DISPOSE( mprg_next );
       if( num <= 1 )
-         REMOVE_BIT( obj->pIndexData->progtypes, mptype );
+         xREMOVE_BIT( obj->pIndexData->progtypes, mptype );
       send_to_char( "Program removed.\r\n", ch );
       return;
    }
@@ -7831,7 +7831,7 @@ void do_opedit( CHAR_DATA * ch, const char *argument )
       if( value == 1 )
       {
          CREATE( mprg, MPROG_DATA, 1 );
-         obj->pIndexData->progtypes |= ( 1 << mptype );
+         xSET_BIT( obj->pIndexData->progtypes, mptype );
          mpedit( ch, mprg, mptype, argument );
          mprg->next = mprog;
          obj->pIndexData->mudprogs = mprg;
@@ -7843,7 +7843,7 @@ void do_opedit( CHAR_DATA * ch, const char *argument )
          if( ++cnt == value && mprg->next )
          {
             CREATE( mprg_next, MPROG_DATA, 1 );
-            obj->pIndexData->progtypes |= ( 1 << mptype );
+            xSET_BIT( obj->pIndexData->progtypes, mptype );
             mpedit( ch, mprg_next, mptype, argument );
             mprg_next->next = mprg->next;
             mprg->next = mprg_next;
@@ -7869,7 +7869,7 @@ void do_opedit( CHAR_DATA * ch, const char *argument )
          mprog->next = mprg;
       else
          obj->pIndexData->mudprogs = mprg;
-      obj->pIndexData->progtypes |= ( 1 << mptype );
+      xSET_BIT( obj->pIndexData->progtypes, mptype );
       mpedit( ch, mprg, mptype, argument );
       mprg->next = NULL;
       return;
@@ -8016,9 +8016,9 @@ void do_rpedit( CHAR_DATA * ch, const char *argument )
          if( ++cnt == value )
          {
             mpedit( ch, mprg, mptype, argument );
-            ch->in_room->progtypes = 0;
+            xCLEAR_BITS( ch->in_room->progtypes );
             for( mprg = mprog; mprg; mprg = mprg->next )
-               ch->in_room->progtypes |= mprg->type;
+               xSET_BIT( ch->in_room->progtypes, mprg->type );
             return;
          }
       }
@@ -8081,7 +8081,7 @@ void do_rpedit( CHAR_DATA * ch, const char *argument )
       STRFREE( mprg_next->comlist );
       DISPOSE( mprg_next );
       if( num <= 1 )
-         REMOVE_BIT( ch->in_room->progtypes, mptype );
+         xREMOVE_BIT( ch->in_room->progtypes, mptype );
       send_to_char( "Program removed.\r\n", ch );
       return;
    }
@@ -8108,7 +8108,7 @@ void do_rpedit( CHAR_DATA * ch, const char *argument )
       if( value == 1 )
       {
          CREATE( mprg, MPROG_DATA, 1 );
-         ch->in_room->progtypes |= ( 1 << mptype );
+         xSET_BIT( ch->in_room->progtypes, mptype );
          mpedit( ch, mprg, mptype, argument );
          mprg->next = mprog;
          ch->in_room->mudprogs = mprg;
@@ -8120,7 +8120,7 @@ void do_rpedit( CHAR_DATA * ch, const char *argument )
          if( ++cnt == value && mprg->next )
          {
             CREATE( mprg_next, MPROG_DATA, 1 );
-            ch->in_room->progtypes |= ( 1 << mptype );
+            xSET_BIT( ch->in_room->progtypes, mptype );
             mpedit( ch, mprg_next, mptype, argument );
             mprg_next->next = mprg->next;
             mprg->next = mprg_next;
@@ -8146,7 +8146,7 @@ void do_rpedit( CHAR_DATA * ch, const char *argument )
          mprog->next = mprg;
       else
          ch->in_room->mudprogs = mprg;
-      ch->in_room->progtypes |= ( 1 << mptype );
+      xSET_BIT( ch->in_room->progtypes, mptype );
       mpedit( ch, mprg, mptype, argument );
       mprg->next = NULL;
       return;

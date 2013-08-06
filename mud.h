@@ -2085,7 +2085,7 @@ struct mob_index_data
    SHOP_DATA *pShop;
    REPAIR_DATA *rShop;
    MPROG_DATA *mudprogs;
-   int progtypes;
+   EXT_BV progtypes;
    const char *player_name;
    const char *short_descr;
    const char *long_descr;
@@ -2510,7 +2510,7 @@ struct obj_index_data
    AFFECT_DATA *first_affect;
    AFFECT_DATA *last_affect;
    MPROG_DATA *mudprogs;   /* objprogs */
-   int progtypes; /* objprogs */
+   EXT_BV progtypes; /* objprogs */
    const char *name;
    const char *short_descr;
    const char *description;
@@ -2763,7 +2763,7 @@ struct room_index_data
    int mpactnum;  /* mudprogs */
    MPROG_DATA *mudprogs;   /* mudprogs */
    short mpscriptpos;
-   int progtypes; /* mudprogs */
+   EXT_BV progtypes; /* mudprogs */
    short light;
    short sector_type;
    int tele_vnum;
@@ -5109,45 +5109,29 @@ void oprog_push_trigger( CHAR_DATA * ch, OBJ_DATA * obj );
 
 /* mud prog defines */
 
+
+
 #define ERROR_PROG        -1
-#define IN_FILE_PROG       0
-#define ACT_PROG           BV00
-#define SPEECH_PROG        BV01
-#define RAND_PROG          BV02
-#define FIGHT_PROG         BV03
-#define RFIGHT_PROG        BV03
-#define DEATH_PROG         BV04
-#define RDEATH_PROG        BV04
-#define HITPRCNT_PROG      BV05
-#define ENTRY_PROG         BV06
-#define ENTER_PROG         BV06
-#define GREET_PROG         BV07
-#define RGREET_PROG	   BV07
-#define OGREET_PROG        BV07
-#define ALL_GREET_PROG	   BV08
-#define GIVE_PROG	   BV09
-#define BRIBE_PROG	   BV10
-#define HOUR_PROG	   BV11
-#define TIME_PROG	   BV12
-#define WEAR_PROG          BV13
-#define REMOVE_PROG        BV14
-#define SAC_PROG           BV15
-#define LOOK_PROG          BV16
-#define EXA_PROG           BV17
-#define ZAP_PROG           BV18
-#define GET_PROG 	   BV19
-#define DROP_PROG	   BV20
-#define DAMAGE_PROG	   BV21
-#define REPAIR_PROG	   BV22
-#define RANDIW_PROG	   BV23
-#define SPEECHIW_PROG	   BV24
-#define PULL_PROG	   BV25
-#define PUSH_PROG	   BV26
-#define SLEEP_PROG         BV27
-#define REST_PROG          BV28
-#define LEAVE_PROG         BV29
-#define SCRIPT_PROG	   BV30
-#define USE_PROG           BV31
+#define IN_FILE_PROG      -2
+
+typedef enum
+{
+   ACT_PROG, SPEECH_PROG, RAND_PROG, FIGHT_PROG, DEATH_PROG, HITPRCNT_PROG,
+   ENTRY_PROG, GREET_PROG, ALL_GREET_PROG, GIVE_PROG, BRIBE_PROG, HOUR_PROG,
+   TIME_PROG, WEAR_PROG, REMOVE_PROG, SAC_PROG, LOOK_PROG, EXA_PROG, ZAP_PROG,
+   GET_PROG, DROP_PROG, DAMAGE_PROG, REPAIR_PROG, RANDIW_PROG, SPEECHIW_PROG,
+   PULL_PROG, PUSH_PROG, SLEEP_PROG, REST_PROG, LEAVE_PROG, SCRIPT_PROG,
+   USE_PROG
+} prog_types;
+
+/*
+ * For backwards compatability
+ */
+#define RDEATH_PROG DEATH_PROG
+#define ENTER_PROG  ENTRY_PROG
+#define RFIGHT_PROG FIGHT_PROG
+#define RGREET_PROG GREET_PROG
+#define OGREET_PROG GREET_PROG
 
 void rprog_leave_trigger( CHAR_DATA * ch );
 void rprog_enter_trigger( CHAR_DATA * ch );

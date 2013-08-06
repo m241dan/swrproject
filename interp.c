@@ -475,7 +475,7 @@ bool check_social( CHAR_DATA * ch, const char *command, const char *argument )
       act( AT_SOCIAL, social->vict_found, ch, NULL, victim, TO_VICT );
 
       if( !IS_NPC( ch ) && IS_NPC( victim )
-          && !IS_AFFECTED( victim, AFF_CHARM ) && IS_AWAKE( victim ) && !IS_SET( victim->pIndexData->progtypes, ACT_PROG ) )
+          && !IS_AFFECTED( victim, AFF_CHARM ) && IS_AWAKE( victim ) && !xIS_SET( victim->pIndexData->progtypes, ACT_PROG ) )
       {
          switch ( number_bits( 4 ) )
          {

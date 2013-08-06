@@ -1088,7 +1088,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   ch_printf( ch, "Name: %s.\r\n", obj->name );
+   ch_printf( ch, "Name: %s\r\n", obj->name );
 
    pdesc = get_extra_descr( arg, obj->first_extradesc );
    if( !pdesc )

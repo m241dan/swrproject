@@ -4415,7 +4415,7 @@ void mobprog_file_read( MOB_INDEX_DATA *mob, const char *f )
             mprg->arglist = fread_string( progfile );
             mprg->comlist = fread_string( progfile );
             mprg->fileprog = TRUE;
-            SET_BIT( mob->progtypes, mprg->type );
+            xSET_BIT( mob->progtypes, mprg->type );
             mprg->next = mob->mudprogs;
             mob->mudprogs = mprg;
             break;
@@ -4466,7 +4466,7 @@ void mprog_read_programs( FILE *fp, MOB_INDEX_DATA *mob )
             break;
 
          default:
-            SET_BIT( mob->progtypes, mprg->type );
+            xSET_BIT( mob->progtypes, mprg->type );
             mprg->fileprog = FALSE;
             mprg->arglist = fread_string( fp );
             mprg->comlist = fread_string( fp );
@@ -4530,7 +4530,7 @@ void objprog_file_read( OBJ_INDEX_DATA *obj, const char *f )
             mprg->arglist = fread_string( progfile );
             mprg->comlist = fread_string( progfile );
             mprg->fileprog = TRUE;
-            SET_BIT( obj->progtypes, mprg->type );
+            xSET_BIT( obj->progtypes, mprg->type );
             mprg->next = obj->mudprogs;
             obj->mudprogs = mprg;
             break;
@@ -4581,7 +4581,7 @@ void oprog_read_programs( FILE *fp, OBJ_INDEX_DATA *obj )
             break;
 
          default:
-            SET_BIT( obj->progtypes, mprg->type );
+            xSET_BIT( obj->progtypes, mprg->type );
             mprg->fileprog = FALSE;
             mprg->arglist = fread_string( fp );
             mprg->comlist = fread_string( fp );
@@ -4645,7 +4645,7 @@ void roomprog_file_read( ROOM_INDEX_DATA *room, const char *f )
             mprg->arglist = fread_string( progfile );
             mprg->comlist = fread_string( progfile );
             mprg->fileprog = TRUE;
-            SET_BIT( room->progtypes, mprg->type );
+            xSET_BIT( room->progtypes, mprg->type );
             mprg->next = room->mudprogs;
             room->mudprogs = mprg;
             break;
@@ -4696,7 +4696,7 @@ void rprog_read_programs( FILE *fp, ROOM_INDEX_DATA *room )
             break;
 
          default:
-            SET_BIT( room->progtypes, mprg->type );
+            xSET_BIT( room->progtypes, mprg->type );
             mprg->fileprog = FALSE;
             mprg->arglist = fread_string( fp );
             mprg->comlist = fread_string( fp );
@@ -5161,7 +5161,7 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->spec_fun = NULL;
       pMobIndex->spec_2 = NULL;
       pMobIndex->mudprogs = NULL;
-      pMobIndex->progtypes = 0;
+      xCLEAR_BITS( pMobIndex->progtypes );
       pMobIndex->alignment = 0;
       pMobIndex->level = 1;
       pMobIndex->mobthac0 = 0;
@@ -5217,7 +5217,7 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->spec_fun = cMobIndex->spec_fun;
       pMobIndex->spec_2 = cMobIndex->spec_2;
       pMobIndex->mudprogs = NULL;
-      pMobIndex->progtypes = 0;
+      xCLEAR_BITS( pMobIndex->progtypes );
       pMobIndex->alignment = cMobIndex->alignment;
       pMobIndex->level = cMobIndex->level;
       pMobIndex->mobthac0 = cMobIndex->mobthac0;
@@ -5734,7 +5734,7 @@ void fread_fuss_roomprog( FILE * fp, MPROG_DATA * mprg, ROOM_INDEX_DATA * prog_t
             if( !str_cmp( word, "Progtype" ) )
             {
                mprg->type = mprog_name_to_type( fread_flagstring( fp ) );
-               SET_BIT( prog_target->progtypes, mprg->type );
+               xSET_BIT( prog_target->progtypes, mprg->type );
                break;
             }
             break;
@@ -6098,7 +6098,7 @@ void fread_fuss_objprog( FILE * fp, MPROG_DATA * mprg, OBJ_INDEX_DATA * prog_tar
             if( !str_cmp( word, "Progtype" ) )
             {
                mprg->type = mprog_name_to_type( fread_flagstring( fp ) );
-               SET_BIT( prog_target->progtypes, mprg->type );
+               xSET_BIT( prog_target->progtypes, mprg->type );
                break;
             }
             break;
@@ -6519,7 +6519,7 @@ void fread_fuss_mobprog( FILE * fp, MPROG_DATA * mprg, MOB_INDEX_DATA * prog_tar
             if( !str_cmp( word, "Progtype" ) )
             {
                mprg->type = mprog_name_to_type( fread_flagstring( fp ) );
-               SET_BIT( prog_target->progtypes, mprg->type );
+               xSET_BIT( prog_target->progtypes, mprg->type );
                break;
             }
             break;

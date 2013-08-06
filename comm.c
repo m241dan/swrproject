@@ -2936,10 +2936,10 @@ void act( short AType, const char *format, CHAR_DATA * ch, const void *arg1, con
       OBJ_DATA *to_obj;
 
       txt = act_string( format, NULL, ch, arg1, arg2 );
-      if( IS_SET( to->in_room->progtypes, ACT_PROG ) )
+      if( xIS_SET( to->in_room->progtypes, ACT_PROG ) )
          rprog_act_trigger( txt, to->in_room, ch, ( OBJ_DATA * ) arg1, ( void * )arg2 );
       for( to_obj = to->in_room->first_content; to_obj; to_obj = to_obj->next_content )
-         if( IS_SET( to_obj->pIndexData->progtypes, ACT_PROG ) )
+         if( xIS_SET( to_obj->pIndexData->progtypes, ACT_PROG ) )
             oprog_act_trigger( txt, to_obj, ch, ( OBJ_DATA * ) arg1, ( void * )arg2 );
    }
 
@@ -2949,7 +2949,7 @@ void act( short AType, const char *format, CHAR_DATA * ch, const void *arg1, con
     */
    for( ; to; to = ( type == TO_CHAR || type == TO_VICT ) ? NULL : to->next_in_room )
    {
-      if( ( !to->desc && ( IS_NPC( to ) && !IS_SET( to->pIndexData->progtypes, ACT_PROG ) ) ) || !IS_AWAKE( to ) )
+      if( ( !to->desc && ( IS_NPC( to ) && !xIS_SET( to->pIndexData->progtypes, ACT_PROG ) ) ) || !IS_AWAKE( to ) )
          continue;
 
       if( type == TO_GROUP )

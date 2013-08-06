@@ -3085,7 +3085,7 @@ void clean_mob( MOB_INDEX_DATA * mob )
    mob->spec_2 = NULL;
    mob->pShop = NULL;
    mob->rShop = NULL;
-   mob->progtypes = 0;
+   xCLEAR_BITS( mob->progtypes );
 
    for( mprog = mob->mudprogs; mprog; mprog = mprog_next )
    {
@@ -3763,7 +3763,7 @@ bool empty_obj( OBJ_DATA * obj, OBJ_DATA * destobj, ROOM_INDEX_DATA * destroom )
       for( otmp = obj->first_content; otmp; otmp = otmp_next )
       {
          otmp_next = otmp->next_content;
-         if( ch && ( otmp->pIndexData->progtypes & DROP_PROG ) && otmp->count > 1 )
+         if( ch && xIS_SET( otmp->pIndexData->progtypes, DROP_PROG ) && otmp->count > 1 )
          {
             separate_obj( otmp );
             obj_from_obj( otmp );
