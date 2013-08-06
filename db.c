@@ -4366,6 +4366,8 @@ int mprog_name_to_type( const char *name )
       return SCRIPT_PROG;
    if( !str_cmp( name, "use_prog" ) )
       return USE_PROG;
+   if( !str_cmp( name, "quest_prog" ) )
+      return QUEST_PROG;
    return ( ERROR_PROG );
 }
 

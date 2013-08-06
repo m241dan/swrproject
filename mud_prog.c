@@ -1972,6 +1972,7 @@ void mprog_death_trigger( CHAR_DATA * killer, CHAR_DATA * mob )
    return;
 }
 
+
 void mprog_entry_trigger( CHAR_DATA * mob )
 {
 
@@ -2067,6 +2068,20 @@ void mprog_hitprcnt_trigger( CHAR_DATA * mob, CHAR_DATA * ch )
 
    return;
 
+}
+
+void mprog_quest_trigger( CHAR_DATA *mob, CHAR_DATA *ch )
+{
+   MPROG_DATA *mprg;
+
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, QUEST_PROG ) )
+      for( mprg = mob->pIndexData->mudprogs; mprg; mprg = mprg->next )
+         if( mprg->type == QUEST_PROG )
+         {
+            mprog_driver( mprg->comlist, mob, ch, NULL, NULL, FALSE );
+            break;
+         }
+   return;
 }
 
 void mprog_random_trigger( CHAR_DATA * mob )

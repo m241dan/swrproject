@@ -4721,6 +4721,7 @@ void mprog_time_trigger args( ( CHAR_DATA * mob ) );
 void progbug args( ( const char *str, CHAR_DATA * mob ) );
 void rset_supermob args( ( ROOM_INDEX_DATA * room ) );
 void release_supermob( void );
+void mprog_quest_trigger args( ( CHAR_DATA *mob, CHAR_DATA *ch ) );
 
 /* player.c */
 void set_title( CHAR_DATA * ch, const char *title );
@@ -5121,7 +5122,7 @@ typedef enum
    TIME_PROG, WEAR_PROG, REMOVE_PROG, SAC_PROG, LOOK_PROG, EXA_PROG, ZAP_PROG,
    GET_PROG, DROP_PROG, DAMAGE_PROG, REPAIR_PROG, RANDIW_PROG, SPEECHIW_PROG,
    PULL_PROG, PUSH_PROG, SLEEP_PROG, REST_PROG, LEAVE_PROG, SCRIPT_PROG,
-   USE_PROG
+   USE_PROG, QUEST_PROG, MAX_PROGTYPE
 } prog_types;
 
 /*

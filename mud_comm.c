@@ -94,6 +94,8 @@ const char *mprog_type_to_name( int type )
          return "leave_prog";
       case USE_PROG:
          return "use_prog";
+      case QUEST_PROG:
+         return "quest_prog";
       default:
          return "ERROR_PROG";
    }

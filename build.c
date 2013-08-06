@@ -270,7 +270,8 @@ const char *const mprog_flags[] = {
    "act", "speech", "rand", "fight", "death", "hitprcnt", "entry", "greet",
    "allgreet", "give", "bribe", "hour", "time", "wear", "remove", "sac",
    "look", "exa", "zap", "get", "drop", "damage", "repair", "randiw",
-   "speechiw", "pull", "push", "sleep", "rest", "leave", "script", "use"
+   "speechiw", "pull", "push", "sleep", "rest", "leave", "script", "use",
+   "quest"
 };
 
 
@@ -536,7 +537,7 @@ int get_mpflag( const char *flag )
 {
    int x;
 
-   for( x = 0; x < 32; x++ )
+   for( x = 0; x < MAX_PROGTYPE; x++ )
       if( !str_cmp( flag, mprog_flags[x] ) )
          return x;
    return -1;
@@ -7303,7 +7304,7 @@ void mpedit( CHAR_DATA * ch, MPROG_DATA * mprg, int mptype,
 {
    if( mptype != -1 )
    {
-      mprg->type = 1 << mptype;
+      mprg->type = mptype;
       if( mprg->arglist )
          STRFREE( mprg->arglist );
       mprg->arglist = STRALLOC( argument );
@@ -9330,9 +9331,10 @@ void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       }
 
    if( !pquest && ( pquest = create_player_quest( ch, quest ) ) != NULL )
-      pquest->stage++;
+      pquest->stage = 1;
 
    send_to_char( "You have accepted the quest!\r\n", ch );
+   mprog_quest_trigger( victim, ch );
    return;
 }
 
