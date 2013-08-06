@@ -4467,6 +4467,7 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
 void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument );
 const char *get_status( CHAR_DATA *ch, QUEST_DATA *quest );
 PLAYER_QUEST *create_player_quest( CHAR_DATA *ch, QUEST_DATA *quest );
+AV_QUEST *create_available_quest( CHAR_DATA *ch, CHAR_DATA *victim, QUEST_DATA *quest );
 int get_quest_type( const char *type );
 void create_quest( CHAR_DATA *ch, const char *argument );
 void change_quest_name( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument );

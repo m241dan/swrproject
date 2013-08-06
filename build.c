@@ -1654,6 +1654,30 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "addquest" ) )
+   {
+      QUEST_DATA *quest;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on players.\r\n", ch );
+         return;
+      }
+
+      if( ( quest = get_quest_from_id( value ) ) == NULL && ( quest = get_quest_from_name( arg3 ) ) == NULL )
+      {
+         send_to_char( "No such quest exists.\r\n", ch );
+         return;
+      }
+
+      create_available_quest( ch, victim, quest );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
    if( !str_cmp( arg2, "sav3" ) )
    {
       if( !can_mmodify( ch, victim ) )
@@ -9036,7 +9060,7 @@ void do_quest( CHAR_DATA *ch, const char *argument )
 
    if( arg[0] == '\0' || argument[0] == '\0' )
    {
-      send_to_char( "Proper Usage: quest list <mob>\r\n", ch );
+      send_to_char( "\r\nProper Usage: quest list <mob>\r\n", ch );
       send_to_char( "              quest show <mob> <quest#>\r\n", ch ); /* Spit out the description and perhaps requirements to accept the quest */
       send_to_char( "              quest accept <mob> <quest#>\r\n", ch );
       if( IS_IMMORTAL ( ch ) )
@@ -9049,6 +9073,7 @@ void do_quest( CHAR_DATA *ch, const char *argument )
          send_to_char( "                quest type <name/id> <type>\r\n", ch ); /* repeatable, one-time, etc */
          send_to_char( "                quest addprequest <prequest id/name> <name/id>\r\n", ch );
          send_to_char( "                quest remprequest <prequest id/name> <mame/id>\r\n", ch );
+         send_to_char( "                quest all\r\n", ch );
       }
       return;
    }
@@ -9099,6 +9124,15 @@ void do_quest( CHAR_DATA *ch, const char *argument )
       const char *command = "quest";
       int level;
 
+      if( !str_cmp( arg, "all" ) )
+      {
+         send_to_char( "Quests:\r\n", ch );
+
+         for( quest = first_quest; quest; quest = quest->next )
+            ch_printf( ch, "ID: %-4d Name: %s\r\n", quest->id, quest->name );
+         return;
+      }
+
       for( cmd = command_hash[ command[0] % 126 ]; cmd; cmd = cmd->next )
          if( !str_cmp( cmd->name, command ) )
             level = cmd->level;
@@ -9110,10 +9144,7 @@ void do_quest( CHAR_DATA *ch, const char *argument )
       }
       /* commands that take one argument */
       if( !str_cmp( arg, "create" ) )
-      {
          create_quest( ch, argument );
-         return;
-      }
 
       /* all commands below this point take two arguments */
       argument = one_argument( argument, arg2 );
@@ -9125,40 +9156,26 @@ void do_quest( CHAR_DATA *ch, const char *argument )
       }
 
       if( !str_cmp( arg, "name" ) )
-      {
          change_quest_name( ch, quest, argument );
-         return;
-      }
       if( !str_cmp( arg, "description" ) )
-      {
          change_quest_description( ch, quest, argument );
-         return;
-      }
       if( !str_cmp( arg, "level" ) )
-      {
          change_quest_level( ch, quest, argument );
-         return;
-      }
       if( !str_cmp( arg, "type" ) )
-      {
          change_quest_type( ch, quest, argument );
-         return;
-      }
       if( !str_cmp( arg, "addprequest" ) )
-      {
          add_prequest( ch, quest, argument );
-         return;
-      }
       if( !str_cmp( arg, "remprequest" ) )
-      {
          rem_prequest( ch, quest, argument );
-         return;
-      }
       if( !str_cmp( arg, "delete" ) )
-      {
          delete_quest( ch, quest );
+
+      if( !str_cmp( arg, "create" ) || !str_cmp( arg, "name" ) || !str_cmp( arg, "description" ) || !str_cmp( arg, "level" ) || !str_cmp( arg, "type" ) || !str_cmp( arg, "addprequest" ) || !str_cmp( arg, "remprequest" ) || !str_cmp( arg, "delete" ) )
+      {
+         save_quests( );
          return;
       }
+
 
 
    }
@@ -9348,6 +9365,28 @@ PLAYER_QUEST *create_player_quest( CHAR_DATA *ch, QUEST_DATA *quest )
    pquest->progress = "";
    LINK( pquest, ch->first_pquest, ch->last_pquest, next, prev );
    return pquest;
+}
+
+AV_QUEST *create_available_quest( CHAR_DATA *ch, CHAR_DATA *victim, QUEST_DATA *quest )
+{
+   AV_QUEST *av_quest;
+
+   if( !IS_NPC( victim ) )
+   {
+      bug( "%s: attempting to create quest on non-npc named %s", __FUNCTION__, victim->name );
+      return NULL;
+   }
+
+   if( !quest )
+   {
+      bug( "%s: somehow quest is NULL.", __FUNCTION__ );
+      return NULL;
+   }
+
+   CREATE( av_quest, AV_QUEST, 1 );
+   av_quest->quest = quest;
+   LINK( av_quest, victim->pIndexData->first_available_quest, victim->pIndexData->last_available_quest, next, prev );
+   return av_quest;
 }
 
 void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
