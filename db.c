@@ -8663,6 +8663,8 @@ QUEST_DATA *fread_quest( FILE *fp )
                 LINK( prequest, quest->first_prequest, quest->last_prequest, next, prev );
              }
              break;
+          case 'T':
+             KEY( "Type", quest->type, fread_number( fp ) );
       }
       if( !fMatch )
          bug( "%s: no match: %s", __FUNCTION__, word );
