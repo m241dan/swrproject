@@ -621,6 +621,39 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
          strcpy( opr, "==" );
       return mprog_veval( lhsvl, opr, rhsvl, mob );
    }
+   if( !str_cmp( chck, "queststage" ) )
+   {
+      PLAYER_QUEST *pquest;
+      QUEST_DATA *quest;
+      const char *argument = rval;
+      char questname[MAX_INPUT_LENGTH];
+
+      argument = one_argument( rval, questname );
+
+      if( ( quest = get_quest_from_id( atoi( questname ) ) )== NULL && ( quest = get_quest_from_name( questname ) ) == NULL )
+      {
+         progbug( "queststage: bad quest given", mob );
+         return BERR;
+      }
+      if( ( pquest = get_player_quest( chkchar, quest ) ) == NULL )
+         return FALSE;
+
+      lhsvl = pquest->stage;
+
+      if( !is_number( rval ) )
+      {
+         progbug( "queststage: Bad stage number given", mob );
+         return BERR;
+      }
+      else
+         rhsvl = atoi( rval );
+
+      if( !*opr )
+         strcpy( opr, "==" );
+
+      return mprog_veval( lhsvl, opr, rhsvl, mob );
+
+   }
    if( chkchar )
    {
       if( !str_cmp( chck, "ismobinvis" ) )
