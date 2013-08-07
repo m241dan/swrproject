@@ -568,6 +568,9 @@ void boot_db( bool fCopyOver )
 
    }
 
+   log_string( "Loading quests" );
+   load_quests(  );
+
    /*
     * Read in all the area files.
     */
@@ -641,8 +644,6 @@ void boot_db( bool fCopyOver )
       load_planets(  );
       log_string( "Loading disciplines" );
       load_disciplines(  );
-      log_string( "Loading quests" );
-      load_quests(  );
 
       if( fCopyOver )
       {
