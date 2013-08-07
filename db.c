@@ -8632,7 +8632,7 @@ QUEST_DATA *fread_quest( FILE *fp )
       switch( UPPER( word[0] ) )
       {
          case 'D':
-            KEY( "Name", quest->description, fread_string( fp ) );
+            KEY( "Description", quest->description, fread_string( fp ) );
             break;
          case 'E':
             if( !str_cmp( word, "End" ) )

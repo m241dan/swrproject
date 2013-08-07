@@ -9120,7 +9120,6 @@ void do_quest( CHAR_DATA *ch, const char *argument )
    if( IS_IMMORTAL( ch ) )
    {
       QUEST_DATA *quest;
-      int level = QUEST_COMMAND_LEVEL;
 
       if( !str_cmp( arg, "all" ) )
       {
@@ -9131,14 +9130,18 @@ void do_quest( CHAR_DATA *ch, const char *argument )
          return;
       }
 
-      if( get_trust( ch ) < level )
+      if( get_trust( ch ) < QUEST_COMMAND_LEVEL )
       {
          send_to_char( "You aren't high enough level to use those commands.\r\n", ch );
          return;
       }
       /* commands that take one argument */
       if( !str_cmp( arg, "create" ) )
+      {
          create_quest( ch, argument );
+         save_quests( );
+         return;
+      }
 
       /* all commands below this point take two arguments */
       argument = one_argument( argument, arg2 );
