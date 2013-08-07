@@ -9144,7 +9144,11 @@ void do_quest( CHAR_DATA *ch, const char *argument )
       }
       /* commands that take one argument */
       if( !str_cmp( arg, "create" ) )
+      {
          create_quest( ch, argument );
+         save_quests( );
+         return;
+      }
 
       /* all commands below this point take two arguments */
       argument = one_argument( argument, arg2 );
