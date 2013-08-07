@@ -393,6 +393,7 @@ struct player_quest
 #define QUEST_START                0
 #define QUEST_COMPLETE             -1
 #define QUEST_COMPLETE_REPEATABLE  -2
+#define QUEST_COMMAND_LEVEL        103
 
 struct available_quest
 {

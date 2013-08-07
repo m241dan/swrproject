@@ -9041,7 +9041,7 @@ void fwrite_quest( FILE *fp, QUEST_DATA *quest )
    PRE_QUEST *prequest;
    fprintf( fp, "ID           %d\n", quest->id );
    fprintf( fp, "Name         %s~\n", quest->name );
-   fprintf( fp, "Desription   %s~\n", quest->description );
+   fprintf( fp, "Description  %s~\n", quest->description );
    fprintf( fp, "LevelReq     %d\n", quest->level_req );
    fprintf( fp, "Type         %d\n", quest->type );
    for( prequest = quest->first_prequest; prequest; prequest = prequest->next )
@@ -9058,7 +9058,7 @@ void do_quest( CHAR_DATA *ch, const char *argument )
 
    argument = one_argument( argument, arg );
 
-   if( arg[0] == '\0' || argument[0] == '\0' )
+   if( arg[0] == '\0' )
    {
       send_to_char( "\r\nProper Usage: quest list <mob>\r\n", ch );
       send_to_char( "              quest show <mob> <quest#>\r\n", ch ); /* Spit out the description and perhaps requirements to accept the quest */
@@ -9120,9 +9120,6 @@ void do_quest( CHAR_DATA *ch, const char *argument )
    if( IS_IMMORTAL( ch ) )
    {
       QUEST_DATA *quest;
-      CMDTYPE *cmd = NULL;
-      const char *command = "quest";
-      int level;
 
       if( !str_cmp( arg, "all" ) )
       {
@@ -9133,11 +9130,7 @@ void do_quest( CHAR_DATA *ch, const char *argument )
          return;
       }
 
-      for( cmd = command_hash[ command[0] % 126 ]; cmd; cmd = cmd->next )
-         if( !str_cmp( cmd->name, command ) )
-            level = cmd->level;
-
-      if( get_trust( ch ) < level )
+      if( get_trust( ch ) < QUEST_COMMAND_LEVEL )
       {
          send_to_char( "You aren't high enough level to use those commands.\r\n", ch );
          return;
