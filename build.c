@@ -9348,6 +9348,8 @@ void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       pquest->stage = 1;
 
    send_to_char( "You have accepted the quest!\r\n", ch );
+   save_char_obj( ch );
+   saving_char = NULL;
    mprog_quest_trigger( victim, ch );
    return;
 }
