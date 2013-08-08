@@ -1791,7 +1791,7 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
 
    if( arg[0] == '\0' || arg2[0] == '\0' || arg3[0] == '\0' )
    {
-      progbug( "mpcompletequest: bad syntax", ch );
+      progbug( "mpprogress: bad syntax", ch );
       return;
    }
 
@@ -1803,7 +1803,7 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
 
    if( ( quest = get_quest_from_id( atoi( arg2 ) ) ) == NULL && ( quest = get_quest_from_name( arg2 ) ) == NULL )
    {
-      progbug( "mpcompletequest: bad quest id/name given.", ch );
+      progbug( "mpprogress: bad quest id/name given.", ch );
       return;
    }
 
@@ -1815,7 +1815,7 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
 
    if( pquest->stage < 1 )
    {
-      progbug( "mpcompletequest: mpadvance trying to advance a quest a player doesn't have started.", ch );
+      progbug( "mpprogress: mpadvance trying to advance a quest a player doesn't have started.", ch );
       return;
    }
 
@@ -1826,8 +1826,12 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
    }
    else if( !str_cmp( arg3, "update" ) )
    {
-      strcat( (char *)pquest->progress, argument );
-      strcat( (char *)pquest->progress, "\r\n" );
+      char buf[MAX_STRING_LENGTH];
+
+      sprintf( buf, "%s", pquest->progress );
+      sprintf( buf, "\r\n%s", argument );
+      STRFREE( pquest->progress );
+      pquest->progress = STRALLOC( buf );
 
    }
 
