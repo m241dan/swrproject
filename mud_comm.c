@@ -1829,7 +1829,7 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
       char buf[MAX_STRING_LENGTH];
 
       sprintf( buf, "%s", pquest->progress );
-      sprintf( buf, "\r\n%s", argument );
+      sprintf( buf, "%s\n", argument );
       STRFREE( pquest->progress );
       pquest->progress = STRALLOC( buf );
 
