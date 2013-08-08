@@ -9277,7 +9277,7 @@ void change_quest_level( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument 
 void change_quest_description( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 {
    STRFREE( quest->description );
-   quest->name = str_dup( argument );
+   quest->description = str_dup( argument );
    send_to_char( "Description changed.\r\n", ch );
    return;
 }
