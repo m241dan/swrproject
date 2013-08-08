@@ -390,7 +390,8 @@ struct player_quest
    const char *progress;
 };
 
-#define QUEST_START                0
+#define QUEST_UNSTARTED            0
+#define QUEST_START                1
 #define QUEST_COMPLETE             -1
 #define QUEST_COMPLETE_REPEATABLE  -2
 #define QUEST_COMMAND_LEVEL        103

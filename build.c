@@ -9345,7 +9345,7 @@ void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       }
 
    if( !pquest && ( pquest = create_player_quest( ch, quest ) ) != NULL )
-      pquest->stage = 1;
+      pquest->stage = QUEST_START;
 
    send_to_char( "You have accepted the quest!\r\n", ch );
    save_char_obj( ch );
@@ -9451,8 +9451,10 @@ const char *get_status( CHAR_DATA *ch, QUEST_DATA *quest )
       status = "Complete";
    else if( pquest->stage == QUEST_COMPLETE_REPEATABLE )
       status = "Repeatable";
-   else if( pquest->stage == QUEST_START )
+   else if( pquest->stage == QUEST_UNSTARTED )
       status = "Not Started";
+   else if( pquest->stage == QUEST_START )
+      status = "Recently Started";
    else
       status = "Incomplete";
 
