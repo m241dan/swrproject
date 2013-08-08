@@ -628,7 +628,7 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
       const char *argument = rval;
       char questname[MAX_INPUT_LENGTH];
 
-      argument = one_argument( rval, questname );
+      argument = one_argument( argument, questname );
 
       if( ( quest = get_quest_from_id( atoi( questname ) ) )== NULL && ( quest = get_quest_from_name( questname ) ) == NULL )
       {
@@ -640,13 +640,13 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
 
       lhsvl = pquest->stage;
 
-      if( !is_number( rval ) )
+      if( !is_number( argument ) )
       {
          progbug( "queststage: Bad stage number given", mob );
          return BERR;
       }
       else
-         rhsvl = atoi( rval );
+         rhsvl = atoi( argument );
 
       if( !*opr )
          strcpy( opr, "==" );
