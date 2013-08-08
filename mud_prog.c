@@ -1775,7 +1775,7 @@ void mprog_wordlist_check( const char *arg, CHAR_DATA * mob, CHAR_DATA * actor, 
    size_t i;
 
    for( mprg = mob->pIndexData->mudprogs; mprg; mprg = mprg->next )
-      if( mprg->type & type )
+      if( mprg->type == type )
       {
          strcpy( temp1, mprg->arglist );
          list = temp1;
@@ -1823,7 +1823,7 @@ void mprog_percent_check( CHAR_DATA * mob, CHAR_DATA * actor, OBJ_DATA * obj, vo
    MPROG_DATA *mprg;
 
    for( mprg = mob->pIndexData->mudprogs; mprg; mprg = mprg->next )
-      if( ( mprg->type & type ) && ( number_percent(  ) <= atoi( mprg->arglist ) ) )
+      if( ( mprg->type == type ) && ( number_percent(  ) <= atoi( mprg->arglist ) ) )
       {
          mprog_driver( mprg->comlist, mob, actor, obj, vo, FALSE );
          if( type != GREET_PROG && type != ALL_GREET_PROG )
@@ -1850,7 +1850,7 @@ void mprog_time_check( CHAR_DATA * mob, CHAR_DATA * actor, OBJ_DATA * obj, void 
          continue;
       }
 
-      if( ( mprg->type & type ) && ( ( !mprg->triggered ) || ( mprg->type && HOUR_PROG ) ) )
+      if( ( mprg->type == type ) && ( ( !mprg->triggered ) || ( mprg->type && HOUR_PROG ) ) )
       {
          mprg->triggered = TRUE;
          mprog_driver( mprg->comlist, mob, actor, obj, vo, FALSE );
@@ -1921,7 +1921,7 @@ void mprog_act_trigger( const char *buf, CHAR_DATA * mob, CHAR_DATA * ch,
        * make sure this is a matching trigger 
        */
       for( mprg = mob->pIndexData->mudprogs; mprg; mprg = mprg->next )
-         if( mprg->type & ACT_PROG && mprog_keyword_check( buf, mprg->arglist ) )
+         if( mprg->type == ACT_PROG && mprog_keyword_check( buf, mprg->arglist ) )
          {
             found = TRUE;
             break;
@@ -1984,7 +1984,7 @@ void mprog_bribe_trigger( CHAR_DATA * mob, CHAR_DATA * ch, int amount )
       mob->gold -= amount;
 
       for( mprg = mob->pIndexData->mudprogs; mprg; mprg = mprg->next )
-         if( ( mprg->type & BRIBE_PROG ) && ( amount >= atoi( mprg->arglist ) ) )
+         if( ( mprg->type == BRIBE_PROG ) && ( amount >= atoi( mprg->arglist ) ) )
          {
             mprog_driver( mprg->comlist, mob, ch, obj, NULL, FALSE );
             break;
@@ -2278,7 +2278,7 @@ bool oprog_percent_check( CHAR_DATA * mob, CHAR_DATA * actor, OBJ_DATA * obj, vo
    bool executed = FALSE;
 
    for( mprg = obj->pIndexData->mudprogs; mprg; mprg = mprg->next )
-      if( ( mprg->type & type ) && ( number_percent(  ) <= atoi( mprg->arglist ) ) )
+      if( ( mprg->type == type ) && ( number_percent(  ) <= atoi( mprg->arglist ) ) )
       {
          executed = TRUE;
          mprog_driver( mprg->comlist, mob, actor, obj, vo, FALSE );
@@ -2602,7 +2602,7 @@ void oprog_wordlist_check( const char *arg, CHAR_DATA * mob, CHAR_DATA * actor,
    size_t i;
 
    for( mprg = iobj->pIndexData->mudprogs; mprg; mprg = mprg->next )
-      if( mprg->type & type )
+      if( mprg->type == type )
       {
          strcpy( temp1, mprg->arglist );
          list = temp1;
@@ -2692,7 +2692,7 @@ void rprog_percent_check( CHAR_DATA * mob, CHAR_DATA * actor, OBJ_DATA * obj, vo
       return;
 
    for( mprg = mob->in_room->mudprogs; mprg; mprg = mprg->next )
-      if( ( mprg->type & type ) && ( number_percent(  ) <= atoi( mprg->arglist ) ) )
+      if( ( mprg->type == type ) && ( number_percent(  ) <= atoi( mprg->arglist ) ) )
       {
          mprog_driver( mprg->comlist, mob, actor, obj, vo, FALSE );
          if( type != ENTER_PROG )
@@ -2862,7 +2862,7 @@ void rprog_wordlist_check( const char *arg, CHAR_DATA * mob, CHAR_DATA * actor,
       room = actor->in_room;
 
    for( mprg = room->mudprogs; mprg; mprg = mprg->next )
-      if( mprg->type & type )
+      if( mprg->type == type )
       {
          strcpy( temp1, mprg->arglist );
          list = temp1;
@@ -2924,7 +2924,7 @@ void rprog_time_check( CHAR_DATA * mob, CHAR_DATA * actor, OBJ_DATA * obj, void 
          continue;
       }
 
-      if( ( mprg->type & type ) && ( ( !mprg->triggered ) || ( mprg->type & HOUR_PROG ) ) )
+      if( ( mprg->type == type ) && ( ( !mprg->triggered ) || ( mprg->type & HOUR_PROG ) ) )
       {
          mprg->triggered = TRUE;
          mprog_driver( mprg->comlist, mob, actor, obj, vo, FALSE );
