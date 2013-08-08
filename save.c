@@ -2395,5 +2395,5 @@ PLAYER_QUEST *fread_pquest( FILE *fp )
       if( !fMatch )
          bug( "%s: no match for %s", __FUNCTION__, word );
    }
-
+   return NULL;
 }
