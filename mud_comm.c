@@ -1764,6 +1764,7 @@ void do_mp_completequest( CHAR_DATA *ch, const char *argument )
          break;
    }
    pquest->times_completed++;
+   send_to_char( "Quest complete.\r\n", victim );
 
    save_char_obj( victim );
    saving_char = NULL;
@@ -1822,17 +1823,15 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
    if( !str_cmp( arg3, "clear" ) )
    {
       STRFREE( pquest->progress );
-      pquest->progress = "blank";
+      pquest->progress = STRALLOC( "" );
    }
    else if( !str_cmp( arg3, "update" ) )
    {
       char buf[MAX_STRING_LENGTH];
-
-      sprintf( buf, "%s", pquest->progress );
-      sprintf( buf, "%s\n", argument );
+      sprintf( buf, "%s%s\n", pquest->progress, argument );
       STRFREE( pquest->progress );
       pquest->progress = STRALLOC( buf );
-
+      send_to_char( pquest->progress, victim );
    }
 
    save_char_obj( victim );
