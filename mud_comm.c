@@ -1679,7 +1679,7 @@ void do_mp_advancequest( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( ( victim = get_char_room( ch, arg ) ) == NULL )
+   if( ( victim = get_char_room_mp( ch, arg ) ) == NULL )
       return;
 
    if( IS_NPC( victim ) )
@@ -1730,7 +1730,7 @@ void do_mp_completequest( CHAR_DATA *ch, const char *argument )
       return;
    }
 
-   if( ( victim = get_char_room( ch, arg ) ) == NULL )
+   if( ( victim = get_char_room_mp( ch, arg ) ) == NULL )
       return;
 
    if( IS_NPC( victim ) )
@@ -1795,7 +1795,7 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
       return;
    }
 
-   if( ( victim = get_char_room( ch, arg ) ) == NULL )
+   if( ( victim = get_char_room_mp( ch, arg ) ) == NULL )
       return;
 
    if( IS_NPC( victim ) )
