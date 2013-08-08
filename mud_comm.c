@@ -1658,6 +1658,117 @@ void do_mp_withdraw( CHAR_DATA * ch, const char *argument )
    }
 }
 
+void do_mp_advancequest( CHAR_DATA * ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   QUEST_DATA *quest;
+   PLAYER_QUEST *pquest;
+   char arg[MAX_STRING_LENGTH];
+
+   if( !IS_NPC( ch ) )
+   {
+      send_to_char( "Huh?\r\n", ch );
+      return;
+   }
+
+   argument = one_argument( argument, arg );
+
+   if( arg[0] == '\0' )
+   {
+      progbug( "mpadvancequest: bad syntax", ch );
+      return;
+   }
+
+   if( ( victim = get_char_room( ch, argument ) ) == NULL )
+      return;
+
+   if( IS_NPC( victim ) )
+      return;
+
+   if( ( quest = get_quest_from_id( atoi( argument ) ) ) == NULL && ( quest = get_quest_from_name( argument ) ) == NULL )
+   {
+      progbug( "mpadvancequest: bad quest id/name given.", ch );
+      return;
+   }
+
+   if( ( pquest = get_player_quest( victim, quest ) ) == NULL )
+   {
+      progbug( "mpadvancequest: mpadvancequest on a quest player doesn't have.", ch );
+      return;
+   }
+
+   if( pquest->stage < 1 )
+   {
+      progbug( "mpadvancequest: mpadvance trying to advance a quest a player doesn't have started.", ch );
+      return;
+   }
+
+   pquest->stage++;
+   save_char_obj( victim );
+   saving_char = NULL;
+   return;
+}
+
+void do_mp_completequest( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   QUEST_DATA *quest;
+   PLAYER_QUEST *pquest;
+   char arg[MAX_STRING_LENGTH];
+
+   if( !IS_NPC( ch ) )
+   {
+      send_to_char( "Huh?\r\n", ch );
+      return;
+   }
+
+   argument = one_argument( argument, arg );
+
+   if( arg[0] == '\0' )
+   {
+      progbug( "mpcompletequest: bad syntax", ch );
+      return;
+   }
+
+   if( ( victim = get_char_room( ch, argument ) ) == NULL )
+      return;
+
+   if( IS_NPC( victim ) )
+      return;
+
+   if( ( quest = get_quest_from_id( atoi( argument ) ) ) == NULL && ( quest = get_quest_from_name( argument ) ) == NULL )
+   {
+      progbug( "mpcompletequest: bad quest id/name given.", ch );
+      return;
+   }
+
+   if( ( pquest = get_player_quest( victim, quest ) ) == NULL )
+   {
+      progbug( "mpcompletequest: mpadvancequest on a quest player doesn't have.", ch );
+      return;
+   }
+
+   if( pquest->stage < 1 )
+   {
+      progbug( "mpcompletequest: mpadvance trying to advance a quest a player doesn't have started.", ch );
+      return;
+   }
+
+   switch( quest->type )
+   {
+      case QUEST_TYPE_ONETIME:
+         pquest->stage = QUEST_COMPLETE;
+         break;
+      case QUEST_TYPE_REPEATABLE:
+         pquest->stage = QUEST_COMPLETE_REPEATABLE;
+         break;
+   }
+
+   save_char_obj( victim );
+   saving_char = NULL;
+   return;
+}
+
 
 void do_mppkset( CHAR_DATA * ch, const char *argument )
 {
@@ -1911,3 +2022,4 @@ CHAR_DATA *get_char_room_mp( CHAR_DATA * ch, const char *argument )
 
    return NULL;
 }
+

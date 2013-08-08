@@ -1342,6 +1342,7 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
    {
       TEACH_DATA *teach;
       DISC_DATA *disc;
+      AV_QUEST *quest;
 
       for( teach = victim->pIndexData->first_teach; teach; teach = teach->next )
       {
@@ -1351,6 +1352,16 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
             continue;
          }
          ch_printf( ch, "Teaches    : %-20s For: %d\r\n", disc->name, teach->credits );
+      }
+
+      for( quest = victim->pIndexData->first_available_quest; quest; quest = quest->next )
+      {
+         if( !quest->quest )
+         {
+            bug( "%s: found NPC(vnum #%d) with available quest but quest_data is NULL.", __FUNCTION__, victim->pIndexData->vnum );
+            continue;
+         }
+         ch_printf( ch, "Quest %-4d : %s\r\n", quest->quest->id, quest->quest->name );
       }
    }
 

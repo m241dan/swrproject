@@ -4119,6 +4119,8 @@ DECLARE_DO_FUN( do_zap );
 DECLARE_DO_FUN( do_zones );
 
 /* mob prog stuff */
+DECLARE_DO_FUN( do_mp_advancequest );
+DECLARE_DO_FUN( do_mp_completequest );
 DECLARE_DO_FUN( do_mp_close_passage );
 DECLARE_DO_FUN( do_mp_damage );
 DECLARE_DO_FUN( do_mp_restore );
