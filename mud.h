@@ -3563,7 +3563,7 @@ extern const char *const w_flags[];
 extern const char *const o_flags[];
 extern const char *const a_flags[];
 extern const char *const o_types[];
-extern const char *const a_types[];
+extern const char *const a_types[MAX_APPLY_TYPE];
 extern const char *const act_flags[];
 extern const char *const planet_flags[];
 extern const char *const weapon_table[13];

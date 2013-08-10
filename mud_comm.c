@@ -1820,7 +1820,7 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
       return;
    }
 
-   if( !str_cmp( arg3, "clear" ) )
+   if( !str_cmp( arg3, "clear" ) && pquest->progress[0] != '\0' )
    {
       STRFREE( pquest->progress );
       pquest->progress = STRALLOC( "" );
