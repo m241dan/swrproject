@@ -52,41 +52,41 @@ void do_score( CHAR_DATA * ch, const char *argument )
       do_oldscore( ch, argument );
       return;
    }
-   set_char_color( AT_SCORE, ch );
 
-   ch_printf( ch, "\r\nScore for %s the %s.\r\n", ch->name, ch->pcdata->title );
-   set_char_color( AT_SCORE, ch );
+   ch_printf( ch, "\r\n&zScore for %s.\r\n", ch->pcdata->title );
    if( get_trust( ch ) != ch->top_level )
       ch_printf( ch, "You are trusted at level %d.\r\n", get_trust( ch ) );
 
-   send_to_char( "----------------------------------------------------------------------------\r\n", ch );
+   send_to_char( "&r----------------------------------------------------------------------------&z\r\n", ch );
 
-   ch_printf( ch, "Race: %3d year old %-10.10s                Log In:  %s\r",
+   ch_printf( ch, "&r|&zRace      &r:&W %-3d&z year old %-10.10s      Log In&r:&W %-25.24s&r|\r\n",
               get_age( ch ), capitalize( get_race( ch ) ), ctime( &( ch->logon ) ) );
 
-   ch_printf( ch, "Hitroll: %-2.2d  Damroll: %-2.2d   Evasion: %-4d        Saved:  %s\r",
-              GET_HITROLL( ch ), GET_DAMROLL( ch ), GET_EVASION( ch ), ch->save_time ? ctime( &( ch->save_time ) ) : "no\n" );
-   ch_printf( ch, "Global AC: %-4d Damtype:", GET_ARMOR( ch ) );
+   ch_printf( ch, "&r|&zHitroll   &r: &W%-5.5d    &zDamroll&r:&W %-5.5d      &zSaved&r:&W  %-25.24s&r|\r\n",
+              GET_HITROLL( ch ), GET_DAMROLL( ch ), ch->save_time ? ctime( &( ch->save_time ) ) : "no" );
+   ch_printf( ch, "&r|&zGlobal AC &r: &W%-5.5d    &zEvasion&r: &W%-5.5d     &zTime&r: &W%-25.24s&r|\r\n",
+              GET_ARMOR( ch ), GET_EVASION( ch ), ctime( &current_time ) );
+    send_to_char( "&r|&zDamtype   &r:", ch );
    for( x = 0; x < MAX_DAMTYPE; x++ )
       if( xIS_SET( ch->damtype, x ) )
-         ch_printf( ch, " %s,", d_type[x] );
+         ch_printf( ch, " &W%s&r,", d_type[x] );
    send_to_char( "\r\n", ch );
 
-   ch_printf( ch, "Align: %-5d    Wimpy: %-3d                    Time:   %s\r",
-              ch->alignment, ch->wimpy, ctime( &current_time ) );
+   ch_printf( ch, "&r|&zAlign     &r: %-5d    Wimpy: %-3d                    &r|\r\n",
+              ch->alignment, ch->wimpy  );
 
    if( ch->skill_level[FORCE_ABILITY] > 1 || IS_IMMORTAL( ch ) )
-      ch_printf( ch, "Hit Points: %d of %d     Move: %d of %d     Force: %d of %d\r\n",
+      ch_printf( ch, "&r|&zHit Points&r: %d of %d     Move: %d of %d     Force: %d of %d\r\n",
                  ch->hit, ch->max_hit, ch->move, ch->max_move, ch->mana, ch->max_mana );
    else
-      ch_printf( ch, "Hit Points: %d of %d     Move: %d of %d\r\n", ch->hit, ch->max_hit, ch->move, ch->max_move );
+      ch_printf( ch, "&r|&zHit Points: %d of %d     Move: %d of %d\r\n", ch->hit, ch->max_hit, ch->move, ch->max_move );
 
    ch_printf( ch, "Str: %2d  Dex: %2d  Con: %2d  Agi: %2d  Int: %2d  Wis: %2d  Cha: %2d\r\n",
               get_curr_str( ch ), get_curr_dex( ch ), get_curr_con( ch ), get_curr_agi( ch ), get_curr_int( ch ), get_curr_wis( ch ),
               get_curr_cha( ch ) );
 
 
-   send_to_char( "----------------------------------------------------------------------------\r\n", ch );
+   send_to_char( "&r----------------------------------------------------------------------------&z\r\n", ch );
 
    {
       int ability;
@@ -113,13 +113,13 @@ void do_score( CHAR_DATA * ch, const char *argument )
       }
    }
 
-   send_to_char( "&z----------------------------------------------------------------------------\r\n", ch );
-   send_to_char( "&z|Damage Type      |    Penetrate     |      Resist      |     Potency      |\r\n", ch );
-   send_to_char( "&z----------------------------------------------------------------------------\r\n", ch );
+   send_to_char( "&r----------------------------------------------------------------------------\r\n", ch );
+   send_to_char( "&r|&zDamage &zType      &r|    &zPenetrate     &r|      &zResist      &r|     &zPotency      &r|\r\n", ch );
+   send_to_char( "&r----------------------------------------------------------------------------\r\n", ch );
    for( x = 0; x < MAX_DAMTYPE; x++ )
-      ch_printf( ch, "|%-19.19s&z:       %3d        &w|       %3d        &w|       %3d        &z|\r\n",
+      ch_printf( ch, "&r|%-19.19s&r:       &W%3d        &r|       &W%3d        &r|       &W%3d        &r|\r\n",
              d_type_score[x], ch->penetration[x], ch->resistance[x], ch->damtype_potency[x] );
-   send_to_char( "&z----------------------------------------------------------------------------&g\r\n", ch );
+   send_to_char( "&r----------------------------------------------------------------------------&z\r\n", ch );
 
    ch_printf( ch, "CREDITS: %-10d   BANK: %-10d    Pkills: %-5.5d   Mkills: %-5.5d\r\n",
               ch->gold, ch->pcdata->bank, ch->pcdata->pkills, ch->pcdata->mkills );

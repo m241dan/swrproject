@@ -584,7 +584,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       thac0_00 = 20;
       thac0_32 = 10;
       thac0 = interpolate( ch->skill_level[COMBAT_ABILITY], thac0_00, thac0_32 ) - GET_HITROLL( ch );
-      victim_ac = ( int )( GET_EVASION( victim ) / 10 );
+      victim_ac = ( int )( GET_EVASION( victim ) / 10 ) * -1;
 
       /*
        * if you can't see what's coming... 
