@@ -9180,6 +9180,43 @@ void do_quest( CHAR_DATA *ch, const char *argument )
 
 void delete_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 {
+   AREA_DATA *area;
+   AV_QUEST *av_quest;
+   PLAYER_QUEST *pquest;
+   CHAR_DATA *dch, *dch_next;
+
+   for( dch = last_char; dch; dch = dch_next )
+   {
+      dch_next = dch->prev;
+
+      if( IS_NPC( dch ) )
+      {
+         while( ( av_quest = get_available_quest( dch, quest ) ) != NULL ) /* incase somehow has multiple of one quest on him */
+         {
+            UNLINK( av_quest, dch->pIndexData->first_available_quest, dch->pIndexData->last_available_quest, next, prev );
+            free_avquest( av_quest );
+            for( area = first_area; area; area = area->next )
+            {
+               if( dch->pIndexData->vnum >= area->low_m_vnum && dch->pIndexData->vnum <= area->hi_m_vnum )
+               {
+                  fold_area( area, area->filename, FALSE );
+                  break;
+               }
+            }
+         }
+      }
+      else
+      {
+         while( ( pquest = get_player_quest( dch, quest ) ) != NULL ) /* Incase a player has multiple of one quest on him */
+         {
+            UNLINK( pquest, dch->first_pquest, dch->last_pquest, next, prev );
+            free_pquest( pquest );
+         }
+         save_char_obj( dch );
+         saving_char = NULL;
+      }
+   }
+
    UNLINK( quest, first_quest, last_quest, next, prev );
    free_quest( quest );
    send_to_char( "Quest deleted.\r\n", ch );
@@ -9415,16 +9452,19 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
 
 void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
 {
-   AV_QUEST *av_quest;
+   AV_QUEST *av_quest, *av_quest_next;
    int x = 0;
 
    send_to_char( "This mob has these quests available:\r\n", ch );
 
-   for( av_quest = victim->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
+   for( av_quest = victim->pIndexData->first_available_quest; av_quest; av_quest = av_quest_next )
    {
+      av_quest_next = av_quest->next;
       if( !av_quest->quest )
       {
-         bug( "%s: something real fucked up.", __FUNCTION__ );
+         UNLINK( av_quest, victim->pIndexData->first_available_quest, victim->pIndexData->last_available_quest, next, prev );
+         free_avquest( av_quest );
+         bug( "%s: something real fucked up. Removing one of Mob %d's av_quest", __FUNCTION__, victim->pIndexData->vnum );
          continue;
       }
 

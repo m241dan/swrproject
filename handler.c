@@ -5285,6 +5285,22 @@ AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, const char *argument )
 
 }
 
+AV_QUEST *get_available_quest( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   AV_QUEST *av_quest;
+
+   if( !IS_NPC( ch ) )
+   {
+      bug( "%s: trying to be used on player.", __FUNCTION__ );
+      return NULL;
+   }
+
+   for( av_quest = ch->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
+      if( av_quest->quest == quest )
+         return av_quest;
+   return NULL;
+}
+
 PLAYER_QUEST *get_player_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 {
    PLAYER_QUEST *pquest;
@@ -5326,6 +5342,21 @@ void free_quest( QUEST_DATA *quest )
       free_prequest( pquest );
    }
    DISPOSE( quest );
+}
+
+void free_pquest( PLAYER_QUEST *pquest )
+{
+   pquest->quest = NULL;
+   STRFREE( pquest->progress );
+   DISPOSE( pquest );
+   return;
+}
+
+void free_avquest( AV_QUEST *av_quest )
+{
+   av_quest->quest = NULL;
+   DISPOSE( av_quest );
+   return;
 }
 
 void apply_affect_damtype( CHAR_DATA *ch, EXT_BV *damtype )

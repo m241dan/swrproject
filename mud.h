@@ -4974,11 +4974,15 @@ int get_num_affects( EXT_BV *affect );
 QUEST_DATA *get_quest_from_id( int id );
 AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *ch, const char *argument ) );
 AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *ch, int list ) );
+AV_QUEST *get_available_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 PLAYER_QUEST *get_player_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest );
 QUEST_DATA *get_quest_from_name( const char *argument );
 void free_prequest( PRE_QUEST *pquest );
 void free_quest( QUEST_DATA *quest );
+void free_pquest( PLAYER_QUEST *pquest );
+void free_avquest( AV_QUEST *av_quest );
+void apply_affect_damtype( CHAR_DATA *ch, EXT_BV **damtype );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
