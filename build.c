@@ -63,6 +63,12 @@ const char *const d_type[MAX_DAMTYPE] = {
    "blunt", "piercing", "slashing"
 };
 
+const char *const d_type_score[MAX_DAMTYPE] = {
+   "&WAll Damage", "&zPhysical", "&zElemental",
+   "&RFire", "&BWater", "&OEarth", "&YElectricity", "&GWind",
+   "&WEnergy", "&zDark Energy", "&pBlunt", "&rPiercing", "&rSlashing"
+};
+
 const char *const planet_flags[] = {
    "coruscant", "kashyyyk", "ryloth", "rodia", "nal_hutta", "mon_calamari",
    "honoghr", "gamorr", "tatooine", "adari", "byss", "endor", "roche", "af'el", "trandosh",
@@ -3731,8 +3737,8 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          send_to_char( "Possible Affects:\r\n", ch );
          for( x = 0, col = 0; x < MAX_APPLY_TYPE; x++ )
          {
-            ch_printf( ch, "%s, ", a_types[x] );
-            if( 5 == col++ )
+            ch_printf( ch, "%-18.18s", a_types[x] ? a_types[x] : "null" );
+            if( 4 == col++ )
             {
                send_to_char( "\r\n", ch );
                col = 0;

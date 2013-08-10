@@ -1741,12 +1741,6 @@ void wear_obj( CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, short wear_bit )
                if( !can_dual( ch ) )
                   return;
 
-               if( get_obj_weight( obj ) + get_obj_weight( tmpobj ) > str_app[get_curr_str( ch )].wield )
-               {
-                  send_to_char( "It is too heavy for you to wield.\r\n", ch );
-                  return;
-               }
-
                if( mw || dw )
                {
                   send_to_char( "You're already wielding two weapons.\r\n", ch );
@@ -1783,12 +1777,6 @@ void wear_obj( CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, short wear_bit )
                   return;
                }
 
-               if( get_obj_weight( obj ) + get_obj_weight( mw ) > str_app[get_curr_str( ch )].wield )
-               {
-                  send_to_char( "It is too heavy for you to wield.\r\n", ch );
-                  return;
-               }
-
                if( tmpobj || dw )
                {
                   send_to_char( "You're already wielding two weapons.\r\n", ch );
@@ -1810,12 +1798,6 @@ void wear_obj( CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, short wear_bit )
                oprog_wear_trigger( ch, obj );
                return;
             }
-         }
-
-         if( get_obj_weight( obj ) > str_app[get_curr_str( ch )].wield )
-         {
-            send_to_char( "It is too heavy for you to wield.\r\n", ch );
-            return;
          }
 
          if( !oprog_use_trigger( ch, obj, NULL, NULL, NULL ) )

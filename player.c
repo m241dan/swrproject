@@ -113,9 +113,13 @@ void do_score( CHAR_DATA * ch, const char *argument )
       }
    }
 
-   send_to_char( "----------------------------------------------------------------------------\r\n", ch );
-
-
+   send_to_char( "&z----------------------------------------------------------------------------\r\n", ch );
+   send_to_char( "&z|Damage Type :     Penetrate    |       Resist     |        Potency        |\r\n", ch );
+   send_to_char( "&z----------------------------------------------------------------------------\r\n", ch );
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      ch_printf( ch, "|%-14.14s&z:       %-3d        &w|         %-3d      &w|           %-3d         &z|\r\n",
+             d_type_score[x], ch->penetration[x], ch->resistance[x], ch->damtype_potency[x] );
+   send_to_char( "&z----------------------------------------------------------------------------&g\r\n", ch );
 
    ch_printf( ch, "CREDITS: %-10d   BANK: %-10d    Pkills: %-5.5d   Mkills: %-5.5d\r\n",
               ch->gold, ch->pcdata->bank, ch->pcdata->pkills, ch->pcdata->mkills );

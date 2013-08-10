@@ -1880,7 +1880,7 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
                   else
                      paf->type = sn;
                }
-               paf->duration = fread_number( fp );
+               paf->duration = fread_float( fp );
                pafmod = fread_number( fp );
                paf->location = fread_number( fp );
                paf->bitvector = fread_bitvector( fp );

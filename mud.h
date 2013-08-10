@@ -3584,6 +3584,7 @@ extern const char *const lang_names[];
 extern const char *const lang_names_save[];
 extern const char *sector_name[SECT_MAX];
 extern const char *const d_type[MAX_DAMTYPE];
+extern const char *const d_type_score[MAX_DAMTYPE];
 extern const char *const frames_of_mind[MAX_FOM];
 extern const char *const quest_types[MAX_QUESTTYPE];
 /*

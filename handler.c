@@ -550,7 +550,6 @@ bool nifty_is_name_prefix( const char *str, const char *namelist )
  */
 void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
 {
-   OBJ_DATA *wield;
    int mod;
    struct skill_type *skill;
    ch_ret retcode;
@@ -986,26 +985,6 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
          if( !IS_NPC( ch ) && ch->pcdata->learned[gsn_grip] > 0 )
             ch->pcdata->learned[gsn_grip] = UMAX( 1, ch->pcdata->learned[gsn_grip] + mod );
          break;
-   }
-
-   /*
-    * Check for weapon wielding.
-    * Guard against recursion (for weapons with affects).
-    */
-   if( !IS_NPC( ch )
-       && saving_char != ch
-       && ( wield = get_eq_char( ch, WEAR_WIELD ) ) != NULL && get_obj_weight( wield ) > str_app[get_curr_str( ch )].wield )
-   {
-      static int depth;
-
-      if( depth == 0 )
-      {
-         depth++;
-         act( AT_ACTION, "You are too weak to wield $p any longer.", ch, wield, NULL, TO_CHAR );
-         act( AT_ACTION, "$n stops wielding $p.", ch, wield, NULL, TO_ROOM );
-         unequip_char( ch, wield );
-         depth--;
-      }
    }
 
    return;
