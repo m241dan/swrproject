@@ -364,6 +364,9 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
    fprintf( fp, "Round        %f\n", ch->round );
    fprintf( fp, "Haste        %d %d %d\n", ch->haste_from_item, ch->haste_from_skill, ch->haste_from_spell );
    fprintf( fp, "Damtype      %s\n", print_bitvector( &ch->damtype ) );
+   fprintf( fp, "WeaponDice   %d %d %d\n", ch->wepnumdie, ch->wepsizedie, ch->wepplus );
+   fprintf( fp, "BHD          %d %d %d\n", ch->barenumdie, ch->baresizedie, ch->damplus );
+   fprintf( fp, "DBLAttack    %d\n", ch->dbl_attack );
    fprintf( fp, "Resistance  " );
    for( count = 0; count < MAX_DAMTYPE; count++ )
       fprintf( fp, " %d", ch->resistance[count] );
@@ -1154,6 +1157,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
             KEY( "Bestowments", ch->pcdata->bestowments, fread_string_nohash( fp ) );
             KEY( "Bio", ch->pcdata->bio, fread_string( fp ) );
             KEY( "Bank", ch->pcdata->bank, fread_number( fp ) );
+            if( !str_cmp( word, "BHD" ) )
+            {
+               ch->barenumdie = fread_number( fp );
+               ch->baresizedie = fread_number( fp );
+               ch->damplus = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
             break;
 
          case 'C':
@@ -1224,6 +1235,7 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                fMatch = TRUE;
                break;
             }
+            KEY( "DBLAttack", ch->dbl_attack, fread_number( fp ) );
             KEY( "Deaf", ch->deaf, fread_number( fp ) );
             KEY( "Description", ch->description, fread_string( fp ) );
             if( !str_cmp( word, "Disciplines" ) )
@@ -1778,6 +1790,14 @@ void fread_char( CHAR_DATA * ch, FILE * fp, bool preload, bool copyover )
                   }
                   fMatch = TRUE;
                }
+               break;
+            }
+            if( !str_cmp( word, "WeaponDice" ) )
+            {
+               ch->wepnumdie = fread_number( fp );
+               ch->wepsizedie = fread_number( fp );
+               ch->wepplus = fread_number( fp );
+               fMatch = TRUE;
                break;
             }
             KEY( "Wimpy", ch->wimpy, fread_number( fp ) );
