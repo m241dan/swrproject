@@ -152,8 +152,15 @@ const char *const a_types[] = {
    "steal", "sneak", "hide", "palm", "detrap", "dodge", "peek", "scan", "gouge",
    "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
    "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate",
-   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "armor", "resistance",
-   "penetration", "damtype_potency", "threat"
+   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "armor", "threat",
+   "pen_all", "pen_physical", "pen_elemental", "pen_fire", "pen_water", "pen_earth",
+   "pen_electricity", "pen_wind", "pen_blunt", "pen_piercing", "pen_slashing",
+   "res_all", "res_physical", "res_elemental", "res_fire", "res_water", "res_earth",
+   "res_electricity", "res_wind", "res_blunt", "res_piercing", "res_slashing",
+   "dtype_all", "dtype_physical", "dtype_elemental", "dtype_fire", "dtype_water", "dtype_earth",
+   "dtype_electricity", "dtype_wind", "dtype_blunt", "dtype_piercing", "dtype_slashing",
+   "haste_from_eq", "haste_from_magic", "haste_from_skill", "dbl_attack", "speed",
+   "barenumdie", "baresizedie", "damplus", "wepnumdie", "wepsizedie", "wepplus", "damtype"
 };
 
 const char *const a_flags[] = {
@@ -3715,23 +3722,24 @@ void do_oset( CHAR_DATA * ch, const char *argument )
    {
       AFFECT_DATA *paf;
       short loc;
-      int bitv, value2;
+      int bitv;
 
       argument = one_argument( argument, arg2 );
       if( arg2[0] == '\0' || !argument || argument[0] == 0 )
       {
-         send_to_char( "Usage: oset <object> affect <field> <value>\r\n", ch );
-         send_to_char( "Affect Fields:\r\n", ch );
-         send_to_char( "none        strength    dexterity   intelligence  wisdom       constitution\r\n", ch );
-         send_to_char( "sex         level       age         height        weight       force\r\n", ch );
-         send_to_char( "hit         move        credits     experience    armor        hitroll\r\n", ch );
-         send_to_char( "damroll     save_para   save_rod    save_poison   save_breath  save_power\r\n", ch );
-         send_to_char( "charisma    resistant   immune      susceptible   affected     luck\r\n", ch );
-         send_to_char( "backstab    pick        track       steal         sneak        hide\r\n", ch );
-         send_to_char( "detrap      dodge       peek        scan          gouge        search\r\n", ch );
-         send_to_char( "mount       disarm      kick        parry         bash         stun\r\n", ch );
-         send_to_char( "punch       climb       grip        scribe        brew         penetration\r\n", ch );
-         send_to_char( "resistance  damtype_potency\r\n", ch );
+         int x, col;
+         send_to_char( "Possible Affects:\r\n", ch );
+         for( x = 0, col = 0; x < MAX_APPLY_TYPE; x++ )
+         {
+            ch_printf( ch, "%s, ", a_types[x] );
+            if( 5 == col++ )
+            {
+               send_to_char( "\r\n", ch );
+               col = 0;
+            }
+         }
+         if( col != 0 )
+            send_to_char( "\r\n", ch );
          return;
       }
       loc = get_atype( arg2 );
@@ -3750,7 +3758,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
                value = get_aflag( arg3 );
             else
                value = get_risflag( arg3 );
-            if( value < 0 || value > 31 )
+            if( value > MAX_AFF )
                ch_printf( ch, "Unknown flag: %s\r\n", arg3 );
             else
                SET_BIT( bitv, 1 << value );
@@ -3759,27 +3767,17 @@ void do_oset( CHAR_DATA * ch, const char *argument )
             return;
          value = bitv;
       }
-      else if( loc == APPLY_PENETRATION || loc == APPLY_RESISTANCE || loc == APPLY_DAMTYPEPOTENCY )
+      else if( loc == APPLY_DAMTYPE )
       {
          argument = one_argument( argument, arg3 );
-
-         if( ( value = get_damtype( arg3 ) ) == -1 )
+         if( ( value = get_damtype( arg3 ) ) < DAM_ALL )
          {
-            ch_printf( ch, "&PProper Usage: oset <object> affect %s  <damtype> <amount>&w\r\n", a_types[loc] );
-            return;
+            int x;
+            send_to_char( "Valid damtypes:", ch );
+            for( x = 0; x < MAX_DAMTYPE; x++ )
+               ch_printf( ch, " %s,", d_type[x] );
+            send_to_char( "\r\n", ch );
          }
-         if( !is_number( argument ) )
-         {
-            ch_printf( ch, "&PProper Usage: oset <object> affecet %s %s <amount>&w\r\n", a_types[loc], d_type[value] );
-            return;
-         }
-         value2 = atoi( argument );
-         if( value2 > 100 || value2 < -100 )
-         {
-            send_to_char( "Amount entered can only be between -100 and 100\r\n", ch );
-            return;
-         }
-         value = store_two_value( value, value2 );
       }
       else
       {

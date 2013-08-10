@@ -690,17 +690,160 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
       case APPLY_SUSCEPTIBLE:
          SET_BIT( ch->susceptible, mod );
          break;
-      case APPLY_RESISTANCE:
-         adjust_stat( ch, STAT_RESISTANCE, mod );
+      case APPLY_RES_ALL:
+         adjust_stat( ch, STAT_RES_ALL, mod );
          break;
-      case APPLY_PENETRATION:
-         adjust_stat( ch, STAT_PENETRATION, mod );
+      case APPLY_RES_PHYSICAL:
+         adjust_stat( ch, STAT_RES_PHYSICAL, mod );
          break;
-      case APPLY_DAMTYPEPOTENCY:
-         adjust_stat( ch, STAT_DAMTYPEPOTENCY, mod );
+      case APPLY_RES_ELEMENTAL:
+         adjust_stat( ch, STAT_RES_ELEMENTAL, mod );
+         break;
+      case APPLY_RES_FIRE:
+         adjust_stat( ch, STAT_RES_FIRE, mod );
+         break;
+      case APPLY_RES_WATER:
+         adjust_stat( ch, STAT_RES_WATER, mod );
+         break;
+      case APPLY_RES_EARTH:
+         adjust_stat( ch, STAT_RES_EARTH, mod );
+         break;
+      case APPLY_RES_ELECTRICITY:
+         adjust_stat( ch, STAT_RES_ELECTRICITY, mod );
+         break;
+      case APPLY_RES_WIND:
+         adjust_stat( ch, STAT_RES_WIND, mod );
+         break;
+      case APPLY_RES_ENERGY:
+         adjust_stat( ch, STAT_RES_ENERGY, mod );
+         break;
+      case APPLY_RES_DARKENERGY:
+         adjust_stat( ch, STAT_RES_DARKENERGY, mod );
+         break;
+      case APPLY_RES_BLUNT:
+         adjust_stat( ch, STAT_RES_BLUNT, mod );
+         break;
+      case APPLY_RES_PIERCING:
+         adjust_stat( ch, STAT_RES_PIERCING, mod );
+         break;
+      case APPLY_RES_SLASHING:
+         adjust_stat( ch, STAT_RES_SLASHING, mod );
+         break;
+      case APPLY_PEN_ALL:
+         adjust_stat( ch, STAT_PEN_ALL, mod );
+         break;
+      case APPLY_PEN_PHYSICAL:
+         adjust_stat( ch, STAT_PEN_PHYSICAL, mod );
+         break;
+      case APPLY_PEN_ELEMENTAL:
+         adjust_stat( ch, STAT_PEN_ELEMENTAL, mod );
+         break;
+      case APPLY_PEN_FIRE:
+         adjust_stat( ch, STAT_PEN_FIRE, mod );
+         break;
+      case APPLY_PEN_WATER:
+         adjust_stat( ch, STAT_PEN_WATER, mod );
+         break;
+      case APPLY_PEN_EARTH:
+         adjust_stat( ch, STAT_PEN_EARTH, mod );
+         break;
+      case APPLY_PEN_ELECTRICITY:
+         adjust_stat( ch, STAT_PEN_ELECTRICITY, mod );
+         break;
+      case APPLY_PEN_WIND:
+         adjust_stat( ch, STAT_PEN_WIND, mod );
+         break;
+      case APPLY_PEN_ENERGY:
+         adjust_stat( ch, STAT_PEN_ENERGY, mod );
+         break;
+      case APPLY_PEN_DARKENERGY:
+         adjust_stat( ch, STAT_PEN_DARKENERGY, mod );
+         break;
+      case APPLY_PEN_BLUNT:
+         adjust_stat( ch, STAT_PEN_BLUNT, mod );
+         break;
+      case APPLY_PEN_PIERCING:
+         adjust_stat( ch, STAT_PEN_PIERCING, mod );
+         break;
+      case APPLY_PEN_SLASHING:
+         adjust_stat( ch, STAT_PEN_SLASHING, mod );
+         break;
+      case APPLY_DTYPE_ALL:
+         adjust_stat( ch, STAT_DTYPE_ALL, mod );
+         break;
+      case APPLY_DTYPE_PHYSICAL:
+         adjust_stat( ch, STAT_DTYPE_PHYSICAL, mod );
+         break;
+      case APPLY_DTYPE_ELEMENTAL:
+         adjust_stat( ch, STAT_DTYPE_ELEMENTAL, mod );
+         break;
+      case APPLY_DTYPE_FIRE:
+         adjust_stat( ch, STAT_DTYPE_FIRE, mod );
+         break;
+      case APPLY_DTYPE_WATER:
+         adjust_stat( ch, STAT_DTYPE_WATER, mod );
+         break;
+      case APPLY_DTYPE_EARTH:
+         adjust_stat( ch, STAT_DTYPE_EARTH, mod );
+         break;
+      case APPLY_DTYPE_ELECTRICITY:
+         adjust_stat( ch, STAT_DTYPE_ELECTRICITY, mod );
+         break;
+      case APPLY_DTYPE_WIND:
+         adjust_stat( ch, STAT_DTYPE_WIND, mod );
+         break;
+      case APPLY_DTYPE_ENERGY:
+         adjust_stat( ch, STAT_DTYPE_ENERGY, mod );
+         break;
+      case APPLY_DTYPE_DARKENERGY:
+         adjust_stat( ch, STAT_DTYPE_DARKENERGY, mod );
+         break;
+      case APPLY_DTYPE_BLUNT:
+         adjust_stat( ch, STAT_DTYPE_BLUNT, mod );
+         break;
+      case APPLY_DTYPE_PIERCING:
+         adjust_stat( ch, STAT_DTYPE_PIERCING, mod );
+         break;
+      case APPLY_DTYPE_SLASHING:
+         adjust_stat( ch, STAT_DTYPE_SLASHING, mod );
          break;
       case APPLY_THREAT:
          adjust_stat( ch, STAT_THREAT, mod );
+         break;
+      case APPLY_HASTEFROMEQ:
+         adjust_stat( ch, STAT_HASTEFROMEQ, mod );
+         break;
+      case APPLY_HASTEFROMMAGIC:
+         adjust_stat( ch, STAT_HASTEFROMMAGIC, mod );
+         break;
+      case APPLY_HASTEFROMSKILL:
+         adjust_stat( ch, STAT_HASTEFROMSKILL, mod );
+         break;
+      case APPLY_DBL_ATTACK:
+         adjust_stat( ch, STAT_DBL_ATTACK, mod );
+         break;
+      case APPLY_SPEED:
+         adjust_stat( ch, STAT_SPEED, mod );
+         break;
+      case APPLY_BARENUMDIE:
+         adjust_stat( ch, STAT_BARENUMDIE, mod );
+         break;
+      case APPLY_BARESIZEDIE:
+         adjust_stat( ch, STAT_BARESIZEDIE, mod );
+         break;
+      case APPLY_DAMPLUS:
+         adjust_stat( ch, STAT_DAMPLUS, mod );
+         break;
+      case APPLY_WEPNUMDIE:
+         adjust_stat( ch, STAT_WEPNUMDIE, mod );
+         break;
+      case APPLY_WEPSIZEDIE:
+         adjust_stat( ch, STAT_WEPSIZEDIE, mod );
+         break;
+      case APPLY_WEPPLUS:
+         adjust_stat( ch, STAT_WEPPLUS, mod );
+         break;
+      case APPLY_DAMTYPE:
          break;
 
       case APPLY_WEAPONSPELL:   /* see fight.c */
@@ -2652,6 +2795,106 @@ const char *affect_loc_name( int location )
          return "drunk";
       case APPLY_BLOOD:
          return "blood";
+      case APPLY_THREAT:
+         return "threat";
+      case APPLY_PEN_ALL:
+         return "penetrate all";
+      case APPLY_PEN_PHYSICAL:
+         return "penetrate physical";
+      case APPLY_PEN_ELEMENTAL:
+         return "penetrate elemental";
+      case APPLY_PEN_FIRE:
+         return "penetrate fire";
+      case APPLY_PEN_WATER:
+         return "penetrate water";
+      case APPLY_PEN_EARTH:
+         return "penetrate earth";
+      case APPLY_PEN_ELECTRICITY:
+         return "penetrate electricity";
+      case APPLY_PEN_WIND:
+         return "penetrate wind";
+      case APPLY_PEN_ENERGY:
+         return "penetrate energy";
+      case APPLY_PEN_DARKENERGY:
+         return "penetrate dark energy";
+      case APPLY_PEN_BLUNT:
+         return "penetrate blunt";
+      case APPLY_PEN_PIERCING:
+         return "penetrate piercing";
+      case APPLY_PEN_SLASHING:
+         return "penetrate slashing";
+      case APPLY_RES_ALL:
+         return "resist all";
+      case APPLY_RES_PHYSICAL:
+         return "resist physical";
+      case APPLY_RES_ELEMENTAL:
+         return "resist elemental";
+      case APPLY_RES_FIRE:
+         return "resist fire";
+      case APPLY_RES_WATER:
+         return "resist water";
+      case APPLY_RES_EARTH:
+         return "resist earth";
+      case APPLY_RES_ELECTRICITY:
+         return "resist electricity";
+      case APPLY_RES_WIND:
+         return "resist wind";
+      case APPLY_RES_ENERGY:
+         return "resist energy";
+      case APPLY_RES_DARKENERGY:
+         return "resist dark energy";
+      case APPLY_RES_BLUNT:
+         return "resist blunt";
+      case APPLY_RES_PIERCING:
+         return "resist piercing";
+      case APPLY_RES_SLASHING:
+         return "resist slashing";
+      case APPLY_DTYPE_ALL:
+         return "damtype potency all";
+      case APPLY_DTYPE_PHYSICAL:
+         return "damtype potency physical";
+      case APPLY_DTYPE_ELEMENTAL:
+         return "damtype potency elemental";
+      case APPLY_DTYPE_FIRE:
+         return "damtype potency fire";
+      case APPLY_DTYPE_WATER:
+         return "damtype potency water";
+      case APPLY_DTYPE_EARTH:
+         return "damtype potency earth";
+      case APPLY_DTYPE_ELECTRICITY:
+         return "damtype potency electricity";
+      case APPLY_DTYPE_WIND:
+         return "damtype potency wind";
+      case APPLY_DTYPE_ENERGY:
+         return "damtype potency energy";
+      case APPLY_DTYPE_DARKENERGY:
+         return "damtype potency dark energy";
+      case APPLY_DTYPE_BLUNT:
+         return "damtype potency blunt";
+      case APPLY_DTYPE_PIERCING:
+         return "damtype potency piercing";
+      case APPLY_DTYPE_SLASHING:
+         return "damtype potency slashing";
+      case APPLY_HASTEFROMEQ:
+      case APPLY_HASTEFROMMAGIC:
+      case APPLY_HASTEFROMSKILL:
+         return "haste";
+      case APPLY_DBL_ATTACK:
+         return "double attack";
+      case APPLY_SPEED:
+         return "attack speed";
+      case APPLY_BARENUMDIE:
+         return "barehand num die";
+      case APPLY_BARESIZEDIE:
+         return "barehand size die";
+      case APPLY_DAMPLUS:
+         return "barehand damage plus";
+      case APPLY_WEPNUMDIE:
+         return "weapon num die";
+      case APPLY_WEPSIZEDIE:
+         return "weapon size die";
+      case APPLY_WEPPLUS:
+         return "weapon damage plus";
    }
 
    bug( "Affect_location_name: unknown location %d.", location );
@@ -3213,10 +3456,8 @@ void showaffect( CHAR_DATA * ch, AFFECT_DATA * paf )
          default:
             sprintf( buf, "Affects %s by %d.\r\n", affect_loc_name( paf->location ), paf->modifier );
             break;
-         case APPLY_PENETRATION:
-         case APPLY_RESISTANCE:
-         case APPLY_DAMTYPEPOTENCY:
-            sprintf( buf, "Affects %s %s by %d.\r\n", d_type[get_value_one( paf->modifier)], smash_underscore( a_types[paf->location] ), get_value_two( paf->modifier ) );
+         case APPLY_DAMTYPE:
+            sprintf( buf, "Grants %s attacks.\r\n", d_type[paf->modifier] );
             break;
          case APPLY_AFFECT:
             sprintf( buf, "Affects %s by", affect_loc_name( paf->location ) );
@@ -4118,8 +4359,6 @@ int armor_from_con( CHAR_DATA *ch )
 
 void adjust_stat( CHAR_DATA *ch, int type, int amount )
 {
-   int v1, v2;
-
    switch( type )
    {
       default:
@@ -4145,12 +4384,12 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
       case STAT_ALIGN:
          ch->alignment += amount;
          break;
-/*      case STAT_BARENUMDIE:
+      case STAT_BARENUMDIE:
          ch->barenumdie += amount;
          break;
       case STAT_BARESIZEDIE:
          ch->baresizedie += amount;
-         break; */
+         break;
       case STAT_HITROLL:
          ch->hitroll += amount;
          break;
@@ -4165,13 +4404,16 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
          break;
 /*      case STAT_MAGICDEFENSE:
          ch->magic_defense += amount;
-         break;
-      case STAT_HASTE:
-         ch->haste += amount;
+         break; */
+      case STAT_HASTEFROMEQ:
+         ch->haste_from_item += amount;
          break;
       case STAT_HASTEFROMMAGIC:
-         ch->haste_from_magic += amount;
-         break;*/
+         ch->haste_from_spell += amount;
+         break;
+      case STAT_HASTEFROMSKILL:
+         ch->haste_from_skill += amount;
+         break;
       case STAT_THREAT:
          ch->threat += amount;
          break;
@@ -4220,28 +4462,136 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
       case STAT_LUCK:
          ch->mod_lck += amount;
          break;
-      case STAT_RESISTANCE:
-         v1 = get_value_one( amount );
-         v2 = get_value_two( amount );
-         ch->resistance[v1] += v2;
+      case STAT_RES_ALL:
+         ch->resistance[DAM_ALL] += amount;
          break;
-      case STAT_PENETRATION:
-         v1 = get_value_one( amount );
-         v2 = get_value_two( amount );
-         ch->penetration[v1] += v2;
+      case STAT_RES_PHYSICAL:
+         ch->resistance[DAM_PHYSICAL] += amount;
          break;
-      case STAT_DAMTYPEPOTENCY:
-         v1 = get_value_one( amount );
-         v2 = get_value_two( amount );
-         ch->damtype_potency[v1] += v2;
+      case STAT_RES_ELEMENTAL:
+         ch->resistance[DAM_ELEMENTAL] += amount;
          break;
-/*      case STAT_WEPNUMDIE:
+      case STAT_RES_FIRE:
+         ch->resistance[DAM_FIRE] += amount;
+         break;
+      case STAT_RES_WATER:
+         ch->resistance[DAM_WATER] += amount;
+         break;
+      case STAT_RES_EARTH:
+         ch->resistance[DAM_EARTH] += amount;
+         break;
+      case STAT_RES_ELECTRICITY:
+         ch->resistance[DAM_ELECTRICITY] += amount;
+         break;
+      case STAT_RES_WIND:
+         ch->resistance[DAM_WIND] += amount;
+         break;
+      case STAT_RES_ENERGY:
+         ch->resistance[DAM_ENERGY] += amount;
+         break;
+      case STAT_RES_DARKENERGY:
+         ch->resistance[DAM_DARKENERGY] += amount;
+         break;
+      case STAT_RES_BLUNT:
+         ch->resistance[DAM_BLUNT] += amount;
+         break;
+      case STAT_RES_PIERCING:
+         ch->resistance[DAM_PIERCE] += amount;
+         break;
+      case STAT_RES_SLASHING:
+         ch->resistance[DAM_SLASH] += amount;
+         break;
+      case STAT_PEN_ALL:
+         ch->penetration[DAM_ALL] += amount;
+         break;
+      case STAT_PEN_PHYSICAL:
+         ch->penetration[DAM_PHYSICAL] += amount;
+         break;
+      case STAT_PEN_ELEMENTAL:
+         ch->penetration[DAM_ELEMENTAL] += amount;
+         break;
+      case STAT_PEN_FIRE:
+         ch->penetration[DAM_FIRE] += amount;
+         break;
+      case STAT_PEN_WATER:
+         ch->penetration[DAM_WATER] += amount;
+         break;
+      case STAT_PEN_EARTH:
+         ch->penetration[DAM_EARTH] += amount;
+         break;
+      case STAT_PEN_ELECTRICITY:
+         ch->penetration[DAM_ELECTRICITY] += amount;
+         break;
+      case STAT_PEN_WIND:
+         ch->penetration[DAM_WIND] += amount;
+         break;
+      case STAT_PEN_ENERGY:
+         ch->penetration[DAM_ENERGY] += amount;
+         break;
+      case STAT_PEN_DARKENERGY:
+         ch->penetration[DAM_DARKENERGY] += amount;
+         break;
+      case STAT_PEN_BLUNT:
+         ch->penetration[DAM_BLUNT] += amount;
+         break;
+      case STAT_PEN_PIERCING:
+         ch->penetration[DAM_PIERCE] += amount;
+         break;
+      case STAT_PEN_SLASHING:
+         ch->penetration[DAM_SLASH] += amount;
+         break;
+      case STAT_DTYPE_ALL:
+         ch->damtype_potency[DAM_ALL] += amount;
+         break;
+      case STAT_DTYPE_PHYSICAL:
+         ch->damtype_potency[DAM_PHYSICAL] += amount;
+         break;
+      case STAT_DTYPE_ELEMENTAL:
+         ch->damtype_potency[DAM_ELEMENTAL] += amount;
+         break;
+      case STAT_DTYPE_FIRE:
+         ch->damtype_potency[DAM_FIRE] += amount;
+         break;
+      case STAT_DTYPE_WATER:
+         ch->damtype_potency[DAM_WATER] += amount;
+         break;
+      case STAT_DTYPE_EARTH:
+         ch->damtype_potency[DAM_EARTH] += amount;
+         break;
+      case STAT_DTYPE_ELECTRICITY:
+         ch->damtype_potency[DAM_ELECTRICITY] += amount;
+         break;
+      case STAT_DTYPE_WIND:
+         ch->damtype_potency[DAM_WIND] += amount;
+         break;
+      case STAT_DTYPE_ENERGY:
+         ch->damtype_potency[DAM_ENERGY] += amount;
+         break;
+      case STAT_DTYPE_DARKENERGY:
+         ch->damtype_potency[DAM_DARKENERGY] += amount;
+         break;
+      case STAT_DTYPE_BLUNT:
+         ch->damtype_potency[DAM_BLUNT] += amount;
+         break;
+      case STAT_DTYPE_PIERCING:
+         ch->damtype_potency[DAM_PIERCE] += amount;
+         break;
+      case STAT_DTYPE_SLASHING:
+         ch->damtype_potency[DAM_SLASH] += amount;
+         break;
+      case STAT_WEPNUMDIE:
          ch->wepnumdie += amount;
          break;
       case STAT_WEPSIZEDIE:
          ch->wepsizedie += amount;
          break;
-      case STAT_POTENCY:
+      case STAT_WEPPLUS:
+         ch->wepplus += amount;
+         break;
+      case STAT_DAMPLUS:
+         ch->damplus += amount;
+         break;
+/*      case STAT_POTENCY:
          ch->potency += amount;
          break;
       case STAT_COOLDOWNS:
@@ -4258,11 +4608,11 @@ void adjust_stat( CHAR_DATA *ch, int type, int amount )
          break;
       case STAT_REFRESH:
          ch->refresh += amount;
+         break; */
+      case STAT_DBL_ATTACK:
+         ch->dbl_attack += amount;
          break;
-      case STAT_DOUBLEATTACK:
-         ch->double_attack += amount;
-         break;
-      case STAT_CRITCHANCE:
+/*      case STAT_CRITCHANCE:
          ch->crit_chance += amount;
          break;
       case STAT_CRITDAM:
@@ -4976,4 +5326,14 @@ void free_quest( QUEST_DATA *quest )
       free_prequest( pquest );
    }
    DISPOSE( quest );
+}
+
+void apply_affect_damtype( CHAR_DATA *ch, EXT_BV *damtype )
+{
+   AFFECT_DATA *aff;
+
+   for( aff = ch->first_affect; aff; aff = aff->next )
+      if( aff->location == APPLY_DAMTYPE )
+         xSET_BIT( *damtype, aff->modifier );
+   return;
 }
