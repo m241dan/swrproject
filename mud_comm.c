@@ -1537,6 +1537,9 @@ void do_mpauth( CHAR_DATA *ch, const char *argument )
 
    argument = one_argument( argument, arg );
 
+   if( !IS_NPC( ch ) )
+      return;
+
    if( ( victim = get_char_room_mp( ch, arg ) ) == NULL )
    {
       progbug( "mpauth: trying to auth a person that's not here.", ch );
