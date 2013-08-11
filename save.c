@@ -597,6 +597,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
  */
 void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_type, bool hotboot )
 {
+   ITEM_MATERIAL *material;
    EXTRA_DESCR_DATA *ed;
    AFFECT_DATA *paf;
    short wear, wear_loc, x;
@@ -763,6 +764,9 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
 
    for( ed = obj->first_extradesc; ed; ed = ed->next )
       fprintf( fp, "ExtraDescr   %s~ %s~\n", ed->keyword, ed->description );
+
+   for( material = obj->first_material; material; material = material->next );
+      fprintf( fp, "Material     %d %d\n", material->object->vnum, material->amount );
 
    fprintf( fp, "End\n\n" );
 
@@ -2015,6 +2019,25 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
 
          case 'L':
             KEY( "Level", obj->level, fread_number( fp ) );
+            break;
+
+         case 'M':
+            if( !str_cmp( word, "Material" ) )
+            {
+               ITEM_MATERIAL *material;
+
+               fMatch = TRUE;
+               CREATE( material, ITEM_MATERIAL, 1 );
+               if( ( material->object = get_obj_index( fread_number( fp ) ) ) == NULL )
+               {
+                  bug( "%s: Material bad vnum." );
+                  free_material( material );
+                  break;
+               }
+               material->amount = fread_number( fp );
+               LINK( material, obj->first_material, obj->last_material, next, prev );
+               break;
+            }
             break;
 
          case 'N':

@@ -101,6 +101,7 @@ const char *mprog_type_to_name( int type )
    }
 }
 
+
 /* A trivial rehack of do_mstat.  This doesnt show all the data, but just
  * enough to identify the mob and give its basic condition.  It does however,
  * show the MUDprograms which are set.
@@ -1528,6 +1529,36 @@ void do_mpapply( CHAR_DATA * ch, const char *argument )
    victim->pcdata->auth_state = 1;
    return;
 }
+
+void do_mpauth( CHAR_DATA *ch, const char *argument )
+{
+   char arg[MAX_INPUT_LENGTH];
+   CHAR_DATA *victim;
+
+   argument = one_argument( argument, arg );
+
+   if( ( victim = get_char_room_mp( ch, arg ) ) == NULL )
+   {
+      progbug( "mpauth: trying to auth a person that's not here.", ch );
+      return;
+   }
+
+   if( IS_NPC( victim ) )
+      return;
+
+   if( !NOT_AUTHED( victim ) )
+      return;
+
+   if( !IS_SET( victim->pcdata->flags, PCFLAG_UNAUTHED ) )
+      return;
+
+   victim->pcdata->auth_state = 3;
+   REMOVE_BIT( victim->pcdata->flags, PCFLAG_UNAUTHED );
+   if( victim->pcdata->authed_by )
+      STRFREE( victim->pcdata->authed_by );
+   victim->pcdata->authed_by = "I agree room";
+}
+
 
 void do_mpapplyb( CHAR_DATA * ch, const char *argument )
 {

@@ -3332,7 +3332,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  flags wear level weight cost rent timer\r\n", ch );
       send_to_char( "  name short long desc ed rmed actiondesc\r\n", ch );
       send_to_char( "  type value0 value1 value2 value3 value4 value5\r\n", ch );
-      send_to_char( "  affect rmaffect layers\r\n", ch );
+      send_to_char( "  affect rmaffect layers addmaterial remmaterial\r\n", ch );
       send_to_char( "For weapons:             For armor:\r\n", ch );
       send_to_char( "  weapontype condition     ac condition\r\n", ch );
       send_to_char( "  numdamdie sizedamdie                  \r\n", ch );
@@ -3543,6 +3543,89 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       }
       if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
          obj->pIndexData->extra_flags = obj->extra_flags;
+      return;
+   }
+
+   if( !str_cmp( arg2, "addmaterial" ) )
+   {
+      ITEM_MATERIAL *material;
+      OBJ_INDEX_DATA *object;
+      int amount;
+      if( !can_omodify( ch, obj ) )
+         return;
+
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "Proper usage: oset <object> material <vnum> <amount>\r\n", ch );
+         return;
+      }
+      argument = one_argument( argument, arg3 );
+
+      if( !is_number( arg3 ) )
+      {
+         send_to_char( "Enter a vnum.\r\n", ch );
+         return;
+      }
+      value = atoi( arg3 );
+
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Enter an amount.\r\n", ch );
+         return;
+      }
+      amount = atoi( argument );
+
+      if( ( object = get_obj_index( value ) ) == NULL )
+      {
+         send_to_char( "No item with that vnum exists.\r\n", ch );
+         return;
+      }
+      CREATE( material, ITEM_MATERIAL, 1 );
+      material->object = object;
+      material->amount = amount;
+      LINK( material, obj->first_material, obj->last_material, next, prev );
+      if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+         LINK( copy_material( material ), obj->pIndexData->first_material, obj->pIndexData->last_material, next, prev );
+      send_to_char( "Ok.\r\n", ch );
+   }
+
+   if( !str_cmp( arg2, "remmaterial" ) )
+   {
+      ITEM_MATERIAL *material;
+      int count;
+      if( value < 1 )
+      {
+         send_to_char( "Invalid value entered.\r\n", ch );
+         return;
+      }
+
+      if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+      {
+         for( count = 0, material = obj->pIndexData->first_material; material; material = material->next )
+         {
+            if( ++count == value )
+            {
+               UNLINK( material, obj->pIndexData->first_material, obj->pIndexData->last_material, next, prev );
+               free_material( material );
+               send_to_char( "Ok.\r\n", ch );
+               return;
+            }
+         }
+      }
+      else
+      {
+         for( count = 0, material = obj->first_material; material; material = material->next )
+         {
+            if( ++count == value )
+            {
+               UNLINK( material, obj->first_material, obj->last_material, next, prev );
+               free_material( material );
+               send_to_char( "Ok.\r\n", ch );
+               return;
+            }
+         }
+      }
+      send_to_char( "Item does not have that many materials.\r\n", ch );
       return;
    }
 
@@ -5657,6 +5740,7 @@ void fwrite_fuss_room( FILE * fpout, ROOM_INDEX_DATA * room, bool install )
 
 void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install )
 {
+   ITEM_MATERIAL *material;
    AFFECT_DATA *paf;
    EXTRA_DESCR_DATA *ed;
    MPROG_DATA *mprog;
@@ -5762,6 +5846,9 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
 
    for( ed = pObjIndex->first_extradesc; ed; ed = ed->next )
       fwrite_fuss_exdesc( fpout, ed );
+
+   for( material = pObjIndex->first_material; material; material = material->next )
+      fprintf( fpout, "Material     %d %d\n", material->object->vnum, material->amount );
 
    if( pObjIndex->mudprogs )
    {

@@ -130,6 +130,7 @@ typedef struct quest_data QUEST_DATA;
 typedef struct player_quest PLAYER_QUEST;
 typedef struct available_quest AV_QUEST;
 typedef struct pre_quest PRE_QUEST;
+typedef struct item_material ITEM_MATERIAL;
 
 /*
 * Function types.
@@ -2523,6 +2524,13 @@ struct extra_descr_data
    const char *description;   /* What to see                      */
 };
 
+struct item_material
+{
+   ITEM_MATERIAL *next;
+   ITEM_MATERIAL *prev;
+   OBJ_INDEX_DATA *object;
+   int amount;
+};
 
 
 /*
@@ -2556,6 +2564,8 @@ struct obj_index_data
    short layers;
    int rent;   /* Unused */
    EXT_BV damtype;
+   ITEM_MATERIAL *first_material;
+   ITEM_MATERIAL *last_material;
 };
 
 
@@ -2601,6 +2611,8 @@ struct obj_data
    int serial; /* serial number         */
    int room_vnum; /* hotboot tracker */
    EXT_BV damtype;
+   ITEM_MATERIAL *first_material;
+   ITEM_MATERIAL *last_material;
 };
 
 
@@ -4146,6 +4158,7 @@ DECLARE_DO_FUN( do_zap );
 DECLARE_DO_FUN( do_zones );
 
 /* mob prog stuff */
+DECLARE_DO_FUN( do_mpauth );
 DECLARE_DO_FUN( do_mp_progress );
 DECLARE_DO_FUN( do_mp_advancequest );
 DECLARE_DO_FUN( do_mp_completequest );
@@ -4984,6 +4997,8 @@ void free_quest( QUEST_DATA *quest );
 void free_pquest( PLAYER_QUEST *pquest );
 void free_avquest( AV_QUEST *av_quest );
 void apply_affect_damtype( CHAR_DATA *ch, EXT_BV **damtype );
+ITEM_MATERIAL *copy_material( ITEM_MATERIAL *material );
+void free_material( ITEM_MATERIAL *material );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
