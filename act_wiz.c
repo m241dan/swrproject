@@ -1128,7 +1128,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
             bug( "%s: found material with a NULL material->object, name %s on %s", obj->name, obj->carried_by ? obj->carried_by->name : obj->in_room->name );
             continue;
          }
-         ch_printf( ch, " - %-20.20s Amount: %-3d (extra)\r\n", material->object->name, material->amount );
+         ch_printf( ch, " - %-24.24s Amount: %-3d (extra)\r\n", material->object->name, material->amount );
       }
       for( material = obj->pIndexData->first_material; material; material = material->next )
       {
@@ -1137,7 +1137,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
             bug( "%s: found material with a NULL material->object. obj_index vnum : %d", obj->pIndexData->vnum );
             continue;
          }
-         ch_printf( ch, " - %-20.20s Amount: %-3d\r\n", material->object->name, material->amount );
+         ch_printf( ch, " - %-24.24s Amount: %-3d\r\n", material->object->name, material->amount );
       }
    }
 
