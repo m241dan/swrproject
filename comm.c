@@ -146,7 +146,7 @@ int main( int argc, char **argv )
    first_descriptor = NULL;
    last_descriptor = NULL;
    sysdata.NO_NAME_RESOLVING = TRUE;
-   sysdata.WAIT_FOR_AUTH = TRUE;
+   sysdata.WAIT_FOR_AUTH = FALSE;
 
    /*
     * Init time.
