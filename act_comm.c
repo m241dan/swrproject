@@ -1629,7 +1629,7 @@ void do_save( CHAR_DATA * ch, const char *argument )
    {
       send_to_char( "You can't save untill after you've graduated from the acadamey.\r\n", ch );
       return;
-   }
+   } 
 
    save_char_obj( ch );
    save_home( ch );

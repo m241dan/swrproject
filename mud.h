@@ -1286,7 +1286,7 @@ struct smaug_affect
 */
 typedef enum
 {
-   AFF_NONE, AFF_BLIND, AFF_INVISIBLE, AFF_DETECT_EVIL, AFF_DETECT_INVIS,
+   AFF_NONE = 0, AFF_BLIND, AFF_INVISIBLE, AFF_DETECT_EVIL, AFF_DETECT_INVIS,
    AFF_DETECT_MAGIC, AFF_DETECT_HIDDEN, AFF_WEAKEN, AFF_SANCTUARY,
    AFF_FAERIE_FIRE, AFF_INFRARED, AFF_CURSE, AFF_FLAMING, AFF_POISON,
    AFF_PROTECT, AFF_PARALYSIS, AFF_SNEAK, AFF_HIDE, AFF_SLEEP, AFF_CHARM,
@@ -1749,7 +1749,7 @@ typedef enum
 */
 typedef enum
 {
-   APPLY_NONE, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON, APPLY_AGI,
+   APPLY_NONE = 0, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON, APPLY_AGI,
    APPLY_SEX, APPLY_NULL, APPLY_LEVEL, APPLY_AGE, APPLY_HEIGHT, APPLY_WEIGHT,
    APPLY_MANA, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_EVASION,
    APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_POISON, APPLY_SAVING_ROD,
@@ -3573,7 +3573,7 @@ extern const int trap_door[];
 extern const char *const r_flags[];
 extern const char *const w_flags[];
 extern const char *const o_flags[];
-extern const char *const a_flags[];
+extern const char *const a_flags[MAX_AFF];
 extern const char *const o_types[];
 extern const char *const a_types[MAX_APPLY_TYPE];
 extern const char *const act_flags[];

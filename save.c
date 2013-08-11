@@ -763,10 +763,14 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
    }
 
    for( ed = obj->first_extradesc; ed; ed = ed->next )
-      fprintf( fp, "ExtraDescr   %s~ %s~\n", ed->keyword, ed->description );
+     fprintf( fp, "ExtraDescr   %s~ %s~\n", ed->keyword, ed->description );
 
-   for( material = obj->first_material; material; material = material->next );
+   for( material = obj->first_material; material; material = material->next )
+   {
+      if( !material->object )
+         continue;
       fprintf( fp, "Material     %d %d\n", material->object->vnum, material->amount );
+   }
 
    fprintf( fp, "End\n\n" );
 

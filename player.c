@@ -626,6 +626,7 @@ void do_affected( CHAR_DATA * ch, const char *argument )
    char arg[MAX_INPUT_LENGTH];
    AFFECT_DATA *paf;
    SKILLTYPE *skill;
+   int x;
 
    if( IS_NPC( ch ) )
       return;
@@ -666,7 +667,7 @@ void do_affected( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !ch->first_affect )
+   if( !ch->first_affect && xIS_EMPTY( ch->affected_by ) )
    {
       set_char_color( AT_SCORE, ch );
       send_to_char( "\r\nNo cantrip or skill affects you.\r\n", ch );
@@ -690,6 +691,11 @@ void do_affected( CHAR_DATA * ch, const char *argument )
             }
             ch_printf( ch, "%-18s\r\n", skill->name );
          }
+      send_to_char( "\r\nAFF_Flags:", ch );
+      for( x = 0; x < MAX_AFF; x++ )
+         if( xIS_SET( ch->affected_by, x ) )
+            ch_printf( ch, " %s,", a_flags[x] );
+      send_to_char( "\r\n", ch );
    }
    return;
 }

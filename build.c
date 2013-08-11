@@ -160,16 +160,16 @@ const char *const a_types[MAX_APPLY_TYPE] = {
    "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate",
    "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "armor", "threat",
    "pen_all", "pen_physical", "pen_elemental", "pen_fire", "pen_water", "pen_earth",
-   "pen_electricity", "pen_wind", "pen_blunt", "pen_piercing", "pen_slashing",
+   "pen_electricity", "pen_wind", "pen_energy", "pen_darkenergy", "pen_blunt", "pen_piercing", "pen_slashing",
    "res_all", "res_physical", "res_elemental", "res_fire", "res_water", "res_earth",
-   "res_electricity", "res_wind", "res_blunt", "res_piercing", "res_slashing",
+   "res_electricity", "res_wind", "res_enregy", "res_darkenergy", "res_blunt", "res_piercing", "res_slashing",
    "dtype_all", "dtype_physical", "dtype_elemental", "dtype_fire", "dtype_water", "dtype_earth",
-   "dtype_electricity", "dtype_wind", "dtype_blunt", "dtype_piercing", "dtype_slashing",
+   "dtype_electricity", "dtype_wind", "dtype_energy", "dtype_darkenergy", "dtype_blunt", "dtype_piercing", "dtype_slashing",
    "haste_from_eq", "haste_from_magic", "haste_from_skill", "dbl_attack", "speed",
    "barenumdie", "baresizedie", "damplus", "wepnumdie", "wepsizedie", "wepplus", "damtype"
 };
 
-const char *const a_flags[] = {
+const char *const a_flags[MAX_AFF] = {
    "none", "blind", "invisible", "detect_evil", "detect_invis", "detect_magic",
    "detect_hidden", "weaken", "sanctuary", "faerie_fire", "infrared", "curse",
    "_flaming", "poison", "protect", "paralysis", "sneak", "hide", "sleep",
@@ -499,7 +499,6 @@ int get_quest_type( const char *type )
 int get_atype( const char *type )
 {
    int x;
-
    for( x = 0; x < MAX_APPLY_TYPE; x++ )
       if( !str_cmp( type, a_types[x] ) )
          return x;
@@ -3811,10 +3810,10 @@ void do_oset( CHAR_DATA * ch, const char *argument )
    {
       AFFECT_DATA *paf;
       short loc;
-      int bitv;
+      EXT_BV bitv;
 
       argument = one_argument( argument, arg2 );
-      if( arg2[0] == '\0' || !argument || argument[0] == 0 )
+      if( arg2[0] == '\0' || !argument || argument[0] == '\0' )
       {
          int x, col;
          send_to_char( "Possible Affects:\r\n", ch );
@@ -3839,7 +3838,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       }
       if( loc >= APPLY_AFFECT && loc < APPLY_WEAPONSPELL )
       {
-         bitv = 0;
+         xCLEAR_BITS( bitv );
          while( argument[0] != '\0' )
          {
             argument = one_argument( argument, arg3 );
@@ -3850,11 +3849,11 @@ void do_oset( CHAR_DATA * ch, const char *argument )
             if( value > MAX_AFF )
                ch_printf( ch, "Unknown flag: %s\r\n", arg3 );
             else
-               SET_BIT( bitv, 1 << value );
+               xSET_BIT( bitv, value );
          }
-         if( !bitv )
+         if( xIS_EMPTY( bitv ) )
             return;
-         value = bitv;
+         value = 0;
       }
       else if( loc == APPLY_DAMTYPE )
       {
@@ -3879,6 +3878,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       paf->location = loc;
       paf->modifier = value;
       xCLEAR_BITS( paf->bitvector );
+      xSET_BITS( paf->bitvector, bitv );
       paf->next = NULL;
       if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
       {

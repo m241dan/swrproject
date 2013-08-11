@@ -2403,6 +2403,9 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
     * * number_fuzzy( level ) * number_fuzzy( level );
     */
 
+   obj->first_material = NULL;
+   obj->last_material = NULL;
+
    for( material = pObjIndex->first_material; material; material = material->next )
       if( material->object )
          LINK( copy_material( material ), obj->first_material, obj->last_material, next, prev );
@@ -5059,6 +5062,8 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
    pObjIndex->last_affect = NULL;
    pObjIndex->first_extradesc = NULL;
    pObjIndex->last_extradesc = NULL;
+   pObjIndex->first_material = NULL;
+   pObjIndex->last_material = NULL;
    xCLEAR_BITS( pObjIndex->damtype );
    if( !cObjIndex )
    {
@@ -5088,6 +5093,7 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
    {
       EXTRA_DESCR_DATA *ed, *ced;
       AFFECT_DATA *paf, *cpaf;
+      ITEM_MATERIAL *material;
 
       pObjIndex->damtype = cObjIndex->damtype;
       pObjIndex->short_descr = QUICKLINK( cObjIndex->short_descr );
@@ -5123,6 +5129,8 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
          LINK( paf, pObjIndex->first_affect, pObjIndex->last_affect, next, prev );
          top_affect++;
       }
+      for( material = cObjIndex->first_material; material; material = material->next )
+         LINK( copy_material( material ), pObjIndex->first_material, pObjIndex->last_material, next, prev );
    }
    pObjIndex->count = 0;
    iHash = vnum % MAX_KEY_HASH;
@@ -5211,6 +5219,10 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       }
       pMobIndex->first_loot = NULL;
       pMobIndex->last_loot = NULL;
+      pMobIndex->first_teach = NULL;
+      pMobIndex->last_teach = NULL;
+      pMobIndex->first_available_quest = NULL;
+      pMobIndex->last_available_quest = NULL;
       for( x = 0; x < MAX_NPC_SKILL; x++ )
          pMobIndex->npc_skills[x] = -1;
    }
