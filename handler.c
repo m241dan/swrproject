@@ -563,29 +563,6 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
    else
    {
       xREMOVE_BITS( ch->affected_by, paf->bitvector );
-      /*
-       * might be an idea to have a duration removespell which returns
-       * the spell after the duration... but would have to store
-       * the removed spell's information somewhere...    -Thoric
-       */
-      switch ( paf->location % REVERSE_APPLY )
-      {
-         case APPLY_AFFECT:
-            xREMOVE_BIT( ch->affected_by, mod );
-            return;
-         case APPLY_RESISTANT:
-            REMOVE_BIT( ch->resistant, mod );
-            return;
-         case APPLY_IMMUNE:
-            REMOVE_BIT( ch->immune, mod );
-            return;
-         case APPLY_SUSCEPTIBLE:
-            REMOVE_BIT( ch->susceptible, mod );
-            return;
-         case APPLY_REMOVE:
-            xSET_BIT( ch->affected_by, mod );
-            return;
-      }
       mod = 0 - mod;
    }
 
@@ -678,7 +655,6 @@ void affect_modify( CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd )
          ch->saving_spell_staff += mod;
          break;
       case APPLY_AFFECT:
-         SET_BIT( ch->affected_by.bits[0], mod );
          break;
       case APPLY_RESISTANT:
          SET_BIT( ch->resistant, mod );
@@ -1431,7 +1407,7 @@ void equip_char( CHAR_DATA * ch, OBJ_DATA * obj, int iWear )
       return;
    }
 
-   ch->evasion -= apply_evasion( obj, iWear );
+   ch->evasion += apply_evasion( obj, iWear );
    obj->wear_loc = iWear;
 
    ch->carry_number -= get_obj_number( obj );

@@ -88,7 +88,7 @@ void do_score( CHAR_DATA * ch, const char *argument )
       {
           if( ch->skill_level[ability] < 1 )
              continue;
-          ch_printf( ch, "&W%-15s   &zLevel&r: &W%-3d   &zMax&r: &W%-3d   &zExp&r: &W%-10ld   &zNext&r: &W%-10ld&z\r\n",
+          ch_printf( ch, " &W%-15s   &zLevel&r: &W%-3d   &zMax&r: &W%-3d   &zExp&r: &W%-10ld   &zNext&r: &W%-10ld&z\r\n",
                      ability_name[ability], ch->skill_level[ability], max_level( ch, ability ), ch->experience[ability],
                      exp_level( ch->skill_level[ability] + 1 ) );
           if( ability == COMBAT_ABILITY )
