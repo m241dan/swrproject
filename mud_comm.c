@@ -1557,6 +1557,7 @@ void do_mpauth( CHAR_DATA *ch, const char *argument )
    if( victim->pcdata->authed_by )
       STRFREE( victim->pcdata->authed_by );
    victim->pcdata->authed_by = "I agree room";
+   return;
 }
 
 
