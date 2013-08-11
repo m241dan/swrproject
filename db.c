@@ -6214,6 +6214,22 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
             KEY( "Long", pObjIndex->description, fread_string( fp ) );
             break;
 
+         case 'M':
+            if( !str_cmp( word, "Material" ) )
+            {
+               ITEM_MATERIAL *material;
+               CREATE( material, ITEM_MATERIAL, 1 );
+               if( ( material->object = get_obj_index( fread_number( fp ) ) ) == NULL )
+               {
+                  bug( "%s: Material bad vnum." );
+                  DISPOSE( material );
+                  break;
+               }
+               material->amount = fread_number( fp );
+               LINK( material, pObjIndex->first_material, pObjIndex->last_material, next, prev );
+               break;
+            }
+            break;
          case 'S':
             KEY( "Short", pObjIndex->short_descr, fread_string( fp ) );
             if( !str_cmp( word, "Spells" ) )

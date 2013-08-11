@@ -130,6 +130,7 @@ typedef struct quest_data QUEST_DATA;
 typedef struct player_quest PLAYER_QUEST;
 typedef struct available_quest AV_QUEST;
 typedef struct pre_quest PRE_QUEST;
+typedef struct item_material ITEM_MATERIAL;
 
 /*
 * Function types.
@@ -2523,6 +2524,13 @@ struct extra_descr_data
    const char *description;   /* What to see                      */
 };
 
+struct item_material
+{
+   ITEM_MATERIAL *next;
+   ITEM_MATERIAL *prev;
+   OBJ_INDEX_DATA *object;
+   int amount;
+};
 
 
 /*
@@ -2556,6 +2564,8 @@ struct obj_index_data
    short layers;
    int rent;   /* Unused */
    EXT_BV damtype;
+   ITEM_MATERIAL *first_material;
+   ITEM_MATERIAL *last_material;
 };
 
 

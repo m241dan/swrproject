@@ -5657,6 +5657,7 @@ void fwrite_fuss_room( FILE * fpout, ROOM_INDEX_DATA * room, bool install )
 
 void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install )
 {
+   ITEM_MATERIAL *material;
    AFFECT_DATA *paf;
    EXTRA_DESCR_DATA *ed;
    MPROG_DATA *mprog;
@@ -5762,6 +5763,9 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
 
    for( ed = pObjIndex->first_extradesc; ed; ed = ed->next )
       fwrite_fuss_exdesc( fpout, ed );
+
+   for( material = pObjIndex->first_material; material; material = material->next )
+      fprintf( fpout, "Material     %d %d\n", material->object->vnum, material->amount );
 
    if( pObjIndex->mudprogs )
    {
