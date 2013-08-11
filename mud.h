@@ -2611,6 +2611,8 @@ struct obj_data
    int serial; /* serial number         */
    int room_vnum; /* hotboot tracker */
    EXT_BV damtype;
+   ITEM_MATERIAL *first_material;
+   ITEM_MATERIAL *last_material;
 };
 
 
@@ -4994,6 +4996,8 @@ void free_quest( QUEST_DATA *quest );
 void free_pquest( PLAYER_QUEST *pquest );
 void free_avquest( AV_QUEST *av_quest );
 void apply_affect_damtype( CHAR_DATA *ch, EXT_BV **damtype );
+ITEM_MATERIAL *copy_material( ITEM_MATERIAL *material );
+void free_material( ITEM_MATERIAL *material );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
