@@ -2194,8 +2194,8 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
     send_to_char( "!!MUSIC(starwars.mid V=100)", ch );
 
 
-  if( ch->top_level == 0 )
-    {
+   if( ch->top_level == 0 )
+   {
       OBJ_DATA *obj;
       int iLang;
 
@@ -2244,15 +2244,7 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
       reset_colors( ch );
       name_stamp_stats( ch );
 
-      {
-	int ability;
-
-	for( ability = 0; ability < MAX_ABILITY; ability++ )
-	  {
-	    ch->skill_level[ability] = 1;
-	    ch->experience[ability] = 0;
-	  }
-      }
+      ch->skill_level[COMBAT_ABILITY] = 1;
       ch->top_level = 1;
       update_stats( ch );
       sprintf( buf, "%s the %s", ch->name, race_table[ch->race].race_name );

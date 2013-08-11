@@ -4276,7 +4276,7 @@ int evasion_from_agi( CHAR_DATA *ch )
       if( x >= 0 )
          evasion += 10;
    }
-   return (int)( evasion * -1 );
+   return (int)evasion;
 }
 
 /*
