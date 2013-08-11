@@ -3586,6 +3586,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
          LINK( copy_material( material ), obj->pIndexData->first_material, obj->pIndexData->last_material, next, prev );
       send_to_char( "Ok.\r\n", ch );
+      return;
    }
 
    if( !str_cmp( arg2, "remmaterial" ) )

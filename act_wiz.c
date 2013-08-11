@@ -1120,6 +1120,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
       send_to_char( " not made of any materials\r\n", ch );
    else
    {
+      send_to_char( "\r\n", ch );
       for( material = obj->first_material; material; material = material->next )
       {
          if( !material->object )
