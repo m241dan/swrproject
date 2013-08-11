@@ -1798,7 +1798,7 @@ typedef enum
 #define ROOM_VNUM_CHAT		  32144
 #define ROOM_VNUM_TEMPLE	  32144
 #define ROOM_VNUM_ALTAR		  32144
-#define ROOM_VNUM_SCHOOL	  10300
+#define ROOM_VNUM_SCHOOL	  10429
 #define ROOM_AUTH_START		  10300
 #define ROOM_START_HUMAN            211
 #define ROOM_START_WOOKIEE        28600

@@ -537,6 +537,11 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
 
    for( pquest = ch->first_pquest; pquest; pquest = pquest->next )
    {
+      if( !pquest->quest )
+      {
+         bug( "%s: %s trying to save with a NULL quest.", __FUNCTION__, ch->name );
+         continue;
+      }
       fprintf( fp, "PlayerQuest\n" );
       fprintf( fp, "QuestID        %d\n", pquest->quest->id );
       fprintf( fp, "Stage          %d\n", pquest->stage );

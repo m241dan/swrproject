@@ -1069,6 +1069,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    char arg[MAX_INPUT_LENGTH];
    AFFECT_DATA *paf;
    OBJ_DATA *obj;
+   ITEM_MATERIAL *material;
    const char *pdesc;
    int x;
 
@@ -1114,6 +1115,30 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
 
    ch_printf( ch, "Wear flags : %s\r\n", flag_string( obj->wear_flags, w_flags ) );
    ch_printf( ch, "Extra flags: %s\r\n", flag_string( obj->extra_flags, o_flags ) );
+   send_to_char( "Materials:", ch );
+   if( !obj->first_material )
+      send_to_char( " not made of any materials\r\n", ch );
+   else
+   {
+      for( material = obj->first_material; material; material = material->next )
+      {
+         if( !material->object )
+         {
+            bug( "%s: found material with a NULL material->object, name %s on %s", obj->name, obj->carried_by ? obj->carried_by->name : obj->in_room->name );
+            continue;
+         }
+         ch_printf( ch, " - %-20.20s Amount: %-3d (extra)\r\n", material->object->name, material->amount );
+      }
+      for( material = obj->pIndexData->first_material; material; material = material->next )
+      {
+         if( !material->object )
+         {
+            bug( "%s: found material with a NULL material->object. obj_index vnum : %d", obj->pIndexData->vnum );
+            continue;
+         }
+         ch_printf( ch, " - %-20.20s Amount: %-3d\r\n", material->object->name, material->amount );
+      }
+   }
 
    ch_printf( ch, "Number: %d/%d.  Weight: %d/%d.  Layers: %d\r\n",
               1, get_obj_number( obj ), obj->weight, get_obj_weight( obj ), obj->pIndexData->layers );
