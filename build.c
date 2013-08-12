@@ -63,6 +63,10 @@ const char *const d_type[MAX_DAMTYPE] = {
    "blunt", "piercing", "slashing"
 };
 
+const char *const q_type[MAX_QUALITYTYPE] = {
+   "common", "uncommon", "rare", "crafted", "high quality"
+};
+
 const char *const d_type_score[MAX_DAMTYPE] = {
    "&WAll Damage", "&zPhysical", "&zElemental",
    "&RFire", "&BWater", "&OEarth", "&YElectricity", "&GWind",
@@ -471,6 +475,16 @@ int get_damtype( const char *type )
 
    for( x = 0; x < MAX_DAMTYPE; x++ )
       if( !str_cmp( type, d_type[x] ) )
+         return x;
+   return -1;
+}
+
+int get_qualitytype( const char *type )
+{
+   int x;
+
+   for( x = 0; x < MAX_QUALITYTYPE; x++ )
+      if( !str_cmp( type, q_type[x] ) )
          return x;
    return -1;
 }
@@ -3480,6 +3494,26 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "quality" ) )
+   {
+      if( !can_omodify( ch, obj ) )
+         return;
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_qualitytype( arg3 ) ) == -1 )
+         {
+            ch_printf( ch, "%s is an invalid quality type.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( obj->quality, value );
+         if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+            xTOGGLE_BIT( obj->quality, value );
+      }
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
    if( !str_cmp( arg2, "temper" ) )
    {
       if( !can_omodify( ch, obj ) )
@@ -5810,6 +5844,9 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
    val3 = pObjIndex->value[3];
    val4 = pObjIndex->value[4];
    val5 = pObjIndex->value[5];
+
+   if( !xIS_EMPTY( pObjIndex->quality ) )
+      fprintf( fpout, "Quality   %s~\n", print_bitvector( &pObjIndex->quality ) );
 
    switch ( pObjIndex->item_type )
    {

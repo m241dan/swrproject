@@ -1357,6 +1357,12 @@ typedef enum
    DAM_BLUNT, DAM_PIERCE, DAM_SLASH, MAX_DAMTYPE
 } damage_types;
 
+typedef enum
+{
+   QUALITY_COMMON, QUALITY_UNCOMMON, QUALITY_RARE, QUALITY_CRAFTED,
+   QUALITY_HQ, MAX_QUALITYTYPE
+} quality_types;
+
 /* 
 * Attack types
 */
@@ -2571,6 +2577,7 @@ struct obj_index_data
    ITEM_MATERIAL *last_material;
    EXT_BV temper;
    double speed;
+   EXT_BV quality;
 };
 
 
@@ -2620,6 +2627,7 @@ struct obj_data
    ITEM_MATERIAL *last_material;
    EXT_BV temper;
    double speed;
+   EXT_BV quality;
 };
 
 
@@ -3605,6 +3613,7 @@ extern const char *const lang_names[];
 extern const char *const lang_names_save[];
 extern const char *sector_name[SECT_MAX];
 extern const char *const d_type[MAX_DAMTYPE];
+extern const char *const q_type[MAX_QUALITYTYPE];
 extern const char *const d_type_score[MAX_DAMTYPE];
 extern const char *const frames_of_mind[MAX_FOM];
 extern const char *const quest_types[MAX_QUESTTYPE];
@@ -4483,6 +4492,7 @@ void fold_area( AREA_DATA * tarea, const char *filename, bool install );
 int get_otype( const char *type );
 int get_aflag( const char *flag );
 int get_damtype( const char *type );
+int get_qualitytype( const char *type );
 int get_trapflag( const char *flag );
 int get_atype( const char *type );
 int get_npc_race( const char *type );

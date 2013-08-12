@@ -6254,6 +6254,9 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
                break;
             }
             break;
+         case 'Q':
+            KEY( "Quality", pObjIndex->quality, fread_bitvector( fp ) );
+            break;
          case 'S':
             KEY( "Short", pObjIndex->short_descr, fread_string( fp ) );
             if( !str_cmp( word, "Spells" ) )
