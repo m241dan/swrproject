@@ -702,6 +702,9 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
       fprintf( fp, "Timer        %d\n", obj->timer );
    if( obj->cost != obj->pIndexData->cost )
       fprintf( fp, "Cost         %d\n", obj->cost );
+   if( !xIS_EMPTY( obj->quality ) )
+      fprintf( fp, "Quality      %s\n", print_bitvector( &obj->quality ) );
+
    if( obj->value[0] || obj->value[1] || obj->value[2] || obj->value[3] || obj->value[4] || obj->value[5] )
       fprintf( fp, "Values       %d %d %d %d %d %d\n",
                obj->value[0], obj->value[1], obj->value[2], obj->value[3], obj->value[4], obj->value[5] );
@@ -2068,10 +2071,13 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
             }
             break;
 
+         case 'Q':
+            KEY( "Quality", obj->quality, fread_bitvector( fp ) );
+            break;
          case 'R':
             KEY( "Rvnum", obj->room_vnum, fread_number( fp ) );
             KEY( "Room", room, get_room_index( fread_number( fp ) ) );
-
+            break;
          case 'S':
             KEY( "ShortDescr", obj->short_descr, fread_string( fp ) );
             KEY( "Speed", obj->speed, fread_float( fp ) );
