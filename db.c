@@ -5276,8 +5276,6 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
          pMobIndex->resistance[x] = cMobIndex->resistance[x];
          pMobIndex->damtype_potency[x] = cMobIndex->damtype_potency[x];
       }
-      pMobIndex->first_loot = cMobIndex->first_loot;
-      pMobIndex->last_loot = cMobIndex->last_loot;
 
       for( x = 0; x < MAX_NPC_SKILL; x++ )
          pMobIndex->npc_skills[x] = cMobIndex->npc_skills[x];
