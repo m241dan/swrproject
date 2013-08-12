@@ -2376,7 +2376,7 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
 
    obj->pIndexData = pObjIndex;
    obj->in_room = NULL;
-   obj->level = level;
+   obj->level = pObjIndex->level;
    obj->wear_loc = -1;
    obj->count = 1;
    cur_obj_serial = UMAX( ( cur_obj_serial + 1 ) & ( BV30 - 1 ), 1 );
@@ -2398,6 +2398,9 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
    obj->value[5] = pObjIndex->value[5];
    obj->weight = pObjIndex->weight;
    obj->cost = pObjIndex->cost;
+   xSET_BITS( obj->damtype, pObjIndex->damtype );
+   xSET_BITS( obj->temper, pObjIndex->temper );
+   obj->speed = pObjIndex->speed;
    /*
     * obj->cost     = number_fuzzy( 10 )
     * * number_fuzzy( level ) * number_fuzzy( level );
@@ -5065,6 +5068,7 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
    pObjIndex->first_material = NULL;
    pObjIndex->last_material = NULL;
    xCLEAR_BITS( pObjIndex->damtype );
+   xCLEAR_BITS( pObjIndex->temper );
    if( !cObjIndex )
    {
       sprintf( buf, "A %s", name );
@@ -5086,6 +5090,7 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
       pObjIndex->value[5] = 0;
       pObjIndex->weight = 1;
       pObjIndex->cost = 0;
+      pObjIndex->speed = 0;
       xSET_BIT( pObjIndex->damtype, DAM_BLUNT );
 
    }
@@ -5110,6 +5115,9 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
       pObjIndex->value[5] = cObjIndex->value[5];
       pObjIndex->weight = cObjIndex->weight;
       pObjIndex->cost = cObjIndex->cost;
+      pObjIndex->speed = cObjIndex->speed;
+      xSET_BITS( pObjIndex->damtype, cObjIndex->damtype );
+      xSET_BITS( pObjIndex->temper, cObjIndex->temper );
       for( ced = cObjIndex->first_extradesc; ced; ced = ced->next )
       {
          CREATE( ed, EXTRA_DESCR_DATA, 1 );
@@ -6273,6 +6281,7 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
                      pObjIndex->value[5] = skill_lookup( fread_word( fp ) );
                      break;
                }
+               KEY( "Speed", pObjIndex->speed, fread_float( fp ) );
                break;
             }
 
@@ -6295,6 +6304,7 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
             break;
 
          case 'T':
+            KEY( "Temper", pObjIndex->temper, fread_bitvector( fp ) );
             if( !str_cmp( word, "Type" ) )
             {
                value = get_otype( fread_flagstring( fp ) );

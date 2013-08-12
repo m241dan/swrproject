@@ -708,8 +708,11 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
 
    switch ( obj->item_type )
    {
+      case ITEM_ARMOR:
+         fprintf( fp, "Temper      %s\n", print_bitvector( &obj->temper ) );
       case ITEM_WEAPON:
          fprintf( fp, "Damtype     %s\n", print_bitvector( &obj->damtype ) );
+         fprintf( fp, "Speed       %f\n", obj->speed );
          break;
       case ITEM_PILL:  /* was down there with staff and wand, wrongly - Scryn */
       case ITEM_POTION:
@@ -2071,7 +2074,7 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
 
          case 'S':
             KEY( "ShortDescr", obj->short_descr, fread_string( fp ) );
-
+            KEY( "Speed", obj->speed, fread_float( fp ) );
             if( !str_cmp( word, "Spell" ) )
             {
                int iValue;
@@ -2092,6 +2095,7 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
             break;
 
          case 'T':
+            KEY( "Temper", obj->temper, fread_bitvector( fp ) );
             KEY( "Timer", obj->timer, fread_number( fp ) );
             break;
 

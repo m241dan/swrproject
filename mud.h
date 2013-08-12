@@ -969,6 +969,8 @@ struct planet_data
    int population;
    bool flags;
    float pop_support;
+   LOOT_DATA *first_loot;
+   LOOT_DATA *last_loot;
 };
 
 #define PLANET_NOCAPTURE  BV00
@@ -2188,6 +2190,7 @@ struct loot_data
 {
    LOOT_DATA *next;
    LOOT_DATA *prev;
+   int type;
    int vnum;
    int percent;
    int amount;
@@ -2566,6 +2569,8 @@ struct obj_index_data
    EXT_BV damtype;
    ITEM_MATERIAL *first_material;
    ITEM_MATERIAL *last_material;
+   EXT_BV temper;
+   double speed;
 };
 
 
@@ -2613,6 +2618,8 @@ struct obj_data
    EXT_BV damtype;
    ITEM_MATERIAL *first_material;
    ITEM_MATERIAL *last_material;
+   EXT_BV temper;
+   double speed;
 };
 
 
@@ -2729,6 +2736,8 @@ struct area_data
    int illegal_pk;
    int high_economy;
    int low_economy;
+   LOOT_DATA *first_loot;
+   LOOT_DATA *last_loot;
 };
 
 /*

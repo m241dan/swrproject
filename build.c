@@ -3333,9 +3333,10 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  type value0 value1 value2 value3 value4 value5\r\n", ch );
       send_to_char( "  affect rmaffect layers addmaterial remmaterial\r\n", ch );
       send_to_char( "For weapons:             For armor:\r\n", ch );
-      send_to_char( "  weapontype condition     ac condition\r\n", ch );
-      send_to_char( "  numdamdie sizedamdie                  \r\n", ch );
+      send_to_char( "  weapontype condition     evasion armor-class\r\n", ch );
+      send_to_char( "  numdamdie sizedamdie     temper       \r\n", ch );
       send_to_char( "  charges   maxcharges                  \r\n", ch );
+      send_to_char( "  speed                                 \r\n", ch );
       send_to_char( "For potions, pills:\r\n", ch );
       send_to_char( "  slevel spell1 spell2 spell3\r\n", ch );
       send_to_char( "For devices:\r\n", ch );
@@ -3466,7 +3467,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       while( argument[0] != '\0' )
       {
          argument = one_argument( argument, arg3 );
-         if( ( value = get_damtype( arg3 ) ) == -1 || ( value >= DAM_ALL && value <= DAM_PHYSICAL ) )
+         if( ( value = get_damtype( arg3 ) ) == -1 || ( value >= DAM_ALL && value <= DAM_ELEMENTAL ) )
          {
             ch_printf( ch, "%s is an invalid damtype.\r\n", arg3 );
             continue;
@@ -3475,6 +3476,45 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
             xTOGGLE_BIT( obj->pIndexData->damtype, value );
       }
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "temper" ) )
+   {
+      if( !can_omodify( ch, obj ) )
+         return;
+      if( obj->item_type != ITEM_ARMOR )
+      {
+         send_to_char( "Non-armors cannot have tempers.\r\n", ch );
+         return;
+      }
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_damtype( arg3 ) ) == -1 || ( value >= DAM_ALL && value <= DAM_ELEMENTAL ) )
+         {
+            ch_printf( ch, "%s is an invalid temper damtype.\r\n", arg3 );
+            continue;
+         }
+         xTOGGLE_BIT( obj->temper, value );
+         if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+            xTOGGLE_BIT( obj->pIndexData->temper, value );
+      }
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "speed" ) )
+   {
+      if( !can_omodify( ch, obj ) )
+         return;
+      if( obj->item_type != ITEM_WEAPON )
+      {
+         send_to_char( "Non-weapons cannot have speeds.\r\n", ch );
+         return;
+      }
+      obj->speed = atof( argument );
       send_to_char( "Ok.\r\n", ch );
       return;
    }
@@ -4223,10 +4263,10 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          }
          break;
       case ITEM_ARMOR:
-         if( !str_cmp( arg2, "condition" ) )
+         if( !str_cmp( arg2, "evasion" ) )
             tmp = 0;
-         if( !str_cmp( arg2, "ac" ) )
-            tmp = 1;
+         if( !str_cmp( arg2, "armor-class" ) )
+            tmp = 2;
          break;
       case ITEM_SALVE:
          if( !str_cmp( arg2, "slevel" ) )
@@ -5773,8 +5813,12 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
 
    switch ( pObjIndex->item_type )
    {
+      case ITEM_ARMOR:
+         fprintf( fpout, "Temper     %s\n", print_bitvector( &pObjIndex->temper ) );
+         break;
       case ITEM_WEAPON:
          fprintf( fpout, "Damtype    %s\n", print_bitvector( &pObjIndex->damtype ) );
+         fprintf( fpout, "Speed      %f\n", pObjIndex->speed );
          break;
       case ITEM_PILL:
       case ITEM_POTION:
