@@ -4873,9 +4873,11 @@ void set_on_cooldown( CHAR_DATA *ch, SKILLTYPE *skill )
 
 double get_round( CHAR_DATA *ch )
 {
-   double round;
+   OBJ_DATA *wield;
+   double round = BASE_ROUND;
 
-   round = BASE_ROUND;
+   if( ( wield = get_eq_char( ch, WEAR_WIELD ) ) != NULL && wield->item_type == ITEM_WEAPON )
+      round += wield->speed;
    round += ch->round;
    round *= get_haste( ch );
 

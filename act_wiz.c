@@ -1115,6 +1115,25 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
 
    ch_printf( ch, "Wear flags : %s\r\n", flag_string( obj->wear_flags, w_flags ) );
    ch_printf( ch, "Extra flags: %s\r\n", flag_string( obj->extra_flags, o_flags ) );
+
+   send_to_char( "Quality:", ch );
+   if( xIS_EMPTY( obj->quality ) )
+      send_to_char( " unset\r\n", ch );
+   else
+      for( x = 0; x < MAX_QUALITYTYPE; x++ )
+         if( xIS_SET( obj->quality, x ) )
+            ch_printf( ch, " %s,", q_type[x] );
+   send_to_char( "\r\n", ch );
+
+   send_to_char( "Temper:", ch );
+   if( xIS_EMPTY( obj->temper ) )
+      send_to_char( " unset\r\n", ch );
+   else
+      for( x = 0; x < MAX_DAMTYPE; x++ )
+         if( xIS_SET( obj->quality, x ) )
+            ch_printf( ch, " %s,", d_type[x] );
+   send_to_char( "\r\n", ch );
+
    send_to_char( "Materials:", ch );
    if( !obj->first_material )
       send_to_char( " not made of any materials\r\n", ch );
@@ -1165,6 +1184,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
          if( xIS_SET( obj->damtype, x ) )
             ch_printf( ch, " %s,", d_type[x] );
       send_to_char( "\r\n", ch );
+      ch_printf( ch, "Base Round Speed: %f\r\n", obj->speed );
    }
 
    if( obj->pIndexData->first_extradesc )
