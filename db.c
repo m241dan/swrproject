@@ -33,7 +33,6 @@
 #include "mssp.h"
 
 void init_supermob( void );
-void fread_fuss_lootdata( FILE *fp, LOOT_DATA *loot );
 void fread_fuss_skills( FILE *fp, MOB_INDEX_DATA *pMobIndex );
 void load_quests( void );
 QUEST_DATA *fread_quest( FILE *fp );
@@ -7250,6 +7249,8 @@ void fread_fuss_lootdata( FILE * fp, LOOT_DATA *loot )
          case 'P':
             KEY( "Percent", loot->percent, fread_number( fp ) );
             break;
+         case 'T':
+            KEY( "Type", loot->type, fread_number( fp ) );
          case 'V':
             KEY( "Vnum", loot->vnum, fread_number( fp ) );
             break;
@@ -7572,6 +7573,14 @@ void load_area_file( AREA_DATA * tarea, const char *filename )
          load_specials( fpArea );
       else if( !str_cmp( word, "VERSION" ) )
          load_version( tarea, fpArea );
+      else if( !str_cmp( word, "#LOOTDATA" ) )
+      {
+         LOOT_DATA *loot;
+         CREATE( loot, LOOT_DATA, 1 );
+         fread_fuss_lootdata( fpArea, loot );
+         LINK( loot, tarea->first_loot, tarea->last_loot, next, prev );
+         break;
+      }
       else
       {
          bug( "%s: bad section name: %s", __FUNCTION__, word );

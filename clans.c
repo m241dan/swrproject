@@ -173,6 +173,7 @@ void save_clan( CLAN_DATA * clan )
 
 void save_planet( PLANET_DATA * planet )
 {
+   LOOT_DATA *loot;
    FILE *fp;
    char filename[256];
 
@@ -212,6 +213,9 @@ void save_planet( PLANET_DATA * planet )
       for( pArea = planet->first_area; pArea; pArea = pArea->next_on_planet )
          if( pArea->filename )
             fprintf( fp, "Area         %s~\n", pArea->filename );
+      for( loot = planet->first_loot; loot; loot = loot->next )
+         fwrite_loot_data( fp, loot );
+
       fprintf( fp, "End\n\n" );
       fprintf( fp, "#END\n" );
       fclose( fp );
@@ -344,6 +348,15 @@ void fread_planet( PLANET_DATA * planet, FILE * fp )
             fread_to_eol( fp );
             break;
 
+         case '#':
+            if( !str_cmp( word, "#LOOTDATA" ) )
+            {
+               LOOT_DATA *loot;
+               CREATE( loot, LOOT_DATA, 1 );
+               fread_fuss_lootdata( fp, loot );
+               LINK( loot, planet->first_loot, planet->last_loot, next, prev );
+               break;
+            }
          case 'A':
             if( !str_cmp( word, "Area" ) )
             {

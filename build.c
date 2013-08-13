@@ -57,6 +57,10 @@ const char *const quest_types[MAX_QUESTTYPE] = {
 };
 /* planet constants for vip and wanted flags */
 
+const char *const l_type[MAX_LOOTTYPE] = {
+   "set", "random", "gold"
+};
+
 const char *const d_type[MAX_DAMTYPE] = {
    "chaos", "physical", "elemental", "fire", "water",
    "earth", "electricity", "wind", "energy", "dark_energy",
@@ -489,6 +493,15 @@ int get_qualitytype( const char *type )
    return -1;
 }
 
+int get_loottype( const char *type )
+{
+   int x;
+
+   for( x = 0; x < MAX_LOOTTYPE; x++ )
+      if( !str_cmp( type, l_type[x] ) )
+         return x;
+   return -1;
+}
 
 int get_trapflag( const char *flag )
 {
@@ -6066,6 +6079,7 @@ void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot )
 {
    fprintf( fpout, "%s", "#LOOTDATA\n\n" );
    fprintf( fpout, "Vnum        %d\n", loot->vnum );
+   fprintf( fpout, "Type        %d\n", loot->type );
    fprintf( fpout, "Percent     %d\n", loot->percent );
    fprintf( fpout, "Amount      %d\n", loot->amount );
    fprintf( fpout, "%s", "#ENDLOOTDATA\n\n" );
@@ -6116,6 +6130,7 @@ void fold_area( AREA_DATA * tarea, const char *fname, bool install )
    MOB_INDEX_DATA *pMobIndex;
    OBJ_INDEX_DATA *pObjIndex;
    ROOM_INDEX_DATA *pRoomIndex;
+   LOOT_DATA *loot;
    int vnum;
 
    snprintf( buf, 256, "%s.bak", fname );
@@ -6153,6 +6168,9 @@ void fold_area( AREA_DATA * tarea, const char *fname, bool install )
          continue;
       fwrite_fuss_room( fpout, pRoomIndex, install );
    }
+
+   for( loot = tarea->first_loot; loot; loot = loot->next )
+      fwrite_loot_data( fpout, loot );
 
    fprintf( fpout, "%s", "#ENDAREA\n" );
    fclose( fpout );

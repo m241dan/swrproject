@@ -1363,7 +1363,12 @@ typedef enum
    QUALITY_HQ, MAX_QUALITYTYPE
 } quality_types;
 
-/* 
+typedef enum
+{
+   LOOT_SET, LOOT_RANDOM, LOOT_GOLD, MAX_LOOTTYPE
+} loot_types;
+
+/*
 * Attack types
 */
 #define ATCK_BITE		  BV00
@@ -3614,6 +3619,7 @@ extern const char *const lang_names_save[];
 extern const char *sector_name[SECT_MAX];
 extern const char *const d_type[MAX_DAMTYPE];
 extern const char *const q_type[MAX_QUALITYTYPE];
+extern const char *const l_type[MAX_LOOTTYPE];
 extern const char *const d_type_score[MAX_DAMTYPE];
 extern const char *const frames_of_mind[MAX_FOM];
 extern const char *const quest_types[MAX_QUESTTYPE];
@@ -4493,6 +4499,7 @@ int get_otype( const char *type );
 int get_aflag( const char *flag );
 int get_damtype( const char *type );
 int get_qualitytype( const char *type );
+int get_loottype( const char *type );
 int get_trapflag( const char *flag );
 int get_atype( const char *type );
 int get_npc_race( const char *type );
@@ -4696,6 +4703,7 @@ void smash_underscore args( ( char *str ) );
 const char *smash_underscore args( ( const char *str ) );
 AFFECT_DATA *fread_fuss_affect( FILE *fp, const char *word );
 const char *smash_color( const char *str );
+void fread_fuss_lootdata( FILE *fp, LOOT_DATA *loot );
 
 /* fight.c */
 int max_fight args( ( CHAR_DATA * ch ) );
