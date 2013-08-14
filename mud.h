@@ -131,7 +131,7 @@ typedef struct player_quest PLAYER_QUEST;
 typedef struct available_quest AV_QUEST;
 typedef struct pre_quest PRE_QUEST;
 typedef struct item_material ITEM_MATERIAL;
-
+typedef struct pool_data POOL_DATA;
 /*
 * Function types.
 */
@@ -1754,7 +1754,7 @@ typedef enum
 #define ITEM_WEAR_EARS		BV16
 #define ITEM_WEAR_EYES		BV17
 #define ITEM_MISSILE_WIELD	BV18
-
+#define MAX_ITEM_WEAR           19
 
 /*
 * Apply types (for affects).
@@ -2546,6 +2546,18 @@ struct item_material
    int amount;
 };
 
+struct pool_data
+{
+   POOL_DATA *next;
+   POOL_DATA *prev;
+   int location;
+   int minstat;
+   int maxstat;
+   int minlevel;
+   int maxlevel;
+   int rules[MAX_ITEM_WEAR];
+
+};
 
 /*
 * Prototype for an object.
