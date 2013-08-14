@@ -5680,21 +5680,21 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
    if( npc )
       top_skill = top_sn;
    else
-      top_skill = paf->from->top_sn;
+      top_skill = paf->from ? paf->from->top_sn : -1;
 
    if( paf->type < 0 || paf->type >= top_skill )
    {
-      fprintf( fp, "Affect       %d %f %d %d %d %d '%s' %s\n",
+      fprintf( fp, "Affect       %d %f %d %d %d %d %d '%s' %s\n",
                paf->type,
                paf->duration,
-               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from->name, print_bitvector( &paf->bitvector ) );
+               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from_pool ? paf->from_pool->id : 0, paf->from ? paf->from->name : "null", print_bitvector( &paf->bitvector ) );
    }
    else
    {
-      fprintf( fp, "AffectData   '%s' %f %d %d %d %d '%s' %s\n",
+      fprintf( fp, "AffectData   '%s' %f %d %d %d %d %d '%s' %s\n",
                npc ? skill_table[paf->type]->name : paf->from->pc_skills[paf->type]->name,
                paf->duration,
-               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
+               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from_pool ? paf->from_pool->id : 0, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
    }
 }
 

@@ -5341,3 +5341,13 @@ void free_material( ITEM_MATERIAL *material )
    DISPOSE( material );
    return;
 }
+
+POOL_DATA *get_pool_from_id( int id )
+{
+   POOL_DATA *pool;
+
+   for( pool = first_pool; pool; pool = pool->next )
+      if( pool->id == id )
+         return pool;
+   return NULL;
+}

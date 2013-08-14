@@ -40,6 +40,9 @@ QUEST_DATA *fread_quest( FILE *fp );
 /*
  * Globals.
  */
+POOL_DATA *first_pool;
+POOL_DATA *last_pool;
+
 QUEST_DATA *first_quest;
 QUEST_DATA *last_quest;
 
@@ -460,6 +463,8 @@ void boot_db( bool fCopyOver )
    last_asort = NULL;
    first_quest = NULL;
    last_quest = NULL;
+   first_pool = NULL;
+   last_pool = NULL;
    extracted_obj_queue = NULL;
    extracted_char_queue = NULL;
    cur_qobjs = 0;
@@ -5490,6 +5495,7 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
    paf->location = fread_number( fp );
    paf->factor_id = fread_number( fp );
    paf->affect_type = fread_number( fp );
+   paf->from_pool = get_pool_from_id( fread_number( fp ) );
    paf->from = get_char_world( first_char, fread_word( fp ) ); /* Rather a moot point, but just in case somethign slips through */
    paf->bitvector = fread_bitvector( fp );
 

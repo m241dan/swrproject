@@ -1164,6 +1164,7 @@ struct affect_data
    AFFECT_DATA *next;
    AFFECT_DATA *prev;
    CHAR_DATA *from; /* which player isthis from */
+   POOL_DATA *from_pool;
    int affect_type; /* buff or enfeeb*/
    short type; /* sn, if its from a skill */
    double duration;
@@ -2550,6 +2551,7 @@ struct pool_data
 {
    POOL_DATA *next;
    POOL_DATA *prev;
+   int id;
    int location;
    int minstat;
    int maxstat;
@@ -2595,6 +2597,7 @@ struct obj_index_data
    EXT_BV temper;
    double speed;
    EXT_BV quality;
+   int max_pool;
 };
 
 
@@ -2645,6 +2648,7 @@ struct obj_data
    EXT_BV temper;
    double speed;
    EXT_BV quality;
+   int max_pool;
 };
 
 
@@ -3719,6 +3723,8 @@ extern THREAT_DATA *first_threat;
 extern THREAT_DATA *last_threat;
 extern QUEST_DATA *first_quest;
 extern QUEST_DATA *last_quest;
+extern POOL_DATA *first_pool;
+extern POOL_DATA *last_pool;
 extern QTIMER *first_qtimer;
 extern QTIMER *last_qtimer;
 extern DISC_DATA *first_discipline;
@@ -5038,6 +5044,7 @@ void free_avquest( AV_QUEST *av_quest );
 void apply_affect_damtype( CHAR_DATA *ch, EXT_BV **damtype );
 ITEM_MATERIAL *copy_material( ITEM_MATERIAL *material );
 void free_material( ITEM_MATERIAL *material );
+POOL_DATA *get_pool_from_id( int id );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

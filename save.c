@@ -745,34 +745,7 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
    }
 
    for( paf = obj->first_affect; paf; paf = paf->next )
-   {
-      /*
-       * Save extra object affects           -Thoric
-       */
-      if( paf->type < 0 || paf->type >= top_sn )
-      {
-         fprintf( fp, "Affect       %d %f %d %d %s\n",
-                  paf->type,
-                  paf->duration,
-                  ( ( paf->location == APPLY_WEAPONSPELL
-                      || paf->location == APPLY_WEARSPELL
-                      || paf->location == APPLY_REMOVESPELL
-                      || paf->location == APPLY_STRIPSN )
-                    && IS_VALID_SN( paf->modifier ) )
-                  ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
-      }
-      else
-         fprintf( fp, "AffectData   '%s' %f %d %d %s\n",
-                  skill_table[paf->type]->name,
-                  paf->duration,
-                  ( ( paf->location == APPLY_WEAPONSPELL
-                      || paf->location == APPLY_WEARSPELL
-                      || paf->location == APPLY_REMOVESPELL
-                      || paf->location == APPLY_STRIPSN )
-                    && IS_VALID_SN( paf->modifier ) )
-                  ? skill_table[paf->modifier]->slot : paf->modifier, paf->location, print_bitvector( &paf->bitvector ) );
-   }
-
+      fwrite_fuss_affect( fp, paf );
    for( ed = obj->first_extradesc; ed; ed = ed->next )
      fprintf( fp, "ExtraDescr   %s~ %s~\n", ed->keyword, ed->description );
 
@@ -1881,34 +1854,10 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
          case 'A':
             if( !str_cmp( word, "Affect" ) || !str_cmp( word, "AffectData" ) )
             {
-               AFFECT_DATA *paf;
-               int pafmod;
+               AFFECT_DATA *paf = fread_fuss_affect( fp, word );
 
-               CREATE( paf, AFFECT_DATA, 1 );
-               if( !str_cmp( word, "Affect" ) )
-               {
-                  paf->type = fread_number( fp );
-               }
-               else
-               {
-                  int sn;
-
-                  sn = skill_lookup( fread_word( fp ) );
-                  if( sn < 0 )
-                     bug( "Fread_obj: unknown skill.", 0 );
-                  else
-                     paf->type = sn;
-               }
-               paf->duration = fread_float( fp );
-               pafmod = fread_number( fp );
-               paf->location = fread_number( fp );
-               paf->bitvector = fread_bitvector( fp );
-               if( paf->location == APPLY_WEAPONSPELL
-                   || paf->location == APPLY_WEARSPELL || paf->location == APPLY_REMOVESPELL )
-                  paf->modifier = slot_lookup( pafmod );
-               else
-                  paf->modifier = pafmod;
-               LINK( paf, obj->first_affect, obj->last_affect, next, prev );
+               if( paf )
+                  LINK( paf, obj->first_affect, obj->last_affect, next, prev );
                fMatch = TRUE;
                break;
             }
