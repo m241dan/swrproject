@@ -4396,6 +4396,7 @@ DECLARE_SPELL_FUN( spell_cure_addiction );
 #define COMMAND_FILE	SYSTEM_DIR "commands.dat"  /* Commands      */
 #define DISCIPLINE_FILE SYSTEM_DIR "disciplines.dat"
 #define QUEST_FILE      SYSTEM_DIR "quest.dat" /* Quests, duh */
+#define POOL_FILE       SYSTEM_DIR "pool.dat" /* Pools, duh */
 #define USAGE_FILE	SYSTEM_DIR "usage.txt"  /* How many people are on
 * every half hour - trying to
 * determine best reboot time */
@@ -4565,6 +4566,9 @@ void change_quest_type( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
 void add_prequest( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument );
 void rem_prequest( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument );
 void delete_quest( CHAR_DATA *ch, QUEST_DATA *quest );
+void save_pools( void );
+void fwrite_pool( FILE *fp, POOL_DATA *pool );
+
 
 /* clans.c */
 CL *get_clan( const char *name );

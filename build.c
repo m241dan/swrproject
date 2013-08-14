@@ -9692,3 +9692,41 @@ const char *get_status( CHAR_DATA *ch, QUEST_DATA *quest )
    return status;
 }
 
+void save_pools( void )
+{
+   FILE *fp;
+   POOL_DATA *pool;
+
+   if( ( fp = fopen( POOL_FILE, "w" ) ) == NULL )
+   {
+      bug( "Cannot open pool.dat for writting", 0 );
+      perror( POOL_FILE );
+      return;
+   }
+
+   for( pool = first_pool; pool; pool = pool->next )
+   {
+      fprintf( fp, "#POOL\n" );
+      fwrite_pool( fp, pool );
+   }
+
+   fprintf( fp, "#END\n" );
+   fclose( fp );
+}
+
+void fwrite_pool( FILE *fp, POOL_DATA *pool )
+{
+   int x;
+   fprintf( fp, "ID           %d\n", pool->id );
+   fprintf( fp, "Location     %d\n", pool->location );
+   fprintf( fp, "MinStat      %d\n", pool->minstat );
+   fprintf( fp, "MaxStat      %d\n", pool->maxstat );
+   fprintf( fp, "MinLevel     %d\n", pool->minlevel );
+   fprintf( fp, "MaxLevel     %d\n", pool->maxlevel );
+   fprintf( fp, "Rules       " );
+   for( x = 0; x < MAX_ITEM_WEAR; x++ )
+      fprintf( fp, " %d", pool->rules[x] );
+   fprintf( fp, "\n" );
+   fprintf( fp, "End\n" );
+   return;
+}
