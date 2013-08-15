@@ -576,6 +576,8 @@ void boot_db( bool fCopyOver )
 
    log_string( "Loading quests" );
    load_quests(  );
+   log_string( "Loading pools" );
+   load_pools(  );
 
    /*
     * Read in all the area files.
@@ -8811,6 +8813,24 @@ POOL_DATA *fread_pool( FILE *fp )
                break;
             }
             break;
+         case 'L':
+            KEY( "Location", pool->location, fread_number( fp ) );
+            break;
+         case 'M':
+            KEY( "MinLevel", pool->minlevel, fread_number( fp ) );
+            KEY( "MinStat", pool->minstat, fread_number( fp ) );
+            KEY( "MaxLevel", pool->maxlevel, fread_number( fp ) );
+            KEY( "MaxStat", pool->maxstat, fread_number( fp ) );
+            break;
+         case 'R':
+            if( !str_cmp( word, "Rules" ) )
+            {
+               int x;
+               for( x = 0; x < MAX_ITEM_WEAR; x++ )
+                  pool->rules[x] = fread_number( fp );
+               fMatch = TRUE;
+               break; 
+            }
       }
       if( !fMatch )
          bug( "%s: no match: %s", __FUNCTION__, word );
