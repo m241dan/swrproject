@@ -4903,8 +4903,7 @@ void delete_obj( OBJ_INDEX_DATA * obj )
    while( ( af = obj->first_affect ) != NULL )
    {
       obj->first_affect = af->next;
-      DISPOSE( af );
-      --top_affect;
+      free_affect( af );
    }
 
    while( ( mp = obj->mudprogs ) != NULL )

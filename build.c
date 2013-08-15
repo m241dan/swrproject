@@ -4037,9 +4037,8 @@ void do_oset( CHAR_DATA * ch, const char *argument )
                      }
                   }
                }
-               DISPOSE( paf );
+               free_affect( paf );
                send_to_char( "Removed.\n\r", ch );
-               --top_affect;
                return;
             }
          }
@@ -4051,9 +4050,8 @@ void do_oset( CHAR_DATA * ch, const char *argument )
             if( ++count == loc )
             {
                UNLINK( paf, obj->first_affect, obj->last_affect, next, prev );
-               DISPOSE( paf );
+               free_affect( paf );
                send_to_char( "Removed.\r\n", ch );
-               --top_affect;
                return;
             }
          }
@@ -9730,3 +9728,302 @@ void fwrite_pool( FILE *fp, POOL_DATA *pool )
    fprintf( fp, "End\n" );
    return;
 }
+
+void do_pool( CHAR_DATA *ch, const char *argument )
+{
+   char arg[MAX_INPUT_LENGTH];
+
+   argument = one_argument( argument, arg );
+   if( arg[0] == '\0' )
+   {
+      send_to_char( "Proper usage: pool create <location> <minstat> <maxstat> <minlevel> <maxlevel> <rules...etc>\r\n", ch );
+      send_to_char( "              pool list no arg|id|location|minstat|maxstat|minlevel|maxlevel|rule <value>\r\n", ch );
+      send_to_char( "              pool delete <id>\r\n", ch );
+      return;
+   }
+   if( !str_cmp( arg, "create" ) )
+   {
+      create_pool( ch, argument );
+      return;
+   }
+   if( !str_cmp( arg, "list" ) )
+   {
+      list_pools( ch, argument );
+      return;
+   }
+   if( !str_cmp( arg, "delete" ) )
+   {
+      delete_pool( ch, get_pool_from_id( atoi( argument ) ) );
+      return;
+   }
+   do_pool( ch, "" );
+   return;
+}
+
+void delete_pool( CHAR_DATA *ch, POOL_DATA *pool )
+{
+   OBJ_DATA *obj;
+   AFFECT_DATA *af, *af_next;
+
+   if( !pool )
+   {
+      bug( "%s: bad pool id.\r\n", __FUNCTION__ );
+      return;
+   }
+
+   for( obj = first_object; obj; obj = obj->next )
+      for( af = obj->first_affect; af; af = af_next )
+      {
+         af_next = af->next;
+         if( af->from_pool->id == pool->id )
+         {
+            if( obj->wear_loc != -1 )
+               affect_modify( obj->carried_by, af, FALSE )
+            UNLINK( af, obj->first_affect, obj->last_affect, next, prev );
+            free_affect( af );
+         }
+      }
+   UNLINK( pool, first_pool, last_pool, next, prev );
+   free_pool( pool );
+   return;
+}
+
+void list_pools( CHAR_DATA *ch, const char *argument )
+{
+   POOL_DATA *pool;
+   char arg[MAX_INPUT_LENGTH];
+   int x, sort;
+
+   argument = one_argument( argument, arg );
+
+   if( arg[0] == '\0' )
+   {
+      send_to_char( "Listing All Pools...\r\n", ch );
+      for( pool = first_pool; pool; pool = pool->next )
+         display_pool( ch, pool );
+      return;
+   }
+   if( !str_cmp( arg, "id" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         send_to_char( "You must enter a number.\r\n", ch );
+         return;
+      }
+      display_pool( ch, get_pool_from_id( atoi( argument ) );
+      return;
+   }
+   if( !str_cmp( arg, "location" ) )
+   {
+      if( ( sort = get_atype( argument ) ) == -1 )
+      {
+         send_to_char( "Invalid location used.\r\n", ch );
+         return;
+      }
+      ch_printf( ch, "Pools with %s location...\r\n", a_types[sort] );
+      for( pool = first_pool; pool; pool = pool->next )
+         if( pool->location == sort )
+            display_pool( ch, pool );
+      return;
+   }
+   if( !str_cmp( arg, "minstat" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Enter a number for minstat.\r\n", ch );
+         return;
+      }
+      sort = atoi( argument );
+      ch_printf( ch, "Pools with minstat value of %d...\r\n", sort );
+      for( pool = first_pool; pool; pool = pool->next )
+         if( pool->minstat == sort )
+            display_pool( ch, pool );
+      return;
+   }
+   if( !str_cmp( arg, "maxstat" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Enter a number for maxstat.\r\n", ch );
+         return;
+      }
+      sort = atoi( argument );
+      ch_printf( ch, "Pools with maxstat value of %d...\r\n", sort );
+      for( pool = first_pool; pool; pool = pool->next )
+         if( pool->maxstat == sort )
+            display_pool( ch, pool );
+      return;
+   }
+   if( !str_cmp( arg, "minlevel" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Enter a number for minlevel.\r\n", ch );
+         return;
+      }
+      sort = atoi( argument );
+      ch_printf( ch, "Pools with minlevel value of %d...\r\n", sort );
+      for( pool = first_pool; pool; pool = pool->next )
+         if( pool->minlevel == sort )
+            display_pool( ch, pool );
+      return;
+   }
+   if( !str_cmp( arg, "maxlevel" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Enter a number for maxlevel.\r\n", ch );
+         return;
+      }
+      sort = atoi( argument );
+      ch_printf( ch, "Pools with maxlevel value of %d...\r\n", sort );
+      for( pool = first_pool; pool; pool = pool->next )
+         if( pool->maxlevel == sort )
+            display_pool( ch, pool );
+      return;
+   }
+   if( !str_cmp( arg, "rule" ) )
+   {
+      if( ( sort = get_wflag( argument ) ) == -1 )
+      {
+         send_to_char( "Invalid wearloc.\r\n", ch );
+         return;
+      }
+      ch_printf( ch, "Pools with Rule location of %s...\r\n", w_flags[sort] );
+      for( pool = first_pool; pool; pool = pool->next )
+         if( pool->rules[sort] == 1 )
+            display_pool( ch, pool );
+      return;
+   }
+   return;
+}
+
+void display_pool( CHAR_DATA *ch, POOL_DATA *pool )
+{
+   int x;
+
+   if( !pool )
+   {
+      bug( "%s: bad pool id", __FUNCTION__ );
+      return;
+   }
+
+   ch_printf( ch, "ID %d: affects %s by %d to %d loads on mob from level %d to %d\r\n", 
+              pool->id,
+              a_types[pool->location],
+              pool->minstat,
+              pool->maxstat,
+              pool->minlevel,
+              pool->maxlevel );
+   send_to_char( " - Rules:", ch );
+   for( x = 0; x < MAX_ITEM_WEAR; x++ )
+      if( pool->rules[x] == 1 )
+         ch_printf( ch, " %s,", w_flags[x] );
+   send_to_char( "\r\n", ch );
+}
+
+void create_pool( CHAR_DATA *ch, const char *argument )
+{
+   POOL_DATA *pool;
+   char arg[MAX_INPUT_LENGTH];
+   int location, minstat, maxstat, minlevel;
+   int rules[MAX_ITEM_WEAR];
+   int x, col;
+
+   /* start with location */
+   argument = one_argument( argument, arg );
+   if( ( location = get_atype( arg ) ) == -1 )
+   {
+      send_to_char( "Valid Locations:\r\n", ch );
+      for( x = 0, col = 0; x < MAX_APPLY_TYPE; x++ )
+      {
+         ch_printf( ch, "%-18.18s", a_types[x] ? a_types[x] : "null" );
+         if( 4 == col++ )
+         {
+            send_to_char( "\r\n", ch );
+            col = 0;
+         }
+      }
+      if( col != 0 )
+         send_to_char( "\r\n", ch );
+      return;
+   }
+
+   /* now minstat */
+   argument = one_argument( argument, arg );
+   if( !is_number( arg ) )
+   {
+      send_to_char( "Minstat must be a number!\r\n", ch );
+      return;
+   }
+   minstat = atoi( arg );
+
+   /* now maxstat */
+   argument = one_argument( argument, arg );
+   if( !is_number( arg ) )
+   {
+      send_to_char( "Maxstat must be a number!\r\n", ch );
+      return;
+   }
+   if( ( maxstat = atoi(arg ) ) < minstat )
+   {
+      send_to_char( "Maxstat must be higher than minstat!\r\n", ch );
+      return;
+   }
+
+   /* now minlevel */
+   argument = one_argument( argument, arg );
+   if( !is_number( arg ) )
+   {
+      send_to_char( "Minlevel must be a number!\r\n", ch );
+      return;
+   }
+   minlevel = atoi( arg );
+
+   /* now maxlevel */
+   argument = one_argument( argument, arg );
+   if( !is_number( arg ) )
+   {
+      send_to_char( "Maxlevel must be a number!\r\n". ch );
+      return;
+   }
+   if( ( maxlevel = atoi( arg ) ) < minlevel )
+   {
+      send_to_char( "Maxlevel must be higher than minlevel!\r\n", ch );
+      return;
+   }
+
+   /* now to handle rules */
+   for( x = 0; x < MAX_ITEM_WEAR; x++ ) /* init our array */
+      rules[x] = 0;
+
+   while( argument[0] != '\0' )
+   {
+      argument = one_argument( argument, arg );
+      if( ( x = get_wflag( arg ) ) == -1 )
+      {
+         ch_printf( ch, "%s invalid wearlocation.\r\n", arg );
+         continue;
+      }
+      rules[x] = 1;
+   }
+   int id;
+   for( ;; )
+   {
+      id = number_range( 1000, 9999 );
+      if( !(get_pool_from_id( id )) )
+         break;
+   }
+   CREATE( pool, POOL_DATA, 1 );
+   pool->id = number_range( 1000, 9999 );
+   pool->location = location;
+   pool->minstat = minstat;
+   pool->maxstat = maxstat;
+   pool->minlevel = minlevel;
+   pool->maxlevel = maxlevel;
+   for( x = 0; x < MAX_ITEM_WEAR; x++ )
+      pool->rules[x] = rules[x];
+   LINK( pool, first_pool, last_pool, next, prev );
+   save_pool( );
+   send_to_char( "Ok.\r\n", ch );
+};

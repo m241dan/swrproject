@@ -4568,7 +4568,9 @@ void rem_prequest( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument );
 void delete_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 void save_pools( void );
 void fwrite_pool( FILE *fp, POOL_DATA *pool );
-
+void create_pool( CHAR_DATA *ch, const char *argument );
+void list_pool( CHAR_DATA *ch, const char *argument );
+void display_pool( CHAR_DATA *ch, POOL_DATA *pool );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -5049,7 +5051,8 @@ void apply_affect_damtype( CHAR_DATA *ch, EXT_BV **damtype );
 ITEM_MATERIAL *copy_material( ITEM_MATERIAL *material );
 void free_material( ITEM_MATERIAL *material );
 POOL_DATA *get_pool_from_id( int id );
-
+void free_affect( AFFECT_DATA *af );
+void free_pool( POOL_DATA *pool );
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
 void interpret( CHAR_DATA * ch, const char *argument );

@@ -3251,8 +3251,7 @@ void clean_obj( OBJ_INDEX_DATA * obj )
    for( paf = obj->first_affect; paf; paf = paf_next )
    {
       paf_next = paf->next;
-      DISPOSE( paf );
-      top_affect--;
+      free_affect( paf );
    }
    obj->first_affect = NULL;
    obj->last_affect = NULL;
@@ -5351,3 +5350,17 @@ POOL_DATA *get_pool_from_id( int id )
          return pool;
    return NULL;
 }
+
+void free_affect( AFFECT_DATA *af )
+{
+   af->from = NULL;
+   af->from_pool = NULL;
+   DISPOSE( af );
+   top_affect--;
+}
+
+void free_pool( POOL_DATA *pool )
+{
+   DISPOSE( pool );
+}
+
