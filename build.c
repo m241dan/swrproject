@@ -9753,14 +9753,14 @@ void do_pool( CHAR_DATA *ch, const char *argument )
    }
    if( !str_cmp( arg, "delete" ) )
    {
-      delete_pool( ch, get_pool_from_id( atoi( argument ) ) );
+      delete_pool( get_pool_from_id( atoi( argument ) ) );
       return;
    }
    do_pool( ch, "" );
    return;
 }
 
-void delete_pool( CHAR_DATA *ch, POOL_DATA *pool )
+void delete_pool( POOL_DATA *pool )
 {
    OBJ_DATA *obj;
    AFFECT_DATA *af, *af_next;
@@ -9778,7 +9778,7 @@ void delete_pool( CHAR_DATA *ch, POOL_DATA *pool )
          if( af->from_pool->id == pool->id )
          {
             if( obj->wear_loc != -1 )
-               affect_modify( obj->carried_by, af, FALSE )
+               affect_modify( obj->carried_by, af, FALSE );
             UNLINK( af, obj->first_affect, obj->last_affect, next, prev );
             free_affect( af );
          }
@@ -9792,7 +9792,7 @@ void list_pools( CHAR_DATA *ch, const char *argument )
 {
    POOL_DATA *pool;
    char arg[MAX_INPUT_LENGTH];
-   int x, sort;
+   int sort;
 
    argument = one_argument( argument, arg );
 
@@ -9810,7 +9810,7 @@ void list_pools( CHAR_DATA *ch, const char *argument )
          send_to_char( "You must enter a number.\r\n", ch );
          return;
       }
-      display_pool( ch, get_pool_from_id( atoi( argument ) );
+      display_pool( ch, get_pool_from_id( atoi( argument ) ) );
       return;
    }
    if( !str_cmp( arg, "location" ) )
@@ -9926,7 +9926,7 @@ void create_pool( CHAR_DATA *ch, const char *argument )
 {
    POOL_DATA *pool;
    char arg[MAX_INPUT_LENGTH];
-   int location, minstat, maxstat, minlevel;
+   int location, minstat, maxstat, minlevel, maxlevel;
    int rules[MAX_ITEM_WEAR];
    int x, col;
 
@@ -9984,7 +9984,7 @@ void create_pool( CHAR_DATA *ch, const char *argument )
    argument = one_argument( argument, arg );
    if( !is_number( arg ) )
    {
-      send_to_char( "Maxlevel must be a number!\r\n". ch );
+      send_to_char( "Maxlevel must be a number!\r\n", ch );
       return;
    }
    if( ( maxlevel = atoi( arg ) ) < minlevel )
@@ -10024,6 +10024,6 @@ void create_pool( CHAR_DATA *ch, const char *argument )
    for( x = 0; x < MAX_ITEM_WEAR; x++ )
       pool->rules[x] = rules[x];
    LINK( pool, first_pool, last_pool, next, prev );
-   save_pool( );
+   save_pools( );
    send_to_char( "Ok.\r\n", ch );
 };

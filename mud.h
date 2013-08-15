@@ -4569,8 +4569,9 @@ void delete_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 void save_pools( void );
 void fwrite_pool( FILE *fp, POOL_DATA *pool );
 void create_pool( CHAR_DATA *ch, const char *argument );
-void list_pool( CHAR_DATA *ch, const char *argument );
+void list_pools( CHAR_DATA *ch, const char *argument );
 void display_pool( CHAR_DATA *ch, POOL_DATA *pool );
+void delete_pool( POOL_DATA *pool );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -5029,7 +5030,6 @@ DISC_DATA *get_discipline( const char *disc_name );
 int get_cost_type( const char *argument );
 int get_factor_type( const char *factor );
 int get_apply_type( const char *apply );
-void free_affect( AFFECT_DATA *aff );
 void free_statboost( STAT_BOOST *stat_boost );
 int get_stat_value( CHAR_DATA *ch, int stat );
 AFFECT_DATA *copy_affect( AFFECT_DATA *aff );
@@ -5053,6 +5053,7 @@ void free_material( ITEM_MATERIAL *material );
 POOL_DATA *get_pool_from_id( int id );
 void free_affect( AFFECT_DATA *af );
 void free_pool( POOL_DATA *pool );
+
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
 void interpret( CHAR_DATA * ch, const char *argument );

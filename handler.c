@@ -5070,13 +5070,6 @@ int get_apply_type( const char *apply )
    return -1;
 }
 
-void free_affect( AFFECT_DATA *aff )
-{
-   aff->from = NULL;
-   DISPOSE( aff );
-   return;
-}
-
 void free_statboost( STAT_BOOST *stat_boost )
 {
    DISPOSE( stat_boost);
