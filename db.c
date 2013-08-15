@@ -36,6 +36,8 @@ void init_supermob( void );
 void fread_fuss_skills( FILE *fp, MOB_INDEX_DATA *pMobIndex );
 void load_quests( void );
 QUEST_DATA *fread_quest( FILE *fp );
+void load_pools( void );
+POOL_DATA *fread_pool( FILE *fp );
 
 /*
  * Globals.
@@ -8731,6 +8733,84 @@ QUEST_DATA *fread_quest( FILE *fp )
              break;
           case 'T':
              KEY( "Type", quest->type, fread_number( fp ) );
+      }
+      if( !fMatch )
+         bug( "%s: no match: %s", __FUNCTION__, word );
+
+   }
+   return NULL;
+}
+
+void load_pools( void )
+{
+   FILE *fp;
+   const char *word;
+
+   if( ( fp = fopen( POOL_FILE, "r" ) ) == NULL )
+   {
+      bug( "Cannot open pool.dat for read", 0 );
+      perror( QUEST_FILE );
+      return;
+   }
+
+   for( ;; )
+   {
+      word = ( feof( fp ) ? "#End" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         bug( "%s: EOF encountered reading file!", __FUNCTION__ );
+         word = "#End";
+      }
+
+      if( !str_cmp( word, "#POOL" ) )
+      {
+         POOL_DATA *pool;
+
+         if( ( pool = fread_pool( fp ) ) != NULL )
+            LINK( pool, first_pool, last_pool, next, prev );
+      }
+      else if( !str_cmp( word, "#END" ) )
+         break;
+      else
+         bug( "Unknown Input: %s", word );
+   }
+   fclose( fp );
+   return;
+}
+
+POOL_DATA *fread_pool( FILE *fp )
+{
+   POOL_DATA *pool;
+   const char *word;
+   bool fMatch;
+
+   for( ;; )
+   {
+      word = ( feof( fp ) ? "End" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         bug( "%s: EOF encountered reading file!", __FUNCTION__ );
+         word = "End";
+      }
+      fMatch = FALSE;
+
+      switch( UPPER( word[0] ) )
+      {
+         case 'E':
+            if( !str_cmp( word, "End" ) )
+               return pool;
+            break;
+         case 'I':
+            if( !str_cmp( word, "ID" ) )
+            {
+               CREATE( pool, POOL_DATA, 1 );
+               pool->id = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
+            break;
       }
       if( !fMatch )
          bug( "%s: no match: %s", __FUNCTION__, word );
