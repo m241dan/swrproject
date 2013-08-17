@@ -9710,7 +9710,7 @@ void delete_pool( POOL_DATA *pool )
       for( af = obj->first_affect; af; af = af_next )
       {
          af_next = af->next;
-         if( af->from_pool->id == pool->id )
+         if( af->from_pool && af->from_pool->id == pool->id )
          {
             if( obj->wear_loc != -1 )
                affect_modify( obj->carried_by, af, FALSE );
@@ -9721,6 +9721,7 @@ void delete_pool( POOL_DATA *pool )
    UNLINK( pool, first_pool, last_pool, next, prev );
    free_pool( pool );
    save_pools( );
+   send_to_char( "Pool deleted.\r\n", ch );
    return;
 }
 

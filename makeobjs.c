@@ -406,12 +406,9 @@ void load_pools( OBJ_DATA *obj )
    int chances = POOL_CHANCE_PER_SLOT * obj->max_pool;
    int x, success;
 
-   bug( "chances: %d", chances );
    for( x = 0, success = 0; x < chances; x++ )
    {
-      bug( "rolling" );
       pool = get_pool_from_count( number_range( 1, total_pool ) );
-      bug( "pool list number: %d", pool->id );
       if( obj->level >= pool->minlevel && obj->level <= pool->maxlevel && rule_check( obj, pool ) )
       {
          bug( "Getting here, finally" );
