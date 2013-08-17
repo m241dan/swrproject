@@ -269,7 +269,7 @@ void handle_loot( OBJ_DATA *corpse, CHAR_DATA *victim )
          bug( "%s: loot with bad vnum %d", __FUNCTION__, loot->vnum );
          continue;
       }
-      if( pObjIndex->level > victim->moblevel )
+      if( pObjIndex->level > victim->moblevel && loot->type != LOOT_GOLD )
          continue;
       dispense_loot( corpse, loot );
    }
@@ -284,7 +284,7 @@ void handle_loot( OBJ_DATA *corpse, CHAR_DATA *victim )
          bug( "%s: loot with bad vnum %d", __FUNCTION__, loot->vnum );
          continue;
       }
-      if( pObjIndex->level > victim->moblevel )
+      if( pObjIndex->level > victim->moblevel && loot->type != LOOT_GOLD )
          continue;
       dispense_loot( corpse, loot );
    }
