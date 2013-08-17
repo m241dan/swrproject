@@ -176,6 +176,26 @@ const char *const a_types[MAX_APPLY_TYPE] = {
    "barenumdie", "baresizedie", "damplus", "wepnumdie", "wepsizedie", "wepplus", "damtype"
 };
 
+const char *const a_types_pretty[MAX_APPLY_TYPE] = {
+   "none", "strength", "dexterity", "intelligence", "wisdom", "constitution", "agility",
+   "sex", "null", "level", "age", "height", "weight", "force", "hit points", "movement",
+   "credits", "experience", "evasion", "hitroll", "damroll", "save_poison", "save_rod",
+   "save_para", "save_breath", "save_spell", "charisma", "affected", "resistant",
+   "immune", "susceptible", "weaponspell", "luck", "backstab", "pick", "track",
+   "steal", "sneak", "hide", "palm", "detrap", "dodge", "peek", "scan", "gouge",
+   "search", "mount", "disarm", "kick", "parry", "bash", "stun", "punch", "climb",
+   "grip", "scribe", "brew", "wearspell", "removespell", "emotion", "mentalstate",
+   "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood", "armor", "threat",
+   "penetrate all damage", "penetrate all physical damage", "penetrate all elemental", "penetrate fire", "penetrate water", "penetrate earth",
+   "penetrate electricity", "penetrate wind", "penetrate energy", "penetrate darkenergy", "penetrate blunt", "penetrate piercing", "penetrate slashing",
+   "resist all", "resist physical", "resist elemental", "resist fire", "resist water", "resist earth",
+   "resist electricity", "resist wind", "resist enregy", "resist darkenergy", "resist blunt", "resist piercing", "resist slashing",
+   "damage type potency all", "damage type potency physical", "damage type potency elemental", "damage type potency fire", "damage type potency water", "damage type potency earth",
+   "damage type potency electricity", "damage type potency wind", "damage type potency energy", "damage type potency darkenergy", "damage type potency blunt", "damage type potency piercing", "damage type potency slashing",
+   "haste", "haste", "haste", "double attack", "speed",
+   "barehand die number", "barehand die size", "damage plus", "weapon die number", "weapon die size", "weapon damage plus", "damage type"
+};
+
 const char *const a_flags[MAX_AFF] = {
    "none", "blind", "invisible", "detect_evil", "detect_invis", "detect_magic",
    "detect_hidden", "weaken", "sanctuary", "faerie_fire", "infrared", "curse",
@@ -9688,14 +9708,14 @@ void do_pool( CHAR_DATA *ch, const char *argument )
    }
    if( !str_cmp( arg, "delete" ) )
    {
-      delete_pool( get_pool_from_id( atoi( argument ) ) );
+      delete_pool( ch, get_pool_from_id( atoi( argument ) ) );
       return;
    }
    do_pool( ch, "" );
    return;
 }
 
-void delete_pool( POOL_DATA *pool )
+void delete_pool( CHAR_DATA *ch, POOL_DATA *pool )
 {
    OBJ_DATA *obj;
    AFFECT_DATA *af, *af_next;
@@ -9721,7 +9741,7 @@ void delete_pool( POOL_DATA *pool )
    UNLINK( pool, first_pool, last_pool, next, prev );
    free_pool( pool );
    save_pools( );
-   send_to_char( "Pool deleted.\r\n", ch );
+   send_to_char( "Pool Deleted.\r\n", ch );
    return;
 }
 

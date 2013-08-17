@@ -401,6 +401,7 @@ EXT_BV roll_quality( void )
 
 void load_pools( OBJ_DATA *obj )
 {
+   AFFECT_DATA *paf;
    POOL_DATA *pool;
    int total_pool = get_total_pools( );
    int chances = POOL_CHANCE_PER_SLOT * obj->max_pool;
@@ -411,8 +412,13 @@ void load_pools( OBJ_DATA *obj )
       pool = get_pool_from_count( number_range( 1, total_pool ) );
       if( obj->level >= pool->minlevel && obj->level <= pool->maxlevel && rule_check( obj, pool ) )
       {
-         bug( "Getting here, finally" );
-         LINK( create_affect_from_pool( pool ), obj->first_affect, obj->last_affect, next, prev );
+         bug( "Getting here, finally: POOL ID %d", pool->id );
+         if( ( paf = create_affect_from_pool( pool ) ) == NULL )
+         {
+            bug( "%s: bad affect created.", __FUNCTION__ );
+            continue;
+         }
+         LINK( paf, obj->first_affect, obj->last_affect, next, prev );
          if( ++success == obj->max_pool )
             return;
       }
@@ -432,6 +438,8 @@ bool rule_check( OBJ_DATA *obj, POOL_DATA *pool )
 AFFECT_DATA *create_affect_from_pool( POOL_DATA *pool )
 {
    AFFECT_DATA *af;
+
+   bug( "creating affect from pool: %d", pool->id );
 
    CREATE( af, AFFECT_DATA, 1 );
    af->from = NULL;

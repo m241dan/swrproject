@@ -1223,7 +1223,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
       else if( paf->location == APPLY_AFFECT )
          ch_printf( ch, "Grants %s. (extra)\r\n", ext_flag_string( &paf->bitvector, a_flags ) );
       else
-         ch_printf( ch, "Affects %s by %d. (extra)\r\n", affect_loc_name( paf->location ), paf->modifier );
+         ch_printf( ch, "Affects %s by %d. (extra)\r\n", a_types_pretty[paf->location], paf->modifier );
    }
 
    for( paf = obj->pIndexData->first_affect; paf; paf = paf->next )
@@ -1233,7 +1233,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
       else if( paf->location == APPLY_AFFECT )
          ch_printf( ch, "Grants %s.\r\n", ext_flag_string( &paf->bitvector, a_flags ) );
       else
-         ch_printf( ch, "Affects %s by %d.\r\n", affect_loc_name( paf->location ), paf->modifier );
+         ch_printf( ch, "Affects %s by %d.\r\n", a_types_pretty[paf->location], paf->modifier );
    }
 
    return;

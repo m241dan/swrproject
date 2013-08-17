@@ -3621,6 +3621,7 @@ extern const char *const o_flags[];
 extern const char *const a_flags[MAX_AFF];
 extern const char *const o_types[];
 extern const char *const a_types[MAX_APPLY_TYPE];
+extern const char *const a_types_pretty[MAX_APPLY_TYPE];
 extern const char *const act_flags[];
 extern const char *const planet_flags[];
 extern const char *const weapon_table[13];
@@ -4581,7 +4582,7 @@ void fwrite_pool( FILE *fp, POOL_DATA *pool );
 void create_pool( CHAR_DATA *ch, const char *argument );
 void list_pools( CHAR_DATA *ch, const char *argument );
 void display_pool( CHAR_DATA *ch, POOL_DATA *pool );
-void delete_pool( POOL_DATA *pool );
+void delete_pool( CHAR_DATA *ch, POOL_DATA *pool );
 
 /* clans.c */
 CL *get_clan( const char *name );
