@@ -47,7 +47,6 @@ const char *const frames_of_mind[MAX_FOM] = {
    "idle", "fighting", "hunting"
 };
 
-
 /*
  * Quest Types -Davenge
  */
@@ -1433,43 +1432,6 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       rem_discipline( victim, disc );
       send_to_char( "Ok.\r\n", ch );
       return;
-   }
-
-   if( !str_cmp( arg2, "addloot" ) )
-   {
-      LOOT_DATA *loot;
-      int percent;
-      int amount;
-
-      if( !can_mmodify( ch, victim ) )
-         return;
-
-      if( !IS_NPC( victim ) )
-      {
-         send_to_char( "Not on players.\r\n", ch );
-         return;
-      }
-
-       argument = one_argument( argument, arg3 );
-       value = atoi( arg3 );
-       argument = one_argument( argument, arg3 );
-       percent = atoi( arg3 );
-       amount = atoi( argument );
-
-      if( value == 0 || percent == 0 || amount == 0 )
-      {
-         send_to_char( "Proper usage: mset <mob> loot <vnum> <percent> <amount>\r\n", ch );
-         return;
-      }
-
-      CREATE( loot, LOOT_DATA, 1 );
-      loot->vnum = value;
-      loot->percent = percent;
-      loot->amount = amount;
-      LINK( loot, victim->pIndexData->first_loot, victim->pIndexData->last_loot, next, prev );
-      send_to_char( "Ok.\r\n", ch );
-      return;
-
    }
 
    if( !str_cmp( arg2, "remloot" ) )
@@ -5904,9 +5866,9 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
          break;
    }
    fprintf( fpout, "Values   %d %d %d %d %d %d\n", val0, val1, val2, val3, val4, val5 );
-   fprintf( fpout, "Stats    %d %d %d %d %d\n", pObjIndex->weight,
+   fprintf( fpout, "Stats    %d %d %d %d %d %d\n", pObjIndex->weight,
             pObjIndex->cost, pObjIndex->rent ? pObjIndex->rent : ( int )( pObjIndex->cost / 10 ),
-            pObjIndex->level, pObjIndex->layers );
+            pObjIndex->level, pObjIndex->layers, pObjIndex->max_pool );
 
    for( paf = pObjIndex->first_affect; paf; paf = paf->next )
       fwrite_fuss_affect( fpout, paf );
@@ -10027,3 +9989,184 @@ void create_pool( CHAR_DATA *ch, const char *argument )
    save_pools( );
    send_to_char( "Ok.\r\n", ch );
 };
+
+void do_addloot( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   PLANET_DATA *planet;
+   AREA_DATA *area;
+   OBJ_INDEX_DATA *pObjIndex;
+   LOOT_DATA *loot;
+   char arg[MAX_INPUT_LENGTH];
+   int type;
+   int chance;
+   int amount;
+
+   /* Grab Target First */
+   argument = one_argument( argument, arg );
+   if( arg[0] == '\0' )
+   {
+      send_to_char( "Proper Syntax: addloot <target> <type> <vnum> <amount> <%chance>\r\n\r\n", ch );
+      send_to_char( " Targets: mob, area filename, planet\r\n", ch );
+      send_to_char( " Types: set, random, gold\r\n", ch );
+      send_to_char( "\r\nEnter any vnum for gold\r\n", ch );
+      return;
+   }
+   if( ( victim = get_char_world( ch, arg ) ) == NULL && ( area = get_area_from_filename( arg ) ) == NULL && ( planet = get_planet( arg ) ) == NULL )
+   {
+      send_to_char( "Invalid target.\r\n", ch );
+      return;
+   }
+
+   /* Lets grab the type next */
+   argument = one_argument( argument, arg );
+   if( arg[0] == '\0' || ( type = get_loottype( arg ) ) == -1 )
+   {
+      send_to_char( "Invalid type.\r\n", ch );
+      return;
+   }
+
+   /* Lets grab the obj_index next */
+   argument = one_argument( argument, arg );
+   if( arg[0] == '\0' || ( ( pObjIndex = get_obj_index( atoi( arg ) ) ) == NULL && type != LOOT_GOLD ) )
+   {
+      send_to_char( "Invalid vnum.\r\n", ch );
+      return;
+   }
+
+   /* Time to grab amount */
+   argument = one_argument( argument, arg );
+   if( arg[0] == '\0' || !is_number( arg ) || ( amount = atoi( arg ) ) < 1 )
+   {
+      send_to_char( "Invalid amount.\r\n", ch );
+      return;
+   }
+
+   /* Now to make sure we have a good "chance" */
+   argument = one_argument( argument, arg );
+   if( arg[0] == '\0' || !is_number( arg ) || ( chance = atoi( arg ) ) > 100 || chance < 0 )
+   {
+      send_to_char( "Invalid chance.\r\n", ch );
+      return;
+   }
+
+   CREATE( loot, LOOT_DATA, 1 );
+   loot->type = type;
+   loot->vnum = pObjIndex->vnum;
+   loot->amount = amount;
+   loot->percent = chance;
+
+   if( victim )
+   {
+      if( !IS_NPC( victim ) )
+      {
+         free_loot( loot );
+         send_to_char( "Not on players.\r\n", ch );
+         return;
+      }
+      LINK( loot, victim->pIndexData->first_loot, victim->pIndexData->last_loot, next, prev );
+      send_to_char( "Loot Added to NPC.\r\n", ch );
+      return;
+   }
+   else if( planet )
+   {
+      LINK( loot, planet->first_loot, planet->last_loot, next, prev );
+      send_to_char( "Loot Added to Planet.\r\n", ch );
+      return;
+   }
+   else if( area )
+   {
+      LINK( loot, area->first_loot, area->last_loot, next, prev );
+      send_to_char( "Loot Added to Area.\r\n", ch );
+      return;
+   }
+   free_loot( loot );
+   bug( "%s: got to end with invalid target...", __FUNCTION__ );
+   return;
+}
+
+void do_remloot( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   PLANET_DATA *planet;
+   AREA_DATA *area;
+   LOOT_DATA *loot;
+   char arg[MAX_INPUT_LENGTH];
+   int number, count;
+
+   /* Grab Target First */
+   argument = one_argument( argument, arg );
+   if( arg[0] == '\0' )
+   {
+      send_to_char( "Proper Syntax: remloot <target> <#>\r\n\r\n", ch );
+      send_to_char( " Targets: mob, area filename, planet\r\n", ch );
+      send_to_char( "\r\nNumber starts at 1\r\n", ch );
+      return;
+   }
+   if( ( victim = get_char_world( ch, arg ) ) == NULL && ( area = get_area_from_filename( arg ) ) == NULL && ( planet = get_planet( arg ) ) == NULL )
+   {
+      send_to_char( "Invalid target.\r\n", ch );
+      return;
+   }
+
+   if( !is_number( argument ) )
+   {
+      send_to_char( "Enter a number.\r\n", ch );
+      return;
+   }
+   number = atoi( argument );
+
+   if( ( number = atoi( argument ) ) < 1 )
+   {
+      send_to_char( "Number must be greater than one.\r\n", ch );
+      return;
+   }
+   count = 0;
+
+   if( victim )
+   {
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on players.\r\n", ch );
+         return;
+      }
+      for( loot = victim->pIndexData->first_loot; loot; loot = loot->next )
+         if( ++count == number )
+         {
+            UNLINK( loot, victim->pIndexData->first_loot, victim->pIndexData->last_loot, next, prev );
+            free_loot( loot );
+            send_to_char( "Loot removed.\r\n", ch );
+            return;
+         }
+      ch_printf( ch, "%s doesn't have that many loot datas.\r\n", victim->name );
+      return;
+   }
+   else if( area )
+   {
+      for( loot = area->first_loot; loot; loot = loot->next )
+         if( ++count == number )
+         {
+            UNLINK( loot, area->first_loot, area->last_loot, next, prev );
+            free_loot( loot );
+            send_to_char( "Loot removed.\r\n", ch );
+            return;
+         }
+      ch_printf( ch, "%s doesn't have that many loot datas.\r\n", area->filename );
+      return;
+   }
+   else if( planet )
+   {
+      for( loot = planet->first_loot; loot; loot = loot->next )
+         if( ++count == number )
+         {
+            UNLINK( loot, planet->first_loot, planet->last_loot, next, prev );
+            free_loot( loot );
+            send_to_char( "Look removed.\r\n", ch );
+            return;
+         }
+      ch_printf( ch, "%s doesn't have that many loot datas.\r\n", planet->name );
+      return;
+   }
+   bug( "%s: got to end of function without resolution.", __FUNCTION__ );
+   return;
+}

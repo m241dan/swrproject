@@ -6299,16 +6299,17 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
             if( !str_cmp( word, "Stats" ) )
             {
                char *ln = fread_line( fp );
-               int x1, x2, x3, x4, x5;
+               int x1, x2, x3, x4, x5, x6;
 
-               x1 = x2 = x3 = x4 = x5 = 0;
-               sscanf( ln, "%d %d %d %d %d", &x1, &x2, &x3, &x4, &x5 );
+               x1 = x2 = x3 = x4 = x5 = x6 = 0;
+               sscanf( ln, "%d %d %d %d %d %d", &x1, &x2, &x3, &x4, &x5, &x6 );
 
                pObjIndex->weight = x1;
                pObjIndex->cost = x2;
                pObjIndex->rent = x3;
                pObjIndex->level = x4;
                pObjIndex->layers = x5;
+               pObjIndex->max_pool = x6;
 
                break;
             }

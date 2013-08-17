@@ -5357,3 +5357,30 @@ void free_pool( POOL_DATA *pool )
    DISPOSE( pool );
 }
 
+int used_sockets( OBJ_DATA *obj )
+{
+   AFFECT_DATA *paf;
+   int count = 0;
+
+   for( paf = obj->first_affect; paf; paf = paf->next )
+      if( paf->from_pool )
+         count++;
+
+   return count;
+}
+
+AREA_DATA *get_area_from_filename( const char *filename )
+{
+   AREA_DATA *area;
+
+   for( area = first_area; area; area = area->next )
+      if( !str_cmp( filename, area->filename ) )
+         return area;
+   return NULL;
+};
+
+void free_loot( LOOT_DATA *loot )
+{
+   DISPOSE( loot );
+   return;
+}

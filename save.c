@@ -709,6 +709,9 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
       fprintf( fp, "Values       %d %d %d %d %d %d\n",
                obj->value[0], obj->value[1], obj->value[2], obj->value[3], obj->value[4], obj->value[5] );
 
+   if( obj->max_pool )
+      fprintf( fp, "MaxPool      %d\n", obj->max_pool );
+
    switch ( obj->item_type )
    {
       case ITEM_ARMOR:
@@ -2002,6 +2005,7 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
                LINK( material, obj->first_material, obj->last_material, next, prev );
                break;
             }
+            KEY( "MaxPool", obj->max_pool, fread_number( fp ) );
             break;
 
          case 'N':

@@ -3743,6 +3743,8 @@ extern struct act_prog_data *mob_act_list;
 * Command functions.
 * Defined in act_*.c (mostly).
 */
+DECLARE_DO_FUN( do_remloot );
+DECLARE_DO_FUN( do_addloot );
 DECLARE_DO_FUN( do_learn );
 DECLARE_DO_FUN( do_discipline );
 DECLARE_DO_FUN( do_dset );
@@ -5053,6 +5055,9 @@ void free_material( ITEM_MATERIAL *material );
 POOL_DATA *get_pool_from_id( int id );
 void free_affect( AFFECT_DATA *af );
 void free_pool( POOL_DATA *pool );
+int used_sockets( OBJ_DATA *obj );
+AREA_DATA *get_area_from_filename( const char *filename );
+void free_loot( LOOT_DATA *loot );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
