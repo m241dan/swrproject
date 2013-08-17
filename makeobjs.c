@@ -127,13 +127,10 @@ void make_scraps( OBJ_DATA * obj )
 OBJ_DATA *make_corpse( CHAR_DATA * ch, CHAR_DATA * killer )
 {
    char buf[MAX_STRING_LENGTH];
-   LOOT_DATA *loot;
    OBJ_DATA *corpse;
    OBJ_DATA *obj;
    OBJ_DATA *obj_next;
-   OBJ_INDEX_DATA *obj_index;
    const char *name;
-   int x;
 
    if( IS_NPC( ch ) )
    {
@@ -150,19 +147,6 @@ OBJ_DATA *make_corpse( CHAR_DATA * ch, CHAR_DATA * killer )
          obj_to_obj( create_money( ch->gold ), corpse );
          ch->gold = 0;
       }
-
-      for( loot = ch->pIndexData->first_loot; loot; loot = loot->next )
-      {
-         if( ( obj_index = get_obj_index( loot->vnum ) ) == NULL )
-         {
-            bug( "%s: trying to load item %d but it doesn't exist.", __FUNCTION__, loot->vnum );
-            continue;
-         }
-         if( number_percent( ) <= loot->percent )
-            for( x = 0; x < loot->amount; x++ )
-               obj_to_obj( create_object( obj_index, obj_index->level ), corpse ); 
-      }
-
 
 /* Cannot use these!  They are used.
 	corpse->value[0] = (int)ch->pIndexData->vnum;
@@ -202,6 +186,8 @@ OBJ_DATA *make_corpse( CHAR_DATA * ch, CHAR_DATA * killer )
    sprintf( buf, corpse->description, name );
    STRFREE( corpse->description );
    corpse->description = STRALLOC( buf );
+
+   handle_loot( corpse, ch ); // Handle loot
 
    for( obj = ch->first_carrying; obj; obj = obj_next )
    {
@@ -264,3 +250,192 @@ OBJ_DATA *create_money( int amount )
 
    return obj;
 }
+
+void handle_loot( OBJ_DATA *corpse, CHAR_DATA *victim )
+{
+   OBJ_INDEX_DATA *pObjIndex;
+   LOOT_DATA *loot;
+
+   if( !IS_NPC( victim ) )
+      return;
+
+   for( loot = victim->pIndexData->first_loot; loot; loot = loot->next )
+      dispense_loot( corpse, loot );
+
+   for( loot = victim->in_room->area->first_loot; loot; loot = loot->next )
+   {
+      if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL )
+      {
+         bug( "%s: loot with bad vnum %d", __FUNCTION__, loot->vnum );
+         continue;
+      }
+      if( pObjIndex->level > victim->moblevel )
+         continue;
+      dispense_loot( corpse, loot );
+   }
+
+   for( loot = victim->in_room->area->planet->first_loot; loot; loot = loot->next )
+   {
+      if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL )
+      {
+         bug( "%s: loot with bad vnum %d", __FUNCTION__, loot->vnum );
+         continue;
+      }
+      if( pObjIndex->level > victim->moblevel )
+         continue;
+      dispense_loot( corpse, loot );
+   }
+   return;
+}
+
+void dispense_loot( OBJ_DATA *corpse, LOOT_DATA *loot )
+{
+   OBJ_INDEX_DATA *pObjIndex; // for set
+   OBJ_DATA *obj; //for random
+   int count;
+
+   /* chance to get this loot */
+   if( number_percent( ) > loot->percent )
+      return;
+
+   switch( loot->type )
+   {
+      case LOOT_GOLD:
+         obj_to_obj( create_money( loot->amount ), corpse );
+         break;
+      case LOOT_SET:
+         if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL )
+         {
+            bug( "%s: bad loot vnum %d", __FUNCTION__, loot->vnum );
+            return;
+         }
+         for( count = 0; count < loot->amount; count++ )
+            obj_to_obj( create_object( pObjIndex, pObjIndex->level ), corpse );
+         break;
+      case LOOT_RANDOM:
+         if( ( obj = random_loot( loot ) ) == NULL )
+         {
+            bug( "%s: bad loot data", __FUNCTION__ );
+            return;
+         }
+         for( count = 0; count < loot->amount; count++ )
+            obj_to_obj( random_loot( loot ), corpse );
+         break;
+   }
+   return;
+}
+
+OBJ_DATA *random_loot( LOOT_DATA *loot )
+{
+   OBJ_INDEX_DATA *pObjIndex;
+   OBJ_DATA *obj;
+   EXT_BV quality = roll_quality( );
+
+   if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL )
+   {
+      bug( "%s: bad loot vnum %d", __FUNCTION__, loot->vnum );
+      return NULL;
+   }
+   obj = create_object( pObjIndex, pObjIndex->level );
+   xCLEAR_BITS( obj->quality );
+   xSET_BITS( obj->quality, quality );
+
+   if( xIS_SET( obj->quality, QUALITY_COMMON ) )
+      obj->max_pool = number_range( 0, 2 );
+   else if( xIS_SET( obj->quality, QUALITY_UNCOMMON ) )
+   {
+      obj->max_pool = number_range( 1, 4 );
+      if( obj->item_type == ITEM_WEAPON )
+      {
+         obj->value[1] = (int)( obj->value[1] * 1.1 );
+         obj->value[2] = (int)( obj->value[2] * 1.1 );
+      }
+      else if( obj->item_type == ITEM_ARMOR )
+      {
+         obj->value[0] = (int)( obj->value[0] * 1.1 );
+         obj->value[2] = (int)( obj->value[2] * 1.1 );
+      }
+      obj->cost = (int)( obj->cost * 1.25 );
+   }
+   else if( xIS_SET( obj->quality, QUALITY_RARE ) )
+   {
+      obj->max_pool = number_range( 2, 6 );
+      if( obj->item_type == ITEM_WEAPON )
+      {
+         obj->value[1] = (int)( obj->value[1] * 1.25 );
+         obj->value[2] = (int)( obj->value[2] * 1.25 );
+      }
+      else if( obj->item_type == ITEM_ARMOR )
+      {
+         obj->value[0] = (int)( obj->value[0] * 1.25 );
+         obj->value[2] = (int)( obj->value[2] * 1.25 );
+      }
+      obj->cost = (int)( obj->cost * 1.60 );
+
+   }
+   if( obj->max_pool > 0 )
+      load_pools( obj );
+
+   return obj;
+}
+
+EXT_BV roll_quality( void )
+{
+   int number = number_range( 1, 150);
+
+   if( number < RARE_CHANCE )
+      return meb( QUALITY_RARE );
+   if( number < UNCOMMON_CHANCE )
+      return meb( QUALITY_UNCOMMON );
+   if( number < COMMON_CHANCE )
+      return meb( QUALITY_COMMON );
+   return meb( 0 );
+}
+
+void load_pools( OBJ_DATA *obj )
+{
+   POOL_DATA *pool;
+   int total_pool = get_total_pools( );
+   int chances = POOL_CHANCE_PER_SLOT * obj->max_pool;
+   int x, success;
+
+   for( x = 0, success = 0; x < chances; x++ )
+   {
+      pool = get_pool_from_count( number_range( 1, total_pool ) );
+      if( obj->level >= pool->minlevel && obj->level <= pool->maxlevel && rule_check( obj, pool ) )
+      {
+         LINK( create_affect_from_pool( pool ), obj->first_affect, obj->last_affect, next, prev );
+         if( ++success == obj->max_pool )
+            return;
+      }
+   }
+}
+
+bool rule_check( OBJ_DATA *obj, POOL_DATA *pool )
+{
+   int x;
+
+   for( x = 0; x < MAX_ITEM_WEAR; x++ )
+      if( IS_SET( obj->wear_flags, 1 << x ) && pool->rules[x] == 1 )
+         return TRUE;
+   return FALSE;
+}
+
+AFFECT_DATA *create_affect_from_pool( POOL_DATA *pool )
+{
+   AFFECT_DATA *af;
+
+   CREATE( af, AFFECT_DATA, 1 );
+   af->from = NULL;
+   af->from_pool = pool;
+   af->affect_type = AFFECT_BUFF;
+   af->type = -1;
+   af->duration = 0;
+   af->location = pool->location;
+   af->modifier = number_range( pool->minstat, pool->maxstat );
+   xCLEAR_BITS( af->bitvector );
+   af->factor_id = -1;
+   af->apply_type = -1;
+   return af;
+}
+

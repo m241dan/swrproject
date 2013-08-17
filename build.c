@@ -1782,39 +1782,10 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          return;
       }
 
-      if( value < 0 || value > LEVEL_AVATAR + 5 )
-      {
-         ch_printf( ch, "Level range is 0 to %d.\r\n", LEVEL_AVATAR + 5 );
-         return;
-      }
-      {
-         int ability;
-         for( ability = 0; ability < MAX_ABILITY; ability++ )
-            victim->skill_level[ability] = value;
-      }
-      victim->top_level = value;
-      victim->evasion = ( int )( LEVEL_HERO - value * 2.5 );
-      victim->hitroll = value / 5;
-      victim->damroll = value / 5;
-      if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
-      {
+      victim->moblevel = value;
+      victim->top_level = UMIN( value, 100 );
+      if( IS_SET( victim->act, ACT_PROTOTYPE ) )
          victim->pIndexData->level = value;
-         victim->pIndexData->evasion = ( int )( 100 - value * 2.5 );
-         victim->pIndexData->hitroll = victim->hitroll;
-         victim->pIndexData->damroll = victim->damroll;
-      }
-      sprintf( outbuf, "%s damnumdie %d", arg1, value / 10 );
-      do_mset( ch, outbuf );
-      sprintf( outbuf, "%s damsizedie %d", arg1, 4 );
-      do_mset( ch, outbuf );
-      sprintf( outbuf, "%s damplus %d", arg1, 2 );
-      do_mset( ch, outbuf );
-      sprintf( outbuf, "%s hitnumdie %d", arg1, value / 5 );
-      do_mset( ch, outbuf );
-      sprintf( outbuf, "%s hitsizedie %d", arg1, 10 );
-      do_mset( ch, outbuf );
-      sprintf( outbuf, "%s hitplus %d", arg1, value * 10 );
-      do_mset( ch, outbuf );
 
       return;
    }

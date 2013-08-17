@@ -5384,3 +5384,24 @@ void free_loot( LOOT_DATA *loot )
    DISPOSE( loot );
    return;
 }
+
+int get_total_pools( void )
+{
+   POOL_DATA *pool;
+   int count;
+   for( count = 0, pool = first_pool; pool; pool = pool->next )
+      ++count;
+
+   return count;
+}
+
+POOL_DATA *get_pool_from_count( int count )
+{
+   POOL_DATA *pool;
+   int x;
+
+   for( x = 0, pool = first_pool; pool; pool = pool->next )
+      if( ++x == count )
+         return pool;
+   return NULL;
+}

@@ -1364,6 +1364,10 @@ typedef enum
    QUALITY_HQ, MAX_QUALITYTYPE
 } quality_types;
 
+#define RARE_CHANCE       20
+#define UNCOMMON_CHANCE   75
+#define COMMON_CHANCE     150
+
 typedef enum
 {
    LOOT_SET, LOOT_RANDOM, LOOT_GOLD, MAX_LOOTTYPE
@@ -2426,6 +2430,7 @@ struct char_data
    PLAYER_QUEST *first_pquest;
    PLAYER_QUEST *last_pquest;
    short dbl_attack;
+   int moblevel;
 };
 
 #define PC_BASE_HP 200
@@ -2546,6 +2551,8 @@ struct item_material
    OBJ_INDEX_DATA *object;
    int amount;
 };
+
+#define POOL_CHANCE_PER_SLOT 3
 
 struct pool_data
 {
@@ -4780,6 +4787,13 @@ void make_scraps args( ( OBJ_DATA * obj ) );
 void make_fire args( ( ROOM_INDEX_DATA * in_room, short timer ) );
 OD *make_trap args( ( int v0, int v1, int v2, int v3 ) );
 OD *create_money args( ( int amount ) );
+void handle_loot( OBJ_DATA *corpse, CHAR_DATA *victim );
+void dispense_loot( OBJ_DATA *corpse, LOOT_DATA *loot );
+OBJ_DATA *random_loot( LOOT_DATA *loot );
+EXT_BV roll_quality( void );
+void load_pools( OBJ_DATA *obj );
+bool rule_check( OBJ_DATA *obj, POOL_DATA *pool );
+AFFECT_DATA *create_affect_from_pool( POOL_DATA *pool );
 
 /* misc.c */
 void actiondesc args( ( CHAR_DATA * ch, OBJ_DATA * obj, void *vo ) );
@@ -5058,6 +5072,8 @@ void free_pool( POOL_DATA *pool );
 int used_sockets( OBJ_DATA *obj );
 AREA_DATA *get_area_from_filename( const char *filename );
 void free_loot( LOOT_DATA *loot );
+int get_total_pools( void );
+POOL_DATA *get_pool_from_count( int count );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

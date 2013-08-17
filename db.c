@@ -2261,7 +2261,8 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    if( pMobIndex->spec_funname2 )
       mob->spec_funname2 = QUICKLINK( pMobIndex->spec_funname2 );
    mob->mpscriptpos = 0;
-   mob->top_level = number_fuzzy( pMobIndex->level );
+   mob->top_level = UMIN( pMobIndex->level, 100 );
+   mob->moblevel = number_range( ( pMobIndex->level - 3 ), ( pMobIndex->level +3 ) );
    {
       int ability;
       for( ability = 0; ability < MAX_ABILITY; ability++ )
