@@ -274,6 +274,9 @@ void handle_loot( OBJ_DATA *corpse, CHAR_DATA *victim )
       dispense_loot( corpse, loot );
    }
 
+   if( !victim->in_room->area->planet )
+      return;
+
    for( loot = victim->in_room->area->planet->first_loot; loot; loot = loot->next )
    {
       if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL )

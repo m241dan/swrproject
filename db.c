@@ -6293,10 +6293,9 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
                      pObjIndex->value[5] = skill_lookup( fread_word( fp ) );
                      break;
                }
-               KEY( "Speed", pObjIndex->speed, fread_float( fp ) );
                break;
             }
-
+            KEY( "Speed", pObjIndex->speed, fread_float( fp ) );
             if( !str_cmp( word, "Stats" ) )
             {
                char *ln = fread_line( fp );
@@ -7467,6 +7466,14 @@ AREA_DATA *fread_fuss_area( AREA_DATA * tarea, FILE * fp )
          fread_fuss_object( fp, tarea );
       else if( !str_cmp( word, "ROOM" ) )
          fread_fuss_room( fp, tarea );
+      else if( !str_cmp( word, "LOOTDATA" ) )
+      {
+         LOOT_DATA *loot;
+         CREATE( loot, LOOT_DATA, 1 );
+         fread_fuss_lootdata( fpArea, loot );
+         LINK( loot, tarea->first_loot, tarea->last_loot, next, prev );
+         break;
+      }
       else if( !str_cmp( word, "ENDAREA" ) )
          break;
       else
@@ -7584,14 +7591,6 @@ void load_area_file( AREA_DATA * tarea, const char *filename )
          load_specials( fpArea );
       else if( !str_cmp( word, "VERSION" ) )
          load_version( tarea, fpArea );
-      else if( !str_cmp( word, "#LOOTDATA" ) )
-      {
-         LOOT_DATA *loot;
-         CREATE( loot, LOOT_DATA, 1 );
-         fread_fuss_lootdata( fpArea, loot );
-         LINK( loot, tarea->first_loot, tarea->last_loot, next, prev );
-         break;
-      }
       else
       {
          bug( "%s: bad section name: %s", __FUNCTION__, word );
