@@ -9718,6 +9718,7 @@ void delete_pool( POOL_DATA *pool )
       }
    UNLINK( pool, first_pool, last_pool, next, prev );
    free_pool( pool );
+   save_pools( );
    return;
 }
 
