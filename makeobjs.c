@@ -264,7 +264,7 @@ void handle_loot( OBJ_DATA *corpse, CHAR_DATA *victim )
 
    for( loot = victim->in_room->area->first_loot; loot; loot = loot->next )
    {
-      if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL )
+      if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL && loot->type != LOOT_GOLD )
       {
          bug( "%s: loot with bad vnum %d", __FUNCTION__, loot->vnum );
          continue;
@@ -279,7 +279,7 @@ void handle_loot( OBJ_DATA *corpse, CHAR_DATA *victim )
 
    for( loot = victim->in_room->area->planet->first_loot; loot; loot = loot->next )
    {
-      if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL )
+      if( ( pObjIndex = get_obj_index( loot->vnum ) ) == NULL && loot->type != LOOT_GOLD )
       {
          bug( "%s: loot with bad vnum %d", __FUNCTION__, loot->vnum );
          continue;
