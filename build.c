@@ -9964,9 +9964,9 @@ void create_pool( CHAR_DATA *ch, const char *argument )
 
 void do_addloot( CHAR_DATA *ch, const char *argument )
 {
-   CHAR_DATA *victim;
-   PLANET_DATA *planet;
-   AREA_DATA *area;
+   CHAR_DATA *victim = NULL;
+   PLANET_DATA *planet = NULL;
+   AREA_DATA *area = NULL;
    OBJ_INDEX_DATA *pObjIndex;
    LOOT_DATA *loot;
    char arg[MAX_INPUT_LENGTH];
@@ -10024,7 +10024,7 @@ void do_addloot( CHAR_DATA *ch, const char *argument )
 
    CREATE( loot, LOOT_DATA, 1 );
    loot->type = type;
-   loot->vnum = pObjIndex->vnum;
+   loot->vnum = type != LOOT_GOLD ? pObjIndex->vnum : 0;
    loot->amount = amount;
    loot->percent = chance;
 
@@ -10043,12 +10043,14 @@ void do_addloot( CHAR_DATA *ch, const char *argument )
    else if( planet )
    {
       LINK( loot, planet->first_loot, planet->last_loot, next, prev );
+      save_planet( planet );
       send_to_char( "Loot Added to Planet.\r\n", ch );
       return;
    }
    else if( area )
    {
       LINK( loot, area->first_loot, area->last_loot, next, prev );
+      fold_area( area, area->filename, FALSE );
       send_to_char( "Loot Added to Area.\r\n", ch );
       return;
    }
@@ -10120,6 +10122,7 @@ void do_remloot( CHAR_DATA *ch, const char *argument )
          {
             UNLINK( loot, area->first_loot, area->last_loot, next, prev );
             free_loot( loot );
+            fold_area( area, area->filename, FALSE );
             send_to_char( "Loot removed.\r\n", ch );
             return;
          }
@@ -10133,6 +10136,7 @@ void do_remloot( CHAR_DATA *ch, const char *argument )
          {
             UNLINK( loot, planet->first_loot, planet->last_loot, next, prev );
             free_loot( loot );
+            save_planet( planet );
             send_to_char( "Look removed.\r\n", ch );
             return;
          }

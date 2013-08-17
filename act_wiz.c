@@ -1220,6 +1220,8 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    {
       if( paf->location == APPLY_DAMTYPE )
          ch_printf( ch, "Grants %s attacks. (extra)\r\n", d_type[paf->modifier] );
+      else if( paf->location == APPLY_AFFECT )
+         ch_printf( ch, "Grants %s. (extra)\r\n", ext_flag_string( &paf->bitvector, a_flags ) );
       else
          ch_printf( ch, "Affects %s by %d. (extra)\r\n", affect_loc_name( paf->location ), paf->modifier );
    }
@@ -1228,6 +1230,8 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    {
       if( paf->location == APPLY_DAMTYPE )
          ch_printf( ch, "Grants %s attacks.\r\n", d_type[paf->modifier] );
+      else if( paf->location == APPLY_AFFECT )
+         ch_printf( ch, "Grants %s.\r\n", ext_flag_string( &paf->bitvector, a_flags ) );
       else
          ch_printf( ch, "Affects %s by %d.\r\n", affect_loc_name( paf->location ), paf->modifier );
    }
