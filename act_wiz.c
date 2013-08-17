@@ -1162,8 +1162,8 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
       }
    }
 
-   ch_printf( ch, "Number: %d/%d.  Weight: %d/%d.  Layers: %d\r\n",
-              1, get_obj_number( obj ), obj->weight, get_obj_weight( obj ), obj->pIndexData->layers );
+   ch_printf( ch, "Pool Sockets: %d Number: %d/%d.  Weight: %d/%d.  Layers: %d\r\n",
+              obj->max_pool, 1, get_obj_number( obj ), obj->weight, get_obj_weight( obj ), obj->pIndexData->layers );
 
    ch_printf( ch, "Cost: %d.  Rent: %d.  Timer: %d.  Level: %d.\r\n",
               obj->cost, obj->pIndexData->rent, obj->timer, obj->level );

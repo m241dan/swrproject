@@ -316,13 +316,15 @@ void dispense_loot( OBJ_DATA *corpse, LOOT_DATA *loot )
             obj_to_obj( create_object( pObjIndex, pObjIndex->level ), corpse );
          break;
       case LOOT_RANDOM:
-         if( ( obj = random_loot( loot ) ) == NULL )
-         {
-            bug( "%s: bad loot data", __FUNCTION__ );
-            return;
-         }
          for( count = 0; count < loot->amount; count++ )
-            obj_to_obj( random_loot( loot ), corpse );
+         {
+            if( ( obj = random_loot( loot ) ) == NULL )
+            {
+               bug( "%s: bad loot data", __FUNCTION__ );
+               return;
+            }
+            obj_to_obj( obj, corpse );
+         }
          break;
    }
    return;
@@ -376,6 +378,8 @@ OBJ_DATA *random_loot( LOOT_DATA *loot )
       obj->cost = (int)( obj->cost * 1.60 );
 
    }
+   bug( "being called" );
+
    if( obj->max_pool > 0 )
       load_pools( obj );
 
@@ -402,11 +406,15 @@ void load_pools( OBJ_DATA *obj )
    int chances = POOL_CHANCE_PER_SLOT * obj->max_pool;
    int x, success;
 
+   bug( "chances: %d", chances );
    for( x = 0, success = 0; x < chances; x++ )
    {
+      bug( "rolling" );
       pool = get_pool_from_count( number_range( 1, total_pool ) );
+      bug( "pool list number: %d", pool->id );
       if( obj->level >= pool->minlevel && obj->level <= pool->maxlevel && rule_check( obj, pool ) )
       {
+         bug( "Getting here, finally" );
          LINK( create_affect_from_pool( pool ), obj->first_affect, obj->last_affect, next, prev );
          if( ++success == obj->max_pool )
             return;

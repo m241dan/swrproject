@@ -3682,6 +3682,8 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       if( !can_omodify( ch, obj ) )
          return;
       obj->level = value;
+      if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+         obj->pIndexData->level = value;
       return;
    }
 
