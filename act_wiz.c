@@ -1118,21 +1118,23 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
 
    send_to_char( "Quality:", ch );
    if( xIS_EMPTY( obj->quality ) )
-      send_to_char( " unset\r\n", ch );
+      send_to_char( " unset", ch );
    else
       for( x = 0; x < MAX_QUALITYTYPE; x++ )
          if( xIS_SET( obj->quality, x ) )
             ch_printf( ch, " %s,", q_type[x] );
    send_to_char( "\r\n", ch );
-
-   send_to_char( "Temper:", ch );
-   if( xIS_EMPTY( obj->temper ) )
-      send_to_char( " unset\r\n", ch );
-   else
-      for( x = 0; x < MAX_DAMTYPE; x++ )
-         if( xIS_SET( obj->quality, x ) )
-            ch_printf( ch, " %s,", d_type[x] );
-   send_to_char( "\r\n", ch );
+   if( obj->item_type == ITEM_ARMOR )
+   {
+      send_to_char( "Temper:", ch );
+      if( xIS_EMPTY( obj->temper ) )
+         send_to_char( " unset", ch );
+      else
+         for( x = 0; x < MAX_DAMTYPE; x++ )
+            if( xIS_SET( obj->quality, x ) )
+               ch_printf( ch, " %s,", d_type[x] );
+      send_to_char( "\r\n", ch );
+   }
 
    send_to_char( "Materials:", ch );
    if( !obj->first_material )
