@@ -5438,23 +5438,31 @@ AI_THOUGHT *get_thought_from_list( CHAR_DATA *ch, int list )
    AI_THOUGHT *thought;
    int count;
 
-   for( count = 0, thought = ch->first_thought; thought; thought = thought->next )
+   for( count = 0, thought = ch->pIndexData->first_thought; thought; thought = thought->next )
       if( ++count == list )
          return thought;
    return NULL;
 }
-AI_THOUGHT *get_random_thought( CHAR_DATA *ch )
+AI_THOUGHT *get_random_thought( CHAR_DATA *ch, int fom )
 {
-   AI_THOUGHT *thought;
+   MOB_THOUGHT *thought;
    int random;
 
-   random = number_range( 1, thought_count( ch ) );
-   if( ( thought = get_thought_from_list( ch, random ) ) == NULL )
+   if( !IS_NPC( ch ) )
+   {
+      bug( "%s: not on players", __FUNCTION__ );
+      return NULL;
+   }
+
+   random = number_range( 1, thought_count( ch, fom ) );
+
+   if( ( thought = ch->mthoughts[random] ) == NULL )
    {
       bug( "%s: get_through_from_list returned a NULL somehow.", __FUNCTION__ );
       return NULL;
    }
-   return thought;
+
+   return thought->thought;
 }
 
 AI_THOUGHT *get_thought( const char *thought )
@@ -5475,19 +5483,58 @@ void free_thought( AI_THOUGHT *thought )
    return;
 }
 
-int thought_count( CHAR_DATA *ch )
+int thought_count( CHAR_DATA *ch, int fom )
 {
-   AI_THOUGHT *thought;
-   int count;
+   MOB_THOUGHT *thought;
+   int count = 0;
 
    if( !IS_NPC( ch ) )
    {
       bug( "%s: being called on player: %s", __FUNCTION__, ch->name ? ch->name : "null" );
       return -1;
-    }
+   }
 
-   for( count = 0, thought = ch->first_thought; thought; thought = thought->next )
+   thought = ch->mthoughts[fom];
+
+   while( thought )
+   {
+      thought = thought->next;
       count++;
+   }
 
    return count;
+}
+
+MOB_THOUGHT *create_mob_thought( AI_THOUGHT *thought )
+{
+   MOB_THOUGHT *mthought;
+
+   if( !thought )
+   {
+      bug( "%s: got passed a NULL thought.", __FUNCTION__ );
+      return NULL;
+   }
+
+   CREATE( mthought, MOB_THOUGHT, 1 );
+   mthought->thought = thought;
+   return mthought;
+}
+
+void add_mob_thought( CHAR_DATA *ch, AI_THOUGHT *thought )
+{
+   MOB_THOUGHT *mthought;
+   int fom;
+
+   if( !thought )
+   {
+      bug( "%s: being passed NULL thought.", __FUNCTION__ );
+      return;
+   }
+
+   mthought = create_mob_thought( thought );
+   fom = mthought->thought->fom;
+
+   mthought->next = ch->mthoughts[fom];
+   ch->mthoughts[fom] = mthought;
+   return;
 }

@@ -1675,7 +1675,8 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          send_to_char( "No such thought exists.\r\n", ch );
          return;
       }
-      LINK( copy_thought( thought ), victim->first_thought, victim->last_thought, next, prev );
+
+      add_mob_thought( victim, thought );
       if( IS_SET( victim->act, ACT_PROTOTYPE ) )
          LINK( copy_thought( thought ), victim->pIndexData->first_thought, victim->pIndexData->last_thought, next, prev );
       send_to_char( "Ok.\r\n", ch );
@@ -1696,20 +1697,19 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          return;
       }
 
-      for( count = 0, thought = victim->first_thought; thought; thought = thought->next )
+      if( !IS_SET( victim->act, ACT_PROTOTYPE ) )
+      {
+         send_to_char( "Only on Prototype Mobs.\r\n", ch );
+         return;
+      }
+
+      for( count = 0, thought = victim->pIndexData->first_thought; thought; thought = thought->next )
          if( ++count == value )
          {
-            UNLINK( thought, victim->first_thought, victim->last_thought, next, prev );
+            UNLINK( thought, victim->pIndexData->first_thought, victim->pIndexData->last_thought, next, prev );
             free_thought( thought );
          }
 
-      if( IS_SET( victim->act, ACT_PROTOTYPE ) )
-         for( count = 0, thought = victim->pIndexData->first_thought; thought; thought = thought->next )
-            if( ++count == value )
-            {
-               UNLINK( thought, victim->pIndexData->first_thought, victim->pIndexData->last_thought, next, prev );
-               free_thought( thought );
-            }
       send_to_char( "Removed.\r\n", ch );
       return;
    }

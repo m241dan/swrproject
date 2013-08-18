@@ -2368,7 +2368,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    {
       AI_THOUGHT *thought;
       for( thought = pMobIndex->first_thought; thought; thought = thought->next )
-         LINK( copy_thought( thought ), mob->first_thought, mob->last_thought, next, prev );
+         add_mob_thought( mob, thought );
    }
 
    add_queue( mob, AI_TIMER );

@@ -133,6 +133,7 @@ typedef struct pre_quest PRE_QUEST;
 typedef struct item_material ITEM_MATERIAL;
 typedef struct pool_data POOL_DATA;
 typedef struct ai_thought AI_THOUGHT;
+typedef struct mob_thought MOB_THOUGHT;
 /*
 * Function types.
 */
@@ -802,6 +803,12 @@ struct ai_thought
    int fom;
    int minhp; /* percentage */
    int maxhp; /* percentage */
+};
+
+struct mob_thought
+{
+   MOB_THOUGHT *next;
+   AI_THOUGHT *thought;
 };
 
 extern bool MOBtrigger;
@@ -2262,13 +2269,17 @@ struct extracted_char_data
    bool extract;
 };
 
-
+typedef enum
+{
+   FOM_IDLE, FOM_FIGHTING, FOM_HUNTING, MAX_FOM
+} f_o_ms;
 
 /*
 * One character (PC or NPC).
 * (Shouldn't most of that build interface stuff use substate, dest_buf,
 * spare_ptr and tempnum?  Seems a little redundant)
 */
+
 struct char_data
 {
    CHAR_DATA *next;
@@ -2447,18 +2458,12 @@ struct char_data
    PLAYER_QUEST *last_pquest;
    short dbl_attack;
    int moblevel;
-   AI_THOUGHT *first_thought;
-   AI_THOUGHT *last_thought;
+   MOB_THOUGHT *mthoughts[MAX_FOM];
 };
 
 #define PC_BASE_HP 200
 #define PC_BASE_MOVE 0
 #define PC_BASE_MANA 0
-
-typedef enum
-{
-   FOM_IDLE, FOM_FIGHTING, FOM_HUNTING, MAX_FOM
-} f_o_ms;
 
 #define MAX_GROUP  6
 #define BASE_ROUND 2 /* seconds */
@@ -5108,9 +5113,11 @@ AI_THOUGHT *get_thought_from_id( int id );
 AI_THOUGHT *get_thought args ( ( const char *thought ) );
 AI_THOUGHT *copy_thought( AI_THOUGHT *thought );
 void free_thought( AI_THOUGHT *thought );
-int thought_count( CHAR_DATA *ch );
-AI_THOUGHT *get_random_thought( CHAR_DATA *ch );
+int thought_count( CHAR_DATA *ch, int fom );
+AI_THOUGHT *get_random_thought( CHAR_DATA *ch, int fom );
 AI_THOUGHT *get_thought_from_list( CHAR_DATA *ch, int list );
+MOB_THOUGHT *create_mob_thought( AI_THOUGHT *thought );
+void add_mob_thought( CHAR_DATA *ch, AI_THOUGHT *thought );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

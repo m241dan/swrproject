@@ -2948,6 +2948,7 @@ void split_timers_update(  )
                dispose_qtimer( timer );
             break;
          case AI_TIMER:
+            CHAR_DATA *most_threatening;
             AI_THOUGHT *thought;
             int count, attempts;
             int hit_percent;
@@ -2969,31 +2970,31 @@ void split_timers_update(  )
             ch->next_thought -= .25;
             if( ch->next_thought > 0 )
                break;
-            else
-               ch->next_thought = get_next_thought( ch );
+
+            most_threatening = most_threat( ch );
+
+            if( ch->fighting && ch->fighting->who && ch->fighting->who->name )
+               change_mind( ch, FOM_FIGHTING );
+            else if( ch->hunting && ch->hunting->who && ch->hunting->who->name )
+               change_mind( ch, FOM_HUNTING );
+            else if( !ch->fighting && !ch->hunting && !most_threatening )
+               change_mind( ch, FOM_IDLE );
 
             switch( ch->fom )
             {
                case FOM_IDLE:
                   break;
                case FOM_FIGHTING:
-                  if( is_charging( ch ) )
-                     break;
-                  if( !ch->fighting && most_threat( ch ) ) /* not fighting but have threat on someone */
+                  if( most_threatening && ch->in_room == most_threatening->in_room )
                   {
+                     stop_fighting( ch, FALSE );
+                     set_fighting( ch, most_threatening );
+                  }
+                  else if( most_threatening && ch->in_room != most_threatening->in_room )
+                  {
+                     stop_fighting( ch, FALSE );
+                     start_hunting( ch, most_threatening );
                      change_mind( ch, FOM_HUNTING );
-                     break;
-                  }
-                  else /* if not fighting but in fighting FoM and don't have threat */
-                  {
-                     change_mind( ch, FOM_IDLE );
-                     break;
-                  }
-
-                  if( ch->fighting && ( !ch->fighting->who || !ch->fighting->who->name ) )
-                  {
-                     stop_fighting( ch, TRUE );
-                     change_mind( ch, FOM_IDLE );
                      break;
                   }
                   break;
@@ -3001,19 +3002,21 @@ void split_timers_update(  )
                   break;
             }
 
-            attempts = thought_count( ch ) * 2;
-            for( count = 0; count < attempts; count++ )
+            if( !is_charging( ch ) )
             {
-               if( ( thought = get_random_thought( ch ) ) == NULL )
-                  continue;
-               if( thought->fom != ch->fom )
-                  continue;
-               if( hit_percent >= thought->minhp && hit_percent <= thought->maxhp )
+               attempts = thought_count( ch, ch->fom ) * 2;
+               for( count = 0; count < attempts; count++ )
                {
-                  mprog_thought_trigger( ch, thought );
-                  break;
+                  if( ( thought = get_random_thought( ch, ch->fom ) ) == NULL )
+                     continue;
+                  if( thought->minhp >= hit_percent && thought->maxhp <= hit_percent )
+                  {
+                     mprog_thought_trigger( ch, thought );
+                     return;
+                  }
                }
             }
+            ch->next_thought = get_next_thought( ch );
             break;
          case COMBAT_ROUND:
             ch->next_round -= .25;
@@ -3035,9 +3038,13 @@ void split_timers_update(  )
 
             if( IS_NPC( ch ) && victim->in_room != ch->in_room )
             {
+               stop_fighting( ch, FALSE );
+               dispose_qtimer( timer );
+               start_hunting( ch, victim );
                change_mind( ch, FOM_HUNTING );
                break;
             }
+
             if( IS_SET( ch->in_room->room_flags, ROOM_SAFE ) )
             {
                char buf[MAX_STRING_LENGTH];

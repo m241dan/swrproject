@@ -966,6 +966,8 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
 
       if( victim->position > POS_STUNNED )
       {
+         if( victim->hunting && victim->hunting->who == most_threat( victim ) )
+            set_fighting( victim, ch );
          if( !victim->fighting && ( most_threat( victim ) == NULL || ch == most_threat( victim ) ) ) /* Most threat part is to stop people from attacking a hunting mob and changing its mind if the new attacker has lower threat */
             set_fighting( victim, ch );
          if( victim->fighting )
@@ -1610,9 +1612,7 @@ void set_fighting( CHAR_DATA * ch, CHAR_DATA * victim )
    if( IS_NPC( ch ) )
    {
       if( ch->in_room == victim->in_room )
-         change_mind( ch, FOM_FIGHTING );
-      else
-         change_mind( ch, FOM_HUNTING );
+         add_queue( ch, COMBAT_ROUND );
    }
    else
       add_queue( ch, COMBAT_ROUND );
@@ -1676,10 +1676,6 @@ void free_fight( CHAR_DATA * ch )
       send_to_char( skill_table[gsn_berserk]->msg_off, ch );
       send_to_char( "\r\n", ch );
    }
-
-   if( IS_NPC( ch ) )
-      change_mind( ch, FOM_IDLE );
-
    return;
 }
 
@@ -1693,6 +1689,7 @@ void stop_fighting( CHAR_DATA * ch, bool fBoth )
 
    free_fight( ch );
    update_pos( ch );
+   
 
    if( !fBoth )   /* major short cut here by Thoric */
       return;
