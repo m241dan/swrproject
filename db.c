@@ -2365,6 +2365,12 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
       mob->tspeed = 2;
    mob->fom = FOM_IDLE;
 
+   {
+      AI_THOUGHT *thought;
+      for( thought = pMobIndex->first_thought; thought; thought = thought->next )
+         LINK( copy_thought( thought ), mob->first_thought, mob->last_thought, next, prev );
+   }
+
    add_queue( mob, AI_TIMER );
    /*
     * Insert in list.
