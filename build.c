@@ -10322,6 +10322,11 @@ void do_thought( CHAR_DATA *ch, const char *argument )
       save_thoughts( );
       return;
    }
+   if( !str_cmp( arg, "list" ) )
+   {
+      list_thoughts( ch );
+      return;
+   }
    if( !str_cmp( arg, "edit" ) )
    {
       argument = one_argument( argument, arg2 ); /* get the quest name */
@@ -10352,6 +10357,23 @@ void do_thought( CHAR_DATA *ch, const char *argument )
       save_thoughts( );
       return;
    }
+}
+
+void list_thoughts( CHAR_DATA *ch )
+{
+   AI_THOUGHT *thought;
+   int alpha;
+
+   for( alpha = 0; alpha < 27; alpha++ )
+      for( thought = first_thought; thought; thought = thought->next )
+         if( LOWER( thought->name[0] ) == alpha )
+            ch_printf( ch, "Thought: %-40.40 MinHP: %-3d MaxHP: %-3d FoM: %s\r\n",
+                       thought->name,
+                       thought->minhp,
+                       thought->maxhp,
+                       frames_of_mind[thought->fom] );
+
+   return;
 }
 
 void create_thought( CHAR_DATA *ch, const char *argument )
