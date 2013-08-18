@@ -2214,6 +2214,8 @@ struct mob_index_data
    TEACH_DATA *last_teach;
    AV_QUEST *first_available_quest;
    AV_QUEST *last_available_quest;
+   AI_THOUGHT *first_thought;
+   AI_THOUGHT *last_thought;
 };
 
 struct loot_data
@@ -2445,6 +2447,8 @@ struct char_data
    PLAYER_QUEST *last_pquest;
    short dbl_attack;
    int moblevel;
+   AI_THOUGHT *first_thought;
+   AI_THOUGHT *last_thought;
 };
 
 #define PC_BASE_HP 200
@@ -5099,6 +5103,7 @@ int get_total_pools( void );
 POOL_DATA *get_pool_from_count( int count );
 AI_THOUGHT *get_thought_from_id( int id );
 AI_THOUGHT *get_thought( const char *thought );
+AI_THOUGHT *copy_thought( AI_THOUGHT *thought );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

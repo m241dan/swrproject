@@ -5147,6 +5147,23 @@ AFFECT_DATA *copy_affect( AFFECT_DATA *aff )
    return caf;
 }
 
+AI_THOUGHT *copy_thought( AI_THOUGHT *thought)
+{
+   AI_THOUGHT *new_thought;
+
+   if( !thought )
+      return NULL;
+
+   CREATE( new_thought, AI_THOUGHT, 1 );
+   new_thought->id = thought->id;
+   new_thought->name = STRALLOC( thought->name );
+   new_thought->script = STRALLOC( thought->script );
+   new_thought->fom = thought->fom;
+   new_thought->minhp = thought->minhp;
+   new_thought->maxhp = thought->maxhp;
+   return new_thought;
+}
+
 bool can_teach( CHAR_DATA *teacher, DISC_DATA *discipline )
 {
    TEACH_DATA *teach;

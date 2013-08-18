@@ -7166,6 +7166,17 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                teach->credits = fread_number( fp );
                break;
             }
+            if( !str_cmp( word, "Thought" ) )
+            {
+               AI_THOUGHT *thought;
+               if( ( thought = get_thought_from_id( fread_number( fp ) ) ) == NULL )
+               {
+                  bug( "%s: bad thought id", __FUNCTION__ );
+                  return;
+               }
+               LINK( copy_thought( thought ), pMobIndex->first_thought, pMobIndex->last_thought, next, prev );
+               break;
+            }
             break;
 
          case 'V':

@@ -5923,6 +5923,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    SHOP_DATA *pShop;
    REPAIR_DATA *pRepair;
    MPROG_DATA *mprog;
+   AI_THOUGHT *thought;
 
    if( install )
       REMOVE_BIT( pMobIndex->act, ACT_PROTOTYPE );
@@ -5975,6 +5976,8 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
       fprintf( fpout, "\n" );
    }
    fprintf( fpout, "AIStuff    %f\n", pMobIndex->tspeed );
+   for( thought = pMobIndex->first_thought; thought; thought = thought->next )
+      fprintf( fpout, "Thought    %d\n", thought->id );
    fprintf( fpout, "Saves      %d %d %d %d %d\n",
             pMobIndex->saving_poison_death,
             pMobIndex->saving_wand, pMobIndex->saving_para_petri, pMobIndex->saving_breath, pMobIndex->saving_spell_staff );
