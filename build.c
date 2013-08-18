@@ -10320,6 +10320,7 @@ void do_thought( CHAR_DATA *ch, const char *argument )
       }
       create_thought( ch, argument );
       save_thoughts( );
+      send_to_char( "Thought Created.\r\n", ch );
       return;
    }
    if( !str_cmp( arg, "list" ) )
