@@ -2825,7 +2825,6 @@ void split_timers_update(  )
    CHAR_DATA *victim;
    QTIMER *timer, *next_timer;
    ch_ret retcode;
-   int x;
 
    if( !first_qtimer )
       return;
@@ -2949,21 +2948,29 @@ void split_timers_update(  )
                dispose_qtimer( timer );
             break;
          case AI_TIMER:
+            AI_THOUGHT *thought;
+            int count, attempts;
+            int hit_percent;
+            hit_percent = (int)( ( ch->hit / ch->max_hit ) * 100 );
+
             if( !ch )
             {
                dispose_qtimer( timer );
                break;
             }
+
             if( !IS_NPC( ch ) )
             {
                bug( "%s: qtimer on player being removed.", __FUNCTION__ );
                dispose_qtimer( timer );
                break;
             }
-               
+
             ch->next_thought -= .25;
             if( ch->next_thought > 0 )
                break;
+            else
+               ch->next_thought = get_next_thought( ch );
 
             switch( ch->fom )
             {
@@ -2972,64 +2979,41 @@ void split_timers_update(  )
                case FOM_FIGHTING:
                   if( is_charging( ch ) )
                      break;
-                  if( ( victim = who_fighting( ch ) ) == NULL )
+                  if( !ch->fighting && most_threat( ch ) ) /* not fighting but have threat on someone */
                   {
-                     if( is_angered( ch ) )
-                        change_mind( ch, FOM_HUNTING );
-                     else
-                        change_mind( ch, FOM_IDLE );
-                     break;
-                  }
-                  if( victim != most_threat( ch ) )
-                  {
-                     stop_fighting( ch, FALSE );
                      change_mind( ch, FOM_HUNTING );
                      break;
                   }
-                  add_queue( ch, COMBAT_ROUND );
-
-                  int num_skills, num_attempts, gsn;
-
-                  if( ( num_skills = get_num_skills( ch ) ) == 0 ) /* Get max number of skills mob has, if it has none, can't use any skills */
-                     break;
-                  num_attempts = UMAX( num_skills / 3, 1 ); /* Get number of attempts mob will try to use a skill, ie if its on cooldown, try another, but only a finite amount of attempts */
-
-                  for( x = 0; x < num_attempts; x++ ) /* Begin the thought process */
-                  {
-                     gsn = ch->pIndexData->npc_skills[number_range( 0, (num_skills-1) )]; /* Roll a Skill */
-                     if( !is_on_cooldown( ch, gsn ) )
-                        break;
-                  }
-                  check_skill( ch, skill_table[gsn]->name, victim->name );
-                  break;
-               case FOM_HUNTING:
-                  if( (victim = most_threat( ch ) ) == NULL )
+                  else /* if not fighting but in fighting FoM and don't have threat */
                   {
                      change_mind( ch, FOM_IDLE );
                      break;
                   }
-                  if( victim->in_room == ch->in_room )
+
+                  if( ch->fighting && ( !ch->fighting->who || !ch->fighting->who->name ) )
                   {
-                     act( AT_ACTION, "$n turns $s attentions to you!", ch, NULL, victim, TO_VICT );
-                     act( AT_ACTION, "$n turns $s attentions to $N", ch, NULL, victim, TO_NOTVICT );
-                     set_fighting( ch, victim );
-                     add_queue( ch, COMBAT_ROUND );
-                  }
-                  else
-                  {
-                     int ret;
-                     ret = find_first_step( ch->in_room, victim->in_room, 5000 );
-                     act( AT_ACTION, "$n leaves the room and heads towards $N!", ch, NULL, victim, TO_ROOM );
-                     move_char( ch, get_exit( ch->in_room, ret ), FALSE );
-                     if( ch->in_room == victim->in_room )
-                     {
-                        set_fighting( ch, victim );
-                        add_queue( ch, COMBAT_ROUND );
-                     }
+                     stop_fighting( ch, TRUE );
+                     change_mind( ch, FOM_IDLE );
+                     break;
                   }
                   break;
+               case FOM_HUNTING:
+                  break;
             }
-            ch->next_thought = get_next_thought( ch );
+
+            attempts = thought_count( ch ) * 2;
+            for( count = 0; count < attempts; count++ )
+            {
+               if( ( thought = get_random_thought( ch ) ) == NULL )
+                  continue;
+               if( thought->fom != ch->fom )
+                  continue;
+               if( hit_percent >= thought->minhp && hit_percent <= thought->maxhp )
+               {
+                  mprog_thought_trigger( ch, thought );
+                  break;
+               }
+            }
             break;
          case COMBAT_ROUND:
             ch->next_round -= .25;

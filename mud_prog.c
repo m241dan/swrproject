@@ -907,10 +907,38 @@ void mprog_translate( char ch, char *t, CHAR_DATA * mob, CHAR_DATA * actor, OBJ_
    static const char *his_her[] = { "its", "his", "her" };
    CHAR_DATA *vict = ( CHAR_DATA * ) vo;
    OBJ_DATA *v_obj = ( OBJ_DATA * ) vo;
+   CHAR_DATA *threat;
 
    *t = '\0';
    switch ( ch )
    {
+      case 'F':
+         if( mob && !char_died( mob ) )
+         {
+            if( ( threat = most_threat( mob ) ) != NULL )
+            {
+               if( threat->name )
+                  one_argument( threat->name, t );
+               else
+                  strcpy( t, "someone" );
+            }
+            else
+               strcpy( t, "someone" );
+         }
+         else
+            strcpy( t, "someone" );
+         break;
+      case 'f':
+         if( mob && !char_died( mob ) && mob->fighting && mob->fighting->who )
+         {
+            if( mob->fighting->who->name )
+               one_argument( mob->fighting->who->name, t );
+            else
+               strcpy( t, "someone" );
+         }
+         else
+            strcpy( t, "someone" );
+         break;
       case 'i':
          if( mob && !char_died( mob ) )
          {
@@ -2114,6 +2142,12 @@ void mprog_quest_trigger( CHAR_DATA *mob, CHAR_DATA *ch )
             mprog_driver( mprg->comlist, mob, ch, NULL, NULL, FALSE );
             break;
          }
+   return;
+}
+
+void mprog_thought_trigger( CHAR_DATA *mob, AI_THOUGHT *thought )
+{
+   mprog_driver( thought->script, mob, NULL, NULL, NULL, FALSE );
    return;
 }
 

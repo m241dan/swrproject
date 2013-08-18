@@ -5433,6 +5433,30 @@ AI_THOUGHT *get_thought_from_id( int id )
    return NULL;
 }
 
+AI_THOUGHT *get_thought_from_list( CHAR_DATA *ch, int list )
+{
+   AI_THOUGHT *thought;
+   int count;
+
+   for( count = 0, thought = ch->first_thought; thought; thought = thought->next )
+      if( ++count == list )
+         return thought;
+   return NULL;
+}
+AI_THOUGHT *get_random_thought( CHAR_DATA *ch )
+{
+   AI_THOUGHT *thought;
+   int random;
+
+   random = number_range( 1, thought_count( ch ) );
+   if( ( thought = get_thought_from_list( ch, random ) ) == NULL )
+   {
+      bug( "%s: get_through_from_list returned a NULL somehow.", __FUNCTION__ );
+      return NULL;
+   }
+   return thought;
+}
+
 AI_THOUGHT *get_thought( const char *thought )
 {
    AI_THOUGHT *name_thought;
@@ -5449,4 +5473,21 @@ void free_thought( AI_THOUGHT *thought )
    STRFREE( thought->script );
    DISPOSE( thought );
    return;
+}
+
+int thought_count( CHAR_DATA *ch )
+{
+   AI_THOUGHT *thought;
+   int count;
+
+   if( !IS_NPC( ch ) )
+   {
+      bug( "%s: being called on player: %s", __FUNCTION__, ch->name ? ch->name : "null" );
+      return -1;
+    }
+
+   for( count = 0, thought = ch->first_thought; thought; thought = thought->next )
+      count++;
+
+   return count;
 }

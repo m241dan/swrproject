@@ -4864,6 +4864,7 @@ void progbug args( ( const char *str, CHAR_DATA * mob ) );
 void rset_supermob args( ( ROOM_INDEX_DATA * room ) );
 void release_supermob( void );
 void mprog_quest_trigger args( ( CHAR_DATA *mob, CHAR_DATA *ch ) );
+void mprog_thought_trigger( CHAR_DATA *mob, AI_THOUGHT *thought );
 
 /* player.c */
 void set_title( CHAR_DATA * ch, const char *title );
@@ -5104,9 +5105,12 @@ void free_loot( LOOT_DATA *loot );
 int get_total_pools( void );
 POOL_DATA *get_pool_from_count( int count );
 AI_THOUGHT *get_thought_from_id( int id );
-AI_THOUGHT *get_thought( const char *thought );
+AI_THOUGHT *get_thought args ( ( const char *thought ) );
 AI_THOUGHT *copy_thought( AI_THOUGHT *thought );
 void free_thought( AI_THOUGHT *thought );
+int thought_count( CHAR_DATA *ch );
+AI_THOUGHT *get_random_thought( CHAR_DATA *ch );
+AI_THOUGHT *get_thought_from_list( CHAR_DATA *ch, int list );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
