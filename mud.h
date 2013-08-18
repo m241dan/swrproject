@@ -3771,6 +3771,7 @@ extern struct act_prog_data *mob_act_list;
 * Command functions.
 * Defined in act_*.c (mostly).
 */
+DECLARE_DO_FUN( do_thought );
 DECLARE_DO_FUN( do_pool );
 DECLARE_DO_FUN( do_remloot );
 DECLARE_DO_FUN( do_addloot );

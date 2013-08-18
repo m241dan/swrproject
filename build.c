@@ -10305,6 +10305,7 @@ void do_thought( CHAR_DATA *ch, const char *argument )
    {
       send_to_char( "Proper usage: thought create <name>\r\n", ch );
       send_to_char( "              thought edit <name> <parameter> <value>\r\n", ch );
+      send_to_char( "              thought list\r\n", ch );
       send_to_char( "Parameters: fom, minhp, maxhp, name, script\r\n", ch );
       return;
    }
