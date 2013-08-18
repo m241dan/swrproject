@@ -5442,3 +5442,11 @@ AI_THOUGHT *get_thought( const char *thought )
          return name_thought;
    return NULL;
 }
+
+void free_thought( AI_THOUGHT *thought )
+{
+   STRFREE( thought->name );
+   STRFREE( thought->script );
+   DISPOSE( thought );
+   return;
+}

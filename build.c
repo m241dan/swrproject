@@ -1133,6 +1133,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  discipline speaking speaks (see LANGUAGES)\r\n", ch );
       send_to_char( "  name short long description title spec spec2\r\n", ch );
       send_to_char( "  clan vip wanted addteach remteach addquest\r\n", ch );
+      send_to_char( "  addthought remthought                    \r\n", ch );
       send_to_char( "\r\n", ch );
       send_to_char( "For editing index/prototype mobiles:\r\n", ch );
       send_to_char( "  hitnumdie hitsizedie hitplus (hit points)\r\n", ch );
@@ -1626,6 +1627,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       victim->resistance[value] = value2;
       if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
          victim->pIndexData->resistance[value] = value2;
+      send_to_char( "Ok.\r\n", ch );
       return;
    }
 
@@ -1651,6 +1653,64 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       victim->damtype_potency[value] = value2;
       if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
          victim->pIndexData->damtype_potency[value] = value2;
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "addthought" ) )
+   {
+      AI_THOUGHT *thought;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on Players.\r\n", ch );
+         return;
+      }
+
+      if( ( thought = get_thought( arg3 ) ) == NULL )
+      {
+         send_to_char( "No such thought exists.\r\n", ch );
+         return;
+      }
+      LINK( copy_thought( thought ), victim->first_thought, victim->last_thought, next, prev );
+      if( IS_SET( victim->act, ACT_PROTOTYPE ) )
+         LINK( copy_thought( thought ), victim->pIndexData->first_thought, victim->pIndexData->last_thought, next, prev );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "remthought" ) )
+   {
+      AI_THOUGHT *thought;
+      int count;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on Players.\r\n", ch );
+         return;
+      }
+
+      for( count = 0, thought = victim->first_thought; thought; thought = thought->next )
+         if( ++count == value )
+         {
+            UNLINK( thought, victim->first_thought, victim->last_thought, next, prev );
+            free_thought( thought );
+         }
+
+      if( IS_SET( victim->act, ACT_PROTOTYPE ) )
+         for( count = 0, thought = victim->pIndexData->first_thought; thought; thought = thought->next )
+            if( ++count == value )
+            {
+               UNLINK( thought, victim->pIndexData->first_thought, victim->pIndexData->last_thought, next, prev );
+               free_thought( thought );
+            }
+      send_to_char( "Removed.\r\n", ch );
       return;
    }
 

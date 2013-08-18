@@ -5104,6 +5104,7 @@ POOL_DATA *get_pool_from_count( int count );
 AI_THOUGHT *get_thought_from_id( int id );
 AI_THOUGHT *get_thought( const char *thought );
 AI_THOUGHT *copy_thought( AI_THOUGHT *thought );
+void free_thought( AI_THOUGHT *thought );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
