@@ -790,6 +790,15 @@ int get_npc_sex( const char *sex )
    return -1;
 }
 
+int get_frame_of_mind( const char *fom )
+{
+   int x;
+
+   for( x = 0; x < MAX_FOM; x++ )
+      if( !str_cmp( fom, frames_of_mind[x] ) )
+         return x;
+   return -1;
+}
 
 
 /*
@@ -9972,7 +9981,7 @@ void create_pool( CHAR_DATA *ch, const char *argument )
          break;
    }
    CREATE( pool, POOL_DATA, 1 );
-   pool->id = number_range( 1000, 9999 );
+   pool->id = id;
    pool->location = location;
    pool->minstat = minstat;
    pool->maxstat = maxstat;
@@ -10204,3 +10213,159 @@ void fwrite_thought( FILE *fp, AI_THOUGHT *thought )
    return;
 }
 
+void do_thought( CHAR_DATA *ch, const char *argument )
+{
+   AI_THOUGHT *thought;
+   char arg[MAX_INPUT_LENGTH];
+   char arg2[MAX_INPUT_LENGTH];
+   char arg3[MAX_INPUT_LENGTH];
+
+   switch ( ch->substate )
+   {
+      default:
+         break;
+      case SUB_THOUGHT_EDIT:
+         thought = ( AI_THOUGHT* ) ch->dest_buf;
+         if( !thought )
+         {
+            bug( "thought: sub_thought_edit: NULL ch->dest_buf", 0 );
+            return;
+         }
+         STRFREE( thought->script );
+         thought->script = copy_buffer( ch );
+         stop_editing( ch );
+         ch->substate = ch->tempnum;
+         return;
+   }
+
+   if( argument[0] == '\0' )
+   {
+      send_to_char( "Proper usage: thought create <name>\r\n", ch );
+      send_to_char( "              thought edit <name> <parameter> <value>\r\n", ch );
+      send_to_char( "Parameters: fom, minhp, maxhp, name, script\r\n", ch );
+      return;
+   }
+
+   argument = one_argument( argument, arg );
+   if( !str_cmp( arg, "create" ) )
+   {
+      if( argument[0] == '\0' )
+      {
+         send_to_char( "You must enter a name.\r\n", ch );
+         return;
+      }
+      create_thought( ch, argument );
+      save_thoughts( );
+      return;
+   }
+   if( !str_cmp( arg, "edit" ) )
+   {
+      argument = one_argument( argument, arg2 ); /* get the quest name */
+      if( ( thought = get_thought( arg2 ) ) == NULL )
+      {
+         send_to_char( "No such thought exists.\r\n", ch );
+         return;
+      }
+
+      argument = one_argument( argument, arg3 ); /* get the parameter */
+      if( arg3[0] == '\0' )
+      {
+         send_to_char( "Valid parameters: fom, minhp, maxhp, name, script\r\n", ch );
+         return;
+      }
+      if( !str_cmp( arg3, "script" ) )
+      {
+         if( ch->substate == SUB_REPEATCMD )
+            ch->tempnum = SUB_REPEATCMD;
+         else
+            ch->tempnum = SUB_NONE;
+         ch->substate = SUB_THOUGHT_EDIT;
+         ch->dest_buf = thought;
+         start_editing( ch, (char *)thought->script );
+         return;
+      }
+      edit_thought( ch, thought, argument, arg3 );
+      save_thoughts( );
+      return;
+   }
+}
+
+void create_thought( CHAR_DATA *ch, const char *argument )
+{
+   AI_THOUGHT *thought;
+
+   if( argument[0] == '\0' )
+   {
+      bug( "%s: being called with null argument, ie the name", __FUNCTION__ );
+      return;
+   }
+
+   int id;
+   for( ;; )
+   {
+      id = number_range( 1000, 9999 );
+      if( !(get_thought_from_id( id )) )
+         break;
+   }
+
+   CREATE( thought, AI_THOUGHT, 1 );
+   thought->id = id;
+   thought->name = STRALLOC( argument );
+   thought->script = STRALLOC( "" );
+   thought->fom = 0;
+   thought->minhp = 0;
+   thought->maxhp = 0;
+   LINK( thought, first_thought, last_thought, next, prev );
+   return;
+}
+
+
+void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, const char *parameter )
+{
+   int value;
+
+   if( !str_cmp( parameter, "minhp" ) || !str_cmp( parameter, "maxhp" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         send_to_char( "You must enter a number for value.\r\n", ch );
+         return;
+      }
+      value = atoi( argument );
+
+      if( !str_cmp( parameter, "minhp" ) )
+         thought->minhp = value;
+      if( !str_cmp( parameter, "maxhp" ) )
+         thought->maxhp = value;
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( parameter, "fom" ) )
+   {
+      if( ( value = get_frame_of_mind( argument ) ) == -1 )
+      {
+         int x;
+         send_to_char( "Invalid frame of mind.\r\n Valid FoMs:", ch );
+         for( x = 0; x < MAX_FOM; x++ )
+            ch_printf( ch, " %s,", frames_of_mind[x] );
+         send_to_char( "\r\n", ch );
+         return;
+      }
+      thought->fom = value;
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( parameter, "name" ) )
+   {
+      if( thought->name[0] != '\0' )
+         STRFREE( thought->name );
+      thought->name = STRALLOC( argument );
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   do_thought( ch, "" );
+   return;
+}

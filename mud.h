@@ -542,6 +542,7 @@ typedef enum
    SUB_NONE, SUB_PAUSE, SUB_PERSONAL_DESC, SUB_OBJ_SHORT, SUB_OBJ_LONG,
    SUB_OBJ_EXTRA, SUB_MOB_LONG, SUB_MOB_DESC, SUB_ROOM_DESC, SUB_ROOM_EXTRA,
    SUB_ROOM_EXIT_DESC, SUB_WRITING_NOTE, SUB_MPROG_EDIT, SUB_HELP_EDIT,
+   SUB_THOUGHT_EDIT,
    SUB_WRITING_MAP, SUB_PERSONAL_BIO, SUB_REPEATCMD, SUB_RESTRICTED,
    /*
    * timer types ONLY below this point 
@@ -4601,7 +4602,8 @@ void display_pool( CHAR_DATA *ch, POOL_DATA *pool );
 void delete_pool( CHAR_DATA *ch, POOL_DATA *pool );
 void save_thoughts( void );
 void fwrite_thought( FILE *fp, AI_THOUGHT *thought );
-
+void create_thought( CHAR_DATA *ch, const char *argument );
+void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, const char *parameter );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -5095,6 +5097,8 @@ AREA_DATA *get_area_from_filename( const char *filename );
 void free_loot( LOOT_DATA *loot );
 int get_total_pools( void );
 POOL_DATA *get_pool_from_count( int count );
+AI_THOUGHT *get_thought_from_id( int id );
+AI_THOUGHT *get_thought( const char *thought );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

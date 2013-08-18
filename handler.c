@@ -5405,3 +5405,23 @@ POOL_DATA *get_pool_from_count( int count )
          return pool;
    return NULL;
 }
+
+AI_THOUGHT *get_thought_from_id( int id )
+{
+   AI_THOUGHT *thought;
+
+   for( thought = first_thought; thought; thought = thought->next )
+      if( thought->id == id )
+         return thought;
+   return NULL;
+}
+
+AI_THOUGHT *get_thought( const char *thought )
+{
+   AI_THOUGHT *name_thought;
+
+   for( name_thought = first_thought; name_thought; name_thought = name_thought->next )
+      if( !str_cmp( name_thought->name, thought ) )
+         return name_thought;
+   return NULL;
+}
