@@ -10403,8 +10403,8 @@ void create_thought( CHAR_DATA *ch, const char *argument )
    thought->name = STRALLOC( argument );
    thought->script = STRALLOC( "" );
    thought->fom = 0;
-   thought->minhp = 0;
-   thought->maxhp = 0;
+   thought->minhp = 1;
+   thought->maxhp = 100;
    LINK( thought, first_thought, last_thought, next, prev );
    return;
 }
@@ -10422,6 +10422,12 @@ void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, con
          return;
       }
       value = atoi( argument );
+
+      if( value < 1 || value > 100 )
+      {
+         send_to_char( "MinHP or MaxHP must be between 1 and 100.\r\n", ch );
+         return; 
+      }
 
       if( !str_cmp( parameter, "minhp" ) )
       {
