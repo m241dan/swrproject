@@ -10298,6 +10298,7 @@ void do_thought( CHAR_DATA *ch, const char *argument )
          thought->script = copy_buffer( ch );
          stop_editing( ch );
          ch->substate = ch->tempnum;
+         save_thoughts( );
          return;
    }
 
@@ -10358,6 +10359,8 @@ void do_thought( CHAR_DATA *ch, const char *argument )
       save_thoughts( );
       return;
    }
+   do_thought( ch, "" );
+   return;
 }
 
 void list_thoughts( CHAR_DATA *ch )
@@ -10367,8 +10370,8 @@ void list_thoughts( CHAR_DATA *ch )
 
    for( alpha = 0; alpha < 27; alpha++ )
       for( thought = first_thought; thought; thought = thought->next )
-         if( LOWER( thought->name[0] ) == alpha )
-            ch_printf( ch, "Thought: %-40.40 MinHP: %-3d MaxHP: %-3d FoM: %s\r\n",
+         if( ( ( LOWER( thought->name[0] ) - 'a' ) + 1 ) == alpha )
+            ch_printf( ch, "Thought: %-40.40s MinHP: %-3d MaxHP: %-3d FoM: %s\r\n",
                        thought->name,
                        thought->minhp,
                        thought->maxhp,
@@ -10421,9 +10424,23 @@ void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, con
       value = atoi( argument );
 
       if( !str_cmp( parameter, "minhp" ) )
+      {
+         if( value >= thought->maxhp )
+         {
+            send_to_char( "Minhp must be lower than Maxhp!\r\n", ch );
+            return;
+         }
          thought->minhp = value;
+      }
       if( !str_cmp( parameter, "maxhp" ) )
+      {
+         if( value <= thought->minhp )
+         {
+            send_to_char( "Maxhp must be higher than Minhp!\r\n", ch );
+            return;
+         }
          thought->maxhp = value;
+      }
       send_to_char( "Ok.\r\n", ch );
       return;
    }
