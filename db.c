@@ -38,10 +38,15 @@ void load_quests( void );
 QUEST_DATA *fread_quest( FILE *fp );
 void load_pools( void );
 POOL_DATA *fread_pool( FILE *fp );
+void load_thoughts( void );
+AI_THOUGHT *fread_thought( FILE *fp );
 
 /*
  * Globals.
  */
+AI_THOUGHT *first_thought;
+AI_THOUGHT *last_thought;
+
 POOL_DATA *first_pool;
 POOL_DATA *last_pool;
 
@@ -467,6 +472,8 @@ void boot_db( bool fCopyOver )
    last_quest = NULL;
    first_pool = NULL;
    last_pool = NULL;
+   first_thought = NULL;
+   last_thought = NULL;
    extracted_obj_queue = NULL;
    extracted_char_queue = NULL;
    cur_qobjs = 0;
@@ -578,6 +585,9 @@ void boot_db( bool fCopyOver )
    load_quests(  );
    log_string( "Loading pools" );
    load_pools(  );
+   log_string( "Loading thoughts" );
+   load_thoughts(  );
+
 
    /*
     * Read in all the area files.
@@ -8751,7 +8761,7 @@ void load_pools( void )
    if( ( fp = fopen( POOL_FILE, "r" ) ) == NULL )
    {
       bug( "Cannot open pool.dat for read", 0 );
-      perror( QUEST_FILE );
+      perror( POOL_FILE );
       return;
    }
 
@@ -8838,3 +8848,95 @@ POOL_DATA *fread_pool( FILE *fp )
    }
    return NULL;
 }
+
+void load_thoughts( void )
+{
+   FILE *fp;
+   const char *word;
+
+   if( ( fp = fopen( THOUGHT_FILE, "r" ) ) == NULL )
+   {
+      bug( "Cannot open thoughts.dat for read", 0 );
+      perror( THOUGHT_FILE );
+      return;
+   }
+
+   for( ;; )
+   {
+      word = ( feof( fp ) ? "#End" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         bug( "%s: EOF encountered reading file!", __FUNCTION__ );
+         word = "#End";
+      }
+
+      if( !str_cmp( word, "#THOUGHT" ) )
+      {
+         AI_THOUGHT *thought;
+
+         if( ( thought = fread_thought( fp ) ) != NULL )
+            LINK( thought, first_thought, last_thought, next, prev );
+      }
+      else if( !str_cmp( word, "#END" ) )
+         break;
+      else
+         bug( "Unknown Input: %s", word );
+   }
+   fclose( fp );
+   return;
+}
+
+AI_THOUGHT *fread_thought( FILE *fp )
+{
+   AI_THOUGHT *thought;
+   const char *word;
+   bool fMatch;
+
+   for( ;; )
+   {
+      word = ( feof( fp ) ? "End" : fread_word( fp ) );
+
+      if( word[0] == '\0' )
+      {
+         bug( "%s: EOF encountered reading file!", __FUNCTION__ );
+         word = "End";
+      }
+      fMatch = FALSE;
+
+      switch( UPPER( word[0] ) )
+      {
+         case 'F':
+            KEY( "FoM", thought->fom, fread_number( fp ) );
+            break;
+         case 'E':
+            if( !str_cmp( word, "End" ) )
+               return thought;
+            break;
+         case 'I':
+            if( !str_cmp( word, "ID" ) )
+            {
+               CREATE( thought, AI_THOUGHT, 1 );
+               thought->id = fread_number( fp );
+               fMatch = TRUE;
+               break;
+            }
+            break;
+         case 'M':
+            KEY( "MaxHp", thought->maxhp, fread_number( fp ) );
+            KEY( "MinHp", thought->minhp, fread_number( fp ) );
+            break;
+         case 'N':
+            KEY( "Name", thought->name, fread_string( fp ) );
+            break;
+         case 'S':
+            KEY( "Script", thought->script, fread_string( fp ) );
+            break;
+      }
+      if( !fMatch )
+         bug( "%s: no match: %s", __FUNCTION__, word );
+
+   }
+   return NULL;
+}
+

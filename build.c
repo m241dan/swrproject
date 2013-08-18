@@ -10169,3 +10169,38 @@ void do_remloot( CHAR_DATA *ch, const char *argument )
    bug( "%s: got to end of function without resolution.", __FUNCTION__ );
    return;
 }
+
+void save_thoughts( void )
+{
+   FILE *fp;
+   AI_THOUGHT *thought;
+
+   if( ( fp = fopen( THOUGHT_FILE, "w" ) ) == NULL )
+   {
+      bug( "Cannot open thoughts.dat for writting", 0 );
+      perror( THOUGHT_FILE );
+      return;
+   }
+
+   for( thought = first_thought; thought; thought = thought->next )
+   {
+      fprintf( fp, "#THOUGHT\n" );
+      fwrite_thought( fp, thought );
+   }
+
+   fprintf( fp, "#END\n" );
+   fclose( fp );
+}
+
+void fwrite_thought( FILE *fp, AI_THOUGHT *thought )
+{
+   fprintf( fp, "ID           %d\n", thought->id );
+   fprintf( fp, "Name         %s~\n", thought->name );
+   fprintf( fp, "FoM          %d\n", thought->fom );
+   fprintf( fp, "MinHp        %d\n", thought->minhp );
+   fprintf( fp, "MaxHp        %d\n", thought->maxhp );
+   fprintf( fp, "Script       %s~\n", strip_cr( thought->script ) );
+   fprintf( fp, "End\n" );
+   return;
+}
+

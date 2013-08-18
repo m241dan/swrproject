@@ -132,6 +132,7 @@ typedef struct available_quest AV_QUEST;
 typedef struct pre_quest PRE_QUEST;
 typedef struct item_material ITEM_MATERIAL;
 typedef struct pool_data POOL_DATA;
+typedef struct ai_thought AI_THOUGHT;
 /*
 * Function types.
 */
@@ -788,6 +789,18 @@ struct mob_prog_data
    const char *arglist;
    const char *comlist;
    bool fileprog;
+};
+
+struct ai_thought
+{
+   AI_THOUGHT *next;
+   AI_THOUGHT *prev;
+   const char *name;
+   const char *script;
+   int id;
+   int fom;
+   int minhp; /* percentage */
+   int maxhp; /* percentage */
 };
 
 extern bool MOBtrigger;
@@ -3737,6 +3750,8 @@ extern QTIMER *first_qtimer;
 extern QTIMER *last_qtimer;
 extern DISC_DATA *first_discipline;
 extern DISC_DATA *last_discipline;
+extern AI_THOUGHT *first_thought;
+extern AI_THOUGHT *last_thought;
 
 extern time_t current_time;
 extern bool fLogAll;
@@ -4408,6 +4423,7 @@ DECLARE_SPELL_FUN( spell_cure_addiction );
 #define DISCIPLINE_FILE SYSTEM_DIR "disciplines.dat"
 #define QUEST_FILE      SYSTEM_DIR "quest.dat" /* Quests, duh */
 #define POOL_FILE       SYSTEM_DIR "pool.dat" /* Pools, duh */
+#define THOUGHT_FILE    SYSTEM_DIR "thoughts.dat" /* thought file... DUH */
 #define USAGE_FILE	SYSTEM_DIR "usage.txt"  /* How many people are on
 * every half hour - trying to
 * determine best reboot time */
@@ -4583,6 +4599,9 @@ void create_pool( CHAR_DATA *ch, const char *argument );
 void list_pools( CHAR_DATA *ch, const char *argument );
 void display_pool( CHAR_DATA *ch, POOL_DATA *pool );
 void delete_pool( CHAR_DATA *ch, POOL_DATA *pool );
+void save_thoughts( void );
+void fwrite_thought( FILE *fp, AI_THOUGHT *thought );
+
 
 /* clans.c */
 CL *get_clan( const char *name );
