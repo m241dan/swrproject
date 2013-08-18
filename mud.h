@@ -4608,6 +4608,7 @@ void save_thoughts( void );
 void fwrite_thought( FILE *fp, AI_THOUGHT *thought );
 void create_thought( CHAR_DATA *ch, const char *argument );
 void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, const char *parameter );
+void list_thoughts( CHAR_DATA *ch );
 
 /* clans.c */
 CL *get_clan( const char *name );

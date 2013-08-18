@@ -10305,6 +10305,7 @@ void do_thought( CHAR_DATA *ch, const char *argument )
    {
       send_to_char( "Proper usage: thought create <name>\r\n", ch );
       send_to_char( "              thought edit <name> <parameter> <value>\r\n", ch );
+      send_to_char( "              thought list\r\n", ch );
       send_to_char( "Parameters: fom, minhp, maxhp, name, script\r\n", ch );
       return;
    }
@@ -10319,6 +10320,11 @@ void do_thought( CHAR_DATA *ch, const char *argument )
       }
       create_thought( ch, argument );
       save_thoughts( );
+      return;
+   }
+   if( !str_cmp( arg, "list" ) )
+   {
+      list_thoughts( ch );
       return;
    }
    if( !str_cmp( arg, "edit" ) )
@@ -10351,6 +10357,23 @@ void do_thought( CHAR_DATA *ch, const char *argument )
       save_thoughts( );
       return;
    }
+}
+
+void list_thoughts( CHAR_DATA *ch )
+{
+   AI_THOUGHT *thought;
+   int alpha;
+
+   for( alpha = 0; alpha < 27; alpha++ )
+      for( thought = first_thought; thought; thought = thought->next )
+         if( LOWER( thought->name[0] ) == alpha )
+            ch_printf( ch, "Thought: %-40.40 MinHP: %-3d MaxHP: %-3d FoM: %s\r\n",
+                       thought->name,
+                       thought->minhp,
+                       thought->maxhp,
+                       frames_of_mind[thought->fom] );
+
+   return;
 }
 
 void create_thought( CHAR_DATA *ch, const char *argument )
