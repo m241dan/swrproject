@@ -2952,7 +2952,6 @@ void split_timers_update(  )
             AI_THOUGHT *thought;
             int count, attempts;
             int hit_percent;
-            hit_percent = (int)( ( ch->hit / ch->max_hit ) * 100 );
 
             if( !ch )
             {
@@ -2967,6 +2966,18 @@ void split_timers_update(  )
                break;
             }
 
+            if( char_died( ch ) )
+            {
+               dispose_qtimer( timer );
+               break;
+            }
+            if( ch->hit > 0 && ch->max_hit > 0 )
+               hit_percent = (int)( ( ch->hit / ch->max_hit ) * 100 );
+            else
+            {
+               bug( "%s: has hit of 0 or max_hit of 0??? mob name: %s mob vnum: %d", __FUNCTION__, ch->name, ch->pIndexData->vnum );
+               break;
+            }
             ch->next_thought -= .25;
             if( ch->next_thought > 0 )
                break;

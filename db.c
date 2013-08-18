@@ -2302,7 +2302,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    else
       mob->armor = ( short )( mob->top_level * .75 );
    if( !pMobIndex->hitnodice )
-      mob->max_hit = mob->top_level * 10 + number_range( mob->top_level, mob->top_level * 10 );
+      mob->max_hit = UMAX( mob->top_level * 10 + number_range( mob->top_level, mob->top_level * 10 ), 1 );
    else
       mob->max_hit = pMobIndex->hitnodice * number_range( 1, pMobIndex->hitsizedice ) + pMobIndex->hitplus;
    mob->hit = mob->max_hit;
