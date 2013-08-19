@@ -1645,11 +1645,10 @@ typedef enum
    ITEM_BATTERY, ITEM_TOOLKIT, ITEM_DURASTEEL, ITEM_OVEN, ITEM_MIRROR,
    ITEM_CIRCUIT, ITEM_SUPERCONDUCTOR, ITEM_COMLINK, ITEM_MEDPAC, ITEM_FABRIC,
    ITEM_RARE_METAL, ITEM_MAGNET, ITEM_THREAD, ITEM_SPICE, ITEM_SMUT, ITEM_DEVICE, ITEM_SPACECRAFT,
-   ITEM_GRENADE, ITEM_LANDMINE, ITEM_GOVERNMENT, ITEM_DROID_CORPSE, ITEM_BOLT, ITEM_CHEMICAL
+   ITEM_GRENADE, ITEM_LANDMINE, ITEM_GOVERNMENT, ITEM_DROID_CORPSE, ITEM_BOLT, ITEM_CHEMICAL,
+   ITEM_BACTA, MAX_ITEM_TYPE
 } item_types;
 
-
-#define MAX_ITEM_TYPE		     ITEM_CHEMICAL
 /*
 * Extra flags.
 * Used in #OBJECTS.
@@ -4937,6 +4936,7 @@ void update_disciplines args( ( CHAR_DATA *ch ) );
 void update_disciplines args( ( CHAR_DATA *ch, int changed ) );
 void update_disciplines args( ( void ) );
 bool factor_in_use( CHAR_DATA *ch, FACTOR_DATA *factor );
+int charge_boost( SKILLTYPE *skill, int amount );
 
 /* handler.c */
 void free_obj( OBJ_DATA * obj );
@@ -5129,6 +5129,9 @@ AI_THOUGHT *get_random_thought( CHAR_DATA *ch, int fom );
 AI_THOUGHT *get_thought_from_list( CHAR_DATA *ch, int list );
 MOB_THOUGHT *create_mob_thought( AI_THOUGHT *thought );
 void add_mob_thought( CHAR_DATA *ch, AI_THOUGHT *thought );
+int use_bacta( CHAR_DATA *ch, int goal );
+OBJ_DATA *get_bacta( CHAR_DATA *ch );
+void depleted_obj( CHAR_DATA *ch, OBJ_DATA *obj );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

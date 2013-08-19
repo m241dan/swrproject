@@ -315,6 +315,7 @@ void advance_level( CHAR_DATA * ch, int ability )
 
 void update_stats( CHAR_DATA *ch )
 {
+   AFFECT_DATA *affect;
    int x, level;
    int hit_per_level, mana_per_level, move_per_level;
    hit_per_level = mana_per_level = move_per_level = 0;
@@ -331,6 +332,10 @@ void update_stats( CHAR_DATA *ch )
 
    level = ch->skill_level[COMBAT_ABILITY];
 
+   de_equip_char( ch );
+   for( affect = ch->first_affect; affect; affect = affect->next )
+      affect_modify( ch, affect, FALSE );
+
    ch->max_hit = PC_BASE_HP + ( hit_per_level * level );
    ch->max_mana = PC_BASE_MANA + ( mana_per_level * level );
    ch->max_move = PC_BASE_MOVE + ( move_per_level * level );
@@ -342,6 +347,11 @@ void update_stats( CHAR_DATA *ch )
    if( ch->move > ch->max_move )
       ch->move = ch->max_move;
 
+   re_equip_char( ch );
+   for( affect = ch->first_affect; affect; affect = affect->next )
+      affect_modify( ch, affect, TRUE );
+
+   return;
 }
 
 void gain_exp( CHAR_DATA * ch, int gain, int ability )

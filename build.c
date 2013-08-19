@@ -153,7 +153,8 @@ const char *const o_types[] = {
    "salve", "rawspice", "lens", "crystal", "duraplast", "battery",
    "toolkit", "durasteel", "oven", "mirror", "circuit", "superconductor", "comlink", "medpac",
    "fabric", "rare_metal", "magnet", "thread", "spice", "smut", "device", "spacecraft",
-   "grenade", "landmine", "government", "droid_corpse", "bolt", "chemical"
+   "grenade", "landmine", "government", "droid_corpse", "bolt", "chemical",
+   "bacta"
 };
 
 const char *const a_types[MAX_APPLY_TYPE] = {
