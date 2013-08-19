@@ -9349,7 +9349,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                ch_printf( ch, "%-2d: Factor Type: %-15.15s | Multiplies Base Roll of Weapon by %f\r\n",
                           selection,
                           factor_names[factor->factor_type],
-                          factor->modifier );
+                          ( 1 + factor->modifier ) );
             selection++;
          }
       }
@@ -10806,7 +10806,7 @@ void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc )
                        a_types[factor->location] );
             break;
          case BASEROLL_FACTOR:
-            ch_printf( ch, "   Factor %d is a Base Roll Factor. This will modify the initiate base roll(before any stat factors are added) by %d%%.\r\n",
+            ch_printf( ch, "   Factor %d is a Base Roll Factor. This will modify the initial base roll(before any stat factors are added) by %d%%.\r\n",
                        count++,
                        (int)( factor->modifier * 100 ) );
       }
