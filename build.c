@@ -8677,6 +8677,7 @@ bool is_valid_vnum( int vnum, short type )
 
 void do_dset( CHAR_DATA *ch, const char *argument )
 {
+   AFFECT_DATA *daf;
    DISC_DATA *discipline;
    FACTOR_DATA *factor;
    int x, value, id;
@@ -8797,7 +8798,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg, "addpassive" ) )
    {
-      AFFECT_DATA *daf;
+      CHAR_DATA *wch;
       int location, modifier;
       EXT_BV affect;
 
@@ -8849,6 +8850,15 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       daf->apply_type = APPLY_JOIN_SELF;
       LINK( daf, discipline->first_affect, discipline->last_affect, next, prev );
 
+      for( wch = first_char; wch; wch = wch->next )
+      {
+         if( IS_NPC( wch ) )
+            continue;
+
+         if( is_discipline_set( wch, discipline ) )
+            affect_modify( wch, daf, TRUE );
+      }
+
       update_disciplines( );
       save_disciplines( );
       send_to_char( "Passive added.\r\n", ch );
@@ -8858,7 +8868,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
    if( !str_cmp( arg2, "rempassive" ) )
    {
-      AFFECT_DATA *daf;
+      CHAR_DATA *wch;
 
       if( !is_number( argument ) )
       {
@@ -8874,6 +8884,14 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       for( x = 0, daf = discipline->first_affect; daf; daf = daf->next )
          if( selection == x++ )
          {
+            for( wch = first_char; wch; wch = wch->next )
+            {
+               if( IS_NPC( wch ) )
+                  continue;
+
+               if( is_discipline_set( wch, discipline ) )
+                  affect_modify( wch, daf, FALSE );
+            }
             UNLINK( daf, discipline->first_affect, discipline->last_affect, next, prev );
             free_affect( daf );
             update_disciplines( );
@@ -9242,6 +9260,21 @@ void do_dset( CHAR_DATA *ch, const char *argument )
             selection++;
          }
       }
+      send_to_char( "Passives\r\n---------------------------------------------------------------\r\n", ch );
+      if( !discipline->first_affect )
+         send_to_char( "No passives\r\n", ch );
+      else
+      {
+         for( selection = 0, daf = discipline->first_affect; daf; daf = daf->next )
+         {
+            if( daf->location == APPLY_DAMTYPE )
+               ch_printf( ch, "Passive %d: Grants %s attacks.\r\n", selection++, d_type[daf->modifier] );
+            else if( daf->location == APPLY_AFFECT )
+               ch_printf( ch, "Passive %d: Grants %s.\r\n", selection++, ext_flag_string( &daf->bitvector, a_flags ) );
+            else
+               ch_printf( ch, "Passive %d:Affects %s by %d.\r\n", selection++, a_types_pretty[daf->location], daf->modifier );
+         }
+      }
       return;
    }
    do_dset( ch, "" );
@@ -9320,6 +9353,21 @@ void do_discipline( CHAR_DATA *ch, const char *argument )
       }
       unset_discipline( ch, disc );
       send_to_char( "Discipline Unset.\r\n", ch );
+      return;
+   }
+   if( !str_cmp( arg, "show" ) )
+   {
+      if( ( disc = get_discipline( argument ) ) == NULL )
+      {
+         ch_printf( ch, "%s is not a discipline.\r\n", ch );
+         return;
+      }
+      if( !player_has_discipline( ch, disc ) )
+      {
+         ch_printf( ch, "You don't know %s.\r\n", disc->name );
+         return;
+      }
+      show_discipline_to_player( ch, disc );
       return;
    }
    return;
@@ -10572,5 +10620,116 @@ void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, con
    }
 
    do_thought( ch, "" );
+   return;
+}
+
+void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc )
+{
+   AFFECT_DATA *daf;
+   FACTOR_DATA *factor;
+   int x, count, selection;
+
+   if( !disc )
+   {
+      bug( "%s: passed NULL discipline.", __FUNCTION__ );
+      return;
+   }
+
+   ch_printf( ch, "The '%s' discipline grants the following...\r\n", disc->name );
+   send_to_char(  "------------------------------------------------------------------\r\n\r\n", ch );
+   send_to_char(  "----------------\r\n", ch );
+   send_to_char(  "Settable Types |\r\n", ch );
+   send_to_char(  "----------------\r\n", ch );
+
+   send_to_char(  "Skills         |", ch );
+   for( x = 0; x < MAX_SKILLTYPE; x++ )
+      if( xIS_SET( disc->skill_type, x ) )
+         ch_printf( ch, " %s", skill_tname[x] );
+   send_to_char(  "\r\n", ch );
+
+   send_to_char(  "Targets        |", ch );
+   for( x = 0; x < TAR_CHAR_MAX; x++ )
+      if( xIS_SET( disc->target_type, x ) )
+         ch_printf( ch, " %s", target_type[x] );
+   send_to_char(  "\r\n", ch );
+
+   send_to_char(  "Styles         |", ch );
+   for( x = 0; x < STYLE_MAX; x++ )
+      if( xIS_SET( disc->skill_style, x ) )
+         ch_printf( ch, " %s", style_type[x] );
+   send_to_char(  "\r\n", ch );
+
+   send_to_char(  "Cost           |", ch );
+   for( x  = 0; x < MAX_COST; x++ )
+      if( xIS_SET( disc->cost, x ) )
+         ch_printf( ch, " %s", cost_type[x] );
+   send_to_char(  "\r\n", ch );
+
+   send_to_char(  "Damages        |", ch );
+   for( x = 0; x < MAX_DAMTYPE; x++ )
+      if( xIS_SET( disc->damtype, x ) )
+         ch_printf( ch, " %s", d_type[x] );
+   send_to_char( "\r\n", ch );
+   send_to_char(  "----------------\r\n", ch );
+   send_to_char( "\r\n", ch );
+
+   send_to_char(  "----------------\r\n", ch );
+   send_to_char(  "Granted Gains  |\r\n", ch );
+   send_to_char(  "----------------\r\n", ch );
+   ch_printf( ch, "HP Per Level   | %d\r\n", disc->hit_gain );
+   ch_printf( ch, "FRC Per Level  | %d\r\n", disc->mana_gain );
+   ch_printf( ch, "MV Per Level   | %d\r\n", disc->move_gain );
+   send_to_char(  "----------------\r\n", ch );
+   send_to_char( "\r\n", ch );
+
+   if( disc->first_factor )
+      ch_printf( ch, "The %s will allow you to add the following factors to skills...\r\n  (Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );
+
+   for( count = 0, factor = disc->first_factor; factor; factor = factor->next )
+   {
+      switch( factor->factor_type )
+      {
+         case APPLY_FACTOR:
+            ch_printf( ch, "   Factor %d is an Apply Factor. When a skill it has been added to is used, it will create an affect of %d %s and send it to the %s for a duration of %d. This affect will %s an affect from this same factor already on the target.\r\n",
+                       count++,
+                       factor->location != APPLY_AFFECT ? (int)factor->modifier : get_num_affects( &factor->affect ),
+                       factor->location == APPLY_AFFECT ? "affects listed below": a_types[factor->location],
+                       ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_OVERRIDE_SELF ) ? "castor" : "target",
+                       (int)factor->duration,
+                       ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_JOIN_TARGET ) ? "join" : "override" );
+            if( !xIS_EMPTY( factor->affect ) )
+            {
+               send_to_char( " AFFECTS:", ch );
+               for( x = 0; x < MAX_AFF; x++ )
+                  if( xIS_SET( factor->affect, x ) )
+                     ch_printf( ch, " %s", a_flags[x] );
+               send_to_char( "\r\n", ch );
+            }
+            break;
+         case STAT_FACTOR:
+            ch_printf( ch, "   Factor %d is a Stat Factor. It will add %d%% of your %s to the base roll of damage and healing style abilities.\r\n",
+                       count++,
+                       (int)( factor->modifier * 100 ),
+                       a_types[factor->location] );
+            break;
+         case BASEROLL_FACTOR:
+            ch_printf( ch, "   Factor %d is a Base Roll Factor. This will modify the initiate base roll(before any stat factors are added) by %d%%.\r\n",
+                       count++,
+                       (int)( factor->modifier * 100 ) );
+      }
+   }
+
+   if( disc->first_affect )
+      ch_printf( ch, "The %s will grant you the following passive buffs...\r\n", disc->name );
+
+   for( selection = 0, daf = disc->first_affect; daf; daf = daf->next )
+   {
+      if( daf->location == APPLY_DAMTYPE )
+         ch_printf( ch, "Passive %d: Grants %s attacks.\r\n", selection++, d_type[daf->modifier] );
+      else if( daf->location == APPLY_AFFECT )
+         ch_printf( ch, "Passive %d: Grants %s.\r\n", selection++, ext_flag_string( &daf->bitvector, a_flags ) );
+      else
+         ch_printf( ch, "Passive %d:Affects %s by %d.\r\n", selection++, a_types_pretty[daf->location], daf->modifier );
+   }
    return;
 }

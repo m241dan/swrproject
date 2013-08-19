@@ -5272,6 +5272,7 @@ void update_disciplines( CHAR_DATA *ch, int changed )
             }
          }
          break;
+
    }
    skills_checksum( ch );
    return;
@@ -5306,11 +5307,10 @@ void do_learn( CHAR_DATA *ch, const char *argument )
    DISC_DATA *disc;
    TEACH_DATA *teach;
    CHAR_DATA *mob;
-   FACTOR_DATA *factor;
    char arg[MAX_INPUT_LENGTH];
    char arg2[MAX_INPUT_LENGTH];
    int count = 0;
-   int value, x;
+   int value;
 
    if( IS_NPC( ch ) )
       return;
@@ -5388,89 +5388,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
          return;
       }
 
-      ch_printf( ch, "The '%s' discipline grants the following...\r\n", disc->name );
-      send_to_char(  "------------------------------------------------------------------\r\n\r\n", ch );
-      send_to_char(  "----------------\r\n", ch );
-      send_to_char(  "Settable Types |\r\n", ch );
-      send_to_char(  "----------------\r\n", ch );
-
-      send_to_char(  "Skills         |", ch );
-      for( x = 0; x < MAX_SKILLTYPE; x++ )
-         if( xIS_SET( disc->skill_type, x ) )
-            ch_printf( ch, " %s", skill_tname[x] );
-      send_to_char(  "\r\n", ch );
-
-      send_to_char(  "Targets        |", ch );
-      for( x = 0; x < TAR_CHAR_MAX; x++ )
-         if( xIS_SET( disc->target_type, x ) )
-            ch_printf( ch, " %s", target_type[x] );
-      send_to_char(  "\r\n", ch );
-
-      send_to_char(  "Styles         |", ch );
-      for( x = 0; x < STYLE_MAX; x++ )
-         if( xIS_SET( disc->skill_style, x ) )
-            ch_printf( ch, " %s", style_type[x] );
-      send_to_char(  "\r\n", ch );
-
-      send_to_char(  "Cost           |", ch );
-      for( x  = 0; x < MAX_COST; x++ )
-         if( xIS_SET( disc->cost, x ) )
-            ch_printf( ch, " %s", cost_type[x] );
-      send_to_char(  "\r\n", ch );
-
-      send_to_char(  "Damages        |", ch );
-      for( x = 0; x < MAX_DAMTYPE; x++ )
-         if( xIS_SET( disc->damtype, x ) )
-            ch_printf( ch, " %s", d_type[x] );
-      send_to_char( "\r\n", ch );
-      send_to_char(  "----------------\r\n", ch );
-      send_to_char( "\r\n", ch );
-
-      send_to_char(  "----------------\r\n", ch );
-      send_to_char(  "Granted Gains  |\r\n", ch );
-      send_to_char(  "----------------\r\n", ch );
-      ch_printf( ch, "HP Per Level   | %d\r\n", disc->hit_gain );
-      ch_printf( ch, "FRC Per Level  | %d\r\n", disc->mana_gain );
-      ch_printf( ch, "MV Per Level   | %d\r\n", disc->move_gain );
-      send_to_char(  "----------------\r\n", ch );
-      send_to_char( "\r\n", ch );
-
-      if( disc->first_factor )
-         ch_printf( ch, "The %s will allow you to add the following factors to skills...\r\n  (Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );
-
-      for( factor = disc->first_factor; factor; factor = factor->next )
-      {
-         switch( factor->factor_type )
-         {
-            case APPLY_FACTOR:
-               ch_printf( ch, "   Factor %d is an Apply Factor. When a skill it has been added to is used, it will create an affect of %d %s and send it to the %s for a duration of %d. This affect will %s an affect from this same factor already on the target.\r\n",
-                          count++,
-                          factor->location != APPLY_AFFECT ? (int)factor->modifier : get_num_affects( &factor->affect ),
-                          factor->location == APPLY_AFFECT ? "affects listed below": a_types[factor->location],
-                          ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_OVERRIDE_SELF ) ? "castor" : "target",
-                          (int)factor->duration,
-                          ( factor->apply_type == APPLY_JOIN_SELF || factor->apply_type == APPLY_JOIN_TARGET ) ? "join" : "override" );
-               if( !xIS_EMPTY( factor->affect ) )
-               {
-                  send_to_char( " AFFECTS:", ch );
-                  for( x = 0; x < MAX_AFF; x++ )
-                     if( xIS_SET( factor->affect, x ) )
-                        ch_printf( ch, " %s", a_flags[x] );
-                  send_to_char( "\r\n", ch );
-               }
-               break;
-            case STAT_FACTOR:
-               ch_printf( ch, "   Factor %d is a Stat Factor. It will add %d%% of your %s to the base roll of damage and healing style abilities.\r\n",
-                          count++,
-                          (int)( factor->modifier * 100 ),
-                          a_types[factor->location] );
-               break;
-            case BASEROLL_FACTOR:
-               ch_printf( ch, "   Factor %d is a Base Roll Factor. This will modify the initiate base roll(before any stat factors are added) by %d%%.\r\n",
-                          count++,
-                          (int)( factor->modifier * 100 ) );
-         }
-      }
+      show_discipline_to_player( ch, disc );
       return;
    }
 
