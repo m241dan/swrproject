@@ -1307,8 +1307,8 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
               victim->top_level, victim->moblevel, victim->race, victim->alignment, GET_EVASION( victim ), victim->gold );
    if( victim->race < MAX_NPC_RACE && victim->race >= 0 )
       ch_printf( ch, "Race: %s\r\n", npc_race[victim->race] );
-   ch_printf( ch, "Hitroll: %d   Damroll: %d   Position: %d   Wimpy: %d \r\n",
-              GET_HITROLL( victim ), GET_DAMROLL( victim ), victim->position, victim->wimpy );
+   ch_printf( ch, "Hitroll: %-4d Damroll: %-4d Speed: %-2f Position: %d   Wimpy: %d \r\n",
+              GET_HITROLL( victim ), GET_DAMROLL( victim ), get_round( victim ), victim->position, victim->wimpy );
    send_to_char( "Damtype:", ch );
    for( x = 0; x < MAX_DAMTYPE; x++ )
       if( xIS_SET( victim->damtype, x ) )

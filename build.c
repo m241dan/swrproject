@@ -1726,12 +1726,6 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       if( !can_mmodify( ch, victim ) )
          return;
 
-      if( !is_number( arg3 ) )
-      {
-         send_to_char( "Must input a number for tspeed.\r\n", ch );
-         return;
-      }
-
       if( ( tspeed = atof( arg3 ) ) < .25 )
       {
          send_to_char( "Minimum thought speed for .25 seconds!\r\n", ch );
@@ -1750,15 +1744,9 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       if( !can_mmodify( ch, victim ) )
          return;
 
-      if( !is_number( arg3 ) )
+      if( ( round = atof( arg3 ) ) < -1.75 )
       {
-         send_to_char( "Must input a number for round.\r\n", ch );
-         return;
-      }
-
-      if( ( round = atof( arg3 ) ) < .25 )
-      {
-         send_to_char( "Minimum round for .25 seconds!\r\n", ch );
+         send_to_char( "Minimum round for -1.75 seconds!\r\n", ch );
          return;
       }
       victim->round = round;
