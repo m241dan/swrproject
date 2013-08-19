@@ -1135,6 +1135,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  name short long description title spec spec2\r\n", ch );
       send_to_char( "  clan vip wanted addteach remteach addquest\r\n", ch );
       send_to_char( "  addthought remthought                    \r\n", ch );
+      send_to_char( "  round tspeed\r\n", ch );
       send_to_char( "\r\n", ch );
       send_to_char( "For editing index/prototype mobiles:\r\n", ch );
       send_to_char( "  hitnumdie hitsizedie hitplus (hit points)\r\n", ch );
@@ -1715,6 +1716,55 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          }
 
       send_to_char( "Removed.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "tspeed" ) )
+   {
+      double tspeed;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !is_number( arg3 ) )
+      {
+         send_to_char( "Must input a number for tspeed.\r\n", ch );
+         return;
+      }
+
+      if( ( tspeed = atof( arg3 ) ) < .25 )
+      {
+         send_to_char( "Minimum thought speed for .25 seconds!\r\n", ch );
+         return;
+      }
+      victim->tspeed = tspeed;
+      if( IS_SET( victim->act, ACT_PROTOTYPE ) )
+         victim->pIndexData->tspeed = tspeed;
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "round" ) )
+   {
+      double round;
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !is_number( arg3 ) )
+      {
+         send_to_char( "Must input a number for round.\r\n", ch );
+         return;
+      }
+
+      if( ( round = atof( arg3 ) ) < .25 )
+      {
+         send_to_char( "Minimum round for .25 seconds!\r\n", ch );
+         return;
+      }
+      victim->round = round;
+      if( IS_SET( victim->act, ACT_PROTOTYPE ) )
+         victim->pIndexData->round = round;
+      send_to_char( "Ok.\r\n", ch );
       return;
    }
 

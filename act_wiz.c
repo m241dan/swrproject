@@ -1303,8 +1303,8 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
                     victim->experience[ability], exp_level( victim->skill_level[ability] + 1 ) );
    }
    ch_printf( ch,
-              "Top Level: %d     Race: %d  Align: %d  Evasion: %d  Gold: %d\r\n",
-              victim->top_level, victim->race, victim->alignment, GET_EVASION( victim ), victim->gold );
+              "Top Level: %-3d MobLevel: %-d Race: %d  Align: %d  Evasion: %d  Gold: %d\r\n",
+              victim->top_level, victim->moblevel, victim->race, victim->alignment, GET_EVASION( victim ), victim->gold );
    if( victim->race < MAX_NPC_RACE && victim->race >= 0 )
       ch_printf( ch, "Race: %s\r\n", npc_race[victim->race] );
    ch_printf( ch, "Hitroll: %d   Damroll: %d   Position: %d   Wimpy: %d \r\n",
