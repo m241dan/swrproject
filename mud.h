@@ -2996,6 +2996,8 @@ struct skill_type
    FACTOR_DATA *last_factor;
 };
 
+#define MAX_CHARGE 20
+
 struct stat_boost
 {
    STAT_BOOST *next;

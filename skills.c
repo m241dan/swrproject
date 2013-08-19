@@ -4440,6 +4440,23 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "charge" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Charge takes a number.\r\n", ch );
+         return;
+      }
+      if( ( value = atoi( argument ) ) > MAX_CHARGE || value < 0 )
+      {
+         send_to_char( "Charge value must be between 0 and 20\r\n", ch );
+         return;
+      }
+      skill->charge = value;
+      send_to_char( "Charge Set\r\n", ch );
+      return;
+   }
+
    send_to_char( "Improper Usage...\r\n", ch );
    do_skillcraft( ch, "" );
    return;
