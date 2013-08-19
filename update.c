@@ -1,7 +1,7 @@
 /***************************************************************************
 *                           STAR WARS REALITY 1.0                          *
 *--------------------------------------------------------------------------*
-* Star Wars Reality Code Additions and changes from the Smaug Code         *
+* Star Wars Reality Code Additions and changes from the Smaug2836 Code         *
 * copyright (c) 1997 by Sean Cooper                                        *
 * -------------------------------------------------------------------------*
 * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                 *
@@ -2832,7 +2832,12 @@ void split_timers_update(  )
    for( timer = first_qtimer; timer; timer = next_timer )
    {
       next_timer = timer->next;
-      ch = timer->timer_ch;
+      if( ( ch = timer->timer_ch ) == NULL )
+      {
+         dispose_qtimer( timer );
+         bug( "%s: NULL ch", __FUNCTION__ );
+         continue;
+      }
       set_cur_char( ch );
       if( char_died( ch ) )
          continue;
