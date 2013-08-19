@@ -4765,6 +4765,19 @@ void add_queue( CHAR_DATA *ch, int type )
    return;
 }
 
+void remove_queue( CHAR_DATA *ch, int type )
+{
+   QTIMER *timer, *timer_next;
+
+   for( timer = first_qtimer; timer; timer = timer_next )
+   {
+      timer_next = timer->next;
+      if( timer->timer_ch == ch && timer->type == type )
+         dispose_qtimer( timer );
+   }
+   return;
+}
+
 void create_qtimer( CHAR_DATA *ch, int type )
 {
    QTIMER *queue;

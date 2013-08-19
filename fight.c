@@ -1689,7 +1689,6 @@ void stop_fighting( CHAR_DATA * ch, bool fBoth )
 
    free_fight( ch );
    update_pos( ch );
-   
 
    if( !fBoth )   /* major short cut here by Thoric */
       return;

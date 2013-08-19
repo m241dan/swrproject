@@ -2175,3 +2175,14 @@ void do_leave( CHAR_DATA * ch, const char *argument )
    do_leaveship( ch, "" );
    return;
 }
+
+int get_num_exits( ROOM_INDEX_DATA *room )
+{
+   EXIT_DATA *exit;
+   int count;
+
+   for( count = 0, exit = room->first_exit; exit; exit = exit->next )
+      count++;
+
+   return count;
+}

@@ -24,9 +24,6 @@
 #include <time.h>
 #include "mud.h"
 
-#define BFS_ERROR	   -1
-#define BFS_ALREADY_THERE  -2
-#define BFS_NO_PATH	   -3
 #define BFS_MARK         BV01
 
 #define TRACK_THROUGH_DOORS

@@ -250,6 +250,13 @@ typedef ch_ret SPELL_FUN( int sn, int level, CHAR_DATA * ch, void *vo );
 #define PULSE_SPACE               ( 10 * PULSE_PER_SECOND)
 #define PULSE_TAXES               ( 60 * PULSE_MINUTE)
 
+/*
+ * Tracking Stuff
+ */
+#define BFS_ERROR          -1
+#define BFS_ALREADY_THERE  -2
+#define BFS_NO_PATH        -3
+
 /* 
  * Stuff for area versions --Shaddai
  */
@@ -4237,6 +4244,8 @@ DECLARE_DO_FUN( do_zap );
 DECLARE_DO_FUN( do_zones );
 
 /* mob prog stuff */
+DECLARE_DO_FUN( do_mpwander );
+DECLARE_DO_FUN( do_mphunt );
 DECLARE_DO_FUN( do_mpauth );
 DECLARE_DO_FUN( do_mp_progress );
 DECLARE_DO_FUN( do_mp_advancequest );
@@ -4495,6 +4504,7 @@ void teleport( CHAR_DATA * ch, int room, int flags );
 short encumbrance args( ( CHAR_DATA * ch, short move ) );
 bool will_fall args( ( CHAR_DATA * ch, int fall ) );
 int wherehome args( ( CHAR_DATA * ch ) );
+int get_num_exits( ROOM_INDEX_DATA *room );
 
 /* act_obj.c */
 
@@ -5059,6 +5069,7 @@ void group_add_member( CHAR_DATA *ch, GROUP_DATA *group );
 CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument );
 bool is_skill( int gsn );
 void add_queue( CHAR_DATA *ch, int type );
+void remove_queue( CHAR_DATA *ch, int type );
 void create_qtimer( CHAR_DATA *ch, int type );
 void dispose_qtimer( QTIMER *timer );
 bool is_queued( CHAR_DATA *ch, int type );
