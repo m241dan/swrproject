@@ -8694,6 +8694,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       send_to_char( "Or:     dset create <discipline name>\r\n", ch );
       send_to_char( "Or:     dset delete <discipline name>(not implemented yet)\r\n\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
+      send_to_char( "  addpassive <location> <modifier> <affects...>\r\n", ch );
       send_to_char( "  addfactor <factor_type> <location> <modifier> <duration> <apply_type>\r\n", ch );
       send_to_char( "  remfactor <factor_number>\r\n", ch );
       send_to_char( "  addaffect <factor_number> <affects...>\r\n", ch );
@@ -8794,6 +8795,96 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg, "addpassive" ) )
+   {
+      AFFECT_DATA *daf;
+      int location, modifier;
+      EXT_BV affect;
+
+      argument = one_argument( argument, arg3 );
+      if( ( location = get_atype( arg3 ) ) == -1 )
+      {
+         ch_printf( ch, "'%s' not a valid location.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
+         send_to_char( "Valid Options are:\r\n", ch );
+         for( x = 0; x < MAX_APPLY_TYPE; x++ )
+            ch_printf( ch, "%s ", a_types[x] );
+         send_to_char( "\r\n", ch );
+         return;
+      }
+
+      argument = one_argument( argument, arg3 );
+      if( arg3[0] == '\0' || ( modifier = atoi( arg3 ) ) < 0 )
+      {
+         ch_printf( ch, "'%s' is not a valid modifier value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
+         return;
+      }
+      count = 0;
+      while( argument[0] != '\0' )
+      {
+         if( ++count > (int)modifier )
+         {
+            ch_printf( ch, "Passive can't have more than modifier %d affects. These ones have been left off: %s\r\n", count, argument );
+            return;
+         }
+         argument = one_argument( argument, arg3 );
+         if( ( value = get_aflag( arg3 ) ) == -1 )
+         {
+            ch_printf( ch, "%s is an invalid affect flag.\r\n", arg3 );
+            continue;
+         }
+         xSET_BIT( affect, value );
+      }
+
+      CREATE( daf, AFFECT_DATA, 1 );
+      daf->from = NULL;
+      daf->from_pool = NULL;
+      daf->affect_type = AFFECT_BUFF;
+      daf->type = -1;
+      daf->location = location;
+      daf->modifier = modifier;
+      daf->duration = 0;
+      xCLEAR_BITS( daf->bitvector );
+      xSET_BITS( daf->bitvector, affect );
+      daf->factor_id = -1;
+      daf->apply_type = APPLY_JOIN_SELF;
+      LINK( daf, discipline->first_affect, discipline->last_affect, next, prev );
+
+      update_disciplines( );
+      save_disciplines( );
+      send_to_char( "Passive added.\r\n", ch );
+      return;
+
+   }
+
+   if( !str_cmp( arg2, "rempassive" ) )
+   {
+      AFFECT_DATA *daf;
+
+      if( !is_number( argument ) )
+      {
+         send_to_char( "Passives removed by number\r\n", ch );
+         return;
+      }
+      if( ( selection = atoi( argument ) ) < 0 )
+      {
+         send_to_char( "There are no factors that low.\r\n", ch );
+         return;
+      }
+
+      for( x = 0, daf = discipline->first_affect; daf; daf = daf->next )
+         if( selection == x++ )
+         {
+            UNLINK( daf, discipline->first_affect, discipline->last_affect, next, prev );
+            free_affect( daf );
+            update_disciplines( );
+            save_disciplines( );
+            send_to_char( "Passive removed.\r\n", ch );
+            return;
+         }
+      send_to_char( "There are no passives that high on this discipline.\r\n", ch );
+      return;
+   }
+
    if( !str_cmp( arg2, "remfactor" ) )
    {
       if( !is_number( argument ) )
@@ -8808,8 +8899,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          return;
       }
       for( x = 0, factor = discipline->first_factor; factor; factor = factor->next )
-      {
-         if( x == selection )
+         if( selection == x++ )
          {
             UNLINK( factor, discipline->first_factor, discipline->last_factor, next, prev );
             free_factor( factor );
@@ -8818,8 +8908,6 @@ void do_dset( CHAR_DATA *ch, const char *argument )
             send_to_char( "Factor removed.\r\n", ch );
             return;
          }
-         x++;
-      }
       send_to_char( "There are no factors that high on this discipline.\r\n", ch );
       return;
    }
@@ -8852,7 +8940,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       }
 
       argument = one_argument( argument, arg3 );
-      if( arg3[0] == '\0' || ( modifier = atof( arg3 ) ) < 0 )
+      if( arg3[0] == '\0' || ( modifier = atoi( arg3 ) ) < 0 )
       {
          ch_printf( ch, "'%s' is not a valid modifier value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
          return;

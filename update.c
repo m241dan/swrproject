@@ -328,6 +328,9 @@ void update_stats( CHAR_DATA *ch )
       hit_per_level += ch->equipped_disciplines[x]->hit_gain + stat_table[ch->stat_build].hit;
       mana_per_level += ch->equipped_disciplines[x]->mana_gain + stat_table[ch->stat_build].mana;
       move_per_level += ch->equipped_disciplines[x]->move_gain + stat_table[ch->stat_build].move;
+
+      for( affect = ch->equipped_disciplines[x]->first_affect; affect; affect = affect->next )
+         affect_modify( ch, affect, FALSE );
    }
 
    level = ch->skill_level[COMBAT_ABILITY];
@@ -340,16 +343,25 @@ void update_stats( CHAR_DATA *ch )
    ch->max_mana = PC_BASE_MANA + ( mana_per_level * level );
    ch->max_move = PC_BASE_MOVE + ( move_per_level * level );
 
+   re_equip_char( ch );
+   for( affect = ch->first_affect; affect; affect = affect->next )
+      affect_modify( ch, affect, TRUE );
+
+   for( x = 0; x < MAX_EQUIPPED_DISCIPLINE; x++ )
+   {
+      if( ch->equipped_disciplines[x] == NULL )
+         continue;
+
+      for( affect = ch->equipped_disciplines[x]->first_affect; affect; affect = affect->next )
+         affect_modify( ch, affect, TRUE );
+   }
+
    if( ch->hit > ch->max_hit )
       ch->hit = ch->max_hit;
    if( ch->mana > ch->max_mana )
       ch->mana = ch->max_mana;
    if( ch->move > ch->max_move )
       ch->move = ch->max_move;
-
-   re_equip_char( ch );
-   for( affect = ch->first_affect; affect; affect = affect->next )
-      affect_modify( ch, affect, TRUE );
 
    return;
 }

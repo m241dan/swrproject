@@ -4748,6 +4748,7 @@ bool player_has_discipline_setslot( CHAR_DATA *ch )
 
 void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
+   AFFECT_DATA *daf;
    int x;
 
    if( !player_has_discipline_setslot( ch ) )
@@ -4770,6 +4771,9 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
       }
    }
 
+   for( daf = disc->first_affect; daf; daf = daf->next )
+      affect_modify( ch, daf, TRUE );
+
    update_disciplines( ch );
    save_char_obj( ch );
    saving_char = NULL;
@@ -4778,6 +4782,7 @@ void set_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 
 void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
 {
+   AFFECT_DATA *daf;
    int x;
 
    if( !is_discipline_set( ch, disc ) )
@@ -4794,6 +4799,9 @@ void unset_discipline( CHAR_DATA *ch, DISC_DATA *disc )
          ch->equipped_disciplines[x] = NULL;
          break;
       }
+
+   for( daf = disc->first_affect; daf; daf = daf->next )
+      affect_modify( ch, daf, FALSE );
 
    update_disciplines( ch );
    save_char_obj( ch );
