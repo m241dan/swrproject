@@ -9319,12 +9319,11 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          {
             if( factor->factor_type == APPLY_FACTOR )
             {
-               ch_printf( ch, "%-2d: Factor Type: %-15.15s | Location: %-15.15s | Apply Type: %-15.15s | Duration: %-4d |\r\n",
+               ch_printf( ch, "%-2d: Factor Type: %-15.15s | Location: %-15.15s | Apply Type: %-15.15s |\r\n",
                           selection,
                           factor_names[factor->factor_type],
                           a_types[factor->location],
-                          applytypes_type[factor->apply_type],
-                          (int)factor->duration );
+                          applytypes_type[factor->apply_type] );
 
                if( factor->location == APPLY_AFFECT )
                {
@@ -9333,9 +9332,10 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                      if( xIS_SET( factor->affect, x ) )
                         ch_printf( ch, " %s,", a_flags[x] );
                   send_to_char( "\r\n", ch );
+                  ch_printf( ch, " | DurationL %-4d |\r\n", factor->duration );
                }
                else
-                  ch_printf( ch, " Modifier: %f\r\n", factor->modifier );
+                  ch_printf( ch, " | Duration: %-4d | Modifier: %f |\r\n", factor->duration, factor->modifier );
             }
             else if( factor->factor_type == STAT_FACTOR )
             {
