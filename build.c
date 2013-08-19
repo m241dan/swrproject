@@ -9271,7 +9271,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          send_to_char( "\r\n", ch );
       }
 
-      send_to_char( "Factors\r\n---------------------------------------------------------------\r\n", ch );
+      send_to_char( "\r\nFactors\r\n---------------------------------------------------------------\r\n", ch );
       if( !discipline->first_factor )
          send_to_char( "No factors\r\n", ch );
       else
@@ -9315,7 +9315,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
             selection++;
          }
       }
-      send_to_char( "Passives\r\n---------------------------------------------------------------\r\n", ch );
+      send_to_char( "\r\nPassives\r\n---------------------------------------------------------------\r\n", ch );
       if( !discipline->first_affect )
          send_to_char( "No passives\r\n", ch );
       else
@@ -10735,11 +10735,11 @@ void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc )
    ch_printf( ch, "FRC Per Level  | %d\r\n", disc->mana_gain );
    ch_printf( ch, "MV Per Level   | %d\r\n", disc->move_gain );
    send_to_char(  "----------------\r\n", ch );
-   send_to_char( "\r\n", ch );
 
    if( disc->first_factor )
-      ch_printf( ch, "The %s will allow you to add the following factors to skills...\r\n  (Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );
-
+      ch_printf( ch, "\r\nThe %s will allow you to add the following factors to skills...\r\n  (Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );
+   else
+      send_to_char( "\r\n", ch );
    for( count = 0, factor = disc->first_factor; factor; factor = factor->next )
    {
       switch( factor->factor_type )
@@ -10774,8 +10774,9 @@ void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc )
       }
    }
 
+
    if( disc->first_affect )
-      ch_printf( ch, "The %s will grant you the following passive buffs...\r\n", disc->name );
+      ch_printf( ch, "\r\nThe %s will grant you the following passive buffs...\r\n", disc->name );
 
    for( selection = 0, daf = disc->first_affect; daf; daf = daf->next )
    {
