@@ -10775,7 +10775,7 @@ void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc )
    send_to_char(  "----------------\r\n", ch );
 
    if( disc->first_factor )
-      ch_printf( ch, "\r\nThe %s will allow you to add the following factors to skills...\r\n  (Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );
+      ch_printf( ch, "\r\nThe %s will allow you to add the following factors to skills...\r\n(Keep in mind, the style of the skill may modify some of these base values.)\r\n\r\n", disc->name );
    else
       send_to_char( "\r\n", ch );
    for( count = 0, factor = disc->first_factor; factor; factor = factor->next )
