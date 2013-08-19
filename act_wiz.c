@@ -1285,12 +1285,15 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
               victim->in_room == NULL ? 0 : victim->in_room->vnum,
               IS_NPC( victim ) ? victim->pIndexData->count : 1,
               IS_NPC( victim ) ? victim->pIndexData->killed : victim->pcdata->mdeaths + victim->pcdata->pdeaths );
-   ch_printf( ch, "Str: %d  Int: %d  Wis: %d  Dex: %d  Con: %d  Cha: %d  Lck: %d  Frc: %d\r\n",
+   ch_printf( ch, "Str: %-3d Int: %-3d Wis: %-3d Dex: %-3d Con: %-3d Agi: %-3d Cha: %-3d Lck: %-3d\r\n",
               get_curr_str( victim ),
               get_curr_int( victim ),
               get_curr_wis( victim ),
               get_curr_dex( victim ),
-              get_curr_con( victim ), get_curr_cha( victim ), get_curr_lck( victim ), get_curr_frc( victim ) );
+              get_curr_con( victim ),
+              get_curr_agi( victim ),
+              get_curr_cha( victim ),
+              get_curr_lck( victim ) );
    ch_printf( ch, "Hps: %d/%d  Force: %d/%d   Move: %d/%d  Armor: %d\r\n",
               victim->hit, victim->max_hit, victim->mana, victim->max_mana, victim->move, victim->max_move, GET_ARMOR( victim ) );
    if( !IS_NPC( victim ) )
