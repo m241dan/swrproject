@@ -2128,3 +2128,100 @@ CHAR_DATA *get_char_room_mp( CHAR_DATA * ch, const char *argument )
    return NULL;
 }
 
+void do_mphunt( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   int max_dist;
+   short ret;
+
+   if( !IS_NPC( ch ) )
+      return;
+
+   if( ( victim = most_threat( ch ) ) == NULL )
+      return;
+
+   if( !ch->hunting )
+      start_hunting( ch, victim );
+
+   if( ch->hunting->who != victim )
+      start_hunting( ch, victim );
+
+   if( ch->fom != FOM_HUNTING )
+      change_mind( ch, FOM_HUNTING );
+
+   if( victim->in_room == ch->in_room )
+   {
+      set_fighting( ch, victim );
+      add_queue( ch, COMBAT_ROUND );
+      change_mind( ch, FOM_FIGHTING );
+      return;
+   }
+
+   max_dist = ( ch->in_room->area->hi_r_vnum - ch->in_room->area->low_r_vnum ) * 2;
+
+   ret = find_first_step( ch->in_room, victim->in_room, max_dist );
+   if( ret == BFS_NO_PATH )
+   {
+      THREAT_DATA *threat;
+      if( ( threat = has_threat( victim, ch ) ) != NULL )
+         free_threat( threat );
+      if( ( victim = most_threat( ch ) ) != NULL )
+      {
+         do_mphunt( ch, "" );
+         return;
+      }
+   }
+   if( ret < 0 )
+   {
+      stop_hunting( ch );
+      change_mind( ch, FOM_IDLE );
+   }
+   else
+   {
+      move_char( ch, get_exit( ch->in_room, ret ), FALSE );
+      if( char_died( ch ) )
+         return;
+      if( !ch->hunting )
+      {
+         if( !ch->in_room )
+         {
+            char buf[MAX_STRING_LENGTH];
+            sprintf( buf, "Hunt_victim: no ch->in_room!  Mob #%d, name: %s.  Placing mob in limbo.",
+                     ch->pIndexData->vnum, ch->name );
+            bug( buf, 0 );
+            char_to_room( ch, get_room_index( ROOM_VNUM_LIMBO ) );
+         }
+         return;
+      }
+   }
+   if( ch->in_room == victim->in_room )
+   {
+      set_fighting( ch, victim );
+      add_queue( ch, COMBAT_ROUND );
+      change_mind( ch, FOM_FIGHTING );
+   }
+   return;
+}
+
+void do_mpwander( CHAR_DATA *ch, const char *argument )
+{
+   EXIT_DATA *exit;
+   int vdir;
+
+   if( !IS_NPC( ch ) )
+      return;
+
+   if( !ch->in_room )
+   {
+      bug( "%s: %s not in a room???", __FUNCTION__, ch->name );
+      return;
+   }
+
+   vdir = number_range( 1, get_num_exits( ch->in_room ) );
+
+   if( ( exit = get_exit_num( ch->in_room, vdir ) ) == NULL )
+      return;
+
+   move_char( ch, exit, FALSE );
+   return;
+}
