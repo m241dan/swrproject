@@ -4988,7 +4988,8 @@ void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool
             affect->duration = factor->duration;
             affect->location = factor->location;
             affect->modifier = (int)factor->modifier;
-            affect->bitvector = factor->affect;
+            xCLEAR_BITS( affect->bitvector );
+            xSET_BITS( affect->bitvector, factor->affect );
             affect->factor_id = factor->id;
             affect->apply_type = factor->apply_type;
             affect->from = ch;
