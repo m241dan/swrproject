@@ -975,7 +975,7 @@ void do_say( CHAR_DATA * ch, const char *argument )
       sbuf = drunk_speech( sbuf, ch );
 
       MOBtrigger = FALSE;
-      act( AT_SAY, "&W$n &rsays &z'&r$t&z'&w", ch, sbuf, vch, TO_VICT );
+      act( AT_SAY, "&W$n says &z'&r$t&z'&w", ch, sbuf, vch, TO_VICT );
    }
 /*    MOBtrigger = FALSE;
     act( AT_SAY, "$n says '$T'", ch, NULL, argument, TO_ROOM );*/
