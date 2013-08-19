@@ -3020,10 +3020,8 @@ void split_timers_update(  )
                {
                   if( ( thought = get_random_thought( ch, ch->fom ) ) == NULL )
                      continue;
-                  bug( "hit_percent: %f minhp: %d maxhp: %d", hit_percent, thought->minhp, thought->maxhp );
                   if( hit_percent >= thought->minhp && hit_percent <= thought->maxhp )
                   {
-                     bug( "trigger firing" );
                      mprog_thought_trigger( ch, thought );
                      break;
                   }

@@ -5466,8 +5466,6 @@ AI_THOUGHT *get_random_thought( CHAR_DATA *ch, int fom )
 
    random = number_range( 1, thought_count( ch, fom ) ) -1;
 
-   bug( "fom: %d thought: %d random: %d", fom, thought_count( ch, fom ), random );
-
    if( ( thought = ch->mthoughts[fom] ) == NULL )
    {
       bug( "%s: get_random_thought returned a NULL somehow.", __FUNCTION__ );
