@@ -8735,7 +8735,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
 
       if( !is_number( arg3 ) )
       {
-         send_to_char( "Remove factor by number\r\n", ch );
+         send_to_char( "Add to a factor by number\r\n", ch );
          return;
       }
 
