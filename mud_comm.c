@@ -2151,6 +2151,7 @@ void do_mphunt( CHAR_DATA *ch, const char *argument )
 
    if( victim->in_room == ch->in_room )
    {
+      stop_hunting( ch );
       set_fighting( ch, victim );
       add_queue( ch, COMBAT_ROUND );
       change_mind( ch, FOM_FIGHTING );
@@ -2196,6 +2197,7 @@ void do_mphunt( CHAR_DATA *ch, const char *argument )
    }
    if( ch->in_room == victim->in_room )
    {
+      stop_hunting( ch );
       set_fighting( ch, victim );
       add_queue( ch, COMBAT_ROUND );
       change_mind( ch, FOM_FIGHTING );

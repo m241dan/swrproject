@@ -969,10 +969,18 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
 
       if( victim->position > POS_STUNNED )
       {
-         if( victim->hunting && victim->hunting->who == most_threat( victim ) )
+         if( victim->hunting && victim->hunting->who == most_threat( victim ) && ch->in_room == victim->in_room )
+         {
+            stop_hunting( victim );
             set_fighting( victim, ch );
+         }
          if( !victim->fighting && ( most_threat( victim ) == NULL || ch == most_threat( victim ) ) ) /* Most threat part is to stop people from attacking a hunting mob and changing its mind if the new attacker has lower threat */
-            set_fighting( victim, ch );
+         {
+            if( victim->in_room == ch->in_room )
+               set_fighting( victim, ch );
+            else
+               start_hunting( victim, ch );
+         }
          if( victim->fighting )
             victim->position = POS_FIGHTING;
       }
