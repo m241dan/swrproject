@@ -9332,10 +9332,10 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                      if( xIS_SET( factor->affect, x ) )
                         ch_printf( ch, " %s,", a_flags[x] );
                   send_to_char( "\r\n", ch );
-                  ch_printf( ch, " | DurationL %-4d |\r\n", factor->duration );
+                  ch_printf( ch, "  | DurationL %-4d |\r\n", factor->duration );
                }
                else
-                  ch_printf( ch, " | Duration: %-4d | Modifier: %f |\r\n", factor->duration, factor->modifier );
+                  ch_printf( ch, "  | Duration: %-4d | Modifier: %f |\r\n", factor->duration, factor->modifier );
             }
             else if( factor->factor_type == STAT_FACTOR )
             {
@@ -9346,7 +9346,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
                           a_types[factor->location] );
             }
             else if( factor->factor_type == BASEROLL_FACTOR )
-               ch_printf( ch, "%d: Factor Type: %-15.15s | Multiplies Base Roll of Weapon by %f\r\n",
+               ch_printf( ch, "%-2d: Factor Type: %-15.15s | Multiplies Base Roll of Weapon by %f\r\n",
                           selection,
                           factor_names[factor->factor_type],
                           factor->modifier );
