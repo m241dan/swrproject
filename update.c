@@ -2951,7 +2951,7 @@ void split_timers_update(  )
             CHAR_DATA *most_threatening;
             AI_THOUGHT *thought;
             int count, attempts;
-            int hit_percent;
+            double hit_percent;
 
             if( !ch )
             {
@@ -2972,7 +2972,7 @@ void split_timers_update(  )
                break;
             }
             if( ch->hit > 0 && ch->max_hit > 0 )
-               hit_percent = (int)( ( ch->hit / ch->max_hit ) * 100 );
+               hit_percent = ( ch->hit * 100 ) / ch->max_hit;
             else
             {
                bug( "%s: has hit of 0 or max_hit of 0??? mob name: %s mob vnum: %d", __FUNCTION__, ch->name, ch->pIndexData->vnum );
@@ -3020,10 +3020,12 @@ void split_timers_update(  )
                {
                   if( ( thought = get_random_thought( ch, ch->fom ) ) == NULL )
                      continue;
-                  if( thought->minhp >= hit_percent && thought->maxhp <= hit_percent )
+                  bug( "hit_percent: %f minhp: %d maxhp: %d", hit_percent, thought->minhp, thought->maxhp );
+                  if( hit_percent >= thought->minhp && hit_percent <= thought->maxhp )
                   {
+                     bug( "trigger firing" );
                      mprog_thought_trigger( ch, thought );
-                     return;
+                     break;
                   }
                }
             }

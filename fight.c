@@ -963,6 +963,9 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
       if( is_safe( ch, victim ) )
          return rNONE;
 
+      if( IS_NPC( victim ) && victim->fom == FOM_IDLE )
+         change_mind( victim, FOM_FIGHTING );
+      
 
       if( victim->position > POS_STUNNED )
       {

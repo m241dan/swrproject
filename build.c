@@ -1659,7 +1659,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
 
    if( !str_cmp( arg2, "addthought" ) )
    {
-      AI_THOUGHT *thought;
+      AI_THOUGHT *thought, *cthought;
 
       if( !can_mmodify( ch, victim ) )
          return;
@@ -1678,8 +1678,11 @@ void do_mset( CHAR_DATA * ch, const char *argument )
 
       add_mob_thought( victim, thought );
       if( IS_SET( victim->act, ACT_PROTOTYPE ) )
-         LINK( copy_thought( thought ), victim->pIndexData->first_thought, victim->pIndexData->last_thought, next, prev );
-      send_to_char( "Ok.\r\n", ch );
+      {
+         cthought = copy_thought( thought );
+         LINK( cthought, victim->pIndexData->first_thought, victim->pIndexData->last_thought, next, prev );
+      }
+      send_to_char( "Thought added.\r\n", ch );
       return;
    }
 
@@ -10479,3 +10482,4 @@ void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, con
    do_thought( ch, "" );
    return;
 }
+

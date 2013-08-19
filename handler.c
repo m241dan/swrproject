@@ -1694,6 +1694,7 @@ void extract_obj( OBJ_DATA * obj )
  */
 void extract_char( CHAR_DATA * ch, bool fPull )
 {
+   QTIMER *qtimer, *qtimer_next;
    CHAR_DATA *wch;
    OBJ_DATA *obj;
    ROOM_INDEX_DATA *location;
@@ -1742,6 +1743,13 @@ void extract_char( CHAR_DATA * ch, bool fPull )
          UNLINK( RQueue, first_relation, last_relation, next, prev );
          DISPOSE( RQueue );
       }
+   }
+
+   for( qtimer = first_qtimer; qtimer; qtimer = qtimer_next )
+   {
+      qtimer_next = qtimer->next;
+      if( qtimer->timer_ch == ch )
+         dispose_qtimer( qtimer );
    }
 
    if( gch_prev == ch )
@@ -5443,10 +5451,12 @@ AI_THOUGHT *get_thought_from_list( CHAR_DATA *ch, int list )
          return thought;
    return NULL;
 }
+
 AI_THOUGHT *get_random_thought( CHAR_DATA *ch, int fom )
 {
    MOB_THOUGHT *thought;
    int random;
+   int count = 0;
 
    if( !IS_NPC( ch ) )
    {
@@ -5454,14 +5464,27 @@ AI_THOUGHT *get_random_thought( CHAR_DATA *ch, int fom )
       return NULL;
    }
 
-   random = number_range( 1, thought_count( ch, fom ) );
+   random = number_range( 1, thought_count( ch, fom ) ) -1;
 
-   if( ( thought = ch->mthoughts[random] ) == NULL )
+   bug( "fom: %d thought: %d random: %d", fom, thought_count( ch, fom ), random );
+
+   if( ( thought = ch->mthoughts[fom] ) == NULL )
    {
-      bug( "%s: get_through_from_list returned a NULL somehow.", __FUNCTION__ );
+      bug( "%s: get_random_thought returned a NULL somehow.", __FUNCTION__ );
       return NULL;
    }
+   while( thought )
+   {
+      if( random == count++ )
+         break;
+      thought = thought->next;
+   }
 
+   if( !thought )
+   {
+      bug( "%s: somehow returning NULL", __FUNCTION__ );
+      return NULL;
+   }
    return thought->thought;
 }
 
@@ -5487,6 +5510,12 @@ int thought_count( CHAR_DATA *ch, int fom )
 {
    MOB_THOUGHT *thought;
    int count = 0;
+
+   if( !ch )
+   {
+      bug( "%s: NULL ch", __FUNCTION__ );
+      return -1;
+   }
 
    if( !IS_NPC( ch ) )
    {
@@ -5536,5 +5565,6 @@ void add_mob_thought( CHAR_DATA *ch, AI_THOUGHT *thought )
 
    mthought->next = ch->mthoughts[fom];
    ch->mthoughts[fom] = mthought;
+
    return;
 }

@@ -1448,19 +1448,6 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
       else
          bug( "%s: Player: %s has affect not from player or npc, how?", __FUNCTION__, victim->name );
    }
-   if( IS_NPC( victim ) )
-   {
-      send_to_char( "\r\nAI STUFF\r\n-------------------------------------------------------------------------------------\r\n", ch );
-      ch_printf( ch, "Thought Speed   : %f (seconds)\r\n", victim->tspeed );
-      ch_printf( ch, "Next Thought    : %f (secodns)\r\n", victim->next_thought );
-      ch_printf( ch, "Frame of Mind   : %s\r\n", frames_of_mind[victim->fom] );
-      send_to_char( "\r\nSkills:\r\n-------------------------------------------------------------------------------------\r\n", ch );
-         for( x = 0; x < MAX_NPC_SKILL; x += 2 )
-            ch_printf( ch, "%2d: %-30s | %2d: %-20s\r\n", x, victim->pIndexData->npc_skills[x] != -1 ? skill_table[victim->pIndexData->npc_skills[x]]->name : "none",
-                       x+1, victim->pIndexData->npc_skills[x+1] != -1 ? skill_table[victim->pIndexData->npc_skills[x+1]]->name : "none" );
-      send_to_char( "-------------------------------------------------------------------------------------\r\n", ch );
-    }
-
    return;
 }
 
@@ -2542,6 +2529,7 @@ void do_immortalize( CHAR_DATA * ch, const char *argument )
 {
    char arg[MAX_INPUT_LENGTH];
    CHAR_DATA *victim;
+   int value;
 
    argument = one_argument( argument, arg );
 
@@ -2563,9 +2551,11 @@ void do_immortalize( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( victim->top_level != LEVEL_AVATAR )
+   value = is_number( argument ) ? atoi( argument ) : 101;
+
+   if( value < 101 || value > 105 || value > ch->top_level )
    {
-      send_to_char( "This player is not worthy of immortality yet.\r\n", ch );
+      send_to_char( "You can't set that level.\r\n", ch );
       return;
    }
 
@@ -2582,7 +2572,7 @@ void do_immortalize( CHAR_DATA * ch, const char *argument )
    while( victim->first_carrying )
       extract_obj( victim->first_carrying );
 
-   victim->top_level = LEVEL_IMMORTAL;
+   victim->top_level = value;
 
 /*    advance_level( victim );  */
 
@@ -6129,3 +6119,56 @@ void do_showthreat( CHAR_DATA *ch, const char *argument )
 }
 
 
+void do_aistat( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   MOB_THOUGHT *mthought;
+   char arg[MAX_INPUT_LENGTH];
+
+   argument = one_argument( argument, arg );
+
+   if( ( victim = get_char_world( ch, arg ) ) == NULL )
+   {
+      send_to_char( "That person doesn't exist.\r\n", ch );
+      return;
+   }
+   
+   if( !IS_NPC( victim ) )
+   {
+      send_to_char( "Not on Players.\r\n", ch );
+      return;
+   }
+
+   send_to_char( "\r\nAI STUFF\r\n-------------------------------------------------------------------------------------\r\n", ch );
+   ch_printf( ch, "Thought Speed   : %f (seconds)\r\n", victim->tspeed );
+   ch_printf( ch, "Next Thought    : %f (seconds)\r\n", victim->next_thought );
+   ch_printf( ch, "Frame of Mind   : %s\r\n", frames_of_mind[victim->fom] );
+   send_to_char( "\r\nIDLE THOUGHTS\r\n-------------------------------------------------------------------------------------\r\n", ch );
+   if( ( mthought = victim->mthoughts[FOM_IDLE] ) == NULL )
+      send_to_char( "None\r\n", ch );
+   else      
+      while( mthought )
+      {
+         ch_printf( ch, "Thought Name: %s\r\n", mthought->thought->name );
+         mthought = mthought->next;
+     }
+   send_to_char( "\r\nFIGHTING THOUGHTS\r\n-------------------------------------------------------------------------------------\r\n", ch );
+   if( ( mthought = victim->mthoughts[FOM_FIGHTING] ) == NULL )
+      send_to_char( "None\r\n", ch );
+   else
+      while( mthought )
+      {
+         ch_printf( ch, "Thought Name: %s\r\n", mthought->thought->name );
+         mthought = mthought->next;
+      }
+   send_to_char( "\r\nHUNTING THOUGHTS\r\n-------------------------------------------------------------------------------------\r\n", ch );
+   if( ( mthought = victim->mthoughts[FOM_HUNTING] ) == NULL )
+      send_to_char( "None\r\n", ch );
+   else
+      while( mthought )
+      {
+         ch_printf( ch, "Thought Name: %s\r\n", mthought->thought->name );
+         mthought = mthought->next;
+      }
+   return;
+}

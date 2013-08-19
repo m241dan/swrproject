@@ -2368,7 +2368,10 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    {
       AI_THOUGHT *thought;
       for( thought = pMobIndex->first_thought; thought; thought = thought->next )
-         add_mob_thought( mob, thought );
+      {
+         bug( "name: %s", thought->name );
+         add_mob_thought( mob, get_thought_from_id( thought->id ) );
+      }
    }
 
    add_queue( mob, AI_TIMER );
@@ -7174,13 +7177,14 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             }
             if( !str_cmp( word, "Thought" ) )
             {
-               AI_THOUGHT *thought;
+               AI_THOUGHT *thought, *cthought;
                if( ( thought = get_thought_from_id( fread_number( fp ) ) ) == NULL )
                {
                   bug( "%s: bad thought id", __FUNCTION__ );
-                  return;
+                  break;
                }
-               LINK( copy_thought( thought ), pMobIndex->first_thought, pMobIndex->last_thought, next, prev );
+               cthought = copy_thought( thought );
+               LINK( cthought, pMobIndex->first_thought, pMobIndex->last_thought, next, prev );
                break;
             }
             break;
