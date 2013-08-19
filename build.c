@@ -1903,6 +1903,16 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "armor" ) )
+   {
+      if( !can_mmodify( ch, victim ) )
+         return;
+      victim->armor = value;
+      if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
+         victim->pIndexData->armor = value;
+      return;
+   }
+
    if( !str_cmp( arg2, "level" ) )
    {
       if( !can_mmodify( ch, victim ) )
