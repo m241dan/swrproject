@@ -6810,12 +6810,18 @@ void do_foldarea( CHAR_DATA * ch, const char *argument )
    char arg[MAX_INPUT_LENGTH];
 
    argument = one_argument( argument, arg );
-   if( arg[0] == '\0' )
+   if( arg[0] == '\0' && !ch->pcdata->area )
    {
       send_to_char( "Usage: foldarea <filename> [remproto]\r\n", ch );
       return;
    }
 
+   if( arg[0] == '\0' )
+   {
+      fold_area( ch->pcdata->area, ch->pcdata->area->filename, FALSE );
+      send_to_char( "Done.\r\n", ch );
+      return;
+   }
    if( !str_cmp( arg, "all" ) )
    {
       for( tarea = first_area; tarea; tarea = tarea->next )
