@@ -9319,7 +9319,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          {
             if( factor->factor_type == APPLY_FACTOR )
             {
-               ch_printf( ch, "%-2d: Factor Type: %-10.10s | Location: %-10.10s | Apply Type: %-10.10s | Duration: %-10d |\r\n",
+               ch_printf( ch, "%-2d: Factor Type: %-15.15s | Location: %-15.15s | Apply Type: %-15.15s | Duration: %-4d |\r\n",
                           selection,
                           factor_names[factor->factor_type],
                           a_types[factor->location],
@@ -9339,14 +9339,14 @@ void do_dset( CHAR_DATA *ch, const char *argument )
             }
             else if( factor->factor_type == STAT_FACTOR )
             {
-               ch_printf( ch, "%-2d: Factor Type: %-10.10s | Add %d%% of %s to Base Roll\r\n",
+               ch_printf( ch, "%-2d: Factor Type: %-15.15s | Add %d%% of %s to Base Roll\r\n",
                           selection,
                           factor_names[factor->factor_type],
                           (int)( factor->modifier * 100 ),
                           a_types[factor->location] );
             }
             else if( factor->factor_type == BASEROLL_FACTOR )
-               ch_printf( ch, "%d: Factor Type: %-10.10s | Multiplies Base Roll of Weapon by %f\r\n",
+               ch_printf( ch, "%d: Factor Type: %-15.15s | Multiplies Base Roll of Weapon by %f\r\n",
                           selection,
                           factor_names[factor->factor_type],
                           factor->modifier );
