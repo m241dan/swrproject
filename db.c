@@ -2306,8 +2306,11 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    else
       mob->max_hit = pMobIndex->hitnodice * number_range( 1, pMobIndex->hitsizedice ) + pMobIndex->hitplus;
    mob->hit = mob->max_hit;
-   mob->mana = pMobIndex->mana;
-   mob->move = pMobIndex->move;
+ 
+   mob->max_mana = pMobIndex->mana;
+   mob->max_move = pMobIndex->move;
+   mob->mana = mob->max_mana;
+   mob->move = mob->max_move;
    /*
     * lets put things back the way they used to be! -Thoric 
     */
