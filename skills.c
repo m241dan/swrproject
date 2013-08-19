@@ -502,7 +502,7 @@ void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
       caf = copy_affect( saf );
-      caf->duration = charge_boost( skill, caf->duration );
+      caf->duration = charge_boost( skill, (int)caf->duration );
       if( caf->location != APPLY_AFFECT )
          caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
 
@@ -540,7 +540,7 @@ void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
       caf = copy_affect( saf );
-      caf->duration = charge_boost( skill, caf->duration );
+      caf->duration = charge_boost( skill, (int)caf->duration );
 
       if( caf->location != APPLY_AFFECT )
       {
