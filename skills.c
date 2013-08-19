@@ -185,8 +185,6 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
          else
             first = sn + 1;
       }
-      if( !mob_has_skill( ch, sn ) )
-         return FALSE;
    }
    else
    {
