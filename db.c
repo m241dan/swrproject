@@ -2373,10 +2373,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    {
       AI_THOUGHT *thought;
       for( thought = pMobIndex->first_thought; thought; thought = thought->next )
-      {
-         bug( "name: %s", thought->name );
          add_mob_thought( mob, get_thought_from_id( thought->id ) );
-      }
    }
 
    add_queue( mob, AI_TIMER );
