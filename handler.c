@@ -5579,3 +5579,44 @@ void add_mob_thought( CHAR_DATA *ch, AI_THOUGHT *thought )
 
    return;
 }
+
+OBJ_DATA *get_bacta( CHAR_DATA *ch )
+{
+   OBJ_DATA *obj;
+   int x;
+
+   for( x = 0; x < MAX_WEAR; x++ )
+      if( ( obj = get_eq_char( ch, x ) ) != NULL && obj->item_type == ITEM_BACTA && obj->value[0] > 0 )
+         return obj;
+   return NULL; 
+
+}
+
+int use_bacta( CHAR_DATA *ch, int goal )
+{
+   OBJ_DATA *bacta;
+   int heal_amount = 0;
+
+   bacta = get_bacta( ch );
+   while( bacta )
+   {
+      if( goal < bacta->value[0] )
+      {
+         bacta->value[0] -= goal;
+         heal_amount = goal;
+         break;
+      }
+      goal -= bacta->value[0];
+      heal_amount += bacta->value[0];
+      bacta->value[0] = 0;
+      depleted_obj( ch, bacta );
+      bacta = get_bacta( ch );
+   }
+   return heal_amount;
+}
+
+void depleted_obj( CHAR_DATA *ch, OBJ_DATA *obj )
+{
+   ch_printf( ch, "%s: %s is depleted.\r\n", wear_locs[obj->wear_loc], obj->short_descr );
+   return;
+}

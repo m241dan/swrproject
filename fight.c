@@ -702,6 +702,13 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    /* Handle Res_Pen */
    dam = res_pen( ch, victim, dam, damtype );
 
+   /* Charge */
+   if( skill )
+   {
+      dam = charge_boost( skill, dam );
+      ch_printf( ch, "Damage after Charge Boost: %d\r\n", dam );
+   }
+
    ch_printf( ch, "Damage after Res_pen: %d\r\n", dam );
 
    if( !IS_AWAKE( victim ) )

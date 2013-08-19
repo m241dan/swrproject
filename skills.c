@@ -415,6 +415,13 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    amount = res_pen( ch, victim, amount, skill->damtype );
 
+   amount = charge_boost( skill, amount );
+
+   amount = UMIN( amount, ( ch->max_hit - ch->hit ) ); /* do this here instead of adjust_stat to not fuck up bacta use */
+
+   if( skill->type == SKILL_SKILL )
+      amount = use_bacta( ch, amount );
+
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
       switch( saf->apply_type )
@@ -495,7 +502,7 @@ void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
       caf = copy_affect( saf );
-
+      caf->duration = charge_boost( skill, caf->duration );
       if( caf->location != APPLY_AFFECT )
          caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
 
@@ -533,6 +540,7 @@ void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
       caf = copy_affect( saf );
+      caf->duration = charge_boost( skill, caf->duration );
 
       if( caf->location != APPLY_AFFECT )
       {
@@ -5098,6 +5106,8 @@ void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
       {
          case SKILL_SKILL:
             skill->min_move = (int)( ( slot_level * 1.5 ) / ( num_cost_type * 1.2 ) );
+            if( skill->style == STYLE_HEALING )
+               skill->min_move /= 2;
             break;
          case SKILL_SPELL:
             skill->min_move = (int)( ( slot_level * 3 ) / ( num_cost_type *.8 ) );
@@ -5476,4 +5486,14 @@ void do_learn( CHAR_DATA *ch, const char *argument )
       return;
    }
    return;
+}
+
+int charge_boost( SKILLTYPE *skill, int amount )
+{
+   double boost = 1;
+
+   boost += skill->charge * .1;
+   amount = (int)( boost * amount );
+
+   return amount;
 }
