@@ -2483,12 +2483,6 @@ void do_flee( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( ch->move <= 0 )
-   {
-      send_to_char( "You're too exhausted to flee from combat!\r\n", ch );
-      return;
-   }
-
    /*
     * No fleeing while stunned. - Narn 
     */
