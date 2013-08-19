@@ -10783,7 +10783,7 @@ void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc )
       switch( factor->factor_type )
       {
          case APPLY_FACTOR:
-            ch_printf( ch, "   Factor %d is an Apply Factor. When a skill it has been added to is used, it will create an affect of %d %s and send it to the %s for a duration of %d. This affect will %s an affect from this same factor already on the target.\r\n",
+            ch_printf( ch, "Factor %d is an Apply Factor. When a skill it has been added to is used, it will create an affect of %d %s and send it to the %s for a duration of %d. This affect will %s an affect from this same factor already on the target.\r\n\r\n",
                        count++,
                        factor->location != APPLY_AFFECT ? (int)factor->modifier : get_num_affects( &factor->affect ),
                        factor->location == APPLY_AFFECT ? "affects listed below": a_types[factor->location],
@@ -10800,13 +10800,13 @@ void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc )
             }
             break;
          case STAT_FACTOR:
-            ch_printf( ch, "   Factor %d is a Stat Factor. It will add %d%% of your %s to the base roll of damage and healing style abilities.\r\n",
+            ch_printf( ch, "Factor %d is a Stat Factor. It will add %d%% of your %s to the base roll of damage and healing style abilities.\r\n\r\n",
                        count++,
                        (int)( factor->modifier * 100 ),
                        a_types[factor->location] );
             break;
          case BASEROLL_FACTOR:
-            ch_printf( ch, "   Factor %d is a Base Roll Factor. This will modify the initial base roll(before any stat factors are added) by %d%%.\r\n",
+            ch_printf( ch, "Factor %d is a Base Roll Factor. This will modify the initial base roll(before any stat factors are added) by %d%%.\r\n\r\n",
                        count++,
                        (int)( factor->modifier * 100 ) );
       }
