@@ -8988,7 +8988,9 @@ void do_dset( CHAR_DATA *ch, const char *argument )
    if( !str_cmp( arg2, "addfactor" ) )
    {
       int factor_type, location, duration, apply_type;
-      double modifier;
+      double modifier = 0;
+
+      factor_type = location = duration = apply_type = 0;
 
       argument = one_argument( argument, arg3 );
       if( ( factor_type = get_factor_type( arg3 ) ) == -1 )
@@ -9001,41 +9003,76 @@ void do_dset( CHAR_DATA *ch, const char *argument )
          return;
       }
 
-      argument = one_argument( argument, arg3 );
-      if( ( location = get_atype( arg3 ) ) == -1 )
+      switch( factor_type )
       {
-         ch_printf( ch, "'%s' not a valid location.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
-         send_to_char( "Valid Options are:\r\n", ch );
-         for( x = 0; x < MAX_APPLY_TYPE; x++ )
-            ch_printf( ch, "%s ", a_types[x] );
-         send_to_char( "\r\n", ch );
-         return;
-      }
+         case APPLY_FACTOR:
+            argument = one_argument( argument, arg3 );
+            if( ( location = get_atype( arg3 ) ) == -1 )
+            {
+               ch_printf( ch, "'%s' not a valid location.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
+               send_to_char( "Valid Options are:\r\n", ch );
+               for( x = 0; x < MAX_APPLY_TYPE; x++ )
+                  ch_printf( ch, "%s ", a_types[x] );
+               send_to_char( "\r\n", ch );
+               return;
+            }
 
-      argument = one_argument( argument, arg3 );
-      if( arg3[0] == '\0' || ( modifier = atoi( arg3 ) ) < 0 )
-      {
-         ch_printf( ch, "'%s' is not a valid modifier value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
-         return;
-      }
-      argument = one_argument( argument, arg3 );
-      if( !is_number( arg3 ) )
-      {
-         ch_printf( ch, "'%s' is not a valid duration value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
-         return;
-      }
-      duration = atoi( arg3 );
+            argument = one_argument( argument, arg3 );
+            if( arg3[0] == '\0' || ( modifier = atoi( arg3 ) ) < 0 )
+            {
+               ch_printf( ch, "'%s' is not a valid modifier value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
+               return;
+            }
+            argument = one_argument( argument, arg3 );
+            if( !is_number( arg3 ) )
+            {
+               ch_printf( ch, "'%s' is not a valid duration value.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
+               return;
+            }
+            duration = atoi( arg3 );
 
-      argument = one_argument( argument, arg3 );
-      if( ( apply_type = get_apply_type( arg3 ) ) == -1 )
-      {
-         ch_printf( ch, "'%s' is not a valid apply type.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
-         send_to_char( "Valid Options are:\r\n", ch );
-         for( x = 0; x < MAX_APPLYTYPE; x++ )
-            ch_printf( ch, "%s ", applytypes_type[x] );
-         send_to_char( "\r\n", ch );
+            argument = one_argument( argument, arg3 );
+            if( ( apply_type = get_apply_type( arg3 ) ) == -1 )
+            {
+               ch_printf( ch, "'%s' is not a valid apply type.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
+               send_to_char( "Valid Options are:\r\n", ch );
+               for( x = 0; x < MAX_APPLYTYPE; x++ )
+                  ch_printf( ch, "%s ", applytypes_type[x] );
+               send_to_char( "\r\n", ch );
+               return;
+            }
+            break;
 
-         return;
+         case BASEROLL_FACTOR:
+            argument = one_argument( argument, arg3 );
+            if( ( modifier = atof( arg3 ) ) <= 0 )
+            {
+               send_to_char( "Number must be greater than 0.\r\n", ch );
+               return;
+            }
+            break;
+
+         case STAT_FACTOR:
+         {
+            argument = one_argument( argument, arg3 );
+            if( ( location = get_atype( arg3 ) ) == -1 )
+            {
+               ch_printf( ch, "'%s' not a valid location.\r\n", arg3[0] == '\0' ? "nothing" : arg3 );
+               send_to_char( "Valid Options are:\r\n", ch );
+               for( x = 0; x < MAX_APPLY_TYPE; x++ )
+                  ch_printf( ch, "%s ", a_types[x] );
+               send_to_char( "\r\n", ch );
+               return;
+            }
+
+            argument = one_argument( argument, arg3 );
+            if( ( modifier = atof( arg3 ) ) <= 0 )
+            {
+               send_to_char( "Number must be greater than 0.\r\n", ch );
+               return;
+            }
+            break;
+         }
       }
 
       CREATE( factor, FACTOR_DATA, 1 );
@@ -9045,6 +9082,7 @@ void do_dset( CHAR_DATA *ch, const char *argument )
       factor->duration = duration;
       factor->apply_type = apply_type;
       factor->modifier = modifier;
+      xCLEAR_BITS( factor->affect );
       for( ;; )
       {
          id = number_range( 1000, 9999 );

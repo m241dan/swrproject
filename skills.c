@@ -4951,7 +4951,7 @@ void skills_checksum( CHAR_DATA * ch )
             continue;
          }
          LINK( updated_factor, ch->pc_skills[x]->first_factor, ch->pc_skills[x]->last_factor, next, prev );
-         	factor_to_skill( ch, ch->pc_skills[x], updated_factor, TRUE );
+         factor_to_skill( ch, ch->pc_skills[x], updated_factor, TRUE );
       }
    }
    update_skills( ch );
