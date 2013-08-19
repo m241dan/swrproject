@@ -2027,6 +2027,8 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          return;
       }
       victim->max_mana = value;
+     if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
+         victim->pIndexData->mana = value;
       return;
    }
 
@@ -2040,6 +2042,8 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          return;
       }
       victim->max_move = value;
+      if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
+         victim->pIndexData->move = value;
       return;
    }
 
@@ -6062,7 +6066,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
       fprintf( fpout, "Affected   %s~\n", ext_flag_string( &pMobIndex->affected_by, a_flags ) );
    fprintf( fpout, "Stats1     %d %d %d %d %d %d %d\n", pMobIndex->alignment, pMobIndex->level, pMobIndex->mobthac0,
             pMobIndex->evasion, pMobIndex->armor, pMobIndex->gold, pMobIndex->exp );
-   fprintf( fpout, "Stats2     %d %d %d\n", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus );
+   fprintf( fpout, "Stats2     %d %d %d %d %d\n", pMobIndex->hitnodice, pMobIndex->hitsizedice, pMobIndex->hitplus, pMobIndex->move, pMobIndex->mana );
    fprintf( fpout, "Stats3     %d %d %d\n", pMobIndex->damnodice, pMobIndex->damsizedice, pMobIndex->damplus );
    fprintf( fpout, "Stats4     %d %d %d %d %d\n",
             pMobIndex->height, pMobIndex->weight, pMobIndex->numattacks, pMobIndex->hitroll, pMobIndex->damroll );

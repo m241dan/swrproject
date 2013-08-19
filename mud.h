@@ -2179,6 +2179,8 @@ struct mob_index_data
    short damnodice;
    short damsizedice;
    short damplus;
+   int move;
+   int mana;
    short numattacks;
    int gold;
    int exp;

@@ -2306,6 +2306,8 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    else
       mob->max_hit = pMobIndex->hitnodice * number_range( 1, pMobIndex->hitsizedice ) + pMobIndex->hitplus;
    mob->hit = mob->max_hit;
+   mob->mana = pMobIndex->mana;
+   mob->move = pMobIndex->move;
    /*
     * lets put things back the way they used to be! -Thoric 
     */
@@ -7088,13 +7090,15 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             if( !str_cmp( word, "Stats2" ) )
             {
                char *ln = fread_line( fp );
-               int x1, x2, x3;
-               x1 = x2 = x3 = 0;
-               sscanf( ln, "%d %d %d", &x1, &x2, &x3 );
+               int x1, x2, x3, x4, x5;
+               x1 = x2 = x3 = x4 = x5= 0;
+               sscanf( ln, "%d %d %d %d %d", &x1, &x2, &x3, &x4, &x5 );
 
                pMobIndex->hitnodice = x1;
                pMobIndex->hitsizedice = x2;
                pMobIndex->hitplus = x3;
+               pMobIndex->move = x4;
+               pMobIndex->mana = x5;
 
                break;
             }
