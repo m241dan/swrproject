@@ -981,7 +981,7 @@ void do_say( CHAR_DATA * ch, const char *argument )
     act( AT_SAY, "$n says '$T'", ch, NULL, argument, TO_ROOM );*/
    ch->act = actflags;
    MOBtrigger = FALSE;
-   act( AT_SAY, "You say '$T'", ch, NULL, drunk_speech( argument, ch ), TO_CHAR );
+   act( AT_SAY, "&WYou say &z'&r$T&z'&w", ch, NULL, drunk_speech( argument, ch ), TO_CHAR );
    if( IS_SET( ch->in_room->room_flags, ROOM_LOGSPEECH ) )
    {
       sprintf( buf, "%s: %s", IS_NPC( ch ) ? ch->short_descr : ch->name, argument );
