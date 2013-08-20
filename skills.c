@@ -397,7 +397,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
 
 void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   AFFECT_DATA *saf;
+   AFFECT_DATA *saf, *caf;
    STAT_BOOST *stat_boost;
    int amount;
 
@@ -422,19 +422,20 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
-      switch( saf->apply_type )
+      caf = copy_affect( saf );
+      switch( caf->apply_type )
       {
          case APPLY_JOIN_TARGET:
-            affect_join( victim, saf );
+            affect_join( victim, caf );
             break;
          case APPLY_JOIN_SELF:
-            affect_join( ch, saf );
+            affect_join( ch, caf );
             break;
          case APPLY_OVERRIDE_TARGET:
-            affect_to_char( victim, saf );
+            affect_to_char( victim, caf );
             break;
          case APPLY_OVERRIDE_SELF:
-            affect_to_char( ch, saf );
+            affect_to_char( ch, caf );
             break;
       }
    }
@@ -446,7 +447,7 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 }
 void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   AFFECT_DATA *saf;
+   AFFECT_DATA *saf, *caf;
 
    if( IS_NPC( ch ) )
    {
@@ -474,19 +475,21 @@ void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
-      switch( saf->apply_type )
+      caf = copy_affect( saf );
+      caf->modifier *= -1;
+      switch( caf->apply_type )
       {
          case APPLY_JOIN_TARGET:
-            affect_join( victim, saf );
+            affect_join( victim, caf );
             break;
          case APPLY_JOIN_SELF:
-            affect_join( ch, saf );
+            affect_join( ch, caf );
             break;
          case APPLY_OVERRIDE_TARGET:
-            affect_to_char( victim, saf );
+            affect_to_char( victim, caf );
             break;
          case APPLY_OVERRIDE_SELF:
-            affect_to_char( ch, saf );
+            affect_to_char( ch, caf );
             break;
       }
    }
