@@ -3630,7 +3630,7 @@ void clean_char_queue(  )
    for( ccd = extracted_char_queue; ccd; ccd = extracted_char_queue )
    {
       extracted_char_queue = ccd->next;
-      if( ccd->extract )
+      if( ccd->extract && ccd->ch )
          free_char( ccd->ch );
       DISPOSE( ccd );
       --cur_qchars;
