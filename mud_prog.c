@@ -2053,10 +2053,7 @@ void mprog_entry_trigger( CHAR_DATA * mob )
 {
 
    if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, ENTRY_PROG ) )
-   {
-      bug( "called" );
       mprog_percent_check( mob, NULL, NULL, NULL, ENTRY_PROG );
-   }
 
    return;
 
@@ -2805,6 +2802,9 @@ void rprog_act_trigger( const char *buf, ROOM_INDEX_DATA * room, CHAR_DATA * ch,
  *
  */
 
+void global_quest_prog( CHAR_DATA *ch )
+{
+}
 
 void rprog_leave_trigger( CHAR_DATA * ch )
 {
