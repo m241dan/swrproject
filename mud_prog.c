@@ -2053,7 +2053,10 @@ void mprog_entry_trigger( CHAR_DATA * mob )
 {
 
    if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, ENTRY_PROG ) )
+   {
+      bug( "called" );
       mprog_percent_check( mob, NULL, NULL, NULL, ENTRY_PROG );
+   }
 
    return;
 
