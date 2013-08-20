@@ -1856,7 +1856,7 @@ void nanny_get_new_sex( DESCRIPTOR_DATA *d, const char *argument )
       return;
     }
 
-  write_to_buffer( d, "\r\nYou may choose from the following races, or type help [race] to learn more:\r\n[", 0 );
+  write_to_buffer( d, "\r\nRaces are PURELY for RP purposes, they do not determine stats.\r\nYou may choose from the following races, or type help [race] to learn more:\r\n[", 0 );
   buf[0] = '\0';
 
   for( iRace = 0; iRace < MAX_RACE; iRace++ )
@@ -1915,7 +1915,7 @@ void nanny_get_new_race( DESCRIPTOR_DATA *d, const char *argument )
       return;
     }
 
-  write_to_buffer( d, "\r\nPlease choose a build from the following build types, or type help [build](Builds Matter):\r\n[", 0 );
+  write_to_buffer( d, "\r\nBuilds determine your stats.\r\nPlease choose a build from the following build types, or type help builds(Builds Matter):\r\n[", 0 );
   buf[0] = '\0';
 
   for( iBuild = 0; iBuild < MAX_STATBUILD; iBuild++ )
