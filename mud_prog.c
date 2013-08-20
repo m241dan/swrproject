@@ -2799,12 +2799,25 @@ void rprog_act_trigger( const char *buf, ROOM_INDEX_DATA * room, CHAR_DATA * ch,
 }
 
 /*
- *
+ * Global Triggers -Davnege
  */
 
-void global_quest_prog( CHAR_DATA *ch )
+void global_thought_script( CHAR_DATA *ch, AI_THOUGHT *thought )
 {
+   if( !thought || thought->script == '\0' )
+   {
+      bug( "%s: global thought passed NULL", __FUNCTION__ );
+      return;
+   }
+   rset_supermob( ch->in_room );
+   mprog_driver( thought->script, supermob, ch, NULL, NULL, FALSE );
+   release_supermob(  );
 }
+
+
+/*
+ * rprog triggers
+ */
 
 void rprog_leave_trigger( CHAR_DATA * ch )
 {

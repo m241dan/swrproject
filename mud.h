@@ -4887,6 +4887,7 @@ void rset_supermob args( ( ROOM_INDEX_DATA * room ) );
 void release_supermob( void );
 void mprog_quest_trigger args( ( CHAR_DATA *mob, CHAR_DATA *ch ) );
 void mprog_thought_trigger( CHAR_DATA *mob, AI_THOUGHT *thought );
+void global_thought_script( CHAR_DATA *ch, AI_THOUGHT *thought );
 
 /* player.c */
 void set_title( CHAR_DATA * ch, const char *title );
