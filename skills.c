@@ -410,8 +410,8 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
       amount += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );
 
    amount = (int)( amount * ( 1 + ( .25 * get_num_cost_types( skill ) ) ) );
-
-   amount = res_pen( ch, victim, amount, skill->damtype );
+   if( !xIS_EMPTY( skill->damtype ) )
+      amount = res_pen( ch, victim, amount, skill->damtype );
 
    amount = charge_boost( skill, amount );
 
@@ -504,7 +504,7 @@ void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    {
       caf = copy_affect( saf );
       caf->duration = charge_boost( skill, (int)caf->duration );
-      if( caf->location != APPLY_AFFECT )
+      if( caf->location != APPLY_AFFECT && !xIS_EMPTY( caf->bitvector ) )
          caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
 
       switch( caf->apply_type )
@@ -545,8 +545,11 @@ void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
       if( caf->location != APPLY_AFFECT )
       {
-         caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
-         caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
+         if( !xIS_EMPTY( skill->damtype ) )
+         {
+            caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
+            caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
+         }
          caf->modifier *= -1;
       }
 
