@@ -4481,7 +4481,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
 
    if( arg[0] == '\0' )
    {
-      send_to_char( "&BSkill Slots\r\n-----------\r\n", ch );
+      send_to_char( "&rSkill Slots\r\n&z-----------&w\r\n", ch );
       for( x = 0; x < MAX_SKILL_SLOT; x++ )
       {
            slot = ( x + 1 ) * 5;
@@ -4495,7 +4495,10 @@ void do_skills( CHAR_DATA *ch, const char *argument )
              send_to_char( "\r\n", ch );
           }
       }
-      send_to_char( "\r\n&BAvailable Skills\r\n----------------\r\n", ch );
+      send_to_char( "\r\n&rAvailable Skills\r\n&z----------------\r\n", ch );
+      send_to_char( "&z'Inc'&r Skill is incomplete&z,&r cannot be set&w\r\n", ch );
+      send_to_char( "&z'&CAva&z'&r Skill is complete and available to set&w\r\n", ch );
+      send_to_char( "&z'Set'&r Skill is already set&w\r\n", ch );
       for( x = 0; x < MAX_PC_SKILL; x++ )
       {
          if( !ch->pc_skills[x] )
@@ -4519,8 +4522,9 @@ void do_skills( CHAR_DATA *ch, const char *argument )
              }
          }
       }
-      ch_printf( ch, "%s\r\nOther Usages: skills <command>\r\n", column != 0 ? "\r\n" : "" );
-      send_to_char( "  Commands: unset set\r\n", ch );
+      ch_printf( ch, "%s\r\nOther Usages: skills <command> <parameters>\r\n", column != 0 ? "\r\n" : "" );
+      send_to_char( "  Commands: set unset\r\n", ch );
+      send_to_char( "  Type 'skills set' or 'skills unset' for parameters\r\n", ch );
       return;
    }
    if( !str_cmp( arg, "unset" ) )
