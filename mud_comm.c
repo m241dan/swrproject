@@ -2215,7 +2215,7 @@ void do_mpwander( CHAR_DATA *ch, const char *argument )
 
    if( !ch->in_room )
    {
-      bug( "%s: %s not in a room???", __FUNCTION__, ch->name );
+      progbug( "mpwander: not in a room???", ch );
       return;
    }
 
@@ -2226,4 +2226,72 @@ void do_mpwander( CHAR_DATA *ch, const char *argument )
 
    move_char( ch, exit, FALSE );
    return;
+}
+
+void do_mpreward( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+   char arg[MAX_STRING_LENGTH];
+   int value;
+
+   if( !IS_NPC( ch ) )
+      return;
+
+   argument = one_argument( argument, arg );
+
+   if( ( victim = get_char_room_mp( ch, arg ) ) == NULL )
+   {
+      progbug( "mpreward:  NULL victim", ch );
+      return;
+   }
+
+   argument = one_argument( argument, arg );
+
+   if( !str_cmp( arg, "credits" ) || !str_cmp( arg, "gold" ) )
+   {
+      if( !is_number( argument ) )
+      {
+         progbug( "mpreward: no number entered for credits", ch );
+         return;
+      }
+      if( ( value = atoi( argument ) ) < 1 )
+      {
+         progbug( "mpreward: number for credits entered less than 1", ch );
+         return;
+      }
+      obj_to_char( create_money( value ), victim );
+      ch_printf( victim, "You have been reawrded with %d credits.\r\n", value );
+      save_char_obj( victim );
+      return;
+   }
+
+   if( !str_cmp( arg, "exp" ) || !str_cmp( arg, "experience" ) )
+   {
+      int Class;
+      argument = one_argument( argument, arg );
+      if( !is_number( arg ) )
+      {
+         progbug( "mpreward: exp not proper class number put in.", ch );
+         return;
+      }
+      if( ( Class = atoi( arg ) ) < 0 || Class >= MAX_ABILITY )
+      {
+         progbug( "mpreward: exp not proper class selection.", ch );
+         return;
+      }
+      if( !is_number( argument ) )
+      {
+         progbug( "mpreward: no number put in for amount of exp to reward", ch );
+         return;
+      }
+      if( ( value = atoi( argument ) ) < 1 )
+      {
+         progbug( "mpreward: exp number must be greater than 0", ch );
+         return;
+      }
+      gain_exp( victim, value, Class );
+      ch_printf( victim, "You have been rewarded with %d %s experience points.\r\n", value, ability_name[Class] );
+      save_char_obj( victim );
+      return;
+   }
 }
