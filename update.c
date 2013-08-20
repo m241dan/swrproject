@@ -2855,11 +2855,8 @@ void split_timers_update(  )
    {
       next_timer = timer->next;
       if( ( ch = timer->timer_ch ) == NULL )
-      {
-         dispose_qtimer( timer );
-         bug( "%s: NULL ch", __FUNCTION__ );
          continue;
-      }
+
       set_cur_char( ch );
       if( char_died( ch ) )
          continue;

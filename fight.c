@@ -1729,7 +1729,6 @@ void death_cry( CHAR_DATA * ch )
 
 OBJ_DATA *raw_kill( CHAR_DATA * ch, CHAR_DATA * victim )
 {
-   QTIMER *qtimer, *next_qtimer;
    CHAR_DATA *victmp;
    OBJ_DATA *corpse_to_return;
    OBJ_DATA *obj, *obj_next;
@@ -1805,14 +1804,6 @@ OBJ_DATA *raw_kill( CHAR_DATA * ch, CHAR_DATA * victim )
    do_help( victim, "_DIEMSG_" );
 
    /* swreality chnages begin here */
-
-   for( qtimer = first_qtimer; qtimer; qtimer = next_qtimer )
-   {
-     next_qtimer = qtimer->next;
-     if( qtimer->timer_ch == victim )
-        dispose_qtimer( qtimer );
-   }
-
 
    for( ship = first_ship; ship; ship = ship->next )
    {

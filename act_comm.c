@@ -1362,7 +1362,6 @@ void do_quit( CHAR_DATA * ch, const char *argument )
     */
    int x, y;
    int level;
-   QTIMER *qtimer, *next_qtimer;
    CHAR_DATA *wch, *wch_next;
    AFFECT_DATA *paf, *paf_next;
 
@@ -1420,14 +1419,6 @@ void do_quit( CHAR_DATA * ch, const char *argument )
          }
       }
 
-   }
-
-   for( qtimer = first_qtimer; qtimer; qtimer = next_qtimer )
-   {
-      next_qtimer = qtimer->next;
-
-      if( qtimer->timer_ch == ch )
-         dispose_qtimer( qtimer );
    }
 
    set_char_color( AT_WHITE, ch );
