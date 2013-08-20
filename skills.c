@@ -4495,10 +4495,11 @@ void do_skills( CHAR_DATA *ch, const char *argument )
              send_to_char( "\r\n", ch );
           }
       }
-      send_to_char( "\r\n&rAvailable Skills\r\n&z----------------\r\n", ch );
+      send_to_char( "\r\n&rAvailable Skills\r\n&z------KEY-------\r\n", ch );
       send_to_char( "&z'Inc'&r Skill is incomplete&z,&r cannot be set&w\r\n", ch );
-      send_to_char( "&z'&CAva&z'&r Skill is complete and available to set&w\r\n", ch );
+      send_to_char( "&z'Ava&z'&r Skill is complete and available to set&w\r\n", ch );
       send_to_char( "&z'Set'&r Skill is already set&w\r\n", ch );
+      send_to_char( "----------------\r\n", ch );
       for( x = 0; x < MAX_PC_SKILL; x++ )
       {
          if( !ch->pc_skills[x] )
