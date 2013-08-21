@@ -1864,7 +1864,8 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
    {
       char buf[MAX_STRING_LENGTH];
       sprintf( buf, "%s%s\n", pquest->progress, argument );
-      STRFREE( pquest->progress );
+      if( pquest->progress[0] != '\0' )
+         STRFREE( pquest->progress );
       pquest->progress = STRALLOC( buf );
       send_to_char( pquest->progress, victim );
    }

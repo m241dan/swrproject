@@ -5430,6 +5430,7 @@ void do_learn( CHAR_DATA *ch, const char *argument )
       adjust_stat( ch, STAT_GOLD, -value );
       add_discipline( ch, disc);
       ch_printf( ch, "You hand %s %d credits to learn %s.\r\nCongratulations, you have learned %s!\r\n", mob->name, value, disc->name, disc->name );
+      global_thought_script( ch, get_thought( "Welcome Quest" ) );
       return;
    }
    else
