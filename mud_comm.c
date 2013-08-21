@@ -2260,7 +2260,7 @@ void do_mpreward( CHAR_DATA *ch, const char *argument )
          progbug( "mpreward: number for credits entered less than 1", ch );
          return;
       }
-      obj_to_char( create_money( value ), victim );
+      adjust_stat( victim, STAT_GOLD, value );
       ch_printf( victim, "You have been reawrded with %d credits.\r\n", value );
       save_char_obj( victim );
       return;
