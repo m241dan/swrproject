@@ -1749,7 +1749,7 @@ void extract_char( CHAR_DATA * ch, bool fPull )
    {
       qtimer_next = qtimer->next;
       if( qtimer->timer_ch == ch )
-         dispose_qtimer( qtimer );
+         qtimer->timer_ch = NULL;
    }
 
    if( gch_prev == ch )
@@ -4781,7 +4781,7 @@ void remove_queue( CHAR_DATA *ch, int type )
    {
       timer_next = timer->next;
       if( timer->timer_ch == ch && timer->type == type )
-         dispose_qtimer( timer );
+         timer->timer_ch = NULL;
    }
    return;
 }
