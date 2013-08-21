@@ -2295,3 +2295,20 @@ void do_mpreward( CHAR_DATA *ch, const char *argument )
       return;
    }
 }
+
+void do_mpblank( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+
+   if( !IS_NPC( ch ) )
+      return;
+
+   if( ( victim = get_char_room_mp( ch, argument ) ) == NULL )
+   {
+      progbug( "mpblank: bad victim", ch );
+      return;
+   }
+
+   send_to_char( "\r\n", victim );
+   return;
+}

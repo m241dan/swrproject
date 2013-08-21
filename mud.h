@@ -4249,6 +4249,7 @@ DECLARE_DO_FUN( do_zap );
 DECLARE_DO_FUN( do_zones );
 
 /* mob prog stuff */
+DECLARE_DO_FUN( do_mpblank );
 DECLARE_DO_FUN( do_mpreward );
 DECLARE_DO_FUN( do_mpwander );
 DECLARE_DO_FUN( do_mphunt );
