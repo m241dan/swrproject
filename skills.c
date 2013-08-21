@@ -4468,6 +4468,15 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "name" ) )
+   {
+      if( skill->name[0] == '\0' )
+         STRFREE( skill->name );
+      skill->name = STRALLOC( argument );
+      send_to_char( "Name set.\r\n", ch );
+      return;
+   }
+
    send_to_char( "Improper Usage...\r\n", ch );
    do_skillcraft( ch, "" );
    return;
@@ -4620,6 +4629,11 @@ void do_skills( CHAR_DATA *ch, const char *argument )
                send_to_char( "Not a valid slot.\r\n", ch );
                return;
             }
+            if( ch->skill_level[COMBAT_ABILITY] < slot )
+            {
+               send_to_char( "Slot unavailable.\r\n", ch );
+               return;
+            }
             ch->skill_slots[(slot / 5) - 1] = ch->pc_skills[gsn];
             ch_printf( ch, "%s set at level %d\r\n", ch->pc_skills[gsn]->name, slot );
          }
@@ -4628,6 +4642,11 @@ void do_skills( CHAR_DATA *ch, const char *argument )
            if( ( slot = is_number( argument ) ? atoi( argument ) : -1  ) <= 0 || slot > 30 )
            {
               send_to_char( "Not a valid slot.\r\n", ch );
+              return;
+           }
+           if( ch->skill_level[COMBAT_ABILITY] < ( slot * 5 ) )
+           {
+              send_to_char( "Slot unavailable.\r\n", ch );
               return;
            }
            ch->skill_slots[(slot - 1)] = ch->pc_skills[gsn];
