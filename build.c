@@ -5779,7 +5779,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
 // Write a prog
 bool mprog_write_prog( FILE * fpout, MPROG_DATA * mprog )
 {
-   if( ( mprog->arglist && mprog->arglist[0] != '\0' ) )
+   if( ( mprog->arglist && mprog->arglist[0] != '\0' ) || mprog->type == QUEST_PROG )
    {
       fprintf( fpout, "%s", "#MUDPROG\n" );
       fprintf( fpout, "Progtype  %s~\n", mprog_type_to_name( mprog->type ) );
@@ -9425,6 +9425,7 @@ void do_discipline( CHAR_DATA *ch, const char *argument )
       }
       set_discipline( ch, disc );
       send_to_char( "Discipline Set.\r\n", ch );
+      global_thought_script( ch, get_thought( "global.disciplineset" ) );
       return;
    }
    if( !str_cmp( arg, "unset" ) )

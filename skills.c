@@ -4200,6 +4200,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       send_to_char( "Skill created.\r\n", ch );
       save_char_obj( ch );
       saving_char = NULL;
+      global_thought_script( ch, get_thought( "global.skillcreate" ) );
       return;
    }
 
@@ -4300,6 +4301,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       if( is_skill_set( ch, skill ) )
          update_skill( ch, skill );
       send_to_char( "Factor added.\r\n", ch );
+      global_thought_script( ch, get_thought( "global.addfactor" ) );
       return;
    }
 
@@ -4356,6 +4358,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
       skill->type = value;
       send_to_char( "Skill Type Set\r\n", ch );
+      global_thought_script( ch, get_thought( "global.skilltype" ) );
       return;
    }
 
@@ -4377,6 +4380,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
       xTOGGLE_BIT( skill->cost, value );
       send_to_char( "Cost Type Set\r\n", ch );
+      global_thought_script( ch, get_thought( "global.costtype" ) );
       return;
    }
 
@@ -4400,6 +4404,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       if( is_skill_set( ch, skill ) )
          update_skill( ch, skill );
       send_to_char( "Damage Type Set\r\n", ch );
+      global_thought_script( ch, get_thought( "global.damtype" ) );
       return;
    }
 
@@ -4421,6 +4426,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
       skill->target = value;
       send_to_char( "Target Type Set\r\n", ch );
+      global_thought_script( ch, get_thought( "global.targettype" ) );
       return;
    }
    if( !str_cmp( arg2, "style" ) )
@@ -4441,6 +4447,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
       skill->style = value;
       send_to_char( "Skill Style Set\r\n", ch );
+      global_thought_script( ch, get_thought( "global.skillstyle" ) );
       return;
    }
 
@@ -4635,6 +4642,7 @@ void do_skills( CHAR_DATA *ch, const char *argument )
          update_skill( ch, ch->pc_skills[gsn] );
          save_char_obj( ch );
          saving_char = NULL;
+         global_thought_script( ch, get_thought( "global.skillsset" ) );
          return;
       }
    }

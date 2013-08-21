@@ -419,12 +419,6 @@ void talk_channel( CHAR_DATA * ch, const char *argument, int channel, const char
       }
 
    }
-   else if( channel == CHANNEL_OOC && !IS_SET( ch->in_room->room_flags, ROOM_HOTEL ) )
-   {
-      send_to_char( "&ROut of character conversations are restricted to hotels!\r\n", ch );
-      return;
-   }
-
 
    if( IS_NPC( ch ) && channel == CHANNEL_CLAN )
    {
