@@ -5629,3 +5629,17 @@ void depleted_obj( CHAR_DATA *ch, OBJ_DATA *obj )
    ch_printf( ch, "%s: %s is depleted.\r\n", wear_locs[obj->wear_loc], obj->short_descr );
    return;
 }
+
+int get_temper_count( OBJ_DATA *obj )
+{
+   int count, x;
+
+   if( xIS_EMPTY( obj->temper ) )
+      return -1;
+
+   for( x = 0, count = 0; x < MAX_DAMTYPE; x++ )
+      if( xIS_SET( obj->temper, x ) )
+         count++;
+
+   return count;
+}

@@ -4110,7 +4110,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       send_to_char( "Or:           skillcraft create <skill>\r\n", ch );
       send_to_char( "Or:           skillcraft delete <skill>(Not yet in)\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
-      send_to_char( "  show name addfactor remfactor type target style cost damtype\r\n\r\n", ch );
+      send_to_char( "  show name addfactor remfactor type target style cost damtype opener\r\n\r\n", ch );
 
       send_to_char( "Settable Skill Types:", ch );
       for( x = 0; x < MAX_SKILLTYPE; x++ )
@@ -4200,6 +4200,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       skill->type = SKILL_UNSET;
       skill->style = STYLE_UNSET;
       skill->target = TAR_CHAR_UNSET;
+      skill->minimum_position = POS_FIGHTING;
       ch->pc_skills[ch->top_sn] = skill;
       ch->top_sn++;
       send_to_char( "Skill created.\r\n", ch );
@@ -4470,6 +4471,19 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       }
       skill->charge = value;
       send_to_char( "Charge Set\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "opener" ) )
+   {
+      if( skill->minimum_position == POS_FIGHTING )
+      {
+         skill->minimum_position = POS_STANDING;
+         send_to_char( "You have turned %s into an opener skill.\r\n", ch );
+         return;
+      }
+      skill->minimum_position = POS_FIGHTING;
+      send_to_char( "Skill not an opener.\r\n", ch );
       return;
    }
 

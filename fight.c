@@ -512,6 +512,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    int diceroll;
    int prof_bonus;
    int prof_gsn;
+   int x;
    ch_ret retcode = rNONE;
    EXT_BV damtype;
    int hit_wear;
@@ -632,9 +633,9 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    if( dt >= TYPE_HIT || skill->type == SKILL_SKILL )
    {
       if( !wield )   /* dice formula fixed by Thoric */
-         dam = number_range( ch->barenumdie, ch->baresizedie * ch->barenumdie ) + ch->damplus;
+         dam = number_range( ch->barenumdie, ch->baresizedie ) + ch->damplus;
       else
-         dam = number_range( wield->value[1], wield->value[2] );
+         dam = number_range( wield->value[1], wield->value[2] ) + ch->wepplus;
 
       ch_printf( ch, "Base Weapon Roll: %d\r\n", dam );
 
@@ -676,10 +677,17 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       dam += damroll;
       dam -= GET_ARMOR( victim );
       if( ( hit_loc_armor = get_eq_char( victim, hit_wear ) ) != NULL )
+      {
+         double temper_mod = .15 / get_temper_count( hit_loc_armor );
          dam -= hit_loc_armor->value[2];
+         if( temper_mod > 0 )
+            for( x = 0; x < MAX_DAMTYPE; x++ )
+               if( xIS_SET( damtype, x ) && xIS_SET( hit_loc_armor->temper, x ) )
+                  dam = (int)( dam * ( 1 + temper_mod ) );
+      }
    }
 
-   ch_printf( ch, "Damage after Damroll: %d\r\n", dam );
+   ch_printf( ch, "Damage after Damroll, AC and Temper: %d\r\n", dam );
 
    if( skill && skill->name && skill->name[0] != '\0' )
    {
@@ -701,6 +709,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    /* Handle Res_Pen */
    dam = res_pen( ch, victim, dam, damtype );
+   ch_printf( ch, "Damage after Res_pen: %d\r\n", dam );
 
    /* Charge */
    if( skill )
@@ -709,7 +718,6 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       ch_printf( ch, "Damage after Charge Boost: %d\r\n", dam );
    }
 
-   ch_printf( ch, "Damage after Res_pen: %d\r\n", dam );
 
    if( !IS_AWAKE( victim ) )
      dam *= 2;
