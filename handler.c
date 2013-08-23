@@ -4623,6 +4623,8 @@ void create_group( CHAR_DATA *ch )
    CREATE( group, GROUP_DATA, 1 );
 
    group->leader = ch;
+   group->members[0] = ch;
+   group->member_count = 0;
    ch->in_group = group;
 
    return;
@@ -4669,8 +4671,7 @@ void group_leave( CHAR_DATA *ch )
    {
       for( x = 0; x < MAX_GROUP; x++ )
       {
-         member = group->members[x];
-         if( member != ch )
+         if( ( member = group->members[x] ) != ch )
          {
             group->leader = member;
             break;
@@ -4679,8 +4680,7 @@ void group_leave( CHAR_DATA *ch )
    }
    for( x = 0; x < MAX_GROUP; x++ )
    {
-      member = group->members[x];
-      if( member == ch )
+      if( ( member = group->members[x] ) == ch )
          group->members[x] = NULL;
    }
    ch->in_group = NULL;

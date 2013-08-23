@@ -1861,7 +1861,12 @@ void do_group( CHAR_DATA * ch, const char *argument )
          return;
       }
 
-      leader = ch->leader ? ch->leader : ch;
+      if( ( leader = ch->in_group->leader ) == NULL )
+      {
+         send_to_char( "Your group is glitched, disbanding.\r\n", ch );
+         disband_group( ch->in_group );
+         return;
+      }
       set_char_color( AT_GREEN, ch );
       ch_printf( ch, "%s's group:\r\n", PERS( leader, ch ) );
 
