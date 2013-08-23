@@ -4636,6 +4636,8 @@ void disband_group( GROUP_DATA *group )
    for( x = 0; x < MAX_GROUP; x++ )
    {
       member = group->members[x];
+      if( !member )
+         continue;
       member->in_group = NULL;
       group->members[x] = NULL;
    }
