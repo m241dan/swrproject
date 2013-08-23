@@ -1899,6 +1899,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
          return;
       }
       create_group( ch );
+      send_to_char( "You have started a group.\r\n", ch );
    }
 
    if( !str_cmp( arg, "accept" ) )
@@ -1973,6 +1974,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
       act( AT_ACTION, "$n kicks your from $s group!", ch, NULL, victim, TO_VICT );
       act( AT_ACTION, "$n kicks $N from the group!", ch, NULL, victim, TO_GROUP );
    }
+   do_group( ch, "" );
    return;
 }
 

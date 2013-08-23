@@ -932,7 +932,6 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
    short dameq;
    bool npcvict;
    bool loot;
-   int xp_gain;
    OBJ_DATA *damobj;
    ch_ret retcode;
    short dampmod;
@@ -1127,11 +1126,11 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
    /*
     * Get experience based on % of damage done       -Thoric
     */
-   if( dam && ch != victim && !IS_NPC( ch ) && ch->fighting && ch->fighting->xp )
-   {
-      xp_gain = ( int )( xp_compute( ch, victim ) * 0.1 * dam ) / victim->max_hit;
-      gain_exp( ch, xp_gain, COMBAT_ABILITY );
-   }
+//   if( dam && ch != victim && !IS_NPC( ch ) && ch->fighting && ch->fighting->xp )
+//   {
+//      xp_gain = ( int )( xp_compute( ch, victim ) * 0.1 * dam ) / victim->max_hit;
+//      gain_exp( ch, xp_gain, COMBAT_ABILITY );
+//   } -Davenge
 
    if( !IS_NPC( victim ) && victim->top_level >= LEVEL_IMMORTAL && victim->hit < 1 )
       victim->hit = 1;
@@ -1933,13 +1932,13 @@ void group_gain( CHAR_DATA * ch, CHAR_DATA * victim )
 
    for( gch = ch->in_room->first_person; gch; gch = gch->next_in_room )
    {
-      if( is_same_group( gch, ch ) )
+      if( is_same_group( gch, ch ) || gch == ch )
          members++;
    }
 
    if( members == 0 )
    {
-      bug( "Group_gain: members.", members );
+      bug( "Group_gain: members: %d", members );
       members = 1;
    }
 
