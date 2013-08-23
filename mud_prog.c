@@ -2059,6 +2059,12 @@ void mprog_entry_trigger( CHAR_DATA * mob )
 
 }
 
+void mprog_buy_trigger( CHAR_DATA *mob, CHAR_DATA *ch, OBJ_DATA *obj )
+{
+   if( IS_NPC( mob ) && xIS_SET( mob->pIndexData->progtypes, BUY_PROG ) )
+      mprog_percent_check( mob, ch, obj, NULL, BUY_PROG );
+}
+
 void mprog_fight_trigger( CHAR_DATA * mob, CHAR_DATA * ch )
 {
 
@@ -2173,6 +2179,8 @@ void mprog_random_trigger( CHAR_DATA * mob )
 
    return;
 }
+
+
 
 void mprog_time_trigger( CHAR_DATA * mob )
 {

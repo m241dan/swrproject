@@ -4884,6 +4884,7 @@ void mprog_speech_trigger args( ( const char *txt, CHAR_DATA * mob ) );
 void mprog_script_trigger args( ( CHAR_DATA * mob ) );
 void mprog_hour_trigger args( ( CHAR_DATA * mob ) );
 void mprog_time_trigger args( ( CHAR_DATA * mob ) );
+void mprog_buy_trigger args( ( CHAR_DATA *mob, CHAR_DATA *ch, OBJ_DATA *obj ) );
 void progbug args( ( const char *str, CHAR_DATA * mob ) );
 void rset_supermob args( ( ROOM_INDEX_DATA * room ) );
 void release_supermob( void );
@@ -5319,7 +5320,7 @@ typedef enum
    TIME_PROG, WEAR_PROG, REMOVE_PROG, SAC_PROG, LOOK_PROG, EXA_PROG, ZAP_PROG,
    GET_PROG, DROP_PROG, DAMAGE_PROG, REPAIR_PROG, RANDIW_PROG, SPEECHIW_PROG,
    PULL_PROG, PUSH_PROG, SLEEP_PROG, REST_PROG, LEAVE_PROG, SCRIPT_PROG,
-   USE_PROG, QUEST_PROG, MAX_PROGTYPE
+   USE_PROG, QUEST_PROG, BUY_PROG, MAX_PROGTYPE
 } prog_types;
 
 /*

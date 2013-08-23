@@ -473,13 +473,14 @@ void do_buy( CHAR_DATA * ch, const char *argument )
          }
          else
             obj_to_char( buy_obj, ch );
+         mprog_buy_trigger( keeper, ch, buy_obj );
       }
       else
       {
          obj_from_char( obj );
          obj_to_char( obj, ch );
+         mprog_buy_trigger( keeper, ch, obj );
       }
-
       return;
    }
 }

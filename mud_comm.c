@@ -96,6 +96,8 @@ const char *mprog_type_to_name( int type )
          return "use_prog";
       case QUEST_PROG:
          return "quest_prog";
+      case BUY_PROG:
+         return "buy_prog";
       default:
          return "ERROR_PROG";
    }
