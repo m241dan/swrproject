@@ -476,16 +476,17 @@ void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
       caf = copy_affect( saf );
-      caf->modifier *= -1;
       switch( caf->apply_type )
       {
          case APPLY_JOIN_TARGET:
+            caf->modifier *= -1;
             affect_join( victim, caf );
             break;
          case APPLY_JOIN_SELF:
             affect_join( ch, caf );
             break;
          case APPLY_OVERRIDE_TARGET:
+            caf->modifier *= -1;
             affect_to_char( victim, caf );
             break;
          case APPLY_OVERRIDE_SELF:
