@@ -2307,8 +2307,7 @@ void dam_message( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
       sprintf( buf3, "$n's %s %s you%c", attack, vp, punct );
    }
 
-   if( ch->skill_level[COMBAT_ABILITY] >= 100 )
-      sprintf( buf2, "%s You do %d points of damage.", buf2, dam );
+   sprintf( buf2, "%s You do %d points of damage.", buf2, dam );
 
    act( AT_ACTION, buf1, ch, NULL, victim, TO_NOTVICT );
    if( !gcflag )
