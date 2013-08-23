@@ -1843,7 +1843,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
    char arg[MAX_INPUT_LENGTH];
    CHAR_DATA *victim = NULL;
 
-   one_argument( argument, arg );
+   argument = one_argument( argument, arg );
 
    if( arg[0] == '\0' )
    {
@@ -1900,6 +1900,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
       }
       create_group( ch );
       send_to_char( "You have started a group.\r\n", ch );
+      return;
    }
 
    if( !str_cmp( arg, "accept" ) )
@@ -1914,7 +1915,9 @@ void do_group( CHAR_DATA * ch, const char *argument )
          send_to_char( "You have no pending invites.\r\n", ch );
          return;
       }
+      ch_printf( ch, "You accept $s's invite.\r\n", ch->group_invite->leader->name );
       group_invite_accept( ch );
+      return;
    }
 
 /* commands that require you having a group already below this line */
@@ -1925,7 +1928,11 @@ void do_group( CHAR_DATA * ch, const char *argument )
    }
 
    if( !str_cmp( arg, "leave" ) )
+   {
+      send_to_char( "You leave the group.\r\n", ch );
       group_leave( ch );
+      return;
+   }
 
    /* Sub Level, commands that require you to be the party leader */
    if( ch->in_group->leader != ch )
@@ -1935,7 +1942,11 @@ void do_group( CHAR_DATA * ch, const char *argument )
    }
 
    if( !str_cmp( arg, "disband" ) )
+   {
       disband_group( ch->in_group );
+      send_to_char( "You disband the group.\r\n", ch );
+      return;
+   }
 
    if( !str_cmp( arg, "invite" ) )
    {
@@ -1959,6 +1970,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
          return;
       }
       group_invite( ch, victim );
+      return;
    }
    if( !str_cmp( arg, "kick" ) )
    {
@@ -1973,6 +1985,7 @@ void do_group( CHAR_DATA * ch, const char *argument )
       act( AT_ACTION, "You kick $N from the group!", ch, NULL, victim, TO_CHAR );
       act( AT_ACTION, "$n kicks your from $s group!", ch, NULL, victim, TO_VICT );
       act( AT_ACTION, "$n kicks $N from the group!", ch, NULL, victim, TO_GROUP );
+      group_leave( victim );  
    }
    do_group( ch, "" );
    return;

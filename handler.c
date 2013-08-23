@@ -4640,6 +4640,8 @@ void disband_group( GROUP_DATA *group )
          continue;
       member->in_group = NULL;
       group->members[x] = NULL;
+      if( member != group->leader )
+         ch_printf( member, "%s disbands the group.\r\n", group->leader->name );
    }
 
    group->leader = NULL;
