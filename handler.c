@@ -4749,6 +4749,11 @@ CHAR_DATA *get_group_member( CHAR_DATA *ch, const char *argument )
    return NULL;
 }
 
+int get_group_count( GROUP_DATA *group )
+{
+   return group->member_count;
+}
+
 bool is_skill( int gsn )
 {
    if( gsn < TYPE_HIT && gsn > 0 )

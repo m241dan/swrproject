@@ -5142,6 +5142,7 @@ void add_mob_thought( CHAR_DATA *ch, AI_THOUGHT *thought );
 int use_bacta( CHAR_DATA *ch, int goal );
 OBJ_DATA *get_bacta( CHAR_DATA *ch );
 void depleted_obj( CHAR_DATA *ch, OBJ_DATA *obj );
+int get_group_count( GROUP_DATA *group );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );
