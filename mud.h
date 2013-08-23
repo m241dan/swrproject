@@ -4790,6 +4790,7 @@ const char *smash_underscore args( ( const char *str ) );
 AFFECT_DATA *fread_fuss_affect( FILE *fp, const char *word );
 const char *smash_color( const char *str );
 void fread_fuss_lootdata( FILE *fp, LOOT_DATA *loot );
+bool hasspace( const char *word );
 
 /* fight.c */
 int max_fight args( ( CHAR_DATA * ch ) );
