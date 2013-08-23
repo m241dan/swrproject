@@ -718,6 +718,12 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       ch_printf( ch, "Damage after Charge Boost: %d\r\n", dam );
    }
 
+   /* Is skill an opener */
+   if( skill && skill->minimum_position == POS_STANDING )
+   {
+      dam = (int)( dam * 1.5 );
+      ch_printf( ch, "Damage after Init Calc: %d\r\n", dam );
+   }
 
    if( !IS_AWAKE( victim ) )
      dam *= 2;
