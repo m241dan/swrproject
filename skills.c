@@ -4108,7 +4108,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    {
       send_to_char( "Proper usage: skillcraft <skill> <command> <field> <value>\r\n", ch );
       send_to_char( "Or:           skillcraft create <skill>\r\n", ch );
-      send_to_char( "Or:           skillcraft delete <skill>(Not yet in)\r\n", ch );
+      send_to_char( "Or:           skillcraft delete <skill>\r\n", ch );
       send_to_char( "Commands:\r\n", ch );
       send_to_char( "  show name addfactor remfactor type target style cost damtype opener\r\n\r\n", ch );
 
