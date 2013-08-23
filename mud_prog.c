@@ -833,6 +833,10 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
    }
    if( chkobj )
    {
+      if( !str_cmp( chck, "objvnum" ) )
+      {
+         return mprog_veval( chkobj->pIndexData->vnum, opr, atoi( rval ), mob );
+      }
       if( !str_cmp( chck, "objtype" ) )
       {
          return mprog_veval( chkobj->item_type, opr, atoi( rval ), mob );
