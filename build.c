@@ -312,7 +312,7 @@ const char *const mprog_flags[] = {
    "allgreet", "give", "bribe", "hour", "time", "wear", "remove", "sac",
    "look", "exa", "zap", "get", "drop", "damage", "repair", "randiw",
    "speechiw", "pull", "push", "sleep", "rest", "leave", "script", "use",
-   "quest"
+   "quest", "buy"
 };
 
 

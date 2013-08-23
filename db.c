@@ -4411,6 +4411,8 @@ int mprog_name_to_type( const char *name )
       return USE_PROG;
    if( !str_cmp( name, "quest_prog" ) )
       return QUEST_PROG;
+   if( !str_cmp( name, "buy_prog" ) )
+      return BUY_PROG;
    return ( ERROR_PROG );
 }
 
