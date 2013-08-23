@@ -1916,10 +1916,11 @@ OBJ_DATA *raw_kill( CHAR_DATA * ch, CHAR_DATA * victim )
 void group_gain( CHAR_DATA * ch, CHAR_DATA * victim )
 {
    char buf[MAX_STRING_LENGTH];
-   CHAR_DATA *gch, *gch_next;
-   CHAR_DATA *lch;
+   CHAR_DATA *gch;
+   int x;
    int xp;
-   int members;
+   int member_count;
+   double members_factor = 1;
 
    /*
     * Monsters don't get kill xp's or alignment changes.
@@ -1928,62 +1929,49 @@ void group_gain( CHAR_DATA * ch, CHAR_DATA * victim )
    if( IS_NPC( ch ) || victim == ch )
       return;
 
-   members = 0;
-
-   for( gch = ch->in_room->first_person; gch; gch = gch->next_in_room )
+   if( ch->in_group )
    {
-      if( is_same_group( gch, ch ) || gch == ch )
-         members++;
+      if( ( member_count = get_group_count( ch->in_group ) ) == 4 )
+         members_factor = .83;
+      else if( member_count == 5 )
+         members_factor = .66;
+      else if( member_count >= 6 )
+         members_factor = .5;
    }
 
-   if( members == 0 )
+
+//   gch->alignment = align_compute( gch, victim );
+
+   if( !ch->in_group )
    {
-      bug( "Group_gain: members: %d", members );
-      members = 1;
+      xp = ( int )( xp_compute( ch, victim ) * members_factor );
+      gain_exp( ch, xp, COMBAT_ABILITY );
    }
-
-   lch = ch->leader ? ch->leader : ch;
-
-   for( gch = ch->in_room->first_person; gch; gch = gch->next_in_room )
-   {
-      OBJ_DATA *obj;
-      OBJ_DATA *obj_next;
-
-      gch_next = gch->next_in_room;
-      if( !is_same_group( gch, ch ) )
-         continue;
-
-      xp = ( int )( xp_compute( gch, victim ) / members );
-
-      gch->alignment = align_compute( gch, victim );
-
-      if( !IS_NPC( gch ) && IS_NPC( victim ) && gch->pcdata && gch->pcdata->clan
-          && !str_cmp( gch->pcdata->clan->name, victim->mob_clan ) )
+   else
+      for( x = 0; x < MAX_GROUP; x++ )
       {
-         xp = 0;
-         sprintf( buf, "You receive no experience for killing your organizations resources.\r\n" );
-         send_to_char( buf, gch );
-      }
-      else
-      {
-         sprintf( buf, "You receive %d combat experience.\r\n", xp );
-         send_to_char( buf, gch );
+         if( ( gch = ch->in_group->members[x] ) == NULL )
+            continue;
+
+         xp = ( int )( xp_compute( gch, victim ) * members_factor );
+
+        if( !IS_NPC( gch ) && IS_NPC( victim ) && gch->pcdata && gch->pcdata->clan
+            && !str_cmp( gch->pcdata->clan->name, victim->mob_clan ) )
+         {
+            xp = 0;
+            sprintf( buf, "You receive no experience for killing your organizations resources.\r\n" );
+            send_to_char( buf, gch );
+         }
+         else
+         {
+            sprintf( buf, "You receive %d combat experience.\r\n", xp );
+            send_to_char( buf, gch );
+         }
+
+         gain_exp( gch, xp, COMBAT_ABILITY );
       }
 
-      gain_exp( gch, xp, COMBAT_ABILITY );
-
-      if( lch == gch && members > 1 )
-      {
-         xp =
-            URANGE( members, xp * members,
-                    ( exp_level( gch->skill_level[LEADERSHIP_ABILITY] + 1 ) -
-                      exp_level( gch->skill_level[LEADERSHIP_ABILITY] ) / 10 ) );
-         sprintf( buf, "You get %d leadership experience for leading your group to victory.\r\n", xp );
-         send_to_char( buf, gch );
-         gain_exp( gch, xp, LEADERSHIP_ABILITY );
-      }
-
-
+/*
       for( obj = ch->first_carrying; obj; obj = obj_next )
       {
          obj_next = obj->next_content;
@@ -1999,13 +1987,11 @@ void group_gain( CHAR_DATA * ch, CHAR_DATA * victim )
 
             obj_from_char( obj );
             obj = obj_to_room( obj, gch->in_room );
-            oprog_zap_trigger( gch, obj );   /* mudprogs */
+            oprog_zap_trigger( gch, obj );   * mudprogs *
             if( char_died( gch ) )
                break;
          }
-      }
-   }
-
+      } */
    return;
 }
 
@@ -2042,46 +2028,57 @@ make it simple instead */
  */
 int xp_compute( CHAR_DATA * gch, CHAR_DATA * victim )
 {
-   int align;
-   int xp;
+   int dif;
 
-   xp = ( get_exp_worth( victim )
-          * URANGE( 1, ( victim->skill_level[COMBAT_ABILITY] - gch->skill_level[COMBAT_ABILITY] ) + 10, 20 ) ) / 10;
-   align = gch->alignment - victim->alignment;
-
-   /*
-    * bonus for attacking opposite alignment 
-    */
-   if( align > 990 || align < -990 )
-      xp = ( xp * 5 ) >> 2;
+   dif = gch->skill_level[COMBAT_ABILITY];
+   if( IS_NPC( victim ) )
+      dif -= victim->moblevel;
    else
-      /*
-       * penalty for good attacking same alignment 
-       */
-   if( gch->alignment > 300 && align < 250 )
-      xp = ( xp * 3 ) >> 2;
+      dif -= victim->skill_level[COMBAT_ABILITY];
 
-   xp = number_range( ( xp * 3 ) >> 2, ( xp * 5 ) >> 2 );
-
-   /*
-    * reduce exp for killing the same mob repeatedly    -Thoric 
-    */
-   if( !IS_NPC( gch ) && IS_NPC( victim ) )
-   {
-      int times = times_killed( gch, victim );
-
-      if( times >= 5 )
-         xp = 0;
-      else if( times )
-         xp = ( xp * ( 5 - times ) ) / 5;
-   }
-
-   /*
-    * new xp cap for swreality 
-    */
-
-   return URANGE( 1, xp,
-                  ( exp_level( gch->skill_level[COMBAT_ABILITY] + 1 ) - exp_level( gch->skill_level[COMBAT_ABILITY] ) ) );
+   if( dif < 5 )
+      return 0;
+   else if( dif == 5 )
+      return 100;
+   else if( dif == 4 )
+      return 150;
+   else if( dif == 3 )
+      return 200;
+   else if( dif == 2 )
+      return 250;
+   else if( dif == 1 )
+      return 300;
+   else if( dif == 0 )
+      return 350;
+   else if( dif == -1 )
+      return 400;
+   else if( dif == -2 )
+      return 450;
+   else if( dif == -3 )
+      return 500;
+   else if( dif == -4 )
+      return 550;
+   else if( dif == -5 )
+      return 600;
+   else if( dif == -6 )
+      return 700;
+   else if( dif == -7 )
+      return 800;
+   else if( dif == -8 )
+      return 900;
+   else if( dif == -9 )
+      return 1000;
+   else if( dif == -10 )
+      return 1200;
+   else if( dif == -11 )
+      return 1400;
+   else if( dif == -12 )
+      return 1600;
+   else if( dif == -13 )
+      return 1800;
+   else if( dif <= -14 )
+      return 2000;
+   return 0;
 }
 
 /*
