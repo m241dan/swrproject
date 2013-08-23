@@ -4187,6 +4187,11 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          send_to_char( "You have too many skills.\r\n", ch );
          return;
       }
+      if( hasspace( argument ) )
+      {
+         send_to_char( "Skill name can have no spaces.\r\n", ch );
+         return;
+      }
       CREATE( skill, SKILLTYPE, 1 );
       skill->name = str_dup( argument );
       skill->noun_damage = str_dup( "" );

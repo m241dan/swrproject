@@ -8965,3 +8965,16 @@ AI_THOUGHT *fread_thought( FILE *fp )
    return NULL;
 }
 
+bool hasspace( const char *word )
+{
+   const char *p;
+   p = word;
+
+   while( *p != '\0' )
+   {
+      if( isspace( *p ) )
+         return TRUE;
+      p++;
+   }
+   return FALSE;
+}
