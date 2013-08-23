@@ -128,6 +128,9 @@ int str_free( const char *str )
    register int len, hash;
    register struct hashstr_data *ptr, *ptr2, *ptr2_next;
 
+   if( !str || str[0] == '\0' )
+      return 0;
+
    len = strlen( str );
    hash = len % STR_HASH_SIZE;
    ptr = ( struct hashstr_data * )( str - sizeof( struct hashstr_data ) );

@@ -4091,7 +4091,7 @@ bool mob_has_skill( CHAR_DATA *ch, int gsn )
 void do_skillcraft( CHAR_DATA *ch, const char *argument )
 {
    SKILLTYPE *skill;
-   FACTOR_DATA *factor;
+   FACTOR_DATA *factor, *factor_next;
    char arg[MAX_INPUT_LENGTH];
    char arg2[MAX_INPUT_LENGTH];
    int sn, x, value;
@@ -4207,6 +4207,58 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       save_char_obj( ch );
       saving_char = NULL;
       global_thought_script( ch, get_thought( "global.skillcreate" ) );
+      return;
+   }
+
+   if( !str_cmp( arg, "delete" ) )
+   {
+      if( ( sn = get_player_skill_sn( ch, argument ) ) == -1 )
+      {
+         ch_printf( ch, "You know no such skill: %s\r\n", argument );
+         return;
+      }
+      skill = ch->pc_skills[sn];
+      if( is_skill_set( ch, skill ) )
+      {
+         send_to_char( "You cannot delete a set skill.\r\n", ch );
+         return;
+      }
+      for( factor = skill->first_factor; factor; factor = factor_next )
+      {
+         factor_next = factor->next;
+         remfactor( ch, skill, factor, TRUE );
+      }
+      if( skill->spell_fun )
+         DISPOSE( skill->spell_fun );
+      if( skill->skill_fun )
+         DISPOSE( skill->skill_fun );
+
+      STRFREE( skill->name );
+      STRFREE( skill->spell_fun_name );
+      STRFREE( skill->skill_fun_name );
+      STRFREE( skill->noun_damage );
+      STRFREE( skill->msg_off );
+      STRFREE( skill->hit_char );
+      STRFREE( skill->hit_vict );
+      STRFREE( skill->hit_room );
+      STRFREE( skill->miss_char );
+      STRFREE( skill->miss_vict );
+      STRFREE( skill->miss_room );
+      STRFREE( skill->die_char );
+      STRFREE( skill->die_vict );
+      STRFREE( skill->die_room );
+      STRFREE( skill->imm_char );
+      STRFREE( skill->imm_vict );
+      STRFREE( skill->imm_room );
+      STRFREE( skill->dice );
+      STRFREE( skill->components );
+      STRFREE( skill->teachers );
+      STRFREE( skill->cdmsg );
+      ch->pc_skills[sn] = NULL;
+      ch->top_sn--;
+      sort_player_skill_table( ch );
+      DISPOSE( skill );
+      send_to_char( "Skill Deleted.\r\n", ch );
       return;
    }
 
