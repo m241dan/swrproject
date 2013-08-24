@@ -2686,3 +2686,51 @@ void obj_fall( OBJ_DATA * obj, bool through )
    }
    return;
 }
+
+void show_obj_stats_to_char( CHAR_DATA *ch, OBJ_DATA *obj )
+{
+   AFFECT_DATA *oaf;
+
+   if( !obj )
+   {
+      bug( "%s: being passed NULL obj.", __FUNCTION__);
+      return;
+   }
+
+   ch_printf( ch, "&W%s &ris a &W%s &rof level &W%d&w\r\n", obj->short_descr, item_type_name( obj ), obj->level );
+   ch_printf( ch, "&rIt weighs&W %d &rand can be worn on&z:&W %s&w\r\n", obj->weight, flag_string( obj->wear_flags, w_flags ) );
+   ch_printf( ch, "&rIt has a monetary value of &W%d and quality of&z:&W %s&w\r\n", obj->cost, ext_flag_string( &obj->quality, q_type ) );
+   if( obj->item_type == ITEM_WEAPON || obj->item_type == ITEM_ARMOR )
+      ch_printf( ch, "&rIt has used &W%d &rof &W%d &rpool sockets&w\r\n", get_used_pools( obj ), obj->max_pool );
+   switch( obj->item_type )
+   {
+      case ITEM_WEAPON:
+         send_to_char( "&PW&peapon &PS&ptats&z:&w\r\n", ch );
+         ch_printf( ch, "&PM&pinimum &PD&pamage&z: &W%-4d &PM&paximum &PD&pamage&z: &W%-4d&w\r\n", obj->value[1], obj->value[2] );
+         ch_printf( ch, "&PD&pamage &PT&pype(s) of&z: &W%s&w\r\n", ext_flag_string( &obj->damtype, d_type ) );
+         ch_printf( ch, "&PW&peapon &PS&ppeed of &W%f&w\r\n", obj->speed );
+         switch( obj->value[3] )
+         {
+            case WEAPON_VIBRO_AXE:
+            case WEAPON_VIBRO_BLADE:
+            case WEAPON_LIGHTSABER:
+               ch_printf( ch, "&PC&pharge &W%d &pof &W%d&w\r\n", obj->value[4], obj->value[5] );
+               break;
+            case WEAPON_BLASTER:
+            case WEAPON_BOWCASTER:
+               ch_printf( ch, "&PA&pmmo &W%d &pof &W%d&w\r\n", obj->value[4], obj->value[5] );
+               break;
+         }
+         break;
+      case ITEM_ARMOR:
+         send_to_char( "&YA&Ormor &YS&Otats&z:&w\r\n", ch );
+         ch_printf( ch, "&YE&Ovasion&z: &W%-6d &YA&Ormor&z-&YC&Olass&z: &W%-4d&w\r\n", obj->value[0], obj->value[2] );
+         ch_printf( ch, "&YT&Oempered &YA&Ogainst&z: &W%s&w\r\n", ext_flag_string( &obj->temper, d_type_score ) );
+         break;
+   }
+   send_to_char( "&rHas the following affects&z: (&Wbase affects &Yyellow &z| &Wpool affects &Rred &z)&w\r\n", ch );
+   for( oaf = obj->first_affect; oaf; oaf = oaf->next )
+      showaffect( ch, oaf );
+   for( oaf = obj->pIndexData->first_affect; oaf; oaf = oaf->next )
+      showaffect( ch, oaf );
+}
