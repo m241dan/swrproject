@@ -9805,9 +9805,8 @@ void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
    AV_QUEST *av_quest;
    QUEST_DATA *quest;
    PLAYER_QUEST *pquest;
-   PRE_QUEST *pre_quest;
 
-   if( ( av_quest = get_available_quest_from_list( victim, argument ) ) == NULL || !av_quest->quest )
+   if( ( av_quest = get_available_quest_from_list( ch, victim, argument ) ) == NULL || !av_quest->quest )
    {
       send_to_char( "That Mob does not contain a quest with that high of an list number.\r\n", ch );
       return;
@@ -9821,23 +9820,20 @@ void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       return;
    }
 
-   if( ( pquest = get_player_quest( ch, quest ) ) && ( pquest->stage == -1 || pquest->stage > 0 ) )
+   if( !can_accept_quest( ch, quest ) )
    {
       send_to_char( "You cannot accept that quest.\r\n", ch );
       return;
    }
 
-   for( pre_quest = quest->first_prequest; pre_quest; pre_quest = pre_quest->next )
-      if( !has_quest_completed( ch, pre_quest->quest ) )
-      {
-         send_to_char( "You have not completed all the prequests.\r\n", ch );
-         return;
-      }
-
-   if( !pquest && ( pquest = create_player_quest( ch, quest ) ) != NULL )
-      pquest->stage = QUEST_START;
+   if( ( pquest = get_player_quest( ch, quest ) ) == NULL && ( pquest = create_player_quest( ch, quest ) ) == NULL )
+   {
+      bug( "%s: attempting to create pquest but getting NULL", __FUNCTION__ );
+      return;
+   }
 
    send_to_char( "You have accepted the quest!\r\n", ch );
+   pquest->stage = QUEST_START;
    save_char_obj( ch );
    saving_char = NULL;
    mprog_quest_trigger( victim, ch );
@@ -9884,7 +9880,7 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
    AV_QUEST *av_quest;
    PRE_QUEST *prequest;
 
-   if( ( av_quest = get_available_quest_from_list( victim, argument ) ) == NULL || !av_quest->quest )
+   if( ( av_quest = get_available_quest_from_list( ch, victim, argument ) ) == NULL || !av_quest->quest )
    {
       send_to_char( "That Mob does not contain a quest with that high of an list number.\r\n", ch );
       return;
@@ -9922,13 +9918,13 @@ void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
          bug( "%s: something real fucked up. Removing one of Mob %d's av_quest", __FUNCTION__, victim->pIndexData->vnum );
          continue;
       }
-
-      ch_printf( ch, "Quest %d: %-15.15s Level: %-3d Type %-10.10s Status: %s\r\n",
-                 x++,
-                 av_quest->quest->name,
-                 av_quest->quest->level_req,
-                 quest_types[av_quest->quest->type],
-                 get_status( ch, av_quest->quest ) );
+      if( can_accept_quest( ch, av_quest->quest ) )
+         ch_printf( ch, "Quest %d: %-15.15s Level: %-3d Type %-10.10s Status: %s\r\n",
+                    x++,
+                    av_quest->quest->name,
+                    av_quest->quest->level_req,
+                    quest_types[av_quest->quest->type],
+                    get_status( ch, av_quest->quest ) );
    }
    return;
 }

@@ -5252,7 +5252,7 @@ QUEST_DATA *get_quest_from_name( const char *argument )
    return NULL;
 }
 
-AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, int list )
+AV_QUEST *get_available_quest_from_list( CHAR_DATA *player, CHAR_DATA *ch, int list )
 {
    AV_QUEST *av_quest;
    int x = 0;
@@ -5261,12 +5261,13 @@ AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, int list )
       return NULL;
 
    for( av_quest = ch->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
-      if( list == x++ )
-         return av_quest;
+      if( can_accept_quest( player, av_quest->quest ) )
+         if( list == x++ )
+            return av_quest;
    return NULL;
 }
 
-AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, const char *argument )
+AV_QUEST *get_available_quest_from_list( CHAR_DATA *player, CHAR_DATA *ch, const char *argument )
 {
    int list;
 
@@ -5274,14 +5275,14 @@ AV_QUEST *get_available_quest_from_list( CHAR_DATA *ch, const char *argument )
       list = atoi( argument );
    else
    {
-      send_to_char( "You must enter the quest number.\r\n", ch );
+      send_to_char( "You must enter the quest number.\r\n", player );
       return NULL;
    }
-   return get_available_quest_from_list( ch, list );
+   return get_available_quest_from_list( player, ch, list );
 
 }
 
-AV_QUEST *get_available_quest( CHAR_DATA *ch, QUEST_DATA *quest )
+AV_QUEST *get_available_quest( CHAR_DATA *player, CHAR_DATA *ch, QUEST_DATA *quest )
 {
    AV_QUEST *av_quest;
 
@@ -5642,4 +5643,22 @@ int get_temper_count( OBJ_DATA *obj )
          count++;
 
    return count;
+}
+
+bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   PLAYER_QUEST *pquest;
+   PRE_QUEST *pre_quest;
+
+   if( ch->skill_level[COMBAT_ABILITY] < quest->level_req )
+      return FALSE;
+
+   if( ( pquest = get_player_quest( ch, quest ) ) && ( pquest->stage == -1 || pquest->stage > 0 ) )
+      return FALSE;
+
+   for( pre_quest = quest->first_prequest; pre_quest; pre_quest = pre_quest->next )
+      if( !has_quest_completed( ch, pre_quest->quest ) )
+         return FALSE;
+
+   return TRUE;
 }

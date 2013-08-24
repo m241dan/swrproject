@@ -969,13 +969,13 @@ void do_say( CHAR_DATA * ch, const char *argument )
       sbuf = drunk_speech( sbuf, ch );
 
       MOBtrigger = FALSE;
-      act( AT_SAY, "&W$n says &z'&r$t&z'&w", ch, sbuf, vch, TO_VICT );
+      act( AT_SAY, "&r$n says &z'&W$t&z'&w", ch, sbuf, vch, TO_VICT );
    }
 /*    MOBtrigger = FALSE;
     act( AT_SAY, "$n says '$T'", ch, NULL, argument, TO_ROOM );*/
    ch->act = actflags;
    MOBtrigger = FALSE;
-   act( AT_SAY, "&WYou say &z'&r$T&z'&w", ch, NULL, drunk_speech( argument, ch ), TO_CHAR );
+   act( AT_SAY, "&rYou say &z'&W$T&z'&w", ch, NULL, drunk_speech( argument, ch ), TO_CHAR );
    if( IS_SET( ch->in_room->room_flags, ROOM_LOGSPEECH ) )
    {
       sprintf( buf, "%s: %s", IS_NPC( ch ) ? ch->short_descr : ch->name, argument );
@@ -1143,13 +1143,13 @@ void do_tell( CHAR_DATA * ch, const char *argument )
     * Bug fix by guppy@wavecomputers.net 
     */
    MOBtrigger = FALSE;
-   act( AT_TELL, "You tell $N '$t'", ch, argument, victim, TO_CHAR );
+   act( AT_TELL, "&RYou &rtell &R$N &z'&W$t&z'&w", ch, argument, victim, TO_CHAR );
    position = victim->position;
    victim->position = POS_STANDING;
    if( knows_language( victim, ch->speaking, ch ) || ( IS_NPC( ch ) && !ch->speaking ) )
-      act( AT_TELL, "$n tells you '$t'", ch, argument, victim, TO_VICT );
+      act( AT_TELL, "&R$n &rtells you &z'&W$t&z'&w", ch, argument, victim, TO_VICT );
    else
-      act( AT_TELL, "$n tells you '$t'", ch, scramble( argument, ch->speaking ), victim, TO_VICT );
+      act( AT_TELL, "&R$n &rtells you &z'&W$t&z'&w", ch, scramble( argument, ch->speaking ), victim, TO_VICT );
    MOBtrigger = TRUE;
    victim->position = position;
    victim->reply = ch;
