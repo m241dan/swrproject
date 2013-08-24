@@ -3437,6 +3437,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  name short long desc ed rmed actiondesc\r\n", ch );
       send_to_char( "  type value0 value1 value2 value3 value4 value5\r\n", ch );
       send_to_char( "  affect rmaffect layers addmaterial remmaterial\r\n", ch );
+      send_to_char( "  pool_sockets                                  \r\n", ch );
       send_to_char( "For weapons:             For armor:\r\n", ch );
       send_to_char( "  weapontype condition     evasion armor-class\r\n", ch );
       send_to_char( "  numdamdie sizedamdie     temper       \r\n", ch );
@@ -3860,6 +3861,21 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          obj->pIndexData->rent = value;
       else
          send_to_char( "Item must have prototype flag to set this value.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "pool_sockets" ) )
+   {
+      if( !can_omodify( ch, obj ) )
+         return;
+      if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+         obj->pIndexData->max_pool = value;
+      else
+      {
+         send_to_char( "Item must have prototype flag set for this value.\r\n", ch );
+         return;
+      }
+      send_to_char( "Ok.\r\n", ch );
       return;
    }
 

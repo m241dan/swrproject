@@ -2431,6 +2431,7 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
    xSET_BITS( obj->damtype, pObjIndex->damtype );
    xSET_BITS( obj->temper, pObjIndex->temper );
    obj->speed = pObjIndex->speed;
+   obj->max_pool = pObjIndex->max_pool;
    /*
     * obj->cost     = number_fuzzy( 10 )
     * * number_fuzzy( level ) * number_fuzzy( level );
