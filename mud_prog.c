@@ -656,6 +656,22 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
    }
    if( chkchar )
    {
+      if( !str_cmp( chck, "knowsdisc" ) )
+      {
+         DISC_DATA *discipline;
+
+         if( IS_NPC( chkchar ) )
+         {
+            progbug( "if knowsdisc: don't use on NPC", mob );
+            return FALSE;
+         }
+         if( ( discipline = get_discipline( rval ) ) == NULL )
+         {
+            progbug( "if knowsdisc: bad disc name passed", mob );
+            return FALSE;
+         }
+         return player_has_discipline( chkchar, discipline );
+      }
       if( !str_cmp( chck, "combatexp" ) )
       {
          lhsvl = chkchar->experience[COMBAT_ABILITY];
