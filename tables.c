@@ -369,7 +369,7 @@ void save_commands(  )
    fclose( fpout );
 }
 
-SKILLTYPE *fread_skill( FILE * fp )
+SKILLTYPE *fread_skill( FILE * fp, bool Player )
 {
    char buf[MAX_STRING_LENGTH];
    const char *word;
@@ -410,6 +410,8 @@ SKILLTYPE *fread_skill( FILE * fp )
             KEY( "Charge", skill->charge, fread_number( fp ) );
             if ( !str_cmp( word, "Code" ) )
             {
+               if( Player )
+                  break;
                SPELL_FUN *spellfun;
                DO_FUN *dofun;
                const char *w = fread_word( fp );
@@ -771,7 +773,7 @@ void load_skill_table(  )
                fclose( fp );
                return;
             }
-            skill_table[top_sn++] = fread_skill( fp );
+            skill_table[top_sn++] = fread_skill( fp, FALSE );
             continue;
          }
          else if( !str_cmp( word, "END" ) )
@@ -825,7 +827,7 @@ void load_herb_table(  )
                fclose( fp );
                return;
             }
-            herb_table[top_herb++] = fread_skill( fp );
+            herb_table[top_herb++] = fread_skill( fp, FALSE );
             if( herb_table[top_herb - 1]->slot == 0 )
                herb_table[top_herb - 1]->slot = top_herb - 1;
             continue;

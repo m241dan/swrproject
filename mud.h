@@ -5227,7 +5227,7 @@ void load_herb_table args( ( void ) );
 void save_herb_table args( ( void ) );
 void sort_player_skill_table( CHAR_DATA * ch );
 void fwrite_skill( FILE * fpout, SKILLTYPE * skill );
-SKILLTYPE *fread_skill( FILE *fp );
+SKILLTYPE *fread_skill( FILE *fp, bool Player );
 void load_disciplines( void );
 void save_disciplines( void );
 DISC_DATA *fread_discipline( FILE * fp );

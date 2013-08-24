@@ -4229,11 +4229,6 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          factor_next = factor->next;
          remfactor( ch, skill, factor, TRUE );
       }
-      if( skill->spell_fun )
-         DISPOSE( skill->spell_fun );
-      if( skill->skill_fun )
-         DISPOSE( skill->skill_fun );
-
       STRFREE( skill->name );
       STRFREE( skill->spell_fun_name );
       STRFREE( skill->skill_fun_name );
