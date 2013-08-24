@@ -1801,7 +1801,7 @@ void do_mp_completequest( CHAR_DATA *ch, const char *argument )
          break;
    }
    pquest->times_completed++;
-   send_to_char( "Quest complete.\r\n", victim );
+   ch_printf( victim, "You completed %s.\r\n", pquest->quest->name );
 
    save_char_obj( victim );
    saving_char = NULL;
