@@ -4255,6 +4255,12 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       STRFREE( skill->components );
       STRFREE( skill->teachers );
       STRFREE( skill->cdmsg );
+      skill->first_affect = NULL;
+      skill->last_affect = NULL;
+      skill->first_statboost = NULL;
+      skill->last_statboost = NULL;
+      skill->first_factor = NULL;
+      skill->last_factor = NULL;
       ch->pc_skills[sn] = NULL;
       ch->top_sn--;
       sort_player_skill_table( ch );
