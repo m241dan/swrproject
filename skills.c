@@ -4113,35 +4113,11 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       send_to_char( "Commands:\r\n", ch );
       send_to_char( "  show name addfactor remfactor type target style cost damtype opener\r\n\r\n", ch );
 
-      send_to_char( "Settable Skill Types:", ch );
-      for( x = 0; x < MAX_SKILLTYPE; x++ )
-         if( xIS_SET( ch->avail_skilltypes, x ) )
-            ch_printf( ch, " %s", skill_tname[x] );
-      send_to_char( "\r\n", ch );
-
-      send_to_char( "Settable Style Types:", ch );
-      for( x = 0; x < STYLE_MAX; x++ )
-         if( xIS_SET( ch->avail_skillstyles, x ) )
-            ch_printf( ch, " %s", style_type[x] );
-      send_to_char( "\r\n", ch );
-
-      send_to_char( "Settable Target Types:", ch );
-      for( x = 0; x < TAR_CHAR_MAX; x++ )
-         if( xIS_SET( ch->avail_targettypes, x ) )
-            ch_printf( ch, " %s", target_type[x] );
-      send_to_char( "\r\n", ch );
-
-      send_to_char( "Settable Cost Types:", ch );
-      for( x = 0; x < MAX_COST; x++ )
-         if( xIS_SET( ch->avail_costtypes, x ) )
-            ch_printf( ch, " %s", cost_type[x] );
-      send_to_char( "\r\n", ch );
-
-      send_to_char( "Settable Damage Types:", ch );
-      for( x = 0; x < MAX_DAMTYPE; x++ )
-         if( xIS_SET( ch->avail_damtypes, x ) )
-            ch_printf( ch, " %s", d_type[x] );
-      send_to_char( "\r\n", ch );
+      ch_printf( ch, "Settable Skill Types: %s\r\n", ext_flag_string( &ch->avail_skilltypes, skill_tname ) );
+      ch_printf( ch, "Settable Style Types: %s\r\n", ext_flag_string( &ch->avail_skillstyles, style_type ) );
+      ch_printf( ch, "Settable Target Types: %s\r\n", ext_flag_string( &ch->avail_targettypes, target_type ) );
+      ch_printf( ch, "Settable Cost Types: %s\r\n", ext_flag_string( &ch->avail_costtypes, cost_type ) );
+      ch_printf( ch, "Settable Damage Types: %s\r\n", ext_flag_string( &ch->avail_damtypes, d_type ) );
 
       send_to_char( "Available Factors:\r\n", ch );
       for( factor = ch->first_factor, x = 0; factor; factor = factor->next )
@@ -4273,17 +4249,8 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       ch_printf( ch, "Skill Type: %-10.10s Skill Style: %-10.10s Target Type: %-10.10s\r\n",
                  skill_tname[skill->type], style_type[skill->style], target_type[skill->target] );
 
-      ch_printf(  ch, "Cost Type:" );
-      for( x = 0; x < MAX_COST; x++ )
-         if( xIS_SET( skill->cost, x ) )
-            ch_printf( ch, " %s", cost_type[x] );
-      send_to_char( "\r\n", ch );
-
-      ch_printf( ch, "Damage Type:" );
-      for( x = 0; x < MAX_DAMTYPE; x++ )
-         if( xIS_SET( skill->damtype, x  ) )
-            ch_printf( ch, " %s", d_type[x] );
-      send_to_char( "\r\n", ch );
+      ch_printf( ch, "Cost Type: %s\r\n", ext_flag_string( &skill->cost, cost_type ) );
+      ch_printf( ch, "Damage Type: %s\r\n", ext_flag_string( &skill->damtype, d_type ) );
 
       ch_printf( ch, "Base Roll Boost: %-10f\r\n", skill->base_roll_boost );
 
@@ -4398,11 +4365,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    {
       if( argument[0] == '\0' || ( value = get_skill( argument ) ) == 0 )
       {
-         send_to_char( "Available Skill Types:", ch );
-         for( x = 0; x < MAX_SKILLTYPE; x++ )
-            if( xIS_SET( ch->avail_skilltypes, x ) )
-               ch_printf( ch, " %s", skill_tname[x] );
-         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_skilltypes ) ? "none" : "" );
+         ch_printf( ch, "Available Skill Types: %s\r\n", ext_flag_string( &ch->avail_skilltypes, skill_tname ) );
          return;
       }
       if( !xIS_SET( ch->avail_skilltypes, value ) )
@@ -4420,11 +4383,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    {
       if( argument[0] == '\0' || ( value = get_cost_type( argument ) ) == -1 )
       {
-         send_to_char( "Available Cost Types:", ch );
-         for( x = 0; x < MAX_COST; x++ )
-            if( xIS_SET( ch->avail_costtypes, x ) )
-               ch_printf( ch, " %s", cost_type[x] );
-         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_costtypes ) ? "none" : "" );
+         ch_printf( ch, "Available Cost Types: %s\r\n", ext_flag_string( &ch->avail_costtypes, cost_type ) );
          return;
       }
       if( !xIS_SET( ch->avail_costtypes, value ) )
@@ -4442,11 +4401,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    {
       if( argument[0] == '\0' || ( value = get_damtype( argument ) ) == -1 )
       {
-         send_to_char( "Available Damage Types:", ch );
-         for( x = 0; x < MAX_DAMTYPE; x++ )
-            if( xIS_SET( ch->avail_damtypes, x ) )
-               ch_printf( ch, " %s", d_type[x] );
-         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_damtypes ) ? "none" : "" );
+         ch_printf( ch, "Available Damage Types: %s\r\n", ext_flag_string( &ch->avail_damtypes, d_type ) );
          return;
       }
       if( !xIS_SET( ch->avail_damtypes, value ) )
@@ -4466,11 +4421,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    {
       if( argument[0] == '\0' || ( value = get_starget( argument ) ) == -1 )
       {
-         send_to_char( "Available Target Types:", ch );
-         for( x = 0; x < TAR_CHAR_MAX; x++ )
-            if( xIS_SET( ch->avail_targettypes, value ) )
-               ch_printf( ch, " %s", target_type[x] );
-         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_targettypes ) ? "none" : "" );
+         ch_printf( ch, "Available Target Types; %s\r\n", ext_flag_string( &ch->avail_targettypes, target_type ) );
          return;
       }
       if( !xIS_SET( ch->avail_targettypes, value ) )
@@ -4485,13 +4436,10 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
    }
    if( !str_cmp( arg2, "style" ) )
    {
+      ch_printf( ch, "argument: %s\r\n", argument );
       if( argument[0] == '\0' || ( value = get_style_type( argument ) ) == -1 )
       {
-         send_to_char( "Available Skill Styles:", ch );
-         for( x = 0; x < STYLE_MAX; x++ )
-            if( xIS_SET( ch->avail_skillstyles, value ) )
-               ch_printf( ch, " %s", style_type[x] );
-         ch_printf( ch, "%s\r\n", xIS_EMPTY( ch->avail_skillstyles ) ? "none" : "" );
+         ch_printf( ch, "Available Skill Styles: %s\r\n", ext_flag_string( &ch->avail_skillstyles, style_type ) );
          return;
       }
       if( !xIS_SET( ch->avail_skillstyles, value ) )
