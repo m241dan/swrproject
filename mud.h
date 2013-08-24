@@ -4519,6 +4519,7 @@ obj_ret damage_obj args( ( OBJ_DATA * obj ) );
 short get_obj_resistance args( ( OBJ_DATA * obj ) );
 void save_clan_storeroom args( ( CHAR_DATA * ch, CLAN_DATA * clan ) );
 void obj_fall args( ( OBJ_DATA * obj, bool through ) );
+void show_obj_stats_to_char( CHAR_DATA *ch, OBJ_DATA *obj );
 
 /* act_wiz.c */
 void close_area args( ( AREA_DATA * pArea ) );
@@ -5148,6 +5149,7 @@ int get_group_count( GROUP_DATA *group );
 int get_temper_count( OBJ_DATA *obj );
 bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 bool can_list_quest( CHAR_DATA *ch, QUEST_DATA *quest );
+int get_used_pools( OBJ_DATA *obj );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

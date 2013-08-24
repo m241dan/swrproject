@@ -3416,13 +3416,13 @@ void showaffect( CHAR_DATA * ch, AFFECT_DATA * paf )
       switch ( paf->location )
       {
          default:
-            sprintf( buf, "Affects %s by %d.\r\n", affect_loc_name( paf->location ), paf->modifier );
+            sprintf( buf, "%sAffects %s by %d.\r\n", paf->from_pool ? "&R" : "&Y", affect_loc_name( paf->location ), paf->modifier );
             break;
          case APPLY_DAMTYPE:
-            sprintf( buf, "Grants %s attacks.\r\n", d_type[paf->modifier] );
+            sprintf( buf, "%sGrants %s attacks.\r\n", paf->from_pool ? "&R" : "&Y", d_type[paf->modifier] );
             break;
          case APPLY_AFFECT:
-            sprintf( buf, "Affects %s by", affect_loc_name( paf->location ) );
+            sprintf( buf, "%sAffects %s by", paf->from_pool ? "&R" : "&Y", affect_loc_name( paf->location ) );
             for( x = 0; x < 32; x++ )
                if( IS_SET( paf->modifier, 1 << x ) )
                {
@@ -5439,6 +5439,18 @@ int get_total_pools( void )
    int count;
    for( count = 0, pool = first_pool; pool; pool = pool->next )
       ++count;
+
+   return count;
+}
+
+int get_used_pools( OBJ_DATA *obj )
+{
+   AFFECT_DATA *oaf;
+   int count;
+
+   for( count = 0, oaf = obj->first_affect; oaf; oaf = oaf->next )
+      if( oaf->from_pool )
+         count++;
 
    return count;
 }
