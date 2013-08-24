@@ -1430,10 +1430,6 @@ void do_examine( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   EXA_prog_trigger = FALSE;
-   do_look( ch, arg );
-   EXA_prog_trigger = TRUE;
-
    /*
     * Support for looking at boards, checking equipment conditions,
     * and support for trigger positions by Thoric
