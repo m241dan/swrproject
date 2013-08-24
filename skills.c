@@ -4194,9 +4194,9 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
          return;
       }
       CREATE( skill, SKILLTYPE, 1 );
-      skill->name = str_dup( argument );
-      skill->noun_damage = str_dup( "" );
-      skill->msg_off = str_dup( "" );
+      skill->name = STRALLOC( argument );
+      skill->noun_damage = STRALLOC( "" );
+      skill->msg_off = STRALLOC( "" );
       skill->spell_fun = spell_null;
       skill->type = SKILL_UNSET;
       skill->style = STYLE_UNSET;
@@ -4255,16 +4255,10 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       STRFREE( skill->components );
       STRFREE( skill->teachers );
       STRFREE( skill->cdmsg );
-      skill->first_affect = NULL;
-      skill->last_affect = NULL;
-      skill->first_statboost = NULL;
-      skill->last_statboost = NULL;
-      skill->first_factor = NULL;
-      skill->last_factor = NULL;
-      ch->pc_skills[sn] = NULL;
-      ch->top_sn--;
+      skill = NULL;
+      DISPOSE( ch->pc_skills[sn] );
       sort_player_skill_table( ch );
-      DISPOSE( skill );
+      ch->top_sn--;
       send_to_char( "Skill Deleted.\r\n", ch );
       return;
    }
