@@ -1293,6 +1293,12 @@ void wear_obj( CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, short wear_bit )
       }
    }
 
+   if( ch->skill_level[COMBAT_ABILITY] < obj->level )
+   {
+      ch_printf( ch, "You are too low level to equip %s.\r\n", obj->name );
+      return;
+   }
+
    /*
     * currently cannot have a light in non-light position 
     */
