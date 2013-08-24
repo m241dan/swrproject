@@ -2256,6 +2256,7 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
        */
       SET_BIT( ch->act, PLR_AUTOGOLD );
       SET_BIT( ch->act, PLR_AUTOEXIT );
+      SET_BIT( ch->act, PLR_AUTOLOOT );
 
       /*
        * New players don't have to earn some eq
@@ -2276,22 +2277,22 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
        * equip_char( ch, obj, WEAR_SHIELD );
        */
 
-      obj = create_object( get_obj_index( OBJ_VNUM_SCHOOL_DAGGER ), 0 );
-      obj_to_char( obj, ch );
-      equip_char( ch, obj, WEAR_WIELD );
+//      obj = create_object( get_obj_index( OBJ_VNUM_SCHOOL_DAGGER ), 0 );
+//      obj_to_char( obj, ch );
+//      equip_char( ch, obj, WEAR_WIELD );
 
       /*
        * comlink
        */
 
-      {
-	OBJ_INDEX_DATA *obj_ind = get_obj_index( 10424 );
-	if( obj_ind != NULL )
-	  {
-	    obj = create_object( obj_ind, 0 );
-	    obj_to_char( obj, ch );
-	  }
-      }
+//      {
+//	OBJ_INDEX_DATA *obj_ind = get_obj_index( 10424 );
+//	if( obj_ind != NULL )
+//	  {
+//	    obj = create_object( obj_ind, 0 );
+//	    obj_to_char( obj, ch );
+//	  }
+//      }
 
       if( !sysdata.WAIT_FOR_AUTH )
 	{
