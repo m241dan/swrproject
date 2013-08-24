@@ -2430,6 +2430,7 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
    obj->cost = pObjIndex->cost;
    xSET_BITS( obj->damtype, pObjIndex->damtype );
    xSET_BITS( obj->temper, pObjIndex->temper );
+   xSET_BITS( obj->quality, pObjIndex->quality );
    obj->speed = pObjIndex->speed;
    obj->max_pool = pObjIndex->max_pool;
    /*
