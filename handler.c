@@ -3416,20 +3416,13 @@ void showaffect( CHAR_DATA * ch, AFFECT_DATA * paf )
       switch ( paf->location )
       {
          default:
-            sprintf( buf, "%sAffects %s by %d.\r\n", paf->from_pool ? "&R" : "&Y", affect_loc_name( paf->location ), paf->modifier );
+            sprintf( buf, "%sAffects %s by %d.&w\r\n", paf->from_pool ? "&R" : "&Y", a_types_pretty[paf->location], paf->modifier );
             break;
          case APPLY_DAMTYPE:
-            sprintf( buf, "%sGrants %s attacks.\r\n", paf->from_pool ? "&R" : "&Y", d_type[paf->modifier] );
+            sprintf( buf, "%sGrants %s attacks.&w\r\n", paf->from_pool ? "&R" : "&Y", d_type_score[paf->modifier] );
             break;
          case APPLY_AFFECT:
-            sprintf( buf, "%sAffects %s by", paf->from_pool ? "&R" : "&Y", affect_loc_name( paf->location ) );
-            for( x = 0; x < 32; x++ )
-               if( IS_SET( paf->modifier, 1 << x ) )
-               {
-                  strcat( buf, " " );
-                  strcat( buf, a_flags[x] );
-               }
-            strcat( buf, "\r\n" );
+            sprintf( buf, "%sGrants %s.\r\n", paf->from_pool ? "&R" : "&Y", ext_flag_string( &paf->bitvector, a_flags ) );
             break;
          case APPLY_WEAPONSPELL:
          case APPLY_WEARSPELL:
