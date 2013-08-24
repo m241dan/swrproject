@@ -1071,7 +1071,6 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    OBJ_DATA *obj;
    ITEM_MATERIAL *material;
    const char *pdesc;
-   int x;
 
    one_argument( argument, arg );
 
@@ -1117,21 +1116,12 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Extra flags: %s\r\n", flag_string( obj->extra_flags, o_flags ) );
 
    if( xIS_EMPTY( obj->quality ) )
-      send_to_char( " Quality: unset\r\n", ch );
+      send_to_char( "Quality: unset\r\n", ch );
    else
       ch_printf( ch, "Quality: %s\r\n", ext_flag_string( &obj->quality, q_type ) );
 
    if( obj->item_type == ITEM_ARMOR )
-   {
-      send_to_char( "Temper:", ch );
-      if( xIS_EMPTY( obj->temper ) )
-         send_to_char( " unset", ch );
-      else
-         for( x = 0; x < MAX_DAMTYPE; x++ )
-            if( xIS_SET( obj->quality, x ) )
-               ch_printf( ch, " %s,", d_type[x] );
-      send_to_char( "\r\n", ch );
-   }
+      ch_printf( ch, "Temper: %s\r\n", ext_flag_string( &obj->temper, d_type ) );
 
    send_to_char( "Materials:", ch );
    if( !obj->first_material )
@@ -1178,14 +1168,9 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
               obj->value[0], obj->value[1], obj->value[2], obj->value[3], obj->value[4], obj->value[5] );
    if( obj->item_type == ITEM_WEAPON )
    {
-      send_to_char( "Damtypes:", ch );
-      for( x = 0; x < MAX_DAMTYPE; x++ )
-         if( xIS_SET( obj->damtype, x ) )
-            ch_printf( ch, " %s,", d_type[x] );
-      send_to_char( "\r\n", ch );
+      ch_printf( ch, "Damtypes: %s\r\n", ext_flag_string( &obj->damtype, d_type ) );
       ch_printf( ch, "Base Round Speed: %f\r\n", obj->speed );
    }
-
    if( obj->pIndexData->first_extradesc )
    {
       EXTRA_DESCR_DATA *ed;
