@@ -5524,7 +5524,8 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
    paf->factor_id = fread_number( fp );
    paf->affect_type = fread_number( fp );
    paf->from_pool = get_pool_from_id( fread_number( fp ) );
-   paf->from = get_char_world( first_char, fread_word( fp ) ); /* Rather a moot point, but just in case somethign slips through */
+   fread_word( fp );
+   paf->from = NULL;; /* Rather a moot point, but just in case somethign slips through */
    paf->bitvector = fread_bitvector( fp );
 
    ++top_affect;

@@ -3600,7 +3600,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          }
          xTOGGLE_BIT( obj->quality, value );
          if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
-            xTOGGLE_BIT( obj->quality, value );
+            xTOGGLE_BIT( obj->pIndexData->quality, value );
       }
       send_to_char( "Ok.\r\n", ch );
       return;
