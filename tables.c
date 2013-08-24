@@ -436,19 +436,19 @@ SKILLTYPE *fread_skill( FILE * fp )
                }
                break;
             }
-            KEY( "Components", skill->components, fread_string_nohash( fp ) );
+            KEY( "Components", skill->components, fread_string( fp ) );
             KEY( "Cooldown", skill->cooldown, fread_number( fp ) );
             KEY( "Cost", skill->cost, fread_bitvector( fp ) );
             break;
 
          case 'D':
             KEY( "DamageDetails", skill->base_roll_boost, fread_float( fp ) );
-            KEY( "Dammsg", skill->noun_damage, fread_string_nohash( fp ) );
+            KEY( "Dammsg", skill->noun_damage, fread_string( fp ) );
             KEY( "Damtype", skill->damtype, fread_bitvector( fp ) );
-            KEY( "Dice", skill->dice, fread_string_nohash( fp ) );
-            KEY( "Diechar", skill->die_char, fread_string_nohash( fp ) );
-            KEY( "Dieroom", skill->die_room, fread_string_nohash( fp ) );
-            KEY( "Dievict", skill->die_vict, fread_string_nohash( fp ) );
+            KEY( "Dice", skill->dice, fread_string( fp ) );
+            KEY( "Diechar", skill->die_char, fread_string( fp ) );
+            KEY( "Dieroom", skill->die_room, fread_string( fp ) );
+            KEY( "Dievict", skill->die_vict, fread_string( fp ) );
             KEY( "Difficulty", skill->difficulty, fread_number( fp ) );
             break;
 
@@ -475,30 +475,30 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'H':
-            KEY( "Hitchar", skill->hit_char, fread_string_nohash( fp ) );
-            KEY( "Hitroom", skill->hit_room, fread_string_nohash( fp ) );
-            KEY( "Hitvict", skill->hit_vict, fread_string_nohash( fp ) );
+            KEY( "Hitchar", skill->hit_char, fread_string( fp ) );
+            KEY( "Hitroom", skill->hit_room, fread_string( fp ) );
+            KEY( "Hitvict", skill->hit_vict, fread_string( fp ) );
             KEY( "HP", skill->min_hp, fread_number( fp ) );
             break;
 
          case 'I':
-            KEY( "Immchar", skill->imm_char, fread_string_nohash( fp ) );
-            KEY( "Immroom", skill->imm_room, fread_string_nohash( fp ) );
-            KEY( "Immvict", skill->imm_vict, fread_string_nohash( fp ) );
+            KEY( "Immchar", skill->imm_char, fread_string( fp ) );
+            KEY( "Immroom", skill->imm_room, fread_string( fp ) );
+            KEY( "Immvict", skill->imm_vict, fread_string( fp ) );
             break;
 
          case 'M':
             KEY( "Mana", skill->min_mana, fread_number( fp ) );
             KEY( "Minlevel", skill->min_level, fread_number( fp ) );
             KEY( "Minpos", skill->minimum_position, fread_number( fp ) );
-            KEY( "Misschar", skill->miss_char, fread_string_nohash( fp ) );
-            KEY( "Missroom", skill->miss_room, fread_string_nohash( fp ) );
-            KEY( "Missvict", skill->miss_vict, fread_string_nohash( fp ) );
+            KEY( "Misschar", skill->miss_char, fread_string( fp ) );
+            KEY( "Missroom", skill->miss_room, fread_string( fp ) );
+            KEY( "Missvict", skill->miss_vict, fread_string( fp ) );
             KEY( "Move", skill->min_move, fread_number( fp ) );
             break;
 
          case 'N':
-            KEY( "Name", skill->name, fread_string_nohash( fp ) );
+            KEY( "Name", skill->name, fread_string( fp ) );
             break;
 
          case 'P':
@@ -529,7 +529,7 @@ SKILLTYPE *fread_skill( FILE * fp )
 
          case 'T':
             KEY( "Target", skill->target, fread_number( fp ) );
-            KEY( "Teachers", skill->teachers, fread_string_nohash( fp ) );
+            KEY( "Teachers", skill->teachers, fread_string( fp ) );
             KEY( "Threat", skill->threat, fread_number( fp ) );
             KEY( "Type", skill->type, get_skill( fread_word( fp ) ) );
             break;
@@ -539,7 +539,7 @@ SKILLTYPE *fread_skill( FILE * fp )
             break;
 
          case 'W':
-            KEY( "Wearoff", skill->msg_off, fread_string_nohash( fp ) );
+            KEY( "Wearoff", skill->msg_off, fread_string( fp ) );
             break;
       }
 
