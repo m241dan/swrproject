@@ -659,7 +659,7 @@ void gain_condition( CHAR_DATA * ch, int iCond, int value )
    int condition;
    ch_ret retcode = rNONE;
 
-   if( value == 0 || IS_NPC( ch ) || get_trust( ch ) >= LEVEL_IMMORTAL || NOT_AUTHED( ch ) )
+   if( value == 0 || IS_NPC( ch ) || get_trust( ch ) >= LEVEL_IMMORTAL || NOT_AUTHED( ch ) || iCond == COND_FULL || iCond == COND_THIRST )
       return;
 
    condition = ch->pcdata->condition[iCond];
