@@ -5282,7 +5282,7 @@ AV_QUEST *get_available_quest_from_list( CHAR_DATA *player, CHAR_DATA *ch, const
 
 }
 
-AV_QUEST *get_available_quest( CHAR_DATA *player, CHAR_DATA *ch, QUEST_DATA *quest )
+AV_QUEST *get_available_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 {
    AV_QUEST *av_quest;
 
