@@ -654,10 +654,6 @@ void show_char_to_char_1( CHAR_DATA * victim, CHAR_DATA * ch )
    {
       send_to_char( victim->description, ch );
    }
-   else
-   {
-      act( AT_PLAIN, "You see nothing special about $M.", ch, NULL, victim, TO_CHAR );
-   }
 
    show_condition( ch, victim );
 

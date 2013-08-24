@@ -2702,12 +2702,12 @@ void show_obj_stats_to_char( CHAR_DATA *ch, OBJ_DATA *obj )
       bug( "%s: being passed NULL obj.", __FUNCTION__);
       return;
    }
-
-   ch_printf( ch, "&W%s &ris a &W%s &rof level &W%d&w\r\n", obj->short_descr, item_type_name( obj ), obj->level );
+   ch_printf( ch, "\r\n&W%s &ris a &W%s &rof level &W%d&w\r\n", obj->short_descr, item_type_name( obj ), obj->level );
    ch_printf( ch, "&rIt weighs&W %d &rand can be worn on&z:&W %s&w\r\n", obj->weight, flag_string( obj->wear_flags, w_flags ) );
    ch_printf( ch, "&rIt has a monetary value of &W%d and quality of&z:&W %s&w\r\n", obj->cost, ext_flag_string( &obj->quality, q_type ) );
    if( obj->item_type == ITEM_WEAPON || obj->item_type == ITEM_ARMOR )
       ch_printf( ch, "&rIt has used &W%d &rof &W%d &rpool sockets&w\r\n", get_used_pools( obj ), obj->max_pool );
+   send_to_char( "\r\n", ch );
    switch( obj->item_type )
    {
       case ITEM_WEAPON:
@@ -2734,6 +2734,7 @@ void show_obj_stats_to_char( CHAR_DATA *ch, OBJ_DATA *obj )
          ch_printf( ch, "&YT&Oempered &YA&Ogainst&z: &W%s&w\r\n", ext_flag_string( &obj->temper, d_type_score ) );
          break;
    }
+   send_to_char( "\r\n", ch );
    send_to_char( "&rHas the following affects&z: (&Wbase affects &Yyellow &z| &Wpool affects &Rred &z)&w\r\n", ch );
    for( oaf = obj->first_affect; oaf; oaf = oaf->next )
       showaffect( ch, oaf );
