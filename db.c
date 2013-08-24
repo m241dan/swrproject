@@ -2546,17 +2546,6 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
          break;
 
       case ITEM_WEAPON:
-         if( obj->value[1] && obj->value[2] )
-            obj->value[2] *= obj->value[1];
-         else
-         {
-            obj->value[1] = number_fuzzy( number_fuzzy( 1 + level / 20 ) );
-            obj->value[2] = number_fuzzy( number_fuzzy( 10 + level / 10 ) );
-         }
-         if( obj->value[1] > obj->value[2] )
-            obj->value[1] = obj->value[2] / 3;
-         if( obj->value[0] == 0 )
-            obj->value[0] = INIT_WEAPON_CONDITION;
          switch ( obj->value[3] )
          {
             case WEAPON_BLASTER:

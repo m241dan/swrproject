@@ -3641,6 +3641,8 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          return;
       }
       obj->speed = atof( argument );
+      if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
+         obj->pIndexData->speed = atof( argument );
       send_to_char( "Ok.\r\n", ch );
       return;
    }
