@@ -1869,7 +1869,7 @@ void do_mp_progress( CHAR_DATA *ch, const char *argument )
       if( pquest->progress[0] != '\0' )
          STRFREE( pquest->progress );
       pquest->progress = STRALLOC( buf );
-      send_to_char( pquest->progress, victim );
+      ch_printf( victim, "&z[&rQuest Update&z] &W%s&w\r\n", pquest->progress );
    }
 
    save_char_obj( victim );
