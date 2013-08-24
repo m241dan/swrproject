@@ -1116,14 +1116,11 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Wear flags : %s\r\n", flag_string( obj->wear_flags, w_flags ) );
    ch_printf( ch, "Extra flags: %s\r\n", flag_string( obj->extra_flags, o_flags ) );
 
-   send_to_char( "Quality:", ch );
    if( xIS_EMPTY( obj->quality ) )
-      send_to_char( " unset", ch );
+      send_to_char( " Quality: unset\r\n", ch );
    else
-      for( x = 0; x < MAX_QUALITYTYPE; x++ )
-         if( xIS_SET( obj->quality, x ) )
-            ch_printf( ch, " %s,", q_type[x] );
-   send_to_char( "\r\n", ch );
+      ch_printf( ch, "Quality: %s\r\n", ext_flag_string( &obj->quality, q_type ) );
+
    if( obj->item_type == ITEM_ARMOR )
    {
       send_to_char( "Temper:", ch );
