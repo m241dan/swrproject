@@ -9918,7 +9918,7 @@ void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
          bug( "%s: something real fucked up. Removing one of Mob %d's av_quest", __FUNCTION__, victim->pIndexData->vnum );
          continue;
       }
-      if( can_accept_quest( ch, av_quest->quest ) )
+      if( can_list_quest( ch, av_quest->quest ) )
          ch_printf( ch, "Quest %d: %-15.15s Level: %-3d Type %-10.10s Status: %s\r\n",
                     x++,
                     av_quest->quest->name,

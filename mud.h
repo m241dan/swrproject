@@ -5112,7 +5112,7 @@ int get_discipline_cost( CHAR_DATA *teacher, DISC_DATA *discipline );
 int get_num_affects( EXT_BV *affect );
 QUEST_DATA *get_quest_from_id( int id );
 AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *player, CHAR_DATA *ch, const char *argument ) );
-AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *player, CHAR_DATA *ch, int list ) );
+AV_QUEST *get_available_quest_from_list args( ( CHAR_DATA *ch, int list ) );
 AV_QUEST *get_available_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 PLAYER_QUEST *get_player_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest );
@@ -5147,7 +5147,7 @@ void depleted_obj( CHAR_DATA *ch, OBJ_DATA *obj );
 int get_group_count( GROUP_DATA *group );
 int get_temper_count( OBJ_DATA *obj );
 bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest );
-
+bool can_list_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

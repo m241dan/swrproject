@@ -5261,7 +5261,7 @@ AV_QUEST *get_available_quest_from_list( CHAR_DATA *player, CHAR_DATA *ch, int l
       return NULL;
 
    for( av_quest = ch->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
-      if( can_accept_quest( player, av_quest->quest ) )
+      if( can_list_quest( player, av_quest->quest ) )
          if( list == x++ )
             return av_quest;
    return NULL;
@@ -5653,7 +5653,7 @@ bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest )
    if( ch->skill_level[COMBAT_ABILITY] < quest->level_req )
       return FALSE;
 
-   if( ( pquest = get_player_quest( ch, quest ) ) && ( pquest->stage == -1 || pquest->stage > 0 ) )
+   if( ( pquest = get_player_quest( ch, quest ) ) != NULL && ( pquest->stage == -1 || pquest->stage > 0 ) )
       return FALSE;
 
    for( pre_quest = quest->first_prequest; pre_quest; pre_quest = pre_quest->next )
@@ -5661,4 +5661,19 @@ bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest )
          return FALSE;
 
    return TRUE;
+}
+
+bool can_list_quest( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   PRE_QUEST *pre_quest;
+
+   if( ch->skill_level[COMBAT_ABILITY] < quest->level_req )
+      return FALSE;
+
+   for( pre_quest = quest->first_prequest; pre_quest; pre_quest = pre_quest->next )
+      if( !has_quest_completed( ch, pre_quest->quest ) )
+         return FALSE;
+
+   return TRUE;
+
 }
