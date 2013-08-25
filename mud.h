@@ -1206,7 +1206,7 @@ struct affect_data
 
 #define AFFECT_BUFF 0
 #define AFFECT_ENFEEBLE 1
-
+#define AFFECT_NODISPEL 2
 /*
 * A SMAUG spell
 */

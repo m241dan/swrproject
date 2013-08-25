@@ -601,15 +601,16 @@ void cleanse_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
       if( friendly && aff->affect_type == AFFECT_ENFEEBLE )
       {
          affect_remove( victim, aff );
+         generate_buff_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
          break;
       }
       else if( !friendly && aff->affect_type == AFFECT_BUFF )
       {
          affect_remove( victim, aff );
+         generate_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
          break;
       }
    }
-   generate_buff_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
    rbuff_msg( ch, victim, skill );
 }
 void summon_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
