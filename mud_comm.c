@@ -1736,7 +1736,7 @@ void do_mp_advancequest( CHAR_DATA * ch, const char *argument )
 
    if( pquest->stage < 1 )
    {
-      progbug( "mpadvancequest: mpadvance trying to advance a quest a player doesn't have started.", ch );
+      progbug( "mpadvancequest: mpadvancequest trying to advance a quest a player doesn't have started.", ch );
       return;
    }
 
@@ -1781,13 +1781,13 @@ void do_mp_completequest( CHAR_DATA *ch, const char *argument )
 
    if( ( pquest = get_player_quest( victim, quest ) ) == NULL )
    {
-      progbug( "mpcompletequest: mpadvancequest on a quest player doesn't have.", ch );
+      progbug( "mpcompletequest: mpcompletequest on a quest player doesn't have.", ch );
       return;
    }
 
    if( pquest->stage < 1 )
    {
-      progbug( "mpcompletequest: mpadvance trying to advance a quest a player doesn't have started.", ch );
+      progbug( "mpcompletequest: mpcompletequesttrying to advance a quest a player doesn't have started.", ch );
       return;
    }
 
