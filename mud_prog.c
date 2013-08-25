@@ -2153,7 +2153,7 @@ void mprog_greet_trigger( CHAR_DATA * ch )
       if( IS_NPC( ch ) && ch->pIndexData == vmob->pIndexData )
          continue;
 
-      if( xIS_SET( vmob->pIndexData->progtypes, GREET_PROG ) )
+      if( xIS_SET( vmob->pIndexData->progtypes, GREET_PROG ) && can_see( vmob, ch ) )
          mprog_percent_check( vmob, ch, NULL, NULL, GREET_PROG );
       else if( xIS_SET( vmob->pIndexData->progtypes, ALL_GREET_PROG ) )
          mprog_percent_check( vmob, ch, NULL, NULL, ALL_GREET_PROG );
