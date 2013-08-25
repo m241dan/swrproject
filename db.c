@@ -2477,6 +2477,7 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
       case ITEM_TRASH:
       case ITEM_CONTAINER:
       case ITEM_DRINK_CON:
+      case ITEM_BACTA:
       case ITEM_KEY:
          break;
       case ITEM_FOOD:
@@ -2541,23 +2542,9 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
          break;
 
       case ITEM_WEAPON:
-         switch ( obj->value[3] )
-         {
-            case WEAPON_BLASTER:
-            case WEAPON_LIGHTSABER:
-            case WEAPON_VIBRO_BLADE:
-            case WEAPON_FORCE_PIKE:
-            case WEAPON_BOWCASTER:
-               if( obj->value[5] <= 0 )
-                  obj->value[5] = number_fuzzy( 1000 );
-         }
-         obj->value[4] = obj->value[5];
          break;
 
       case ITEM_ARMOR:
-         if( obj->value[0] == 0 )
-            obj->value[0] = obj->value[1];
-         obj->timer = obj->value[3];
          break;
 
       case ITEM_POTION:
