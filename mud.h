@@ -773,6 +773,8 @@ struct repairshop_data
 };
 
 
+#define MAX_BLANK_LINE 2
+
 /* Mob program structures */
 struct act_prog_data
 {

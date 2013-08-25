@@ -1307,6 +1307,7 @@ void mprog_driver( const char *com_list, CHAR_DATA * mob, CHAR_DATA * actor, OBJ
    ROOM_INDEX_DATA *supermob_room;
    OBJ_DATA *true_supermob_obj;
    bool rprog_oprog = ( mob == supermob );
+   int blank_line_count = 0;
 
    if( rprog_oprog )
    {
@@ -1415,6 +1416,8 @@ void mprog_driver( const char *com_list, CHAR_DATA * mob, CHAR_DATA * actor, OBJ
          {
             progbug( "Missing endif", mob );
          }
+         if( ++blank_line_count < MAX_BLANK_LINE )
+            continue;
          --prog_nest;
          return;
       }
