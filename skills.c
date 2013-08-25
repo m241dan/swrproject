@@ -505,8 +505,9 @@ void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    {
       caf = copy_affect( saf );
       caf->duration = charge_boost( skill, (int)caf->duration );
-      if( caf->location != APPLY_AFFECT && !xIS_EMPTY( caf->bitvector ) )
+      if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
          caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
+      caf->affect_type = AFFECT_BUFF;
 
       switch( caf->apply_type )
       {
@@ -532,6 +533,7 @@ void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
             break;
       }
    }
+   generate_buff_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
    free_affect( caf );
    return;
 }
@@ -543,16 +545,13 @@ void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    {
       caf = copy_affect( saf );
       caf->duration = charge_boost( skill, (int)caf->duration );
-
-      if( caf->location != APPLY_AFFECT )
+      caf->affect_type = AFFECT_ENFEEBLE;
+      if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
       {
-         if( !xIS_EMPTY( skill->damtype ) )
-         {
-            caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
-            caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
-         }
-         caf->modifier *= -1;
+         caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
+         caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
       }
+      caf->modifier *= -1;
 
       if( caf->location != APPLY_AFFECT )
       switch( saf->apply_type )
@@ -579,6 +578,7 @@ void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
             break;
       }
    }
+   generate_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
    free_affect( caf );
    return;
 }
@@ -5052,7 +5052,7 @@ void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool
             xSET_BITS( affect->bitvector, factor->affect );
             affect->factor_id = factor->id;
             affect->apply_type = factor->apply_type;
-            affect->from = ch;
+            affect->from = STRALLOC( skill->name );
             LINK( affect, skill->first_affect, skill->last_affect, next, prev );
             break;
          }

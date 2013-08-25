@@ -1410,28 +1410,26 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
       for( loot = victim->pIndexData->first_loot; loot; loot = loot->next )
          ch_printf( ch, "&cLoot: Vnum &w%d &cPercent &w%d &cAmount &w%d\r\n", loot->vnum, loot->percent, loot->amount );
    }
+
    for( paf = victim->first_affect; paf; paf = paf->next )
    {
-      if( !paf->from )
+      if( paf->type < 0 || paf->type >= top_sn )
+         ch_printf( ch, "player_skill: '%s' modifies %s by %d for %d round with bits $s.\r\n",
+                    paf->from ? paf->from : "null",
+                    a_types_pretty[paf->location],
+                    paf->modifier,
+                    paf->duration,
+                    ext_flag_string( &paf->bitvector, a_flags ) );
+      else
       {
-         if( IS_NPC( paf->from ) )
-         {
-            if( ( skill = get_skilltype( paf->type ) ) == NULL )
-               continue;
-         }
-         else
-         {
-            if( ( skill = paf->from->pc_skills[paf->type] ) == NULL )
-               continue;
-         }
+         if( ( skill = get_skilltype( paf->type ) ) == NULL )
+            continue;
          ch_printf( ch,
                     "%s: '%s' modifies %s by %d for %d rounds with bits %s.\r\n",
                     skill_tname[skill->type],
                     skill->name,
-                    affect_loc_name( paf->location ), paf->modifier, paf->duration, affect_bit_name( &paf->bitvector ) );
+                    a_types_pretty[paf->location], paf->modifier, paf->duration, ext_flag_string( &paf->bitvector, a_flags ) );
       }
-      else
-         bug( "%s: Player: %s has affect not from player or npc, how?", __FUNCTION__, victim->name );
    }
    return;
 }

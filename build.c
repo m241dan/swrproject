@@ -5766,32 +5766,23 @@ void fwrite_fuss_exit( FILE * fpout, EXIT_DATA * pexit )
 
 void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
 {
-   bool npc = FALSE;
-   int top_skill;
-
-   if( paf->from )
-      if( IS_NPC( paf->from ) )
-         npc = TRUE;
-
-   if( npc )
-      top_skill = top_sn;
+   if( paf->type < 0 || paf->type >= top_sn )
+      fprintf( fp, "Affect       %d\n", paf->type );
    else
-      top_skill = paf->from ? paf->from->top_sn : -1;
-
-   if( paf->type < 0 || paf->type >= top_skill )
-   {
-      fprintf( fp, "Affect       %d %f %d %d %d %d %d '%s' %s\n",
-               paf->type,
-               paf->duration,
-               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from_pool ? paf->from_pool->id : 0, paf->from ? paf->from->name : "null", print_bitvector( &paf->bitvector ) );
-   }
-   else
-   {
-      fprintf( fp, "AffectData   '%s' %f %d %d %d %d %d '%s' %s\n",
-               npc ? skill_table[paf->type]->name : paf->from->pc_skills[paf->type]->name,
-               paf->duration,
-               paf->modifier, paf->location, paf->factor_id, paf->affect_type, paf->from_pool ? paf->from_pool->id : 0, paf->from ? paf->from->name : saving_char->name, print_bitvector( &paf->bitvector ) );
-   }
+      fprintf( fp, "AffectData   '%s'\n", skill_table[paf->type]->name );
+   fprintf( fp, "Location     %d\n", paf->location );
+   fprintf( fp, "AffType      %d\n", paf->affect_type );
+   fprintf( fp, "Duration     %f\n", paf->duration );
+   fprintf( fp, "Modifier     %d\n", paf->modifier );
+   fprintf( fp, "AppType      %d\n", paf->apply_type );
+   if( paf->factor_id )
+      fprintf( fp, "FactorID     %d\n", paf->factor_id );
+   if( paf->from_pool )
+      fprintf( fp, "Pool         %d\n", paf->from_pool->id );
+   if( paf->from && paf->from[0] != '\0' )
+      fprintf( fp, "From         %s~\n", paf->from );
+   if( !xIS_EMPTY( paf->bitvector ) )
+      fprintf( fp, "Bit          %s\n", print_bitvector( &paf->bitvector ) );
 }
 
 // Write a prog

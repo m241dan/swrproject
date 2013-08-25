@@ -174,30 +174,25 @@ void do_score( CHAR_DATA * ch, const char *argument )
    {
       int i;
       SKILLTYPE *sktmp;
+      const char *skname;
 
       i = 0;
       send_to_char( "&r----------------------------------------------------------------------------&z\r\n", ch );
       send_to_char( "&zAFFECT DATA&r:                            ", ch );
       for( paf = ch->first_affect; paf; paf = paf->next )
       {
-         if( !paf->from )
-         {
-            bug( "%s: Player %s has skill not from another player or NPC.", __FUNCTION__, ch->name );
-            continue;
-         }
-         if( IS_NPC( paf->from ) )
+         if( paf->type >= 0 && paf->type < top_sn )
          {
             if( ( sktmp = get_skilltype( paf->type ) ) == NULL )
                continue;
+            skname = sktmp->name;
          }
          else
-         {
-            if( ( sktmp = paf->from->pc_skills[paf->type] ) == NULL )
-               continue;
-         }
+            skname = paf->from;
+
          if( ch->top_level < 20 )
          {
-            ch_printf( ch, "&r[&W%-34.34s&r]    ", sktmp->name );
+            ch_printf( ch, "&r[&W%-34.34s&r]    ", skname );
             if( i == 0 )
                i = 1;
             if( ( ++i % 3 ) == 0 )
@@ -206,13 +201,13 @@ void do_score( CHAR_DATA * ch, const char *argument )
          else
          {
             if( paf->modifier == 0 )
-               ch_printf( ch, "&r[&W%-24.24s&r;&W%5d &zrds&r]    ", sktmp->name, (int)paf->duration );
+               ch_printf( ch, "&r[&W%-24.24s&r;&W%5d &zrds&r]    ", skname, (int)paf->duration );
             else if( paf->modifier > 999 )
                ch_printf( ch, "&r[&W%-15.15s&r; &W%7.7s&r;&W%5d &zrds&r]    ",
-                          sktmp->name, tiny_affect_loc_name( paf->location ), (int)paf->duration );
+                          skname, tiny_affect_loc_name( paf->location ), (int)paf->duration );
             else
                ch_printf( ch, "&r[&W%-11.11s&r;&W%+-3.3d %7.7s&r;%5d &zrds&r]    ",
-                          sktmp->name, paf->modifier, tiny_affect_loc_name( paf->location ), (int)paf->duration );
+                          skname, paf->modifier, tiny_affect_loc_name( paf->location ), (int)paf->duration );
             if( i == 0 )
                i = 1;
             if( ( ++i % 2 ) == 0 )
@@ -247,6 +242,8 @@ const char *tiny_affect_loc_name( int location )
          return " CHA  ";
       case APPLY_LCK:
          return " LCK  ";
+      case APPLY_AGI:
+         return " AGI  ";
       case APPLY_SEX:
          return " SEX  ";
       case APPLY_LEVEL:
@@ -264,7 +261,7 @@ const char *tiny_affect_loc_name( int location )
       case APPLY_EXP:
          return " EXP  ";
       case APPLY_EVASION:
-         return " EV   ";
+         return "EVASION";
       case APPLY_ARMOR:
          return " AMR  ";
       case APPLY_HITROLL:

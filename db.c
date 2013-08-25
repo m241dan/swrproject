@@ -5526,10 +5526,7 @@ AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
       return paf;
    }
 
-   if( IS_NPC( paf->from ) )
-      sn = skill_lookup( skill_name );
-   else
-      sn = get_player_skill_sn( paf->from, skill_name );
+   sn = skill_lookup( skill_name );
 
    if( sn < 0 )
       bug( "%s: unknown skill.", __FUNCTION__ );

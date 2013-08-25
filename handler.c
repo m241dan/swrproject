@@ -1000,19 +1000,6 @@ void affect_to_char( CHAR_DATA * ch,  AFFECT_DATA * paf )
       }
    LINK( paf_new, ch->first_affect, ch->last_affect, next, prev );
    affect_modify( ch, paf_new, TRUE );
-
-   if( paf_new->from )
-   {
-      switch( paf_new->affect_type )
-      {
-         case AFFECT_BUFF:
-            generate_buff_threat( paf_new->from, ch, ( skill_table[paf_new->type]->threat * paf_new->from->skill_level[COMBAT_ABILITY] ) );
-            break;
-         case AFFECT_ENFEEBLE:
-            generate_threat( paf_new->from, ch, ( skill_table[paf_new->type]->threat * paf_new->from->skill_level[COMBAT_ABILITY] ) );
-            break;
-      }
-   }
    add_queue( ch, AFFECT_TIMER );
    return;
 }
@@ -5387,7 +5374,7 @@ POOL_DATA *get_pool_from_id( int id )
 
 void free_affect( AFFECT_DATA *af )
 {
-   af->from = NULL;
+   STRFREE( af->from );
    af->from_pool = NULL;
    DISPOSE( af );
    top_affect--;

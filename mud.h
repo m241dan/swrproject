@@ -1191,8 +1191,9 @@ struct affect_data
 {
    AFFECT_DATA *next;
    AFFECT_DATA *prev;
-   CHAR_DATA *from; /* which player isthis from */
    POOL_DATA *from_pool;
+   CHAR_DATA *castor;
+   const char *from; /* name of the player skill its from */
    int affect_type; /* buff or enfeeb*/
    short type; /* sn, if its from a skill */
    double duration;

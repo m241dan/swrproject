@@ -2895,19 +2895,20 @@ void split_timers_update(  )
                   {
                      if( !paf_next || paf_next->type != paf->type || paf_next->duration > 0 )
                      {
-                        if( IS_NPC( paf->from ) )
-                           skill = get_skilltype( paf->type );
-                        else
-                           skill = paf->from->pc_skills[paf->type];
-
-                        if( paf->type > 0 && skill && skill->msg_off )
+                        if( paf->type >= 0 && paf->type < top_sn )
                         {
-                           set_char_color( AT_WEAROFF, ch );
-                           send_to_char( skill->msg_off, ch );
-                           send_to_char( "\r\n", ch );
+                           skill = get_skilltype( paf->type );
+                           if( skill && skill->msg_off )
+                           {
+                              set_char_color( AT_WEAROFF, ch );
+                              send_to_char( skill->msg_off, ch );
+                              send_to_char( "\r\n", ch );
+                           }
                         }
+                        else if( paf->from && paf->from[0] != '\0' )
+                           ch_printf( ch, "%s wears off.\r\n", paf->from );
                      }
-                     if( paf->from && IS_NPC( paf->from ) && paf->type == gsn_possess )
+                     if( paf->type == gsn_possess )
                      {
                         ch->desc->character = ch->desc->original;
                         ch->desc->original = NULL;
