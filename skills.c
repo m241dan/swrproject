@@ -423,6 +423,7 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
       caf = copy_affect( saf );
+      caf->affect_type = AFFECT_BUFF;
       switch( caf->apply_type )
       {
          case APPLY_JOIN_TARGET:
@@ -480,17 +481,21 @@ void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
       {
          case APPLY_JOIN_TARGET:
             caf->modifier *= -1;
+            caf->affect_type = AFFECT_ENFEEBLE;
             affect_join( victim, caf );
             break;
          case APPLY_JOIN_SELF:
+            caf->affect_type = AFFECT_BUFF;
             affect_join( ch, caf );
             break;
          case APPLY_OVERRIDE_TARGET:
             caf->modifier *= -1;
+            caf->affect_type = AFFECT_ENFEEBLE;
             affect_to_char( victim, caf );
             break;
          case APPLY_OVERRIDE_SELF:
             affect_to_char( ch, caf );
+            caf->affect_type = AFFECT_BUFF;
             break;
       }
    }
