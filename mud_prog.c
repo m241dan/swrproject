@@ -96,6 +96,8 @@ void uphold_supermob( int *curr_serial, int serial, ROOM_INDEX_DATA **supermob_r
 
 #define MAX_PROG_NEST   20
 
+#define MAX_BLANK_LINE 4
+
 int mprog_do_command( const char *cmnd, CHAR_DATA * mob, CHAR_DATA * actor,
                       OBJ_DATA * obj, void *vo, CHAR_DATA * rndm, bool ignore, bool ignore_ors );
 
@@ -1416,11 +1418,12 @@ void mprog_driver( const char *com_list, CHAR_DATA * mob, CHAR_DATA * actor, OBJ
          {
             progbug( "Missing endif", mob );
          }
-         if( ++blank_line_count < MAX_BLANK_LINE )
+         if( ++blank_line_count <= MAX_BLANK_LINE )
             continue;
          --prog_nest;
          return;
       }
+      blank_line_count = 0;
 
       /*
        * Evaluate/execute the command, check what happened. 
