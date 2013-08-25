@@ -1124,7 +1124,7 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
       ch_printf( ch, "Temper: %s\r\n", ext_flag_string( &obj->temper, d_type ) );
 
    send_to_char( "Materials:", ch );
-   if( !obj->first_material )
+   if( !obj->first_material && !obj->pIndexData->first_material )
       send_to_char( " not made of any materials\r\n", ch );
    else
    {
