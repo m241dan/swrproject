@@ -1959,6 +1959,15 @@ void group_gain( CHAR_DATA * ch, CHAR_DATA * victim )
    if( !ch->in_group )
    {
       xp = ( int )( xp_compute( ch, victim ) * members_factor );
+
+      if( !IS_NPC( ch ) && IS_NPC( victim ) && ch->pcdata && ch->pcdata->clan
+         && !str_cmp( ch->pcdata->clan->name, victim->mob_clan ) )
+      {
+         xp = 0;
+         ch_printf( ch, "You receive no experience for killing your organizations resources.\r\n", xp );
+      }   
+      else
+         ch_printf( ch, "You receive %d combat experience.\r\n", xp );
       gain_exp( ch, xp, COMBAT_ABILITY );
    }
    else
@@ -2050,7 +2059,7 @@ int xp_compute( CHAR_DATA * gch, CHAR_DATA * victim )
    else
       dif -= victim->skill_level[COMBAT_ABILITY];
 
-   if( dif < 5 )
+   if( dif > 5 )
       return 0;
    else if( dif == 5 )
       return 100;
@@ -2092,7 +2101,7 @@ int xp_compute( CHAR_DATA * gch, CHAR_DATA * victim )
       return 1800;
    else if( dif <= -14 )
       return 2000;
-   return 0;
+   return -1;
 }
 
 /*
