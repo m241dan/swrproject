@@ -1414,12 +1414,12 @@ void mprog_driver( const char *com_list, CHAR_DATA * mob, CHAR_DATA * actor, OBJ
        */
       if( cmnd[0] == '\0' )
       {
+         if( ++blank_line_count <= MAX_BLANK_LINE )
+            continue;
          if( ifstate[iflevel][IN_IF] || ifstate[iflevel][IN_ELSE] )
          {
             progbug( "Missing endif", mob );
          }
-         if( ++blank_line_count <= MAX_BLANK_LINE )
-            continue;
          --prog_nest;
          return;
       }
