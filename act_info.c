@@ -1451,6 +1451,7 @@ void do_examine( CHAR_DATA * ch, const char *argument )
 
          case ITEM_ARMOR:
          case ITEM_WEAPON:
+         case ITEM_BACTA:
             show_obj_stats_to_char( ch, obj );
             break;
 

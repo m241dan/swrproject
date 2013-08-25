@@ -2733,6 +2733,11 @@ void show_obj_stats_to_char( CHAR_DATA *ch, OBJ_DATA *obj )
          ch_printf( ch, "&YE&Ovasion&z: &W%-6d &YA&Ormor&z-&YC&Olass&z: &W%-4d&w\r\n", obj->value[0], obj->value[2] );
          ch_printf( ch, "&YT&Oempered &YA&Ogainst&z: &W%s&w\r\n", ext_flag_string( &obj->temper, d_type_score ) );
          break;
+      case ITEM_BACTA:
+         send_to_char( "&CB&cacta &CS&ctats&z:&w\r\n", ch );
+         ch_printf( ch, "&CC&current &CV&colume&z(&cin &CHP&cs&z) : &W%d&w\r\n", obj->value[0] );
+         ch_printf( ch, "&CM&cax &CV&colume&z(&cin &CHP&cs&z)     : &W%d&w\r\n", obj->value[1] );
+         break;
    }
    send_to_char( "\r\n", ch );
    send_to_char( "&rHas the following affects&z: (&Wbase affects &Yyellow &z| &Wpool affects &Rred &z)&w\r\n", ch );
