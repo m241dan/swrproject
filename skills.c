@@ -5034,6 +5034,7 @@ void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool
    AFFECT_DATA *affect, *next_affect;
    STAT_BOOST *stat_boost, *stat_boost_next;
    double mod = factor->modifier;
+   char buf[MAX_INPUT_LENGTH];
 
    if( !Add )
       mod *= -1;
@@ -5052,7 +5053,8 @@ void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool
             xSET_BITS( affect->bitvector, factor->affect );
             affect->factor_id = factor->id;
             affect->apply_type = factor->apply_type;
-            affect->from = STRALLOC( skill->name );
+            sprintf( buf, "%s's %s", ch->name, skill->name );
+            affect->from = STRALLOC( buf );
             LINK( affect, skill->first_affect, skill->last_affect, next, prev );
             break;
          }
