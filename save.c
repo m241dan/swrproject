@@ -546,7 +546,7 @@ void fwrite_char( CHAR_DATA * ch, FILE * fp )
       fprintf( fp, "QuestID        %d\n", pquest->quest->id );
       fprintf( fp, "Stage          %d\n", pquest->stage );
       fprintf( fp, "TimesCompleted %d\n", pquest->times_completed );
-      fprintf( fp, "Progress       %s~\n", pquest->progress );
+      fprintf( fp, "Progress       %s~\n", strip_cr( pquest->progress ) );
       fprintf( fp, "EndQuest\n\n" );
    }
 
