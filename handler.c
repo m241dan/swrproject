@@ -5350,14 +5350,13 @@ ITEM_MATERIAL *copy_material( ITEM_MATERIAL *material )
 {
    ITEM_MATERIAL *new_material;
    CREATE( new_material, ITEM_MATERIAL, 1 );
-   new_material->object = material->object;
+   new_material->vnum = material->vnum;
    new_material->amount = material->amount;
    return new_material;
 }
 
 void free_material( ITEM_MATERIAL *material )
 {
-   material->object = NULL;
    DISPOSE( material );
    return;
 }

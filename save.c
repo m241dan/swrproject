@@ -753,11 +753,7 @@ void fwrite_obj( CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest, short os_
      fprintf( fp, "ExtraDescr   %s~ %s~\n", ed->keyword, ed->description );
 
    for( material = obj->first_material; material; material = material->next )
-   {
-      if( !material->object )
-         continue;
-      fprintf( fp, "Material     %d %d\n", material->object->vnum, material->amount );
-   }
+      fprintf( fp, "Material     %d %d\n", material->vnum, material->amount );
 
    fprintf( fp, "End\n\n" );
 
@@ -1995,12 +1991,7 @@ void fread_obj( CHAR_DATA * ch, FILE * fp, short os_type )
 
                fMatch = TRUE;
                CREATE( material, ITEM_MATERIAL, 1 );
-               if( ( material->object = get_obj_index( fread_number( fp ) ) ) == NULL )
-               {
-                  bug( "%s: Material bad vnum." );
-                  free_material( material );
-                  break;
-               }
+               material->vnum = fread_number( fp );
                material->amount = fread_number( fp );
                LINK( material, obj->first_material, obj->last_material, next, prev );
                break;

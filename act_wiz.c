@@ -1128,24 +1128,26 @@ void do_ostat( CHAR_DATA * ch, const char *argument )
       send_to_char( " not made of any materials\r\n", ch );
    else
    {
+      OBJ_INDEX_DATA *object;
+
       send_to_char( "\r\n", ch );
       for( material = obj->first_material; material; material = material->next )
       {
-         if( !material->object )
+         if( ( object = get_obj_index( material->vnum ) ) == NULL )
          {
             bug( "%s: found material with a NULL material->object, name %s on %s", obj->name, obj->carried_by ? obj->carried_by->name : obj->in_room->name );
             continue;
          }
-         ch_printf( ch, " - %-24.24s Amount: %-3d (extra)\r\n", material->object->name, material->amount );
+         ch_printf( ch, " - %-24.24s Amount: %-3d (extra)\r\n", object->name, material->amount );
       }
       for( material = obj->pIndexData->first_material; material; material = material->next )
       {
-         if( !material->object )
+         if( ( object = get_obj_index( material->vnum ) ) == NULL )
          {
             bug( "%s: found material with a NULL material->object. obj_index vnum : %d", obj->pIndexData->vnum );
             continue;
          }
-         ch_printf( ch, " - %-24.24s Amount: %-3d\r\n", material->object->name, material->amount );
+         ch_printf( ch, " - %-24.24s Amount: %-3d\r\n", object->name, material->amount );
       }
    }
 

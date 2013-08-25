@@ -3748,7 +3748,7 @@ void do_oset( CHAR_DATA * ch, const char *argument )
          return;
       }
       CREATE( material, ITEM_MATERIAL, 1 );
-      material->object = object;
+      material->vnum = object->vnum;
       material->amount = amount;
 
       if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
@@ -6034,7 +6034,7 @@ void fwrite_fuss_object( FILE * fpout, OBJ_INDEX_DATA * pObjIndex, bool install 
       fwrite_fuss_exdesc( fpout, ed );
 
    for( material = pObjIndex->first_material; material; material = material->next )
-      fprintf( fpout, "Material     %d %d\n", material->object->vnum, material->amount );
+      fprintf( fpout, "Material     %d %d\n", material->vnum, material->amount );
 
    if( pObjIndex->mudprogs )
    {

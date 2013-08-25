@@ -2394,7 +2394,6 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
 OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
 {
    OBJ_DATA *obj;
-   ITEM_MATERIAL *material;
 
    if( !pObjIndex )
    {
@@ -2441,11 +2440,6 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
    obj->first_material = NULL;
    obj->last_material = NULL;
 
-   for( material = pObjIndex->first_material; material; material = material->next )
-      if( material->object )
-         LINK( copy_material( material ), obj->first_material, obj->last_material, next, prev );
-      else
-         bug( "%s: found material on pObjIndex vnum %d that has a NULL obj_index_data 'object'", pObjIndex->vnum );
    /*
     * Mess with object properties.
     */
@@ -6298,12 +6292,7 @@ void fread_fuss_object( FILE * fp, AREA_DATA * tarea )
             {
                ITEM_MATERIAL *material;
                CREATE( material, ITEM_MATERIAL, 1 );
-               if( ( material->object = get_obj_index( fread_number( fp ) ) ) == NULL )
-               {
-                  bug( "%s: Material bad vnum." );
-                  free_material( material );
-                  break;
-               }
+               material->vnum = fread_number( fp );
                material->amount = fread_number( fp );
                LINK( material, pObjIndex->first_material, pObjIndex->last_material, next, prev );
                break;

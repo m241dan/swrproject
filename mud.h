@@ -2581,7 +2581,7 @@ struct item_material
 {
    ITEM_MATERIAL *next;
    ITEM_MATERIAL *prev;
-   OBJ_INDEX_DATA *object;
+   int vnum;
    int amount;
 };
 
