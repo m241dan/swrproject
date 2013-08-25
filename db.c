@@ -5499,41 +5499,75 @@ EXTRA_DESCR_DATA *fread_fuss_exdesc( FILE * fp )
 AFFECT_DATA *fread_fuss_affect( FILE * fp, const char *word )
 {
    AFFECT_DATA *paf;
-   const char *skill_name;
    int sn;
+   bool fMatch;
 
    CREATE( paf, AFFECT_DATA, 1 );
-   if( !strcmp( word, "Affect" ) )
+
+   if( !str_cmp( word, "Affect" ) )
       paf->type = fread_number( fp );
-   else
-      skill_name = fread_word( fp );
-
-   paf->duration = fread_float( fp );
-   paf->modifier = fread_number( fp );
-   paf->location = fread_number( fp );
-   paf->factor_id = fread_number( fp );
-   paf->affect_type = fread_number( fp );
-   paf->from_pool = get_pool_from_id( fread_number( fp ) );
-   fread_word( fp );
-   paf->from = NULL;; /* Rather a moot point, but just in case somethign slips through */
-   paf->bitvector = fread_bitvector( fp );
-
-   ++top_affect;
-
-   if( !paf->from )
-   {
-      paf->type = -1;
-      return paf;
-   }
-
-   sn = skill_lookup( skill_name );
-
-   if( sn < 0 )
+   else if( ( sn = skill_lookup( fread_word( fp ) ) ) < 0 )
       bug( "%s: unknown skill.", __FUNCTION__ );
    else
       paf->type = sn;
 
-   return paf;
+   for( ;; )
+   {
+      const char *wordtwo = ( feof( fp ) ? "End" : fread_word( fp ) );
+
+      if( wordtwo[0] == '\0' )
+      {
+         log_printf( "%s: EOF encountered reading file!", __FUNCTION__ );
+         wordtwo = "End";
+      }
+
+      switch( wordtwo[0] )
+      {
+         case 'A':
+            KEY( "AffType", paf->affect_type, fread_number( fp ) );
+            KEY( "AppType", paf->apply_type, fread_number( fp ) );
+            break;
+         case 'B':
+            KEY( "Bit", paf->bitvector, fread_bitvector( fp ) );
+            break;
+         case 'D':
+            KEY( "Duration", paf->duration, fread_float( fp ) );
+            break;
+         case 'E':
+            if( !str_cmp( wordtwo, "End" ) )
+            {
+               ++top_affect;
+               return paf;
+            }
+            break;
+         case 'F':
+            KEY( "FactorID", paf->factor_id, fread_number( fp ) );
+            KEY( "From", paf->from, fread_string( fp ) );
+            break;
+         case 'L':
+            KEY( "Location", paf->location, fread_number( fp ) );
+            break;
+         case 'M':
+            KEY( "Modifier", paf->modifier, fread_number( fp ) );
+            break;
+         case 'P':
+            if( !str_cmp( wordtwo, "Pool" ) )
+            {
+               POOL_DATA *pool;
+               if( ( pool = get_pool_from_id( fread_number( fp ) ) ) == NULL )
+               {
+                   bug( "%s: bad pool ID", __FUNCTION__ );
+                   break;
+               }
+               paf->from_pool = pool;
+               break;
+            }
+            break;
+      }
+
+   }
+   bug( "%s: returning NULL affect.", __FUNCTION__ );
+   return NULL;
 }
 
 void fread_fuss_exit( FILE * fp, ROOM_INDEX_DATA * pRoomIndex )

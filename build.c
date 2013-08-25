@@ -5783,6 +5783,7 @@ void fwrite_fuss_affect( FILE * fp, AFFECT_DATA * paf )
       fprintf( fp, "From         %s~\n", paf->from );
    if( !xIS_EMPTY( paf->bitvector ) )
       fprintf( fp, "Bit          %s\n", print_bitvector( &paf->bitvector ) );
+   fprintf( fp, "End\n" );
 }
 
 // Write a prog
