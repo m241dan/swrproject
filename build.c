@@ -3750,9 +3750,12 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       CREATE( material, ITEM_MATERIAL, 1 );
       material->object = object;
       material->amount = amount;
-      LINK( material, obj->first_material, obj->last_material, next, prev );
+
       if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
-         LINK( copy_material( material ), obj->pIndexData->first_material, obj->pIndexData->last_material, next, prev );
+         LINK( material, obj->pIndexData->first_material, obj->pIndexData->last_material, next, prev );
+      else
+         LINK( material, obj->first_material, obj->last_material, next, prev );
+
       send_to_char( "Ok.\r\n", ch );
       return;
    }
