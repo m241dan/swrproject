@@ -642,13 +642,11 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
 
       lhsvl = pquest->stage;
 
-      if( !is_number( argument ) )
+      if( ( rhsvl = atoi( argument ) ) < -2 )
       {
-         progbug( "queststage: Bad stage number given", mob );
+         progbug( "queststage: bad quest stage given", mob );
          return BERR;
       }
-      else
-         rhsvl = atoi( argument );
 
       if( !*opr )
          strcpy( opr, "==" );
