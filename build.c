@@ -480,14 +480,8 @@ const char *array_to_string( const char *const array[] )
 
    buf[0] = '\0';
 
-   x = sizeof( array ) / sizeof( array[0] );
-   bug( "array size: %d", x );
-
    for( x = 0; x < sizeof( array ) / sizeof( array[0] ) ; x++ )
       strcat( buf, array[x] );
-
-   if( ( x = strlen( buf ) ) > 0 )
-      buf[--x] = '\0';
 
    return buf;
 }
@@ -9649,8 +9643,8 @@ void do_quest( CHAR_DATA *ch, const char *argument )
          send_to_char( "                quest description <name/id> <description>\r\n", ch );
          send_to_char( "                quest level <name/id> <level>\r\n", ch );
          send_to_char( "                quest type <name/id> <type>\r\n", ch ); /* repeatable, one-time, etc */
-         send_to_char( "                quest addprequest <prequest id/name> <name/id>\r\n", ch );
-         send_to_char( "                quest remprequest <prequest id/name> <mame/id>\r\n", ch );
+         send_to_char( "                quest addprequest <quest id/name> <prequest name/id>\r\n", ch );
+         send_to_char( "                quest remprequest <quest id/name> <#>\r\n", ch );
          send_to_char( "                quest all\r\n", ch );
       }
       return;
