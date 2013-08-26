@@ -2315,3 +2315,24 @@ void do_mpblank( CHAR_DATA *ch, const char *argument )
    send_to_char( "\r\n", victim );
    return;
 }
+
+void do_mpabort( CHAR_DATA *ch, const char *argument )
+{
+   CHAR_DATA *victim;
+
+   if( !IS_NPC( ch ) )
+      return;
+
+   if( ( victim = get_char_room_mp( ch, argument ) ) == NULL )
+   {
+      progbug( "mpabort: bad victim", ch );
+      return;
+   }
+
+   if( victim && victim->desc )
+   {
+      victim->desc->inbuf[0] = '\0';
+      ch_printf( victim, "%s stops you in your tracks.\r\n", ch->name );
+   }
+   return;
+}
