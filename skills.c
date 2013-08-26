@@ -279,8 +279,6 @@ void do_skill( CHAR_DATA *ch, const char *argument )
    skill = ch->casting_skill;
    argument = one_argument( argument, arg );
 
-   send_to_char( "do_skill getting called.\r\n", ch );
-
    switch( ch->substate )
    {
       default:
@@ -333,6 +331,9 @@ void do_skill( CHAR_DATA *ch, const char *argument )
             ch->skill_target = victim;
             return;
          }
+         adjust_stat( ch, STAT_MANA, -skill->min_mana );
+         adjust_stat( ch, STAT_MOVE, -skill->min_move );
+         adjust_stat( ch, STAT_HIT, -skill->min_hp );  
          charge_message( ch, victim, skill, FALSE );
          break;
 
@@ -4257,7 +4258,11 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
 
       ch_printf( ch, "Cost Type: %s\r\n", ext_flag_string( &skill->cost, cost_type ) );
       ch_printf( ch, "Damage Type: %s\r\n", ext_flag_string( &skill->damtype, d_type ) );
-
+      if( is_skill_set( ch, skill ) )
+      {
+         ch_printf( ch, "Cooldown: %-3d Threat: %d\r\n", skill->cooldown, skill->threat );
+         ch_printf( ch, "Cost    : HP - %-3d  FRC - %-3d MV - %-3d\r\n", skill->min_hp, skill->min_mana, skill->min_move );
+      }
       ch_printf( ch, "Base Roll Boost: %-10f\r\n", skill->base_roll_boost );
 
       for( factor = skill->first_factor, x = 0; factor; factor = factor->next )
