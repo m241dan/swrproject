@@ -408,13 +408,18 @@ void load_pools( OBJ_DATA *obj )
    for( x = 0, success = 0; x < chances; x++ )
    {
       pool = get_pool_from_count( number_range( 1, total_pool ) );
-      if( obj->level >= pool->minlevel && obj->level <= pool->maxlevel && rule_check( obj, pool ) )
+      if( obj->level >= pool->minlevel && obj->level <= pool->maxlevel )
       {
-         if( ( paf = create_affect_from_pool( pool ) ) == NULL )
-            continue;
-         LINK( paf, obj->first_affect, obj->last_affect, next, prev );
-         if( ++success == obj->max_pool )
-            return;
+         if(  rule_check( obj, pool ) )
+         {
+            if( ( paf = create_affect_from_pool( pool ) ) == NULL )
+               continue;
+            LINK( paf, obj->first_affect, obj->last_affect, next, prev );
+            if( ++success == obj->max_pool )
+               return;
+         }
+         else
+            x--;
       }
    }
 }

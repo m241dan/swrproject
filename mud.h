@@ -2601,7 +2601,7 @@ struct item_material
    int amount;
 };
 
-#define POOL_CHANCE_PER_SLOT 4
+#define POOL_CHANCE_PER_SLOT 3
 
 struct pool_data
 {

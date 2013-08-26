@@ -85,7 +85,7 @@ const char *const planet_flags[] = {
 
 const char *const weapon_table[13] = {
    "none",
-   "vibro-axe", "vibro-blade", "lightsaber", "whip", "claw",
+   "vibro-axe", "vibro-blade", "lightsaber", "vibro-whip", "vibro-claw",
    "blaster", "w7", "bludgeon", "bowcaster", "w10",
    "force pike", "w12"
 };
