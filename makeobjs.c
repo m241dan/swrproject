@@ -438,8 +438,6 @@ AFFECT_DATA *create_affect_from_pool( POOL_DATA *pool )
 {
    AFFECT_DATA *af;
 
-   bug( "creating affect from pool: %d", pool->id );
-
    CREATE( af, AFFECT_DATA, 1 );
    af->from = NULL;
    af->from_pool = pool;
