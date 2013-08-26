@@ -854,6 +854,8 @@ typedef enum {
    BUILD_STRONG, BUILD_RUGGED, BUILD_LEAN, BUILD_INTELLECTUAL, BUILD_WISE, MAX_STATBUILD
 } stat_enum;
 
+#define STARTING_STATS 10
+
 struct stat_build
 {
    char build_name[30];
