@@ -45,6 +45,7 @@ ch_ret one_hit args( ( CHAR_DATA * ch, CHAR_DATA * victim, int dt ) );
 int obj_hitroll args( ( OBJ_DATA * obj ) );
 bool get_cover( CHAR_DATA * ch );
 bool dual_flip = FALSE;
+MOB_ATTACK *mob_attack;
 
 bool loot_coins_from_corpse( CHAR_DATA *ch, OBJ_DATA *corpse )
 {
@@ -291,8 +292,6 @@ void violence_update( void )
  */
 ch_ret multi_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 {
-   int schance;
-   int dual_bonus;
    ch_ret retcode;
 
    /*
@@ -304,100 +303,38 @@ ch_ret multi_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    if( !IS_NPC( ch ) && IS_SET( ch->act, PLR_NICE ) && !IS_NPC( victim ) )
       return rNONE;
 
-   if( ( retcode = one_hit( ch, victim, dt ) ) != rNONE )
-      return retcode;
+   if( IS_NPC( ch ) )
+   {
+      if( dt == TYPE_UNDEFINED && ch->first_mobattack ) /* round of autoattacks and mob is speced with attacks */
+         mob_attack = ch->first_mobattack;
 
-   if( who_fighting( ch ) != victim || dt == gsn_backstab || dt == gsn_circle )
-      return rNONE;
-
-   /*
-    * Very high schance of hitting compared to schance of going berserk 
-    */
-   /*
-    * 40% or higher is always hit.. don't learn anything here though. 
-    */
-   /*
-    * -- Altrag 
-    */
-   schance = IS_NPC( ch ) ? 100 : ( ch->pcdata->learned[gsn_berserk] * 5 / 2 );
-   if( IS_AFFECTED( ch, AFF_BERSERK ) && number_percent(  ) < schance )
-      if( ( retcode = one_hit( ch, victim, dt ) ) != rNONE || who_fighting( ch ) != victim )
+      if( ( retcode = one_hit( ch, victim, dt ) ) != rNONE ) /* multi_hit the dt */
          return retcode;
 
-   if( get_eq_char( ch, WEAR_DUAL_WIELD ) )
-   {
-      dual_bonus = IS_NPC( ch ) ? ( ch->skill_level[COMBAT_ABILITY] / 10 ) : ( ch->pcdata->learned[gsn_dual_wield] / 10 );
-      schance = IS_NPC( ch ) ? ch->top_level : ch->pcdata->learned[gsn_dual_wield];
-      if( number_percent(  ) < schance )
-      {
-         learn_from_success( ch, gsn_dual_wield );
-         retcode = one_hit( ch, victim, dt );
-         if( retcode != rNONE || who_fighting( ch ) != victim )
+      if( who_fighting( ch ) != victim || dt != TYPE_UNDEFINED ) /* if the attack was on isn't the victim or if it was a kill */
+         return rNONE;
+
+      for( mob_attack = mob_attack->next; mob_attack; mob_attack = mob_attack->next ) /* new style of numattacks for mobs */
+         if( ( retcode = one_hit( ch, victim, dt ) ) != rNONE )
             return retcode;
-      }
-      else
-         learn_from_failure( ch, gsn_dual_wield );
    }
    else
-      dual_bonus = 0;
-
-   if( ch->move < 10 )
-      dual_bonus = -20;
-
-   /*
-    * NPC predetermined number of attacks         -Thoric
-    */
-   if( IS_NPC( ch ) && ch->numattacks > 0 )
    {
-      for( schance = 0; schance < ch->numattacks; schance++ )
+      if( ( retcode = one_hit( ch, victim, dt ) ) != rNONE ) /* multi_hit the dt */
+         return retcode;
+
+      if( who_fighting( ch ) != victim || dt != TYPE_UNDEFINED ) /* if the attack was on isn't the victim or if it was a kill */
+         return rNONE;
+
+      if( get_eq_char( ch, WEAR_DUAL_WIELD ) )
       {
          retcode = one_hit( ch, victim, dt );
          if( retcode != rNONE || who_fighting( ch ) != victim )
             return retcode;
       }
-      return retcode;
    }
-
-   schance = IS_NPC( ch ) ? ch->top_level : ( int )( ( ch->pcdata->learned[gsn_second_attack] + dual_bonus ) / 1.5 );
-   if( number_percent(  ) < schance )
-   {
-      learn_from_success( ch, gsn_second_attack );
-      retcode = one_hit( ch, victim, dt );
-      if( retcode != rNONE || who_fighting( ch ) != victim )
-         return retcode;
-   }
-   else
-      learn_from_failure( ch, gsn_second_attack );
-
-   schance = IS_NPC( ch ) ? ch->top_level : ( int )( ( ch->pcdata->learned[gsn_third_attack] + ( dual_bonus * 1.5 ) ) / 2 );
-   if( number_percent(  ) < schance )
-   {
-      learn_from_success( ch, gsn_third_attack );
-      retcode = one_hit( ch, victim, dt );
-      if( retcode != rNONE || who_fighting( ch ) != victim )
-         return retcode;
-   }
-   else
-      learn_from_failure( ch, gsn_third_attack );
 
    retcode = rNONE;
-
-   schance = IS_NPC( ch ) ? ( int )( ch->top_level / 4 ) : 0;
-   if( number_percent(  ) < schance )
-      retcode = one_hit( ch, victim, dt );
-
-   if( retcode == rNONE )
-   {
-      int move;
-
-      if( !IS_AFFECTED( ch, AFF_FLYING ) && !IS_AFFECTED( ch, AFF_FLOATING ) )
-         move = encumbrance( ch, movement_loss[UMIN( SECT_MAX - 1, ch->in_room->sector_type )] );
-      else
-         move = encumbrance( ch, 1 );
-      if( ch->move )
-         ch->move = UMAX( 0, ch->move - move );
-   }
-
    return retcode;
 }
 
@@ -559,10 +496,15 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       if( wield && wield->item_type == ITEM_WEAPON )
       {
          dt += wield->value[3];
-         damtype = wield->damtype;
+         xSET_BITS( damtype, wield->damtype );
+      }
+      else if( IS_NPC( ch ) && mob_attack )
+      {
+         dt += mob_attack->wield;
+         xSET_BITS( damtype, mob_attack->damtype );
       }
       else
-         damtype = ch->damtype;
+         xSET_BITS( damtype, ch->damtype );
    }
    else
    {
@@ -571,6 +513,8 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       {
          if( wield )
             xSET_BITS( damtype, wield->damtype );
+         else if( IS_NPC( ch ) && mob_attack )
+            xSET_BITS( damtype, mob_attack->damtype );
          else
             xSET_BITS( damtype, ch->damtype );
       }

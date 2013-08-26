@@ -1153,7 +1153,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  sav1 sav2 sav4 sav4 sav5 (see SAVINGTHROWS)\r\n", ch );
       send_to_char( "  resistant immune susceptible (see RIS)\r\n", ch );
       send_to_char( "  penetration resistance damtype_potency\r\n", ch );
-      send_to_char( "  attack defense numattacks addskill remskill\r\n", ch );
+      send_to_char( "  attack defense  addskill remskill\r\n", ch );
       send_to_char( "  discipline speaking speaks (see LANGUAGES)\r\n", ch );
       send_to_char( "  name short long description title spec spec2\r\n", ch );
       send_to_char( "  clan vip wanted addteach remteach addquest\r\n", ch );
@@ -2052,27 +2052,6 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       if( IS_SET( victim->act, ACT_PROTOTYPE ) )
          victim->pIndexData->level = value;
 
-      return;
-   }
-
-   if( !str_cmp( arg2, "numattacks" ) )
-   {
-      if( !can_mmodify( ch, victim ) )
-         return;
-      if( !IS_NPC( victim ) )
-      {
-         send_to_char( "Not on PC's.\r\n", ch );
-         return;
-      }
-
-      if( value < 0 || value > 20 )
-      {
-         send_to_char( "Attacks range is 0 to 20.\r\n", ch );
-         return;
-      }
-      victim->numattacks = value;
-      if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
-         victim->pIndexData->numattacks = value;
       return;
    }
 
