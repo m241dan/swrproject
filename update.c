@@ -799,10 +799,7 @@ void gain_condition( CHAR_DATA * ch, int iCond, int value )
  */
 void mobile_update( void )
 {
-   char buf[MAX_STRING_LENGTH];
    CHAR_DATA *ch;
-   EXIT_DATA *pexit;
-   int door;
    ch_ret retcode;
 
    retcode = rNONE;
