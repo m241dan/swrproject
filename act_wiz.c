@@ -1375,13 +1375,19 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch, "Resistant  : %s\r\n", flag_string( victim->resistant, ris_flags ) );
    ch_printf( ch, "Immune     : %s\r\n", flag_string( victim->immune, ris_flags ) );
    ch_printf( ch, "Susceptible: %s\r\n", flag_string( victim->susceptible, ris_flags ) );
-   ch_printf( ch, "Attacks    : %s\r\n", flag_string( victim->attacks, attack_flags ) );
    ch_printf( ch, "Defenses   : %s\r\n", flag_string( victim->defenses, defense_flags ) );
    if( IS_NPC( victim ) )
    {
       TEACH_DATA *teach;
       DISC_DATA *disc;
       AV_QUEST *quest;
+      MOB_ATTACK *attack;
+
+      for( attack = victim->first_mobattack; attack; attack = attack->next )
+      {
+         ch_printf( ch, "WeaponType : %s\r\n", weapon_table[attack->wield] );
+         ch_printf( ch, " - Damtype : %s&w\r\n", ext_flag_string( &attack->damtype, d_type_score) );
+      }
 
       for( teach = victim->pIndexData->first_teach; teach; teach = teach->next )
       {

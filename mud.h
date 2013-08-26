@@ -134,6 +134,7 @@ typedef struct item_material ITEM_MATERIAL;
 typedef struct pool_data POOL_DATA;
 typedef struct ai_thought AI_THOUGHT;
 typedef struct mob_thought MOB_THOUGHT;
+typedef struct mob_attack MOB_ATTACK;
 /*
 * Function types.
 */
@@ -816,6 +817,14 @@ struct mob_thought
 {
    MOB_THOUGHT *next;
    AI_THOUGHT *thought;
+};
+
+struct mob_attack
+{
+   MOB_ATTACK *next;
+   MOB_ATTACK *prev;
+   EXT_BV damtype;
+   int wield;
 };
 
 extern bool MOBtrigger;
@@ -2233,6 +2242,8 @@ struct mob_index_data
    AV_QUEST *last_available_quest;
    AI_THOUGHT *first_thought;
    AI_THOUGHT *last_thought;
+   MOB_ATTACK *first_mobattack;
+   MOB_ATTACK *last_mobattack;
 };
 
 struct loot_data
@@ -2470,9 +2481,11 @@ struct char_data
    int moblevel;
    MOB_THOUGHT *mthoughts[MAX_FOM];
    bool abort_stack;
+   MOB_ATTACK *first_mobattack;
+   MOB_ATTACK *last_mobattack;
 };
 
-#define PC_BASE_HP 200
+#define PC_BASE_HP 100
 #define PC_BASE_MOVE 0
 #define PC_BASE_MANA 0
 
@@ -4637,6 +4650,7 @@ void create_thought( CHAR_DATA *ch, const char *argument );
 void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, const char *parameter );
 void list_thoughts( CHAR_DATA *ch );
 void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc );
+const char *array_to_string( const char *const array[] );
 
 /* clans.c */
 CL *get_clan( const char *name );
@@ -5153,6 +5167,9 @@ int get_temper_count( OBJ_DATA *obj );
 bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 bool can_list_quest( CHAR_DATA *ch, QUEST_DATA *quest );
 int get_used_pools( OBJ_DATA *obj );
+MOB_ATTACK *copy_mob_attack( MOB_ATTACK *attack );
+void add_mob_attack( CHAR_DATA *ch, MOB_ATTACK *attack );
+void free_attack( MOB_ATTACK *attack );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

@@ -473,6 +473,19 @@ bool can_medit( CHAR_DATA * ch, MOB_INDEX_DATA * mob )
    return FALSE;
 }
 
+const char *array_to_string( const char *const array[] )
+{
+   size_t x;
+   static char buf[MAX_STRING_LENGTH];
+
+   buf[0] = '\0';
+
+   for( x = 0; x < ( sizeof( array ) / sizeof( array[0] ) ); x++ )
+      strcat( buf, array[x] );
+
+   return buf;
+}
+
 int get_otype( const char *type )
 {
   size_t x;
@@ -489,6 +502,16 @@ int get_aflag( const char *flag )
 
    for( x = 0; x < MAX_AFF; x++ )
       if( !str_cmp( flag, a_flags[x] ) )
+         return x;
+   return -1;
+}
+
+int get_weapontype( const char *type )
+{
+   int x;
+
+   for( x = 0; x < MAX_WEAPON; x++ )
+      if( !str_cmp( type, weapon_table[x] ) )
          return x;
    return -1;
 }
@@ -1134,7 +1157,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       send_to_char( "  discipline speaking speaks (see LANGUAGES)\r\n", ch );
       send_to_char( "  name short long description title spec spec2\r\n", ch );
       send_to_char( "  clan vip wanted addteach remteach addquest\r\n", ch );
-      send_to_char( "  addthought remthought                    \r\n", ch );
+      send_to_char( "  addthought remthought addattack remattack \r\n", ch );
       send_to_char( "  round tspeed\r\n", ch );
       send_to_char( "\r\n", ch );
       send_to_char( "For editing index/prototype mobiles:\r\n", ch );
@@ -1656,6 +1679,107 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       if( IS_NPC( victim ) && IS_SET( victim->act, ACT_PROTOTYPE ) )
          victim->pIndexData->damtype_potency[value] = value2;
       send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "addattack" ) )
+   {
+      MOB_ATTACK *attack;
+      EXT_BV bits;
+      int bit;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on players.\r\n", ch );
+         return;
+      }
+
+      argument = one_argument( argument, arg3 );
+
+      if( ( value = get_weapontype( arg3 ) ) == -1 )
+      {
+         ch_printf( ch, "Valid Weapon Types: %s\r\n", array_to_string( weapon_table ) );
+         return;
+      }
+
+      if( argument[0] )
+      {
+         ch_printf( ch, "Enter your damtype(s)\r\nValid Damtypes: %s\r\n", array_to_string( d_type ) );
+         return;
+      }
+
+      xCLEAR_BITS( bits );
+
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg3 );
+
+         if( ( bit = get_damtype( arg3 ) ) == -1 )
+            ch_printf( ch, "Invalid damtype: %s\r\nValid Damtypes: %s\r\n", arg3, array_to_string( d_type ) );
+         else
+            xSET_BIT( bits, bit );
+      }
+      CREATE( attack, MOB_ATTACK, 1 );
+      attack->wield = value;
+      xCLEAR_BITS( attack->damtype );
+      xSET_BITS( attack->damtype, bits );
+      LINK( attack, victim->first_mobattack, victim->last_mobattack, next, prev );
+
+      if( IS_SET( victim->act, ACT_PROTOTYPE ) )
+         LINK( attack, victim->pIndexData->first_mobattack, victim->last_mobattack, next, prev );
+
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg2, "remattack" ) )
+   {
+      MOB_ATTACK *attack;
+      int count;
+
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "not on Players.\r\n", ch );
+         return;
+      }
+
+      if( value < 1 )
+      {
+         send_to_char( "Enter a number 1 or greater.\r\n", ch );
+         return;
+      }
+
+      if( !IS_SET( victim->act, ACT_PROTOTYPE ) )
+      {
+         for( count = 0, attack = victim->first_mobattack; attack; attack = attack->next )
+            if( ++count == value )
+            {
+               UNLINK( attack, victim->first_mobattack, victim->last_mobattack, next, prev );
+               free_attack( attack );
+               send_to_char( "Removed from Mob.\r\n", ch );
+               return;
+            }
+         send_to_char( "Victim not set with that many attacks.\r\n", ch );
+      }
+      else
+      {
+         for( count = 0, attack = victim->pIndexData->first_mobattack; attack; attack = attack->next )
+            if( ++count == value )
+            {
+               UNLINK( attack, victim->pIndexData->first_mobattack, victim->pIndexData->last_mobattack, next, prev );
+               free_attack( attack );
+               send_to_char( "Removed from Index.\r\n", ch );
+               return;
+            }
+
+         send_to_char( "Victim not set with that many attacks on Index.\r\n", ch );
+      }
       return;
    }
 
@@ -6053,6 +6177,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
    REPAIR_DATA *pRepair;
    MPROG_DATA *mprog;
    AI_THOUGHT *thought;
+   MOB_ATTACK *attack;
 
    if( install )
       REMOVE_BIT( pMobIndex->act, ACT_PROTOTYPE );
@@ -6144,6 +6269,9 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
                pRepair->fix_type[0], pRepair->fix_type[1], pRepair->fix_type[2], pRepair->profit_fix, pRepair->shop_type,
                pRepair->open_hour, pRepair->close_hour );
    }
+
+   for( attack = pMobIndex->first_mobattack; attack; attack = attack->next )
+      fprintf( fpout, "MobAttack  %d %s\n", attack->wield, print_bitvector( &attack->damtype ) );
 
    for( teach = pMobIndex->first_teach; teach; teach = teach->next )
       fprintf( fpout, "TeachData  %d %d\n", teach->disc_id, teach->credits );

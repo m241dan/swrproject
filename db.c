@@ -2366,7 +2366,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    }
 
    /* AI Stuff */
-   if( ( mob->tspeed = pMobIndex->tspeed ) == 0 )
+   if( ( mob->tspeed = pMobIndex->tspeed ) < .25 )
       mob->tspeed = 2;
    mob->fom = FOM_IDLE;
 
@@ -2374,6 +2374,12 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
       AI_THOUGHT *thought;
       for( thought = pMobIndex->first_thought; thought; thought = thought->next )
          add_mob_thought( mob, get_thought_from_id( thought->id ) );
+   }
+
+   {
+      MOB_ATTACK *attack;
+      for( attack = pMobIndex->first_mobattack; attack; attack = attack->next )
+         add_mob_attack( mob, attack );
    }
 
    add_queue( mob, AI_TIMER );
@@ -2636,6 +2642,8 @@ void clear_char( CHAR_DATA * ch )
    ch->plr_home = NULL;
    ch->casting_skill = NULL;
    ch->skill_target = NULL;
+   ch->first_mobattack = NULL;
+   ch->last_mobattack = NULL;
    return;
 }
 
@@ -5234,6 +5242,11 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->last_teach = NULL;
       pMobIndex->first_available_quest = NULL;
       pMobIndex->last_available_quest = NULL;
+      pMobIndex->first_mobattack = NULL;
+      pMobIndex->last_mobattack = NULL;
+      pMobIndex->round = 0;
+      pMobIndex->haste = 0;
+      pMobIndex->tspeed = 0;
       for( x = 0; x < MAX_NPC_SKILL; x++ )
          pMobIndex->npc_skills[x] = -1;
    }
@@ -6869,6 +6882,18 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
 
          case 'L':
             KEY( "Long", pMobIndex->long_descr, fread_string( fp ) );
+            break;
+
+         case 'M':
+            if( !str_cmp( word, "MobAttack" ) )
+            {
+               MOB_ATTACK *attack;
+               CREATE( attack, MOB_ATTACK, 1 );
+               attack->wield = fread_number( fp );
+               attack->damtype = fread_bitvector( fp );
+               LINK( attack, pMobIndex->first_mobattack, pMobIndex->last_mobattack, next, prev );
+               break;
+            }
             break;
 
          case 'P':

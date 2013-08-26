@@ -5581,6 +5581,21 @@ void add_mob_thought( CHAR_DATA *ch, AI_THOUGHT *thought )
    return;
 }
 
+void add_mob_attack( CHAR_DATA *ch, MOB_ATTACK *attack )
+{
+   MOB_ATTACK *new_attack;
+
+   if( !attack )
+   {
+      bug( "%s: being passed NULL attack.", __FUNCTION__ );
+      return;
+   }
+
+   new_attack = copy_mob_attack( attack );
+   LINK( new_attack, ch->first_mobattack, ch->last_mobattack, next, prev );
+   return;
+}
+
 OBJ_DATA *get_bacta( CHAR_DATA *ch )
 {
    OBJ_DATA *obj;
@@ -5589,7 +5604,7 @@ OBJ_DATA *get_bacta( CHAR_DATA *ch )
    for( x = 0; x < MAX_WEAR; x++ )
       if( ( obj = get_eq_char( ch, x ) ) != NULL && obj->item_type == ITEM_BACTA && obj->value[0] > 0 )
          return obj;
-   return NULL; 
+   return NULL;
 
 }
 
@@ -5667,4 +5682,24 @@ bool can_list_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 
    return TRUE;
 
+}
+
+MOB_ATTACK *copy_mob_attack( MOB_ATTACK *attack )
+{
+   MOB_ATTACK *new_attack;
+
+   if( !attack )
+      return NULL;
+
+   CREATE( new_attack, MOB_ATTACK, 1 );
+   xCLEAR_BITS( new_attack->damtype );
+   xSET_BITS( new_attack->damtype, attack->damtype );
+   new_attack->wield = attack->wield;
+   return new_attack;
+}
+
+void free_attack( MOB_ATTACK *attack )
+{
+   xCLEAR_BITS( attack->damtype );
+   DISPOSE( attack );
 }
