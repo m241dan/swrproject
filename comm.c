@@ -973,6 +973,20 @@ bool read_from_descriptor( DESCRIPTOR_DATA * d )
       nRead = read( d->descriptor, d->inbuf + iStart, sizeof( d->inbuf ) - 10 - iStart );
       if( nRead > 0 )
       {
+         if( d->character )
+         {
+            size_t x;
+            int y;
+            char command[MAX_INPUT_LENGTH];
+
+            for( y = 0, x = iStart; x < ( sizeof( d->inbuf ) - 10 ); x++, y++ )
+               command[y] = d->inbuf[x];
+
+            if( !str_cmp( command, "abort" ) )
+               d->character->abort_stack = TRUE;
+            bug( "%s: abort read in.", __FUNCTION__ );
+
+         }
          iStart += nRead;
          if( d->inbuf[iStart - 1] == '\n' || d->inbuf[iStart - 1] == '\r' )
             break;

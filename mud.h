@@ -2469,6 +2469,7 @@ struct char_data
    short dbl_attack;
    int moblevel;
    MOB_THOUGHT *mthoughts[MAX_FOM];
+   bool abort_stack;
 };
 
 #define PC_BASE_HP 200
