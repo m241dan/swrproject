@@ -314,9 +314,10 @@ ch_ret multi_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       if( who_fighting( ch ) != victim || dt != TYPE_UNDEFINED ) /* if the attack was on isn't the victim or if it was a kill */
          return rNONE;
 
-      for( mob_attack = mob_attack->next; mob_attack; mob_attack = mob_attack->next ) /* new style of numattacks for mobs */
-         if( ( retcode = one_hit( ch, victim, dt ) ) != rNONE )
-            return retcode;
+      if( mob_attack )
+         for( mob_attack = mob_attack->next; mob_attack; mob_attack = mob_attack->next ) /* new style of numattacks for mobs */
+            if( ( retcode = one_hit( ch, victim, dt ) ) != rNONE )
+               return retcode;
    }
    else
    {
