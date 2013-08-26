@@ -473,15 +473,18 @@ bool can_medit( CHAR_DATA * ch, MOB_INDEX_DATA * mob )
    return FALSE;
 }
 
-const char *array_to_string( const char *const array[] )
+const char *array_to_string( const char *const array[], int max )
 {
-   size_t x;
    static char buf[MAX_STRING_LENGTH];
+   int x;
 
    buf[0] = '\0';
 
-   for( x = 0; x < sizeof( array ) / sizeof( array[0] ) ; x++ )
+   for( x = 0; x < max ; x++ )
+   {
       strcat( buf, array[x] );
+      strcat( buf, " " );
+   }
 
    return buf;
 }
@@ -1702,6 +1705,8 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       if( ( value = get_weapontype( arg3 ) ) == -1 )
       {
          send_to_char( "Not a proper weapontype\r\n", ch );
+         ch_printf( ch, "Proper Weapon Types: %s\r\n", array_to_string( weapon_table, MAX_WEAPON ) );
+         return;
       }
 
       if( argument[0] == '\0' )
@@ -1717,7 +1722,7 @@ void do_mset( CHAR_DATA * ch, const char *argument )
          argument = one_argument( argument, arg3 );
 
          if( ( bit = get_damtype( arg3 ) ) == -1 )
-            ch_printf( ch, "Invalid damtype: %s\r\nValid Damtypes: %s\r\n", arg3, array_to_string( d_type ) );
+            ch_printf( ch, "Invalid damtype: %s\r\nValid Damtypes: %s\r\n", arg3, array_to_string( d_type, MAX_DAMTYPE ) );
          else
             xSET_BIT( bits, bit );
       }
