@@ -480,8 +480,14 @@ const char *array_to_string( const char *const array[] )
 
    buf[0] = '\0';
 
-   for( x = 0; x < ( sizeof( array ) / sizeof( array[0] ) ); x++ )
+   x = sizeof( array ) / sizeof( array[0] );
+   bug( "array size: %d", x );
+
+   for( x = 0; x < sizeof( array ) / sizeof( array[0] ) ; x++ )
       strcat( buf, array[x] );
+
+   if( ( x = strlen( buf ) ) > 0 )
+      buf[--x] = '\0';
 
    return buf;
 }
@@ -1701,13 +1707,12 @@ void do_mset( CHAR_DATA * ch, const char *argument )
 
       if( ( value = get_weapontype( arg3 ) ) == -1 )
       {
-         ch_printf( ch, "Valid Weapon Types: %s\r\n", array_to_string( weapon_table ) );
-         return;
+         send_to_char( "Not a proper weapontype\r\n", ch );
       }
 
-      if( argument[0] )
+      if( argument[0] == '\0' )
       {
-         ch_printf( ch, "Enter your damtype(s)\r\nValid Damtypes: %s\r\n", array_to_string( d_type ) );
+         send_to_char( "Not a proper damtype\r\n", ch );
          return;
       }
 
