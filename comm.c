@@ -534,6 +534,14 @@ void game_loop( void )
                continue;
             }
 
+            if( d->character && d->character->abort_stack )
+            {
+               d->character->abort_stack = FALSE;
+               d->inbuf[0] = '\0';
+               send_to_char( "Command stack aborted.\r\n", d->character );
+               break;
+            }
+
             read_from_buffer( d );
             if( d->incomm[0] != '\0' )
             {
@@ -973,18 +981,20 @@ bool read_from_descriptor( DESCRIPTOR_DATA * d )
       nRead = read( d->descriptor, d->inbuf + iStart, sizeof( d->inbuf ) - 10 - iStart );
       if( nRead > 0 )
       {
-         if( d->character )
+         if( d->character && nRead == 7 )
          {
             size_t x;
             int y;
             char command[MAX_INPUT_LENGTH];
 
-            for( y = 0, x = iStart; x < ( sizeof( d->inbuf ) - 10 ); x++, y++ )
+            command[0] = '\0';
+
+            for( y = 0, x = iStart; y < 5; x++, y++ )
                command[y] = d->inbuf[x];
+            command[5] = '\0';
 
             if( !str_cmp( command, "abort" ) )
                d->character->abort_stack = TRUE;
-            bug( "%s: abort read in.", __FUNCTION__ );
 
          }
          iStart += nRead;
