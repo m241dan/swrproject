@@ -917,7 +917,10 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
     * Combat has officially started at this point
     */
    if( dt >= TYPE_HIT )
+   {
       add_queue( ch, COMBAT_ROUND );
+      ch->next_round = get_round( ch );
+   }
 
    if( victim != ch )
    {
