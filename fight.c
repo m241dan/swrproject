@@ -607,7 +607,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
 
    /* Apply our base roll modifier from skills */
    if( dt < TYPE_HIT && skill->base_roll_boost > 0 )
-      dam = (int)( dam * ( 1 + skill_table[dt]->base_roll_boost ) );
+      dam = (int)( dam * ( 1 + skill->base_roll_boost ) );
 
    ch_printf( ch, "Damage After Base Roll Mod: %d\r\n", dam );
 
