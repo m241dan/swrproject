@@ -799,10 +799,7 @@ void gain_condition( CHAR_DATA * ch, int iCond, int value )
  */
 void mobile_update( void )
 {
-   char buf[MAX_STRING_LENGTH];
    CHAR_DATA *ch;
-   EXIT_DATA *pexit;
-   int door;
    ch_ret retcode;
 
    retcode = rNONE;
@@ -851,36 +848,8 @@ void mobile_update( void )
          continue;
       }
 
-      if( !IS_SET( ch->act, ACT_RUNNING ) && !IS_SET( ch->act, ACT_SENTINEL ) && !ch->fighting && ch->hunting )
-      {
-         if( ch->top_level < ( LEVEL_HERO * 0.2 ) )
-            WAIT_STATE( ch, 6 * PULSE_PER_SECOND );
-         else if( ch->top_level < ( LEVEL_HERO * 0.4 ) )
-            WAIT_STATE( ch, 5 * PULSE_PER_SECOND );
-         else if( ch->top_level < ( LEVEL_HERO * 0.6 ) )
-            WAIT_STATE( ch, 4 * PULSE_PER_SECOND );
-         else if( ch->top_level < ( LEVEL_HERO * 0.8 ) )
-            WAIT_STATE( ch, 3 * PULSE_PER_SECOND );
-         else if( ch->top_level < LEVEL_HERO )
-            WAIT_STATE( ch, 2 * PULSE_PER_SECOND );
-         else
-            WAIT_STATE( ch, 1 * PULSE_PER_SECOND );
-         hunt_victim( ch );
-         continue;
-      }
-      else if( !ch->fighting && !ch->hunting
-               && !IS_SET( ch->act, ACT_RUNNING ) && ch->was_sentinel && ch->position >= POS_STANDING )
-      {
-         act( AT_ACTION, "$n leaves.", ch, NULL, NULL, TO_ROOM );
-         char_from_room( ch );
-         char_to_room( ch, ch->was_sentinel );
-         act( AT_ACTION, "$n arrives.", ch, NULL, NULL, TO_ROOM );
-         SET_BIT( ch->act, ACT_SENTINEL );
-         ch->was_sentinel = NULL;
-      }
-
       /*
-       * Examine call for special procedure 
+       * Examine call for special procedure
        */
       if( !IS_SET( ch->act, ACT_RUNNING ) && ch->spec_fun )
       {
@@ -988,75 +957,6 @@ void mobile_update( void )
          }
       }
 
-      /*
-       * Wander 
-       */
-      if( !IS_SET( ch->act, ACT_RUNNING )
-          && !IS_SET( ch->act, ACT_SENTINEL )
-          && !IS_SET( ch->act, ACT_PROTOTYPE )
-          && ( door = number_bits( 5 ) ) <= 9
-          && ( pexit = get_exit( ch->in_room, door ) ) != NULL
-          && pexit->to_room
-          && !IS_SET( pexit->exit_info, EX_WINDOW )
-          && !IS_SET( pexit->exit_info, EX_CLOSED )
-          && !IS_SET( pexit->to_room->room_flags, ROOM_NO_MOB )
-          && ( !IS_SET( ch->act, ACT_STAY_AREA ) || pexit->to_room->area == ch->in_room->area ) )
-      {
-         retcode = move_char( ch, pexit, 0 );
-         /*
-          * If ch changes position due
-          * to it's or someother mob's
-          * movement via MOBProgs,
-          * continue - Kahn 
-          */
-         if( char_died( ch ) )
-            continue;
-         if( retcode != rNONE || IS_SET( ch->act, ACT_SENTINEL ) || ch->position < POS_STANDING )
-            continue;
-      }
-
-      /*
-       * Flee 
-       */
-      if( ch->hit < ch->max_hit / 2
-          && ( door = number_bits( 4 ) ) <= 9
-          && ( pexit = get_exit( ch->in_room, door ) ) != NULL
-          && pexit->to_room
-          && !IS_SET( pexit->exit_info, EX_WINDOW )
-          && !IS_SET( pexit->exit_info, EX_CLOSED )
-          && !IS_SET( pexit->to_room->room_flags, ROOM_NO_MOB ) )
-      {
-         CHAR_DATA *rch;
-         bool found;
-
-         found = FALSE;
-         for( rch = ch->in_room->first_person; rch; rch = rch->next_in_room )
-         {
-            if( is_fearing( ch, rch ) )
-            {
-               switch ( number_bits( 2 ) )
-               {
-                  case 0:
-                     sprintf( buf, "Get away from me, %s!", rch->name );
-                     break;
-                  case 1:
-                     sprintf( buf, "Leave me be, %s!", rch->name );
-                     break;
-                  case 2:
-                     sprintf( buf, "%s is trying to kill me!  Help!", rch->name );
-                     break;
-                  case 3:
-                     sprintf( buf, "Someone save me from %s!", rch->name );
-                     break;
-               }
-               do_yell( ch, buf );
-               found = TRUE;
-               break;
-            }
-         }
-         if( found )
-            retcode = move_char( ch, pexit, 0 );
-      }
    }
 
    return;
