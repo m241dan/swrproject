@@ -9635,6 +9635,7 @@ void do_quest( CHAR_DATA *ch, const char *argument )
       send_to_char( "\r\nProper Usage: quest list <mob>\r\n", ch );
       send_to_char( "              quest show <mob> <quest#>\r\n", ch ); /* Spit out the description and perhaps requirements to accept the quest */
       send_to_char( "              quest accept <mob> <quest#>\r\n", ch );
+      send_to_char( "              quest log\r\n", ch );
       if( IS_IMMORTAL ( ch ) )
       {
          send_to_char( "Immortal Usage: quest create <name>\r\n", ch );
@@ -9647,6 +9648,12 @@ void do_quest( CHAR_DATA *ch, const char *argument )
          send_to_char( "                quest remprequest <quest id/name> <#>\r\n", ch );
          send_to_char( "                quest all\r\n", ch );
       }
+      return;
+   }
+
+   if( !str_cmp( arg, "log" ) )
+   {
+      show_quest_log_to_ch( ch, ch );
       return;
    }
 
@@ -9749,6 +9756,44 @@ void do_quest( CHAR_DATA *ch, const char *argument )
 
    }
    do_quest( ch, "" );
+   return;
+}
+
+void show_quest_log_to_ch( CHAR_DATA *ch, CHAR_DATA *victim )
+{
+   PLAYER_QUEST *pquest;
+   char buf[MAX_STRING_LENGTH];
+
+   if( IS_NPC( victim ) )
+   {
+      send_to_char( "Not on NPCs.\r\n", ch );
+      return;
+   }
+
+   sprintf( buf, "&z| &P%s&z'&Ps Quest Log &z|\r\n", victim->name );
+
+   spit_dash( ch, strlen( ( smash_color( buf ) ) ), AT_DGREY );
+   send_to_char( buf, ch );
+   spit_dash( ch, strlen( ( smash_color( buf ) ) ), AT_DGREY );
+   send_to_char( "\r\n", ch );
+
+   if( !victim->first_pquest )
+   {
+      send_to_char( "&RNo Quests.&w\r\n", ch );
+      return;
+   }
+   for( pquest = victim->first_pquest; pquest; pquest = pquest->next )
+   {
+      if( !pquest->quest || !pquest->quest->name || pquest->quest->name[0] == '\0' ||
+          !pquest->quest->description || pquest->quest->description[0] == '\0' ||
+          !pquest->progress || pquest->progress[0] == '\0' )
+         continue;
+
+      ch_printf( ch, "&CQ^cuest&z: %s%s&w\r\n", get_status_color( victim, pquest->quest ), pquest->quest->name );
+      ch_printf( ch, " &z- &CP&crogress&z: &W%s&w\r\n", pquest->progress );
+      if( pquest->times_completed > 1 )
+         ch_printf( ch, " &z- &CC&completed &W%d &CT&cimes&w\r\n", pquest->times_completed );
+   }
    return;
 }
 
@@ -10048,23 +10093,54 @@ void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
    return;
 }
 
+   /* &W Complete */
+   /* &P Complete Repeatable */
+   /* &z In Progress*/
+   /* &R Not Started */
+   /* &C Recently Started */
+
+
 const char *get_status( CHAR_DATA *ch, QUEST_DATA *quest )
 {
    PLAYER_QUEST *pquest;
    const char *status = "Unavailable";
 
    if( ( pquest = get_player_quest( ch, quest ) ) == NULL )
-      status = "Not Started";
+      status = "&RNot Started&w";
    else if( pquest->stage == QUEST_COMPLETE )
-      status = "Complete";
+      status = "&WComplete&w";
    else if( pquest->stage == QUEST_COMPLETE_REPEATABLE )
-      status = "Repeatable";
+      status = "&PRepeatable&w";
    else if( pquest->stage == QUEST_UNSTARTED )
-      status = "Not Started";
+      status = "&RNot Started&w";
    else if( pquest->stage == QUEST_START )
-      status = "Recently Started";
+      status = "&CRecently Started&w";
    else
-      status = "Incomplete";
+      status = "&zIncomplete&w";
+
+   return status;
+}
+
+const char *get_status_color( CHAR_DATA *ch, QUEST_DATA *quest )
+{
+   PLAYER_QUEST *pquest;
+   const char *status = "&z";
+
+   if( ( pquest = get_player_quest( ch, quest ) ) == NULL )
+   {
+      bug( "%s: Null Pquest", __FUNCTION__ );
+      return status;
+   }
+   else if( pquest->stage == QUEST_COMPLETE )
+      status = "&W";
+   else if( pquest->stage == QUEST_COMPLETE_REPEATABLE )
+      status = "&P";
+   else if( pquest->stage == QUEST_UNSTARTED )
+      status = "&R";
+   else if( pquest->stage == QUEST_START )
+      status = "&C";
+   else
+     status = "&z";
 
    return status;
 }
