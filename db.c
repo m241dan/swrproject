@@ -2293,14 +2293,8 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->in_group = NULL;
    mob->group_invite = NULL;
    xSET_BIT( mob->damtype, DAM_BLUNT );
-   if( pMobIndex->evasion )
-      mob->evasion = pMobIndex->evasion;
-   else
-     mob->evasion = ( short )( LEVEL_HERO - mob->top_level * 2.5 );
-   if( pMobIndex->armor )
-      mob->armor = pMobIndex->armor;
-   else
-      mob->armor = ( short )( mob->top_level * .75 );
+   mob->evasion = pMobIndex->evasion;
+   mob->armor = pMobIndex->armor;
    if( !pMobIndex->hitnodice )
       mob->max_hit = UMAX( mob->top_level * 10 + number_range( mob->top_level, mob->top_level * 10 ), 1 );
    else
