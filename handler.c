@@ -397,25 +397,13 @@ short get_curr_frc( CHAR_DATA * ch )
  */
 int can_carry_n( CHAR_DATA * ch )
 {
-   int penalty = 0;
 
    if( !IS_NPC( ch ) && get_trust( ch ) >= LEVEL_IMMORTAL )
       return get_trust( ch ) * 200;
-
+	
    if( IS_NPC( ch ) && IS_SET( ch->act, ACT_PET ) )
       return 0;
-
-   if( get_eq_char( ch, WEAR_WIELD ) )
-      ++penalty;
-   if( get_eq_char( ch, WEAR_DUAL_WIELD ) )
-      ++penalty;
-   if( get_eq_char( ch, WEAR_MISSILE_WIELD ) )
-      ++penalty;
-   if( get_eq_char( ch, WEAR_HOLD ) )
-      ++penalty;
-   if( get_eq_char( ch, WEAR_SHIELD ) )
-      ++penalty;
-   return URANGE( 5, ( ch->top_level + 15 ) / 5 + get_curr_dex( ch ) - 13 - penalty, 20 );
+   return 30;
 }
 
 /*
