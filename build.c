@@ -9770,10 +9770,10 @@ void show_quest_log_to_ch( CHAR_DATA *ch, CHAR_DATA *victim )
       return;
    }
 
-   sprintf( buf, "&z| &P%s&z'&Ps Quest Log &z|\r\n", victim->name );
+   sprintf( buf, "&z| &p%s&z'&ps Quest Log &z|", victim->name );
 
    spit_dash( ch, strlen( ( smash_color( buf ) ) ), AT_DGREY );
-   send_to_char( buf, ch );
+   ch_printf( ch, "\r\n%s\r\n", buf );
    spit_dash( ch, strlen( ( smash_color( buf ) ) ), AT_DGREY );
    send_to_char( "\r\n", ch );
 
@@ -9789,7 +9789,7 @@ void show_quest_log_to_ch( CHAR_DATA *ch, CHAR_DATA *victim )
           !pquest->progress || pquest->progress[0] == '\0' )
          continue;
 
-      ch_printf( ch, "&CQ^cuest&z: %s%s&w\r\n", get_status_color( victim, pquest->quest ), pquest->quest->name );
+      ch_printf( ch, "&CQ&cuest&z: %s%s&w\r\n", get_status_color( victim, pquest->quest ), pquest->quest->name );
       ch_printf( ch, " &z- &CP&crogress&z: &W%s&w\r\n", pquest->progress );
       if( pquest->times_completed > 1 )
          ch_printf( ch, " &z- &CC&completed &W%d &CT&cimes&w\r\n", pquest->times_completed );
