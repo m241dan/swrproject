@@ -890,7 +890,6 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
 {
    short dameq;
    bool npcvict;
-   bool loot;
    OBJ_DATA *damobj;
    ch_ret retcode;
    short dampmod;
@@ -1295,16 +1294,11 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
 
       check_killer( ch, victim );
 
-      if( !IS_NPC( victim ) || !IS_SET( victim->act, ACT_NOKILL ) )
-         loot = legal_loot( ch, victim );
-      else
-         loot = FALSE;
-
       set_cur_char( victim );
       new_corpse = raw_kill( ch, victim );
       victim = NULL;
 
-      if( !IS_NPC( ch ) && loot && new_corpse && new_corpse->item_type == ITEM_CORPSE_NPC
+      if( !IS_NPC( ch ) && new_corpse && ( new_corpse->item_type == ITEM_CORPSE_NPC || new_corpse->item_type == ITEM_DROID_CORPSE )
        && new_corpse->in_room == ch->in_room && can_see_obj( ch, new_corpse ) && ch->position > POS_SLEEPING )
       {
          /*
