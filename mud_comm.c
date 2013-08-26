@@ -2332,7 +2332,7 @@ void do_mpabort( CHAR_DATA *ch, const char *argument )
    if( victim && victim->desc )
    {
       victim->desc->inbuf[0] = '\0';
-      ch_printf( victim, "%s stops you in your tracks.\r\n", ch->name );
+      ch_printf( victim, "%s stops you in your tracks.\r\n", ch->short_descr );
    }
    return;
 }
