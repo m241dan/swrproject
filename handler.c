@@ -4237,7 +4237,7 @@ int evasion_from_agi( CHAR_DATA *ch )
    for( x = 0; x < agi; x++ )
    {
       if( x >= 0 )
-         evasion += 10;
+         evasion += 5;
    }
    return (int)evasion;
 }
@@ -4256,7 +4256,7 @@ int hitroll_from_dex( CHAR_DATA *ch )
    for( x = 0; x < dex; x++ )
    {
       if( x >= 0 )
-         hitroll += .5;
+         hitroll += 1.5;
    }
    return (int)hitroll;
 }
@@ -4275,7 +4275,7 @@ int damroll_from_str( CHAR_DATA *ch )
    for( x = 0; x < str; x++ )
    {
       if( x >= 0 )
-         damroll += .5;
+         damroll += 1.5;
    }
    return (int)damroll;
 }
@@ -4294,7 +4294,7 @@ int armor_from_con( CHAR_DATA *ch )
    for( x = 0; x < con; x++ )
    {
       if( x >= 0 )
-         armor += 2;
+         armor += .5;
    }
    return (int)armor;
 }
