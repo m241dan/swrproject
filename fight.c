@@ -2007,29 +2007,29 @@ int xp_compute( CHAR_DATA * gch, CHAR_DATA * victim )
    if( dif > 5 )
       return 0;
    else if( dif == 5 )
-      return 100;
-   else if( dif == 4 )
-      return 150;
-   else if( dif == 3 )
       return 200;
-   else if( dif == 2 )
+   else if( dif == 4 )
       return 250;
-   else if( dif == 1 )
+   else if( dif == 3 )
       return 300;
-   else if( dif == 0 )
+   else if( dif == 2 )
       return 350;
-   else if( dif == -1 )
+   else if( dif == 1 )
       return 400;
-   else if( dif == -2 )
+   else if( dif == 0 )
       return 450;
-   else if( dif == -3 )
+   else if( dif == -1 )
       return 500;
-   else if( dif == -4 )
+   else if( dif == -2 )
       return 550;
-   else if( dif == -5 )
+   else if( dif == -3 )
       return 600;
-   else if( dif == -6 )
+   else if( dif == -4 )
+      return 650;
+   else if( dif == -5 )
       return 700;
+   else if( dif == -6 )
+      return 750;
    else if( dif == -7 )
       return 800;
    else if( dif == -8 )
