@@ -3695,6 +3695,7 @@ extern const char *const lang_names_save[];
 extern const char *sector_name[SECT_MAX];
 extern const char *const d_type[MAX_DAMTYPE];
 extern const char *const q_type[MAX_QUALITYTYPE];
+extern const char *const q_type_pretty[MAX_QUALITYTYPE];
 extern const char *const l_type[MAX_LOOTTYPE];
 extern const char *const d_type_score[MAX_DAMTYPE];
 extern const char *const frames_of_mind[MAX_FOM];

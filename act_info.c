@@ -90,6 +90,8 @@ char *format_obj_to_char( OBJ_DATA * obj, CHAR_DATA * ch, bool fShort )
       strcat( buf, "(PROTO) " );
    if( ( IS_AFFECTED( ch, AFF_DETECTTRAPS ) || IS_SET( ch->act, PLR_HOLYLIGHT ) ) && is_trapped( obj ) )
       strcat( buf, "(Trap) " );
+   if( !xIS_EMPTY( obj->quality ) )
+      strcat( buf, ext_flag_string( &obj->quality, q_type_pretty ) );
 
    if( fShort )
    {

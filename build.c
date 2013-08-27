@@ -70,6 +70,10 @@ const char *const q_type[MAX_QUALITYTYPE] = {
    "common", "uncommon", "rare", "crafted", "high quality"
 };
 
+const char *const q_type_pretty[MAX_QUALITYTYPE] = {
+   "&z(&cCommon&z)&w", "&z(&CUncommon&z)&w", "&z(&YRare&z)&w", "&z(&OCrafted&z)&w", "&z(&RHigh&z-&RQuality&z)&w"
+};
+
 const char *const d_type_score[MAX_DAMTYPE] = {
    "&WAll Damage", "&zPhysical", "&zElemental",
    "&RFire", "&BWater", "&OEarth", "&YElectricity", "&GWind",
