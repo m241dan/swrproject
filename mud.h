@@ -1259,6 +1259,7 @@ struct smaug_affect
 #define ACT_IS_NPC		 BV00 /* Auto set for mobs */
 #define ACT_SENTINEL		 BV01 /* Stays in one room */
 #define ACT_SCAVENGER		 BV02 /* Picks up objects  */
+#define ACT_NOTORIOUS            BV03 /* Notorious Monster */
 #define ACT_AGGRESSIVE		 BV05 /* Attacks PC's      */
 #define ACT_STAY_AREA		 BV06 /* Won't leave area  */
 #define ACT_WIMPY		 BV07 /* Flees when hurt   */

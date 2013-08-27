@@ -515,6 +515,9 @@ void show_char_to_char_0( CHAR_DATA * victim, CHAR_DATA * ch )
       strcat( buf, "(Teacher)&w " );
    if( IS_NPC( victim ) && victim->pIndexData->first_available_quest )
       strcat( buf, "&z(&RQuest&z)&w " );
+   if( IS_NPC( victim ) && IS_SET( victim->act, ACT_NOTORIOUS ) )
+      strcat( buf, "&z(&PNotorious&z)&w" );
+
 
    set_char_color( AT_PERSON, ch );
    if( victim->position == victim->defposition && victim->long_descr[0] != '\0' )

@@ -207,7 +207,7 @@ const char *const a_flags[MAX_AFF] = {
 };
 
 const char *const act_flags[] = {
-   "npc", "sentinel", "scavenger", "r3", "r4", "aggressive", "stayarea",
+   "npc", "sentinel", "scavenger", "notorious", "r4", "aggressive", "stayarea",
    "wimpy", "pet", "train", "practice", "immortal", "deadly", "polyself",
    "meta_aggr", "guardian", "running", "nowander", "mountable", "mounted", "scholar",
    "secretive", "polymorphed", "mobinvis", "noassist", "nokill", "droid", "nocorpse",

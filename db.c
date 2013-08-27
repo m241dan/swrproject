@@ -2272,7 +2272,10 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
       mob->spec_funname2 = QUICKLINK( pMobIndex->spec_funname2 );
    mob->mpscriptpos = 0;
    mob->top_level = UMIN( pMobIndex->level, 100 );
-   mob->moblevel = UMAX( 1, number_range( ( pMobIndex->level - 3 ), ( pMobIndex->level +3 ) ) );
+   if( IS_SET( pMobIndex->act, ACT_NOTORIOUS ) )
+      mob->moblevel = pMobIndex->level;
+   else
+      mob->moblevel = UMAX( 1, number_range( ( pMobIndex->level - 3 ), ( pMobIndex->level +3 ) ) );
    {
       int ability;
       for( ability = 0; ability < MAX_ABILITY; ability++ )
@@ -2332,6 +2335,26 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->hitroll = pMobIndex->parry;
    mob->round = pMobIndex->round;
    mob->mob_haste = pMobIndex->haste;
+
+   if( mob->moblevel != pMobIndex->level && !IS_SET( mob->act, ACT_NOTORIOUS ) )
+   {
+      int lvldif = mob->moblevel - pMobIndex->level;
+      mob->perm_str = (int)(mob->perm_str * ( 1 + ( .1 * lvldif ) ) );
+      mob->perm_dex = (int)(mob->perm_dex * ( 1 + ( .1 * lvldif ) ) );
+      mob->perm_wis = (int)(mob->perm_wis * ( 1 + ( .1 * lvldif ) ) );
+      mob->perm_int = (int)(mob->perm_int * ( 1 + ( .1 * lvldif ) ) );
+      mob->perm_con = (int)(mob->perm_con * ( 1 + ( .1 * lvldif ) ) );
+      mob->perm_cha = (int)(mob->perm_cha * ( 1 + ( .1 * lvldif ) ) );
+      mob->perm_lck = (int)(mob->perm_lck * ( 1 + ( .1 * lvldif ) ) );
+      mob->perm_agi = (int)(mob->perm_agi * ( 1 + ( .1 * lvldif ) ) );
+      mob->hitroll = (int)(mob->hitroll * ( 1 + ( .05 * lvldif ) ) );
+      mob->damroll = (int)(mob->damroll * ( 1 + ( .05 * lvldif ) ) );
+      mob->damplus = (int)(mob->damplus * ( 1 + ( .025 * lvldif ) ) );
+      mob->max_hit = (int)(mob->max_hit * ( 1 + ( .085 * lvldif ) ) );
+      mob->hit = mob->max_hit;
+      mob->evasion = (int)(mob->evasion * ( 1 + ( .025 * lvldif ) ) );
+      mob->armor = (int)(mob->armor * ( 1 + ( .025 * lvldif ) ) );
+   }
 
    mob->race = pMobIndex->race;
    mob->xflags = pMobIndex->xflags;
@@ -2405,7 +2428,7 @@ OBJ_DATA *create_object( OBJ_INDEX_DATA * pObjIndex, int level )
 
    obj->pIndexData = pObjIndex;
    obj->in_room = NULL;
-   obj->level = pObjIndex->level;
+   obj->level = UMAX( 1, pObjIndex->level );
    obj->wear_loc = -1;
    obj->count = 1;
    cur_obj_serial = UMAX( ( cur_obj_serial + 1 ) & ( BV30 - 1 ), 1 );
