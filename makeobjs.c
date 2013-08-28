@@ -342,14 +342,16 @@ OBJ_DATA *random_loot( LOOT_DATA *loot )
       return NULL;
    }
    obj = create_object( pObjIndex, pObjIndex->level );
-   xCLEAR_BITS( obj->quality );
-   xSET_BITS( obj->quality, quality );
 
-   if( xIS_SET( obj->quality, QUALITY_COMMON ) )
+   if( xIS_EMPTY( obj->quality ) )
+      xSET_BITS( obj->quality, quality );
+
+   if( xIS_SET( obj->quality, QUALITY_COMMON ) && obj->max_pool == -1 )
       obj->max_pool = number_range( 0, 2 );
    else if( xIS_SET( obj->quality, QUALITY_UNCOMMON ) )
    {
-      obj->max_pool = number_range( 1, 4 );
+      if( obj->max_pool == -1 )
+         obj->max_pool = number_range( 1, 4 );
       if( obj->item_type == ITEM_WEAPON )
       {
          obj->value[1] = (int)( obj->value[1] * 1.1 );
@@ -364,7 +366,8 @@ OBJ_DATA *random_loot( LOOT_DATA *loot )
    }
    else if( xIS_SET( obj->quality, QUALITY_RARE ) )
    {
-      obj->max_pool = number_range( 2, 6 );
+      if( obj->max_pool == -1 )
+         obj->max_pool = number_range( 2, 6 );
       if( obj->item_type == ITEM_WEAPON )
       {
          obj->value[1] = (int)( obj->value[1] * 1.25 );

@@ -5120,6 +5120,7 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
       pObjIndex->cost = 0;
       pObjIndex->speed = 0;
       xSET_BIT( pObjIndex->damtype, DAM_BLUNT );
+      pObjIndex->max_pool = -1;
 
    }
    else
@@ -5146,6 +5147,7 @@ OBJ_INDEX_DATA *make_object( int vnum, int cvnum, const char *name )
       pObjIndex->speed = cObjIndex->speed;
       xSET_BITS( pObjIndex->damtype, cObjIndex->damtype );
       xSET_BITS( pObjIndex->temper, cObjIndex->temper );
+      pObjIndex->max_pool = cObjIndex->max_pool;
       for( ced = cObjIndex->first_extradesc; ced; ced = ced->next )
       {
          CREATE( ed, EXTRA_DESCR_DATA, 1 );

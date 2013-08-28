@@ -2706,7 +2706,7 @@ void show_obj_stats_to_char( CHAR_DATA *ch, OBJ_DATA *obj )
    ch_printf( ch, "&rIt weighs&W %d &rand can be worn on&z:&W %s&w\r\n", obj->weight, flag_string( obj->wear_flags, w_flags ) );
    ch_printf( ch, "&rIt has a monetary value of &W%d &rand quality of&z:&W %s&w\r\n", obj->cost, ext_flag_string( &obj->quality, q_type ) );
    if( obj->item_type == ITEM_WEAPON || obj->item_type == ITEM_ARMOR )
-      ch_printf( ch, "&rIt has used &W%d &rof &W%d &rpool sockets&w\r\n", get_used_pools( obj ), obj->max_pool );
+      ch_printf( ch, "&rIt has used &W%d &rof &W%d &rpool sockets&w\r\n", get_used_pools( obj ), obj->max_pool > -1 ? obj->max_pool : 0 );
    send_to_char( "\r\n", ch );
    switch( obj->item_type )
    {
