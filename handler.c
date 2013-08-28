@@ -4936,21 +4936,6 @@ double get_next_thought( CHAR_DATA *ch )
    return 999;
 }
 
-int get_num_skills( CHAR_DATA *ch )
-{
-   int x;
-
-   if( !IS_NPC( ch ) )
-      return 0;
-
-   for( x = 0; x < MAX_NPC_SKILL; x++ )
-   {
-      if( ch->pIndexData->npc_skills[x] == -1 )
-         return x;
-   }
-   return 0;
-}
-
 bool is_charging( CHAR_DATA *ch )
 {
    TIMER *charging;

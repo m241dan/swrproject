@@ -6218,8 +6218,6 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
          fwrite_loot_data( fpout, loot );
    }
 
-   fwrite_skill_data( fpout, pMobIndex );
-
    fprintf( fpout, "%s", "#ENDMOBILE\n\n" );
 }
 
@@ -6232,20 +6230,6 @@ void fwrite_loot_data( FILE *fpout, LOOT_DATA * loot )
    fprintf( fpout, "Amount      %d\n", loot->amount );
    fprintf( fpout, "%s", "#ENDLOOTDATA\n\n" );
    return;
-}
-
-void fwrite_skill_data( FILE *fpout, MOB_INDEX_DATA *pMobIndex )
-{
-   int x;
-   fprintf( fpout, "#NPCSKILLS\n" );
-   for( x = 0; x < MAX_NPC_SKILL; x++ )
-   {
-      if( pMobIndex->npc_skills[x] == -1 )
-         break;
-      fprintf( fpout, "'%s'\n", skill_table[pMobIndex->npc_skills[x]]->name );
-   }
-   fprintf( fpout, "#ENDNPCSKILLS\n" );
-
 }
 
 void fwrite_area_header( FILE * fpout, AREA_DATA * tarea, bool install )

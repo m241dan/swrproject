@@ -5264,8 +5264,6 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->round = 0;
       pMobIndex->haste = 0;
       pMobIndex->tspeed = 0;
-      for( x = 0; x < MAX_NPC_SKILL; x++ )
-         pMobIndex->npc_skills[x] = -1;
    }
    else
    {
@@ -5317,9 +5315,6 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
          pMobIndex->resistance[x] = cMobIndex->resistance[x];
          pMobIndex->damtype_potency[x] = cMobIndex->damtype_potency[x];
       }
-
-      for( x = 0; x < MAX_NPC_SKILL; x++ )
-         pMobIndex->npc_skills[x] = cMobIndex->npc_skills[x];
 
    }
    iHash = vnum % MAX_KEY_HASH;
@@ -6681,11 +6676,6 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                LINK( loot, pMobIndex->first_loot, pMobIndex->last_loot, next, prev );
                break;
             }
-            if( !str_cmp( word, "#NPCSKILLS" ) )
-            {
-               fread_fuss_skills( fp, pMobIndex );
-               break;
-            }
             if( !str_cmp( word, "#ENDMOBILE" ) )
             {
                if( !pMobIndex->long_descr )
@@ -7288,9 +7278,6 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                {
                   CREATE( pMobIndex, MOB_INDEX_DATA, 1 );
                   oldmob = false;
-                  int x;
-                  for( x = 0; x < MAX_NPC_SKILL; x++ )
-                     pMobIndex->npc_skills[x] = -1;
                }
                pMobIndex->vnum = vnum;
                fBootDb = tmpBootDb;
@@ -7342,33 +7329,6 @@ void fread_fuss_lootdata( FILE * fp, LOOT_DATA *loot )
          case 'V':
             KEY( "Vnum", loot->vnum, fread_number( fp ) );
             break;
-      }
-   }
-}
-
-void fread_fuss_skills( FILE *fp, MOB_INDEX_DATA *pMobIndex )
-{
-   int x = 0;
-
-   for( ;; )
-   {
-      const char *word = ( feof( fp ) ? "#ENDNPCSKILLS" : fread_word( fp ) );
-
-      if( word[0] == '\0' )
-      {
-         log_printf( "%s: EOF encouraged reading file!", __FUNCTION__ );
-         word = "#ENDNPCSKILLS";
-      }
-
-      switch( word[0] )
-      {
-         default:
-            pMobIndex->npc_skills[x] = skill_lookup( word );
-            x++;
-            break;
-         case '#':
-            if( !str_cmp( word, "#ENDNPCSKILLS" ) )
-               return;
       }
    }
 }

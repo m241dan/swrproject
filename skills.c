@@ -4057,45 +4057,6 @@ void generate_buff_threat( CHAR_DATA *ch, CHAR_DATA *victim, int amount )
    return;
 }
 
-void sort_mob_skills( CHAR_DATA *ch )
-{
-   int x;
-   int holder = -1;
-
-   for( x = 0; x < MAX_NPC_SKILL; x++ )
-   {
-      if( ch->pIndexData->npc_skills[x] == -1 )
-      {
-         holder = x;
-         continue;
-      }
-      if( ch->pIndexData->npc_skills[x] != -1 && holder != -1 )
-      {
-         ch->pIndexData->npc_skills[holder] = ch->pIndexData->npc_skills[x];
-         ch->pIndexData->npc_skills[x] = -1;
-         x = holder;
-         holder = -1;
-         continue;
-      }
-   }
-   return;
-}
-
-bool mob_has_skill( CHAR_DATA *ch, int gsn )
-{
-   int x;
-
-   if( !IS_NPC( ch ) )
-      return 0;
-
-   for( x = 0; x < MAX_NPC_SKILL; x++ )
-   {
-      if( ch->pIndexData->npc_skills[x] == gsn )
-         return TRUE;
-   }
-   return FALSE;
-}
-
 void do_skillcraft( CHAR_DATA *ch, const char *argument )
 {
    SKILLTYPE *skill;
