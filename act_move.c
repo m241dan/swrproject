@@ -627,13 +627,13 @@ ch_ret move_char( CHAR_DATA * ch, EXIT_DATA * pexit, int fall )
       return rNONE;
    }
 
-   if( IS_SET( pexit->exit_info, EX_NOMOB ) && IS_NPC( ch ) )
+   if( IS_SET( pexit->exit_info, EX_NOMOB ) && IS_NPC( ch ) && !IS_AFFECTED( ch, AFF_CHARM ) )
    {
       act( AT_PLAIN, "Mobs can't enter there.", ch, NULL, NULL, TO_CHAR );
       return rNONE;
    }
 
-   if( IS_SET( to_room->room_flags, ROOM_NO_MOB ) && IS_NPC( ch ) )
+   if( IS_SET( to_room->room_flags, ROOM_NO_MOB ) && IS_NPC( ch ) && !IS_AFFECTED( ch, AFF_CHARM ) )
    {
       act( AT_PLAIN, "Mobs can't enter there.", ch, NULL, NULL, TO_CHAR );
       return rNONE;
@@ -662,7 +662,7 @@ ch_ret move_char( CHAR_DATA * ch, EXIT_DATA * pexit, int fall )
       return rNONE;
    }
 
-   if( IS_NPC( ch ) && !xIS_EMPTY( ch->color ) )
+   if( IS_NPC( ch ) && !xIS_EMPTY( ch->color ) && !IS_AFFECTED( ch, AFF_CHARM ) )
    {
       int color;
       for( color = 0; color < ( MAX_COLOR_FLAG ); color++ )
