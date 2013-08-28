@@ -2028,6 +2028,12 @@ typedef enum
    POS_SITTING, POS_FIGHTING, POS_STANDING, POS_MOUNTED, POS_SHOVE, POS_DRAG
 } positions;
 
+typedef enum
+{
+   COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_YELLOW, COLOR_ORANGE, COLOR_PURPLE,
+   NO_RED, NO_BLUE, NO_GREEN, NO_YELLOW, NO_ORANGE, NO_PURPLE, MAX_COLOR_FLAG
+} color_bits;
+
 /*
 * ACT bits for players.
 */
@@ -2246,6 +2252,7 @@ struct mob_index_data
    AI_THOUGHT *last_thought;
    MOB_ATTACK *first_mobattack;
    MOB_ATTACK *last_mobattack;
+   EXT_BV color;
 };
 
 struct loot_data
@@ -2485,6 +2492,7 @@ struct char_data
    bool abort_stack;
    MOB_ATTACK *first_mobattack;
    MOB_ATTACK *last_mobattack;
+   EXT_BV color;
 };
 
 #define PC_BASE_HP 100
@@ -2902,6 +2910,7 @@ struct room_index_data
    int tele_vnum;
    short tele_delay;
    short tunnel;  /* max people that will fit */
+   EXT_BV color;
 };
 
 /*

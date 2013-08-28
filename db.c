@@ -2295,7 +2295,8 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    mob->guard_data = NULL;
    mob->in_group = NULL;
    mob->group_invite = NULL;
-   xSET_BIT( mob->damtype, DAM_BLUNT );
+   xSET_BITS( mob->damtype, pMobIndex->damtype );
+   xSET_BITS( mob->color, pMobIndex->color );
    mob->evasion = pMobIndex->evasion;
    mob->armor = pMobIndex->armor;
    if( !pMobIndex->hitnodice )
@@ -2303,7 +2304,6 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
    else
       mob->max_hit = pMobIndex->hitnodice * number_range( 1, pMobIndex->hitsizedice ) + pMobIndex->hitplus;
    mob->hit = mob->max_hit;
- 
    mob->max_mana = pMobIndex->mana;
    mob->max_move = pMobIndex->move;
    mob->mana = mob->max_mana;
@@ -5062,6 +5062,7 @@ ROOM_INDEX_DATA *make_room( int vnum, AREA_DATA *area )
    pRoomIndex->light = 0;
    pRoomIndex->first_exit = NULL;
    pRoomIndex->last_exit = NULL;
+   xCLEAR_BITS( pRoomIndex->color );
    LINK( pRoomIndex, area->first_room, area->last_room, next_aroom, prev_aroom );
 
    iHash = vnum % MAX_KEY_HASH;
@@ -5249,6 +5250,9 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->numattacks = 1;
       pMobIndex->attacks = 0;
       pMobIndex->defenses = 0;
+      xCLEAR_BITS( pMobIndex->color );
+      xCLEAR_BITS( pMobIndex->damtype );
+      xSET_BIT( pMobIndex->damtype, DAM_BLUNT );
       for( x = 0; x < MAX_DAMTYPE; x++ )
       {
          pMobIndex->penetration[x] = 0;
@@ -5311,6 +5315,8 @@ MOB_INDEX_DATA *make_mobile( int vnum, int cvnum, const char *name )
       pMobIndex->numattacks = cMobIndex->numattacks;
       pMobIndex->attacks = cMobIndex->attacks;
       pMobIndex->defenses = cMobIndex->defenses;
+      xSET_BITS( pMobIndex->color, cMobIndex->color );
+      xSET_BITS( pMobIndex->damtype, cMobIndex->damtype );
       for( x = 0; x < MAX_DAMTYPE; x++ )
       {
          pMobIndex->penetration[x] = cMobIndex->penetration[x];
@@ -5912,6 +5918,9 @@ void fread_fuss_room( FILE * fp, AREA_DATA * tarea )
                break;
             }
             break; */
+         case 'C':
+            KEY( "Color", pRoomIndex->color, fread_bitvector( fp ) );
+            break;
 
          case 'D':
             KEY( "Desc", pRoomIndex->description, fread_string( fp ) );
@@ -6807,6 +6816,10 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
                }
                break;
             }
+            break;
+
+         case 'C':
+            KEY( "Color", pMobIndex->color, fread_bitvector( fp ) );
             break;
 
          case 'D':

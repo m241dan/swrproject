@@ -5942,6 +5942,8 @@ void fwrite_fuss_room( FILE * fpout, ROOM_INDEX_DATA * room, bool install )
       fprintf( fpout, "Stats    %d %d %d\n", room->tele_delay, room->tele_vnum, room->tunnel );
    if( room->description && room->description[0] != '\0' )
       fprintf( fpout, "Desc     %s~\n", strip_cr( room->description ) );
+   if( !xIS_EMPTY( room->color ) )
+      fprintf( fpout, "Color    %s\n", print_bitvector( &room->color ) );
 
    for( xit = room->first_exit; xit; xit = xit->next )
    {
@@ -6140,6 +6142,8 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
             pMobIndex->perm_str,
             pMobIndex->perm_int,
             pMobIndex->perm_wis, pMobIndex->perm_dex, pMobIndex->perm_con, pMobIndex->perm_agi, pMobIndex->perm_cha, pMobIndex->perm_lck, pMobIndex->perm_frc );
+   if( !xIS_EMPTY( pMobIndex->color ) )
+      fprintf( fpout, "Color      %s\n", print_bitvector( &pMobIndex->color ) );
    {
       int count;
       fprintf( fpout, "Resistance  " );
