@@ -3708,6 +3708,7 @@ extern const char *const l_type[MAX_LOOTTYPE];
 extern const char *const d_type_score[MAX_DAMTYPE];
 extern const char *const frames_of_mind[MAX_FOM];
 extern const char *const quest_types[MAX_QUESTTYPE];
+extern const char *const color_table[MAX_COLOR_FLAG];
 /*
 * Global variables.
 */
@@ -4665,6 +4666,7 @@ void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc );
 const char *array_to_string( const char *const array[] );
 void show_quest_log_to_ch( CHAR_DATA *ch, CHAR_DATA *victim );
 const char *get_status_color( CHAR_DATA *ch, QUEST_DATA *quest );
+int get_colortype( const char *color );
 
 /* clans.c */
 CL *get_clan( const char *name );

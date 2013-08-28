@@ -662,6 +662,30 @@ ch_ret move_char( CHAR_DATA * ch, EXIT_DATA * pexit, int fall )
       return rNONE;
    }
 
+   if( IS_NPC( ch ) && !xIS_EMPTY( ch->color ) )
+   {
+      int color;
+      for( color = 0; color < ( MAX_COLOR_FLAG ); color++ )
+      {
+         if( color < 6 )
+         {
+            if( xIS_SET( ch->color, color ) && xIS_SET( to_room->color, ( color + 6 ) ) )
+            {
+               act( AT_PLAIN, "Your color forbids you from entering that room.", ch, NULL, NULL, TO_CHAR );
+               return rNONE;
+            }
+         }
+         else
+         {
+            if( xIS_SET( ch->color, color ) && xIS_SET( to_room->color, ( color - 6 ) ) )
+            {
+               act( AT_PLAIN, "Your color forbids you from entering that room.", ch, NULL, NULL, TO_CHAR );
+               return rNONE;
+            }
+         }
+      }
+   }
+
    /*
     * Crazy virtual room idea, created upon demand.     -Thoric
     */

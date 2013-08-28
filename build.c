@@ -80,6 +80,11 @@ const char *const d_type_score[MAX_DAMTYPE] = {
    "&WEnergy", "&zDark Energy", "&pBlunt", "&rPiercing", "&rSlashing"
 };
 
+const char *const color_table[MAX_COLOR_FLAG] = {
+   "red", "blue", "green", "yellow", "orange", "purple",
+   "no_red", "no_blue", "no_green", "no_yellow", "no_orange", "no_purple"
+};
+
 const char *const planet_flags[] = {
    "coruscant", "kashyyyk", "ryloth", "rodia", "nal_hutta", "mon_calamari",
    "honoghr", "gamorr", "tatooine", "adari", "byss", "endor", "roche", "af'el", "trandosh",
@@ -529,6 +534,16 @@ int get_damtype( const char *type )
 
    for( x = 0; x < MAX_DAMTYPE; x++ )
       if( !str_cmp( type, d_type[x] ) )
+         return x;
+   return -1;
+}
+
+int get_colortype( const char *color )
+{
+   int x;
+
+   for( x = 0; x < MAX_COLOR_FLAG; x++ )
+      if( !str_cmp( color, color_table[x] ) )
          return x;
    return -1;
 }
@@ -2053,6 +2068,33 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
+   if( !str_cmp( arg2, "color" ) )
+   {
+      if( !can_mmodify( ch, victim ) )
+         return;
+
+      if( !IS_NPC( victim ) )
+      {
+         send_to_char( "Not on NPCs.\r\n", ch );
+         return;
+      }
+
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg2 );
+         if( ( value = get_colortype( arg2 ) ) == -1 )
+         {
+            ch_printf( ch, "%s is an invalid color.\r\nTry: %s\r\n", array_to_string( color_table, MAX_COLOR_FLAG ) );
+            continue;
+         }
+         xTOGGLE_BIT( victim->color, value );
+         if( IS_SET( victim->act, ACT_PROTOTYPE ) )
+            xTOGGLE_BIT( victim->pIndexData->color, value );
+
+      }
+      send_to_char( "Ok.\r\n", ch );
+      return;
+   }
 
    if( !str_cmp( arg2, "hp" ) )
    {
