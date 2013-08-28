@@ -1377,67 +1377,6 @@ void do_mset( CHAR_DATA * ch, const char *argument )
       return;
    }
 
-   if( !str_cmp( arg2, "addskill" ) )
-   {
-      int x;
-
-      if( !can_mmodify( ch, victim ) )
-         return;
-
-      if( !IS_NPC( victim ) )
-      {
-         send_to_char( "Only on NPCs!\r\n", ch );
-         return;
-      }
-
-      if( victim->pIndexData->npc_skills[MAX_NPC_SKILL-1] != -1 )
-      {
-         send_to_char( "Mob has too many skills, try removing some.\r\n", ch );
-         return;
-      }
-
-      if( value == -1 )
-         value = skill_lookup( arg3 );
-
-      if( !IS_VALID_SN( value ) )
-      {
-         send_to_char( "Not a valid skill.\r\n", ch );
-         return;
-      }
-      if( skill_table[value]->type != SKILL_SKILL && skill_table[value]->type != SKILL_SPELL )
-      {
-         send_to_char( "Not a valid skill.\r\n", ch );
-         return;
-      }
-      for( x = 0; x < MAX_NPC_SKILL; x++ )
-         if( victim->pIndexData->npc_skills[x] == -1 )
-            break;
-      victim->pIndexData->npc_skills[x] = value;
-      send_to_char( "Skill set.\r\n", ch );
-      return;
-   }
-
-   if( !str_cmp( arg2, "remskill" ) )
-   {
-      if( !can_mmodify( ch, victim ) )
-         return;
-
-      if( !IS_NPC( victim ) )
-      {
-         send_to_char( "Only on NPCs!\r\n", ch );
-         return;
-      }
-      if( value == -1 || value > ( MAX_NPC_SKILL - 1 ) )
-      {
-         send_to_char( "Out of range.\r\n", ch );
-         return;
-      }
-      victim->pIndexData->npc_skills[value] = -1;
-      sort_mob_skills( victim );
-      send_to_char( "Skill Slot Reset.\r\n", ch );
-      return;
-   }
-
    if( !str_cmp( arg2, "discipline" ) )
    {
       DISC_DATA *disc;

@@ -656,6 +656,15 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
    }
    if( chkchar )
    {
+      if( !str_cmp( chck, "oncooldown" ) )
+      {
+         if( !IS_NPC( chkchar ) )
+         {
+            progbug( "oncooldown being used on player.", mob );
+            return BERR;
+         }
+         return is_on_cooldown( chkchar, skill_lookup( rval ) );
+      }
       if( !str_cmp( chck, "knowsdisc" ) )
       {
          DISC_DATA *discipline;
@@ -663,12 +672,12 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
          if( IS_NPC( chkchar ) )
          {
             progbug( "if knowsdisc: don't use on NPC", mob );
-            return FALSE;
+            return BERR;
          }
          if( ( discipline = get_discipline( rval ) ) == NULL )
          {
             progbug( "if knowsdisc: bad disc name passed", mob );
-            return FALSE;
+            return BERR;
          }
          return player_has_discipline( chkchar, discipline );
       }
@@ -678,12 +687,12 @@ int mprog_do_ifcheck( const char *ifcheck, CHAR_DATA * mob, CHAR_DATA * actor, O
          if( !is_number( rval ) )
          {
             progbug( "if combatexp: rval is not a number", mob );
-            return FALSE;
+            return BERR;
          }
          if( ( rhsvl = atoi( rval ) ) < 0 )
          {
             progbug( "if combatexp: rval must be greater than 0", mob );
-            return FALSE;
+            return BERR;
          }
          return mprog_veval( lhsvl, opr, rhsvl, mob );
       }

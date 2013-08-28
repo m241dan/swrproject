@@ -2238,7 +2238,6 @@ struct mob_index_data
    double round;
    int haste;
    double tspeed; /* thought speed, how often a mob thinks */
-   int npc_skills[MAX_NPC_SKILL];
    TEACH_DATA *first_teach;
    TEACH_DATA *last_teach;
    AV_QUEST *first_available_quest;
