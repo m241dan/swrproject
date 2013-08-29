@@ -2350,7 +2350,7 @@ CHAR_DATA *create_mobile( MOB_INDEX_DATA * pMobIndex )
       mob->hitroll = (int)(mob->hitroll * ( 1 + ( .05 * lvldif ) ) );
       mob->damroll = (int)(mob->damroll * ( 1 + ( .05 * lvldif ) ) );
       mob->damplus = (int)(mob->damplus * ( 1 + ( .025 * lvldif ) ) );
-      mob->max_hit = (int)(mob->max_hit * ( 1 + ( .085 * lvldif ) ) );
+      mob->max_hit = UMAX( 1, (int)(mob->max_hit * ( 1 + ( .085 * lvldif ) ) ) );
       mob->hit = mob->max_hit;
       mob->evasion = (int)(mob->evasion * ( 1 + ( .025 * lvldif ) ) );
       mob->armor = (int)(mob->armor * ( 1 + ( .025 * lvldif ) ) );
