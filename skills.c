@@ -842,7 +842,7 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
       else
          ch_printf( ch, " %s\r\n", ext_flag_string( &skill->damtype, d_type ) );
       for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
-         ch_printf( ch, "Stat Boost: %d%% of %s", (int)( stat_boost->modifier * 100 ), a_types[stat_boost->location] );
+         ch_printf( ch, "Stat Boost: %d%% of %s\r\n", (int)( stat_boost->modifier * 100 ), a_types[stat_boost->location] );
 
       ch_printf( ch, "\r\nDammsg: %s\r\nWearoff: %s\n", skill->noun_damage, skill->msg_off ? skill->msg_off : "(none set)" );
       if( skill->dice && skill->dice[0] != '\0' )
