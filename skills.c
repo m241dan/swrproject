@@ -845,12 +845,6 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
          ch_printf( ch, "Stat Boost: %d%% of %s\r\n", (int)( stat_boost->modifier * 100 ), a_types[stat_boost->location] );
 
       ch_printf( ch, "\r\nDammsg: %s\r\nWearoff: %s\n", skill->noun_damage, skill->msg_off ? skill->msg_off : "(none set)" );
-      if( skill->dice && skill->dice[0] != '\0' )
-         ch_printf( ch, "Dice: %s\r\n", skill->dice );
-      if( skill->teachers && skill->teachers[0] != '\0' )
-         ch_printf( ch, "Teachers: %s\r\n", skill->teachers );
-      if( skill->components && skill->components[0] != '\0' )
-         ch_printf( ch, "Components: %s\r\n", skill->components );
       if( skill->participants )
          ch_printf( ch, "Participants: %d\r\n", ( int )skill->participants );
       if( skill->userec.num_uses )
@@ -920,13 +914,6 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
          ch_printf( ch, "Immvict   : %s\r\n", skill->imm_vict );
       if( skill->imm_room && skill->imm_room[0] != '\0' )
          ch_printf( ch, "Immroom   : %s\r\n", skill->imm_room );
-      if( skill->type != SKILL_HERB && skill->guild >= 0 && skill->guild < MAX_ABILITY )
-      {
-         sprintf( buf, "guild: %s   Align: %4d   lvl: %3d\r\n",
-                  ability_name[skill->guild], skill->alignment, skill->min_level );
-         send_to_char( buf, ch );
-      }
-      send_to_char( "\r\n", ch );
    }
 
    return;
