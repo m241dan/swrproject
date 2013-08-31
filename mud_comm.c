@@ -2216,6 +2216,9 @@ void do_mpwander( CHAR_DATA *ch, const char *argument )
    if( !IS_NPC( ch ) )
       return;
 
+   if( IS_SET( ch->act, ACT_PROTOTYPE ) )
+      return;
+
    if( !ch->in_room )
    {
       progbug( "mpwander: not in a room???", ch );

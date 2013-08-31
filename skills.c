@@ -170,10 +170,10 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
     */
    if( IS_NPC( ch ) )
    {
+
       for( ;; )
       {
          sn = ( first + top ) >> 1;
-
          if( LOWER( command[0] ) == LOWER( skill_table[sn]->name[0] )
              && !str_prefix( command, skill_table[sn]->name )
              && ( IS_NPC( ch ) || ( ch->pcdata->learned[sn] > 0 ) ) )
@@ -209,13 +209,6 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
 
    if( !check_pos( ch, skill->minimum_position ) )
       return TRUE;
-
-   if( IS_NPC( ch ) && ( IS_AFFECTED( ch, AFF_CHARM ) || IS_AFFECTED( ch, AFF_POSSESS ) ) )
-   {
-      send_to_char( "For some reason, you seem unable to perform that...\r\n", ch );
-      act( AT_GREY, "$n looks around.", ch, NULL, NULL, TO_ROOM );
-      return TRUE;
-   }
 
    /*
     * check if mana is required
