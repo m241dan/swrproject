@@ -3609,7 +3609,7 @@ void clean_char_queue(  )
  * Add a timer to ch						-Thoric
  * Support for "call back" time delayed commands
  */
-void add_timer( CHAR_DATA * ch, short type, short count, DO_FUN * fun, int value )
+void add_timer( CHAR_DATA * ch, short type, double count, DO_FUN * fun, int value )
 {
    TIMER *timer;
 

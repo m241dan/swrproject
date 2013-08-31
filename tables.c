@@ -143,7 +143,7 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
    if( skill->beats )
       fprintf( fpout, "Rounds       %d\n", skill->beats );
    if( skill->charge )
-      fprintf( fpout, "Charge       %d\n", skill->charge );
+      fprintf( fpout, "Charge       %f\n", skill->charge );
    if( skill->guild != -1 )
       fprintf( fpout, "Guild        %d\n", skill->guild );
    if( skill->skill_fun )
@@ -407,7 +407,7 @@ SKILLTYPE *fread_skill( FILE * fp, bool Player )
             break;
 
          case 'C':
-            KEY( "Charge", skill->charge, fread_number( fp ) );
+            KEY( "Charge", skill->charge, fread_float( fp ) );
             if ( !str_cmp( word, "Code" ) )
             {
                if( Player )

@@ -784,8 +784,9 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
    if( !str_cmp( arg, "all" ) )
    {
       for( sn = 0; sn < top_sn && skill_table[sn] && skill_table[sn]->name; sn++ )
-         pager_printf( ch, "Sn: %4d Slot: %4d Skill/spell: '%-20s' Style Type: %s\r\n",
-                       sn, skill_table[sn]->slot, skill_table[sn]->name, style_type[skill_table[sn]->style] );
+         if( skill_table[sn] != NULL )
+            pager_printf( ch, "Sn: %4d Skill/spell: '%-20s' Style Type: %s\r\n",
+                          sn, skill_table[sn]->name ? skill_table[sn]->name : "null_skill" , style_type[skill_table[sn]->style] );
    }
    else if( !str_cmp( arg, "herbs" ) )
    {
@@ -835,7 +836,7 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
       }
 
       ch_printf( ch, "Sn: %4d Slot: %4d %s: '%-20s'\r\n", sn, skill->slot, skill_tname[skill->type], skill->name );
-      ch_printf( ch, "Type: %s  Target: %s  Minpos: %d  Mana: %d  Move: %d Beats: %d Charge: %d\r\n",
+      ch_printf( ch, "Type: %s  Target: %s  Minpos: %d  Mana: %d  Move: %d Beats: %d Charge: %f\r\n",
                  skill_tname[skill->type],
                  target_type[skill->target],
                  skill->minimum_position, skill->min_mana, skill->min_move, skill->beats, skill->charge );
@@ -1247,7 +1248,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
       }
       if( !str_cmp( arg2, "charge" ) )
       {
-         skill->charge = atoi( argument );
+         skill->charge = atof( argument );
          send_to_char( "Ok\r\n", ch );
          return;
       }
@@ -5091,7 +5092,7 @@ void update_skill( CHAR_DATA *ch, SKILLTYPE *skill )
    int num_factors = get_num_factors( skill );
    int num_cost_type = get_num_cost_types( skill );
    int slot_level;
-   int charge = skill->charge;
+   double charge = skill->charge;
    int max_duration = 0;
 
 
