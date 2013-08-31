@@ -492,7 +492,7 @@ void reset_room( ROOM_INDEX_DATA *room )
 {
    RESET_DATA *pReset, *tReset, *gReset;
    OBJ_DATA *nestmap[MAX_NEST];
-   CHAR_DATA *mob;
+   CHAR_DATA *mob, *npc;
    OBJ_DATA *obj, *lastobj, *to_obj;
    ROOM_INDEX_DATA *pRoomIndex = NULL;
    MOB_INDEX_DATA *pMobIndex = NULL;
@@ -532,6 +532,11 @@ void reset_room( ROOM_INDEX_DATA *room )
                mob = NULL;
                break;
             }
+            if( IS_SET( pMobIndex->act, ACT_NOTORIOUS ) ) 
+               for( npc = first_char; npc; npc = npc->next )
+                  if( IS_NPC( npc ) && npc->pIndexData == pMobIndex )
+                     continue;
+
             mob = create_mobile( pMobIndex );
             {
                ROOM_INDEX_DATA *pRoomPrev = get_room_index( pReset->arg3 - 1 );
