@@ -973,7 +973,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          send_to_char( "  name code target minpos slot mana beats dammsg wearoff guild minlevel\r\n", ch );
          send_to_char( "  type damtype acttype classtype powertype flag dice value difficulty affect\r\n", ch );
          send_to_char( "  rmaffect level adept hit miss die imm (char/vict/room)\r\n", ch );
-         send_to_char( "  charge move threat statboost defensemod attackboost, \r\n", ch );
+         send_to_char( "  charge move threat addstatboost defensemod attackboost, \r\n", ch );
          send_to_char( "  baserollboost damtype style cooldown\r\n", ch );
          send_to_char( "  components teachers\r\n", ch );
          send_to_char( "Affect having the fields: <location> <modfifier> [duration] [bitvector]\r\n", ch );
