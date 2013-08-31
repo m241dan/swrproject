@@ -2089,6 +2089,7 @@ typedef enum
 #define PCFLAG_PAGERON		   BV09
 #define PCFLAG_NOTITLE             BV10
 #define PCFLAG_ROOM                BV11
+#define PCFLAG_COLOR               BV12
 
 typedef enum
 {

@@ -1383,6 +1383,9 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
       AV_QUEST *quest;
       MOB_ATTACK *attack;
 
+      if( !xIS_EMPTY( victim->color ) )
+         ch_printf( ch, "Color      : %s\r\n", ext_flag_string( &victim->color, color_table ) );
+     
       for( attack = victim->first_mobattack; attack; attack = attack->next )
       {
          ch_printf( ch, "WeaponType : %s\r\n", weapon_table[attack->wield] );

@@ -871,6 +871,11 @@ void do_look( CHAR_DATA * ch, const char *argument )
                sprintf( tmpbuf, " &z{&R%d&z}}", ch->in_room->vnum );
                strcat( buf, tmpbuf );
             }
+            if( IS_SET( ch->pcdata->flags, PCFLAG_COLOR ) )
+            {
+               sprintf( tmpbuf, "&z{&r%s&z}", ext_flag_string( &ch->in_room->color, color_table ) );
+               strcat( buf, tmpbuf );
+            }
             if( IS_SET( ch->pcdata->flags, PCFLAG_ROOM ) )
             {
 //                set_char_color( AT_CYAN, ch );
@@ -3356,6 +3361,11 @@ void do_config( CHAR_DATA * ch, const char *argument )
                        : "[-vnum     ] You do not see the VNUM of a room.\r\n", ch );
 
       if( IS_IMMORTAL( ch ) )
+         send_to_char( IS_SET( ch->pcdata->flags, PCFLAG_COLOR )
+                       ? "[+color    ] You can see the COLORs of a room.\r\n"
+                       : "[-color    ] You do not see the COLORs of a room.\r\n", ch );
+
+      if( IS_IMMORTAL( ch ) )
          send_to_char( IS_SET( ch->act, PLR_AUTOMAP ) /* maps */
                        ? "[+MAP      ] You can see the MAP of a room.\r\n"
                        : "[-map      ] You do not see the MAP of a room.\r\n", ch );
@@ -3420,6 +3430,7 @@ void do_config( CHAR_DATA * ch, const char *argument )
          bit = PLR_ROOMVNUM;
       else if( IS_IMMORTAL( ch ) && !str_prefix( arg + 1, "map" ) )
          bit = PLR_AUTOMAP;   /* maps */
+      else if( IS_IMMORTAL( ch ) && !str_prefix( arg + 1, "color" ) )
 
       if( bit )
       {
@@ -3445,6 +3456,8 @@ void do_config( CHAR_DATA * ch, const char *argument )
             bit = PCFLAG_PAGERON;
          else if( !str_prefix( arg + 1, "roomflags" ) && ( IS_IMMORTAL( ch ) ) )
             bit = PCFLAG_ROOM;
+         else if( !str_prefix( arg + 1, "color" ) && ( IS_IMMORTAL( ch ) ) )
+            bit = PCFLAG_COLOR;
          else
          {
             send_to_char( "Config which option?\r\n", ch );
