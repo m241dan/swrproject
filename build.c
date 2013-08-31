@@ -4841,7 +4841,7 @@ void do_redit( CHAR_DATA * ch, const char *argument )
       send_to_char( "  name desc ed rmed\r\n", ch );
       send_to_char( "  exit bexit exdesc exflags exname exkey\r\n", ch );
       send_to_char( "  flags sector teledelay televnum tunnel\r\n", ch );
-      send_to_char( "  rlist exdistance\r\n", ch );
+      send_to_char( "  rlist exdistance color\r\n", ch );
       return;
    }
 
@@ -5093,6 +5093,23 @@ void do_redit( CHAR_DATA * ch, const char *argument )
       STRFREE( xit->keyword );
       xit->keyword = STRALLOC( argument );
       send_to_char( "Done.\r\n", ch );
+      return;
+   }
+
+   if( !str_cmp( arg, "color" ) )
+   {
+      while( argument[0] != '\0' )
+      {
+         argument = one_argument( argument, arg2 );
+         if( ( value = get_colortype( arg2 ) ) == -1 )
+         {
+            ch_printf( ch, "%s is an invalid color.\r\nTry: %s\r\n", array_to_string( color_table, MAX_COLOR_FLAG ) );
+            continue;
+         }
+         xTOGGLE_BIT( location->color, value );   
+         
+      }
+      send_to_char( "Ok.\r\n", ch );
       return;
    }
 

@@ -500,6 +500,7 @@ void reset_room( ROOM_INDEX_DATA *room )
    EXIT_DATA *pexit;
    const char *filename = room->area->filename;
    int level = 0, n, num = 0, lastnest, onreset = 0;;
+   bool notorious = FALSE;
 
    mob = NULL;
    obj = NULL;
@@ -534,8 +535,14 @@ void reset_room( ROOM_INDEX_DATA *room )
             }
             if( IS_SET( pMobIndex->act, ACT_NOTORIOUS ) ) 
                for( npc = first_char; npc; npc = npc->next )
-                  if( IS_NPC( npc ) && npc->pIndexData == pMobIndex )
-                     continue;
+                  if( IS_NPC( npc ) && npc->pIndexData->vnum == pMobIndex->vnum )
+                  {
+                     notorious = TRUE;
+                     break;
+                  }
+
+            if( notorious )
+               continue;
 
             mob = create_mobile( pMobIndex );
             {
