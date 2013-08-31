@@ -2845,7 +2845,7 @@ void split_timers_update(  )
                         if( char_died( ch ) )
                            break;
                         ch->substate = tempsub;
-                        DISPOSE( ptimer );
+                        extract_timer( ch, ptimer );
                      }
                      else
                         extract_timer( ch, ptimer );

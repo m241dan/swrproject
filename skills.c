@@ -840,7 +840,7 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
       if( xIS_EMPTY( skill->damtype ) )
          send_to_char( " none\r\n", ch );
       else
-         ch_printf( ch, "Damtype: %s\r\n", ext_flag_string( &skill->damtype, d_type ) );
+         ch_printf( ch, " %s\r\n", ext_flag_string( &skill->damtype, d_type ) );
       for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
          ch_printf( ch, "Stat Boost: %d%% of %s", (int)( stat_boost->modifier * 100 ), a_types[stat_boost->location] );
 

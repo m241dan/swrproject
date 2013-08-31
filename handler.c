@@ -3631,6 +3631,7 @@ void add_timer( CHAR_DATA * ch, short type, double count, DO_FUN * fun, int valu
       LINK( timer, ch->first_timer, ch->last_timer, next, prev );
    }
    add_queue( ch, TIMER_TIMER );
+   return;
 }
 
 TIMER *get_timerptr( CHAR_DATA * ch, short type )
@@ -3675,7 +3676,10 @@ void remove_timer( CHAR_DATA * ch, short type )
          break;
 
    if( timer )
+   {
+      bug( "%s: extract_timer being called here.", __FUNCTION__ );
       extract_timer( ch, timer );
+   }
 }
 
 bool in_soft_range( CHAR_DATA * ch, AREA_DATA * tarea )
@@ -4771,6 +4775,7 @@ void create_qtimer( CHAR_DATA *ch, int type )
    queue->timer_ch = ch;
    queue->type = type;
    LINK( queue, first_qtimer, last_qtimer, next, prev );
+   return;
 }
 
 void dispose_qtimer( QTIMER *timer )
