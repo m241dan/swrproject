@@ -840,18 +840,11 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
       if( xIS_EMPTY( skill->damtype ) )
          send_to_char( " none\r\n", ch );
       else
-      {
-         for( x = 0; x < MAX_DAMTYPE; x++ )
-            if( xIS_SET( skill->damtype, x ) )
-               ch_printf( ch, " %s,", d_type[x] );
-          send_to_char( "\r\n", ch );
-      }
+         ch_printf( ch, "Damtype: %s\r\n", ext_flag_string( &skill->damtype, d_type ) );
       for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
          ch_printf( ch, "%d%% of %s", (int)( stat_boost->modifier * 100 ), a_types[stat_boost->location] );
-      ch_printf( ch, "Flags: %d  Guild: %d  Code: %s\r\n",
-                 skill->flags,
-                 skill->guild, skill->skill_fun ? skill->skill_fun_name : skill->spell_fun_name );
-      ch_printf( ch, "Dammsg: %s\r\nWearoff: %s\n", skill->noun_damage, skill->msg_off ? skill->msg_off : "(none set)" );
+
+      ch_printf( ch, "\r\nDammsg: %s\r\nWearoff: %s\n", skill->noun_damage, skill->msg_off ? skill->msg_off : "(none set)" );
       if( skill->dice && skill->dice[0] != '\0' )
          ch_printf( ch, "Dice: %s\r\n", skill->dice );
       if( skill->teachers && skill->teachers[0] != '\0' )
@@ -1543,6 +1536,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          stat_boost->modifier = mod;
          LINK( stat_boost, skill->first_statboost, skill->last_statboost, next, prev );
          send_to_char( "Ok.\r\n", ch );
+         return;
       }
       if( !str_cmp( arg2, "remstatboost" ) )
       {
