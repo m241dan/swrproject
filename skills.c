@@ -1535,11 +1535,6 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             send_to_char( "Invalid location.\r\n", ch );
             return;
          }
-         if( !is_number( argument ) )
-         {
-            send_to_char( "Modifier must be a decimal number.\r\n", ch );
-            return;
-         }
          mod = atof( argument );
 
          CREATE( stat_boost, STAT_BOOST, 1 );
