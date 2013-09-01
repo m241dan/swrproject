@@ -3676,10 +3676,7 @@ void remove_timer( CHAR_DATA * ch, short type )
          break;
 
    if( timer )
-   {
-      bug( "%s: extract_timer being called here.", __FUNCTION__ );
       extract_timer( ch, timer );
-   }
 }
 
 bool in_soft_range( CHAR_DATA * ch, AREA_DATA * tarea )

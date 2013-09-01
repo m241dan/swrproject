@@ -4494,9 +4494,8 @@ void do_skills( CHAR_DATA *ch, const char *argument )
              }
          }
       }
-      ch_printf( ch, "%s\r\nOther Usages: skills <command> <parameters>\r\n", column != 0 ? "\r\n" : "" );
-      send_to_char( "  Commands: set unset\r\n", ch );
-      send_to_char( "  Type 'skills set' or 'skills unset' for parameters\r\n", ch );
+      ch_printf( ch, "%s\r\nProper Usage: skills set '<skill>' level <slow level number>\r\n", column != 0 ? "\r\n" : "" );
+      send_to_char( "Or:          skills set '<skill>' slot <slow number>\r\n", ch );
       return;
    }
    if( !str_cmp( arg, "unset" ) )
