@@ -3430,8 +3430,6 @@ void do_config( CHAR_DATA * ch, const char *argument )
          bit = PLR_ROOMVNUM;
       else if( IS_IMMORTAL( ch ) && !str_prefix( arg + 1, "map" ) )
          bit = PLR_AUTOMAP;   /* maps */
-      else if( IS_IMMORTAL( ch ) && !str_prefix( arg + 1, "color" ) )
-
       if( bit )
       {
 
