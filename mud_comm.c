@@ -2300,6 +2300,53 @@ void do_mpreward( CHAR_DATA *ch, const char *argument )
       save_char_obj( victim );
       return;
    }
+
+   if( !str_cmp( arg, "loot" ) || !str_cmp( arg, "item" ) )
+   {
+      OBJ_INDEX_DATA *pObjIndex;
+      OBJ_DATA *obj;
+      int type, chance;
+
+      argument = one_argument( argument, arg );
+      if( arg[0] == '\0' || ( type = get_loottype( arg ) ) == -1 || type == LOOT_GOLD )
+      {
+         progbug( "mpreward: 'item' Invalid type.", ch );
+         return;
+      }
+
+      /* Lets grab the obj_index next */
+      argument = one_argument( argument, arg );
+      if( arg[0] == '\0' || ( ( pObjIndex = get_obj_index( atoi( arg ) ) ) == NULL && type != LOOT_GOLD ) )
+      {
+         progbug( "mpreward: 'item' Invalid vnum.", ch );
+         return;
+      }
+
+      /* Now to make sure we have a good "chance" */
+      argument = one_argument( argument, arg );
+      if( arg[0] == '\0' || !is_number( arg ) || ( chance = atoi( arg ) ) > 100 || chance < 0 )
+      {
+         progbug( "mpreward: 'item' Invalid chance.", ch );
+         return;
+      }
+
+      if( number_percent() > chance )
+         return;
+
+      if( ( obj = create_object( pObjIndex, 1 ) ) == NULL )
+      {
+         progbug( "mpreward: 'item' something is real fucked up.", ch );
+         return;
+      }
+
+      if( type == LOOT_RANDOM )
+         load_pools( obj );
+
+      obj_to_char( obj, victim );
+      ch_printf( victim, "You have been rewarded with %s.\r\n", obj->short_descr );
+      save_char_obj( victim );
+      return;
+   }
 }
 
 void do_mpblank( CHAR_DATA *ch, const char *argument )
