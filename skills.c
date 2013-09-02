@@ -884,6 +884,10 @@ void do_slookup( CHAR_DATA * ch, const char *argument )
          }
          if( aff->location >= REVERSE_APPLY )
             strcat( buf, " (affects caster only)" );
+
+         sprintf( num, " type: %s", applytypes_type[aff->apply_type] );
+         strcat( buf, num );
+
          strcat( buf, "\r\n" );
          send_to_char( buf, ch );
          if( !aff->next )
