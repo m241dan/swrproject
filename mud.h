@@ -4664,7 +4664,7 @@ void create_thought( CHAR_DATA *ch, const char *argument );
 void edit_thought( CHAR_DATA *ch, AI_THOUGHT *thought, const char *argument, const char *parameter );
 void list_thoughts( CHAR_DATA *ch );
 void show_discipline_to_player( CHAR_DATA *ch, DISC_DATA *disc );
-const char *array_to_string( const char *const array[] );
+const char *array_to_string( const char *const array[], int max );
 void show_quest_log_to_ch( CHAR_DATA *ch, CHAR_DATA *victim );
 const char *get_status_color( CHAR_DATA *ch, QUEST_DATA *quest );
 int get_colortype( const char *color );
