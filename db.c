@@ -6788,13 +6788,7 @@ void fread_fuss_mobile( FILE * fp, AREA_DATA * tarea )
             {
                AV_QUEST *available_quest;
                CREATE( available_quest, AV_QUEST, 1 );
- 
-               if( ( available_quest->quest = get_quest_from_id( fread_number( fp ) ) ) == NULL )
-               {
-                  bug( "%s: error loading AvailableQuest on mob vnum: %d", __FUNCTION__, pMobIndex->vnum );
-                  DISPOSE( available_quest );
-                  break;
-               }
+               available_quest->quest = fread_number( fp );
                LINK( available_quest, pMobIndex->first_available_quest, pMobIndex->last_available_quest, next, prev );
                break;
             }
@@ -8781,8 +8775,7 @@ QUEST_DATA *fread_quest( FILE *fp )
              {
                 PRE_QUEST *prequest;
                 CREATE( prequest, PRE_QUEST, 1 );
-
-                prequest->quest = get_quest_from_id( fread_number( fp ) );
+                prequest->quest = fread_number( fp );
                 LINK( prequest, quest->first_prequest, quest->last_prequest, next, prev );
              }
              break;

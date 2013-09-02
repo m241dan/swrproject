@@ -1749,7 +1749,8 @@ void do_mp_advancequest( CHAR_DATA * ch, const char *argument )
 void do_mp_completequest( CHAR_DATA *ch, const char *argument )
 {
    CHAR_DATA *victim;
-   QUEST_DATA *quest;
+   QUEST_DATA *quest, *aquest;
+   PRE_QUEST *pre_quest;
    PLAYER_QUEST *pquest;
    char arg[MAX_STRING_LENGTH];
 
@@ -1802,6 +1803,13 @@ void do_mp_completequest( CHAR_DATA *ch, const char *argument )
    }
    pquest->times_completed++;
    ch_printf( victim, "You completed %s.\r\n", pquest->quest->name );
+
+   for( aquest = first_quest; quest; quest = quest->next )
+   {
+      for( pre_quest = aquest->first_prequest; pre_quest; pre_quest = pre_quest->next )
+         if( pre_quest->quest == quest->id )
+            ch_printf( victim, "You have completed a prequest for %s\r\n", aquest->name );
+   }
 
    save_char_obj( victim );
    saving_char = NULL;

@@ -938,7 +938,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
    argument = one_argument( argument, arg1 );
    argument = one_argument( argument, arg2 );
 
-   if( arg1[0] == '\0' || arg2[0] == '\0' || argument[0] == '\0' )
+   if( arg1[0] == '\0' || arg2[0] == '\0' )
    {
       send_to_char( "Syntax: sset <victim> <skill> <value>\r\n", ch );
       send_to_char( "or:     sset <victim> all     <value>\r\n", ch );
@@ -1018,9 +1018,9 @@ void do_sset( CHAR_DATA * ch, const char *argument )
       }
       else
          skill_table[top_sn++] = skill;
-      skill->name = str_dup( argument );
-      skill->noun_damage = str_dup( "" );
-      skill->msg_off = str_dup( "" );
+      skill->name = STRALLOC( argument );
+      skill->noun_damage = STRALLOC( "" );
+      skill->msg_off = STRALLOC( "" );
       skill->spell_fun = spell_smaug;
       skill->type = type;
       send_to_char( "Done.\r\n", ch );
@@ -1316,12 +1316,12 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             loc = get_atype( location );
          if( ( loc % REVERSE_APPLY ) < 0 || ( loc % REVERSE_APPLY ) >= MAX_APPLY_TYPE )
          {
-            ch_printf( ch, "Improper Location: %s\r\nUse: %s\r\n", array_to_string( a_types, MAX_APPLY_TYPE ) );
+            ch_printf( ch, "Improper Location: %s\r\nUse: %s\r\n", location, array_to_string( a_types, MAX_APPLY_TYPE ) );
             return;
          }
          if( ( type = get_apply_type( aff_type ) ) == -1 )
          {
-            ch_printf( ch, "Improper Affect Type: %s \r\nUse: %s\r\n", array_to_string( applytypes_type , MAX_APPLYTYPE ) );
+            ch_printf( ch, "Improper Affect Type: %s \r\nUse: %s\r\n", aff_type, array_to_string( applytypes_type , MAX_APPLYTYPE ) );
             return;
          }
          xCLEAR_BITS( bit );
@@ -1354,161 +1354,161 @@ void do_sset( CHAR_DATA * ch, const char *argument )
       }
       if( !str_cmp( arg2, "name" ) )
       {
-         DISPOSE( skill->name );
-         skill->name = str_dup( argument );
+         STRFREE( skill->name );
+         skill->name = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "dammsg" ) )
       {
-         DISPOSE( skill->noun_damage );
+         STRFREE( skill->noun_damage );
          if( !str_cmp( argument, "clear" ) )
-            skill->noun_damage = str_dup( "" );
+            skill->noun_damage = STRALLOC( "" );
          else
-            skill->noun_damage = str_dup( argument );
+            skill->noun_damage = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "wearoff" ) )
       {
-         DISPOSE( skill->msg_off );
+         STRFREE( skill->msg_off );
          if( str_cmp( argument, "clear" ) )
-            skill->msg_off = str_dup( argument );
+            skill->msg_off = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "hitchar" ) )
       {
          if( skill->hit_char )
-            DISPOSE( skill->hit_char );
+            STRFREE( skill->hit_char );
          if( str_cmp( argument, "clear" ) )
-            skill->hit_char = str_dup( argument );
+            skill->hit_char = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "hitvict" ) )
       {
          if( skill->hit_vict )
-            DISPOSE( skill->hit_vict );
+            STRFREE( skill->hit_vict );
          if( str_cmp( argument, "clear" ) )
-            skill->hit_vict = str_dup( argument );
+            skill->hit_vict = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "hitroom" ) )
       {
          if( skill->hit_room )
-            DISPOSE( skill->hit_room );
+            STRFREE( skill->hit_room );
          if( str_cmp( argument, "clear" ) )
-            skill->hit_room = str_dup( argument );
+            skill->hit_room = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "misschar" ) )
       {
          if( skill->miss_char )
-            DISPOSE( skill->miss_char );
+            STRFREE( skill->miss_char );
          if( str_cmp( argument, "clear" ) )
-            skill->miss_char = str_dup( argument );
+            skill->miss_char = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "missvict" ) )
       {
          if( skill->miss_vict )
-            DISPOSE( skill->miss_vict );
+            STRFREE( skill->miss_vict );
          if( str_cmp( argument, "clear" ) )
-            skill->miss_vict = str_dup( argument );
+            skill->miss_vict = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "missroom" ) )
       {
          if( skill->miss_room )
-            DISPOSE( skill->miss_room );
+            STRFREE( skill->miss_room );
          if( str_cmp( argument, "clear" ) )
-            skill->miss_room = str_dup( argument );
+            skill->miss_room = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "diechar" ) )
       {
          if( skill->die_char )
-            DISPOSE( skill->die_char );
+            STRFREE( skill->die_char );
          if( str_cmp( argument, "clear" ) )
-            skill->die_char = str_dup( argument );
+            skill->die_char = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "dievict" ) )
       {
          if( skill->die_vict )
-            DISPOSE( skill->die_vict );
+            STRFREE( skill->die_vict );
          if( str_cmp( argument, "clear" ) )
-            skill->die_vict = str_dup( argument );
+            skill->die_vict = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "dieroom" ) )
       {
          if( skill->die_room )
-            DISPOSE( skill->die_room );
+            STRFREE( skill->die_room );
          if( str_cmp( argument, "clear" ) )
-            skill->die_room = str_dup( argument );
+            skill->die_room = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "immchar" ) )
       {
          if( skill->imm_char )
-            DISPOSE( skill->imm_char );
+            STRFREE( skill->imm_char );
          if( str_cmp( argument, "clear" ) )
-            skill->imm_char = str_dup( argument );
+            skill->imm_char = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "immvict" ) )
       {
          if( skill->imm_vict )
-            DISPOSE( skill->imm_vict );
+            STRFREE( skill->imm_vict );
          if( str_cmp( argument, "clear" ) )
-            skill->imm_vict = str_dup( argument );
+            skill->imm_vict = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "immroom" ) )
       {
          if( skill->imm_room )
-            DISPOSE( skill->imm_room );
+            STRFREE( skill->imm_room );
          if( str_cmp( argument, "clear" ) )
-            skill->imm_room = str_dup( argument );
+            skill->imm_room = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "dice" ) )
       {
          if( skill->dice )
-            DISPOSE( skill->dice );
+            STRFREE( skill->dice );
          if( str_cmp( argument, "clear" ) )
-            skill->dice = str_dup( argument );
+            skill->dice = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "components" ) )
       {
          if( skill->components )
-            DISPOSE( skill->components );
+            STRFREE( skill->components );
          if( str_cmp( argument, "clear" ) )
-            skill->components = str_dup( argument );
+            skill->components = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }
       if( !str_cmp( arg2, "teachers" ) )
       {
          if( skill->teachers )
-            DISPOSE( skill->teachers );
+            STRFREE( skill->teachers );
          if( str_cmp( argument, "clear" ) )
-            skill->teachers = str_dup( argument );
+            skill->teachers = STRALLOC( argument );
          send_to_char( "Ok.\r\n", ch );
          return;
       }

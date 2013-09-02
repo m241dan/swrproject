@@ -411,14 +411,14 @@ struct available_quest
 {
    AV_QUEST *next;
    AV_QUEST *prev;
-   QUEST_DATA *quest;
+   int quest;
 };
 
 struct pre_quest
 {
    PRE_QUEST *next;
    PRE_QUEST *prev;
-   QUEST_DATA *quest;
+   int quest;
 };
 
 
@@ -5187,6 +5187,7 @@ int get_used_pools( OBJ_DATA *obj );
 MOB_ATTACK *copy_mob_attack( MOB_ATTACK *attack );
 void add_mob_attack( CHAR_DATA *ch, MOB_ATTACK *attack );
 void free_attack( MOB_ATTACK *attack );
+const char *get_quest_name_from_id( int id );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

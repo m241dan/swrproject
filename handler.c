@@ -5209,6 +5209,7 @@ QUEST_DATA *get_quest_from_name( const char *argument )
 
 AV_QUEST *get_available_quest_from_list( CHAR_DATA *player, CHAR_DATA *ch, int list )
 {
+   QUEST_DATA *quest;
    AV_QUEST *av_quest;
    int x = 0;
 
@@ -5216,9 +5217,13 @@ AV_QUEST *get_available_quest_from_list( CHAR_DATA *player, CHAR_DATA *ch, int l
       return NULL;
 
    for( av_quest = ch->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
-      if( can_list_quest( player, av_quest->quest ) )
+   {
+      if( ( quest = get_quest_from_id( av_quest->quest ) ) == NULL )
+         continue;
+      if( can_list_quest( player, quest ) )
          if( list == x++ )
             return av_quest;
+   }
    return NULL;
 }
 
@@ -5239,6 +5244,7 @@ AV_QUEST *get_available_quest_from_list( CHAR_DATA *player, CHAR_DATA *ch, const
 
 AV_QUEST *get_available_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 {
+   QUEST_DATA *comp_quest;
    AV_QUEST *av_quest;
 
    if( !IS_NPC( ch ) )
@@ -5248,8 +5254,12 @@ AV_QUEST *get_available_quest( CHAR_DATA *ch, QUEST_DATA *quest )
    }
 
    for( av_quest = ch->pIndexData->first_available_quest; av_quest; av_quest = av_quest->next )
-      if( av_quest->quest == quest )
+   {
+      if( ( comp_quest = get_quest_from_id( av_quest->quest ) ) == NULL )
+         continue;
+      if( comp_quest == quest )
          return av_quest;
+   }
    return NULL;
 }
 
@@ -5276,7 +5286,6 @@ bool has_quest_completed( CHAR_DATA *ch, QUEST_DATA *quest )
 
 void free_prequest( PRE_QUEST *pquest )
 {
-   pquest->quest = NULL;
    DISPOSE( pquest );
    return;
 }
@@ -5306,7 +5315,6 @@ void free_pquest( PLAYER_QUEST *pquest )
 
 void free_avquest( AV_QUEST *av_quest )
 {
-   av_quest->quest = NULL;
    DISPOSE( av_quest );
    return;
 }
@@ -5628,6 +5636,7 @@ int get_temper_count( OBJ_DATA *obj )
 
 bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 {
+   QUEST_DATA *comp_quest;
    PLAYER_QUEST *pquest;
    PRE_QUEST *pre_quest;
 
@@ -5638,22 +5647,37 @@ bool can_accept_quest( CHAR_DATA *ch, QUEST_DATA *quest )
       return FALSE;
 
    for( pre_quest = quest->first_prequest; pre_quest; pre_quest = pre_quest->next )
-      if( !has_quest_completed( ch, pre_quest->quest ) )
+   {
+      if( ( comp_quest = get_quest_from_id( pre_quest->quest ) ) == NULL )
+         continue;
+      if( !has_quest_completed( ch, comp_quest ) )
          return FALSE;
+   }
 
    return TRUE;
 }
 
 bool can_list_quest( CHAR_DATA *ch, QUEST_DATA *quest )
 {
+   QUEST_DATA *comp_quest;
    PRE_QUEST *pre_quest;
+
+   if( !quest )
+   {
+      bug( "%s: passed a NULL.", __FUNCTION__ );
+      return FALSE;
+   }
 
    if( ch->skill_level[COMBAT_ABILITY] < quest->level_req )
       return FALSE;
 
    for( pre_quest = quest->first_prequest; pre_quest; pre_quest = pre_quest->next )
-      if( !has_quest_completed( ch, pre_quest->quest ) )
+   {
+      if( ( comp_quest = get_quest_from_id( pre_quest->quest ) ) == NULL )
+         continue;
+      if( !has_quest_completed( ch, comp_quest ) )
          return FALSE;
+   }
 
    return TRUE;
 
@@ -5677,4 +5701,17 @@ void free_attack( MOB_ATTACK *attack )
 {
    xCLEAR_BITS( attack->damtype );
    DISPOSE( attack );
+}
+
+const char *get_quest_name_from_id( int id )
+{
+   QUEST_DATA *quest;
+
+   if( ( quest = get_quest_from_id( id ) ) == NULL )
+   {
+      bug( "%s: bad ID given", __FUNCTION__ );
+      return "no quest";
+   }
+
+   return quest->name;
 }

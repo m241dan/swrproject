@@ -6266,7 +6266,7 @@ void fwrite_fuss_mobile( FILE * fpout, MOB_INDEX_DATA * pMobIndex, bool install 
       fprintf( fpout, "TeachData  %d %d\n", teach->disc_id, teach->credits );
 
    for( available_quest = pMobIndex->first_available_quest; available_quest; available_quest = available_quest->next )
-      fprintf( fpout, "AvailableQuest   %d\n", available_quest->quest->id );
+      fprintf( fpout, "AvailableQuest   %d\n", available_quest->quest );
 
    if( pMobIndex->mudprogs )
    {
@@ -9612,7 +9612,8 @@ void fwrite_quest( FILE *fp, QUEST_DATA *quest )
    fprintf( fp, "LevelReq     %d\n", quest->level_req );
    fprintf( fp, "Type         %d\n", quest->type );
    for( prequest = quest->first_prequest; prequest; prequest = prequest->next )
-      fprintf( fp, "Prequest     %d\n", prequest->quest->id );
+      if( prequest->quest )
+         fprintf( fp, "Prequest     %d\n", prequest->quest );
    fprintf( fp, "End\n" );
    return;
 }
@@ -9883,7 +9884,7 @@ void add_prequest( CHAR_DATA *ch, QUEST_DATA *quest, const char *argument )
    }
 
    CREATE( pquest, PRE_QUEST, 1 );
-   pquest->quest = pre_quest_data;
+   pquest->quest = pre_quest_data->id;
    LINK( pquest, quest->first_prequest, quest->last_prequest, next, prev );
    ch_printf( ch, "Prequest '%s' added to quest %s.\r\n", pre_quest_data->name, quest->name );
    return;
@@ -9971,7 +9972,7 @@ void accept_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       return;
    }
    else
-      quest = av_quest->quest;
+      quest = get_quest_from_id( av_quest->quest );
 
    if( ch->skill_level[COMBAT_ABILITY] < quest->level_req )
    {
@@ -10028,7 +10029,7 @@ AV_QUEST *create_available_quest( CHAR_DATA *ch, CHAR_DATA *victim, QUEST_DATA *
    }
 
    CREATE( av_quest, AV_QUEST, 1 );
-   av_quest->quest = quest;
+   av_quest->quest = quest->id;
    LINK( av_quest, victim->pIndexData->first_available_quest, victim->pIndexData->last_available_quest, next, prev );
    return av_quest;
 }
@@ -10045,7 +10046,7 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       return;
    }
    else
-      quest = av_quest->quest;
+      quest = get_quest_from_id( av_quest->quest );
 
    ch_printf( ch, "Name: %s\r\nLevel Required: %d\r\nType: %s\r\n", quest->name, quest->level_req, quest_types[quest->type] );
    if( quest->first_prequest )
@@ -10053,7 +10054,7 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
       send_to_char( "PreQuests:", ch );
       for( prequest = quest->first_prequest; prequest; prequest = prequest->next )
          if( prequest->quest )
-            ch_printf( ch, " %15.15s,", prequest->quest->name );
+            ch_printf( ch, " %15.15s,", get_quest_name_from_id( prequest->quest ) );
       send_to_char( "\r\n", ch );
    }
    ch_printf( ch, "Description: %s\r\n", quest->description );
@@ -10062,6 +10063,7 @@ void show_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
 
 void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
 {
+   QUEST_DATA *quest;
    AV_QUEST *av_quest, *av_quest_next;
    int x = 0;
 
@@ -10070,20 +10072,22 @@ void list_mob_quest( CHAR_DATA *ch, CHAR_DATA *victim )
    for( av_quest = victim->pIndexData->first_available_quest; av_quest; av_quest = av_quest_next )
    {
       av_quest_next = av_quest->next;
-      if( !av_quest->quest )
+
+      if( ( quest = get_quest_from_id( av_quest->quest ) ) == NULL )
       {
          UNLINK( av_quest, victim->pIndexData->first_available_quest, victim->pIndexData->last_available_quest, next, prev );
          free_avquest( av_quest );
          bug( "%s: something real fucked up. Removing one of Mob %d's av_quest", __FUNCTION__, victim->pIndexData->vnum );
          continue;
       }
-      if( can_list_quest( ch, av_quest->quest ) )
+
+      if( can_list_quest( ch, quest ) )
          ch_printf( ch, "Quest %d: %-15.15s Level: %-3d Type: %-10.10s Status: %s\r\n",
                     x++,
-                    av_quest->quest->name,
-                    av_quest->quest->level_req,
-                    quest_types[av_quest->quest->type],
-                    get_status( ch, av_quest->quest ) );
+                    quest->name,
+                    quest->level_req,
+                    quest_types[quest->type],
+                    get_status( ch, quest ) );
    }
    return;
 }

@@ -1409,7 +1409,7 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
             bug( "%s: found NPC(vnum #%d) with available quest but quest_data is NULL.", __FUNCTION__, victim->pIndexData->vnum );
             continue;
          }
-         ch_printf( ch, "Quest %-4d : %s\r\n", quest->quest->id, quest->quest->name );
+         ch_printf( ch, "Quest %-4d : %s\r\n", quest->quest, get_quest_name_from_id( quest->quest ) );
       }
    }
 
