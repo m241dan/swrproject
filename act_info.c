@@ -514,7 +514,7 @@ void show_char_to_char_0( CHAR_DATA * victim, CHAR_DATA * ch )
    if( victim->desc && victim->desc->connected == CON_EDITING )
       strcat( buf, "(Writing) " );
    if( IS_NPC( victim ) && victim->pIndexData->first_teach )
-      strcat( buf, "(Teacher)&w " );
+      strcat( buf, "&z(&pTeacher&z)&w " );
    if( IS_NPC( victim ) && victim->pIndexData->first_available_quest )
       strcat( buf, "&z(&RQuest&z)&w " );
    if( IS_NPC( victim ) && IS_SET( victim->act, ACT_NOTORIOUS ) )
