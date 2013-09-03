@@ -269,17 +269,19 @@ void do_skill( CHAR_DATA *ch, const char *argument )
    SKILLTYPE *skill;
    char arg[MAX_INPUT_LENGTH];
 
-   skill = ch->casting_skill;
+   if( ( skill = ch->casting_skill ) == NULL )
+   {
+      send_to_char( "Contact your nearest Imm.\r\n", ch );
+      bug( "%s: holy fucking bug batman... player %s", __FUNCTION__, ch->name );
+      return;
+   }
    argument = one_argument( argument, arg );
 
    switch( ch->substate )
    {
       default:
-         if( ( skill->target != TAR_IGNORE && skill->target != TAR_CHAR_SELF ) && ( victim = get_char_room( ch, arg ) ) == NULL )
-         {
-            send_to_char( "That person is not here.\r\n", ch );
-            return;
-         }
+
+         victim = get_char_room( ch, arg );
 
          switch( skill->target )
          {
@@ -294,6 +296,13 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                }
                break;
             case TAR_CHAR_OFFENSIVE:
+               if( !victim && ch->fighting->who )
+                  victim = ch->fighting->who;
+               else if( !victim )
+               {
+                  ch_printf( ch, "%s on who?\r\n", skill->name );
+                  return;
+               }
                if( is_same_group( ch, victim ) )
                {
                   send_to_char( "You can't cast that on someone who is grouped with you.\r\n", ch );
@@ -302,9 +311,15 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                if( victim == ch )
                {
                   send_to_char( "You can't attack yourself!!!\r\n", ch );
+                  return;
                }
                break;
             case TAR_CHAR_DEFENSIVE:
+               if( !victim )
+               {
+                  ch_printf( ch, "%s on who?\r\n", skill->name );
+                  return;
+               }
                if( !is_same_group( ch, victim ) )
                {
                   send_to_char( "You can only cast this on someone who is grouped with you.\r\n", ch );
