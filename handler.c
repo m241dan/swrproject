@@ -1419,7 +1419,7 @@ void unequip_char( CHAR_DATA * ch, OBJ_DATA * obj )
    if( IS_SET( obj->extra_flags, ITEM_MAGIC ) )
       ch->carry_weight += get_obj_weight( obj );
 
-   ch->evasion += apply_evasion( obj, obj->wear_loc );
+   ch->evasion -= apply_evasion( obj, obj->wear_loc );
    obj->wear_loc = -1;
 
    for( paf = obj->pIndexData->first_affect; paf; paf = paf->next )
