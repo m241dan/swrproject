@@ -417,7 +417,7 @@ int can_carry_w( CHAR_DATA * ch )
    if( IS_NPC( ch ) && IS_SET( ch->act, ACT_PET ) )
       return 0;
 
-   return str_app[get_curr_str( ch )].carry;
+   return 999;
 }
 
 /*
