@@ -190,29 +190,18 @@ void do_score( CHAR_DATA * ch, const char *argument )
          else
             skname = paf->from;
 
-         if( ch->top_level < 20 )
-         {
-            ch_printf( ch, "&r[&W%-34.34s&r]    ", skname );
-            if( i == 0 )
-               i = 1;
-            if( ( ++i % 3 ) == 0 )
-               send_to_char( "\r\n", ch );
-         }
+         if( paf->modifier == 0 )
+            ch_printf( ch, "&r[&W%-24.24s&r;&W%5d &zrds&r]    ", skname, (int)paf->duration );
+         else if( paf->modifier > 999 )
+            ch_printf( ch, "&r[&W%-15.15s&r; &W%7.7s&r;&W%5d &zrds&r]    ",
+                       skname, tiny_affect_loc_name( paf->location ), (int)paf->duration );
          else
-         {
-            if( paf->modifier == 0 )
-               ch_printf( ch, "&r[&W%-24.24s&r;&W%5d &zrds&r]    ", skname, (int)paf->duration );
-            else if( paf->modifier > 999 )
-               ch_printf( ch, "&r[&W%-15.15s&r; &W%7.7s&r;&W%5d &zrds&r]    ",
-                          skname, tiny_affect_loc_name( paf->location ), (int)paf->duration );
-            else
-               ch_printf( ch, "&r[&W%-11.11s&r;&W%+-3.3d %7.7s&r;%5d &zrds&r]    ",
-                          skname, paf->modifier, tiny_affect_loc_name( paf->location ), (int)paf->duration );
-            if( i == 0 )
-               i = 1;
-            if( ( ++i % 2 ) == 0 )
-               send_to_char( "\r\n", ch );
-         }
+            ch_printf( ch, "&r[&W%-11.11s&r;&W%+-3.3d %7.7s&r;%5d &zrds&r]    ",
+                       skname, paf->modifier, tiny_affect_loc_name( paf->location ), (int)paf->duration );
+         if( i == 0 )
+            i = 1;
+         if( ( ++i % 2 ) == 0 )
+            send_to_char( "\r\n", ch );
       }
    }
    send_to_char( "\r\n&w", ch );

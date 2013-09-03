@@ -416,7 +416,15 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
+      char buf[MAX_INPUT_LENGTH];
       caf = copy_affect( saf );
+      if( victim == ch )
+         caf->from = STRALLOC( skill->name );
+      else
+      {
+         sprintf( buf, "%s's %s", ch->name, skill->name );
+         caf->from = STRALLOC( buf );
+      }
       caf->affect_type = AFFECT_BUFF;
       switch( caf->apply_type )
       {
@@ -470,7 +478,16 @@ void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
+      char buf[MAX_INPUT_LENGTH];
+
       caf = copy_affect( saf );
+      if( victim == ch )
+         caf->from = STRALLOC( skill->name );
+      else
+      {
+         sprintf( buf, "%s's %s", ch->name, skill->name );
+         caf->from = STRALLOC( buf );
+      }
       switch( caf->apply_type )
       {
          case APPLY_JOIN_TARGET:
@@ -502,7 +519,15 @@ void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
+      char buf[MAX_INPUT_LENGTH];
       caf = copy_affect( saf );
+      if( victim == ch )
+         caf->from = STRALLOC( skill->name );
+      else
+      {
+         sprintf( buf, "%s's %s", ch->name, skill->name );
+         caf->from = STRALLOC( buf );
+      }
       caf->duration = charge_boost( skill, (int)caf->duration );
       if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
          caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
@@ -542,7 +567,16 @@ void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 
    for( saf = skill->first_affect; saf; saf = saf->next )
    {
+      char buf[MAX_INPUT_LENGTH];
+
       caf = copy_affect( saf );
+      if( victim == ch )
+         caf->from = STRALLOC( skill->name );
+      else
+      {
+         sprintf( buf, "%s's %s", ch->name, skill->name );
+         caf->from = STRALLOC( buf );
+      }
       caf->duration = charge_boost( skill, (int)caf->duration );
       caf->affect_type = AFFECT_ENFEEBLE;
       if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
@@ -4231,7 +4265,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
                send_to_char( "\r\n", ch );
             }
             else
-               ch_printf( ch, " Modifier: %d\r\n", factor->modifier );
+               ch_printf( ch, " Modifier: %d\r\n", (int)factor->modifier );
          }
          else if( factor->factor_type == STAT_FACTOR )
          {
@@ -5003,10 +5037,11 @@ void factor_to_skill( CHAR_DATA *ch, SKILLTYPE *skill, FACTOR_DATA *factor, bool
          if( Add )
          {
             CREATE( affect, AFFECT_DATA, 1 );
-            affect->type = get_player_skill_sn( ch, skill->name );
+            affect->type = -1;
             affect->duration = factor->duration;
             affect->location = factor->location;
-            affect->modifier = (int)factor->modifier;
+            if( affect->location != APPLY_AFFECT );
+               affect->modifier = (int)factor->modifier;
             xCLEAR_BITS( affect->bitvector );
             xSET_BITS( affect->bitvector, factor->affect );
             affect->factor_id = factor->id;
