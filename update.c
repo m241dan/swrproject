@@ -2808,14 +2808,14 @@ void split_timers_update(  )
                         else if( paf->from && paf->from[0] != '\0' )
                            ch_printf( ch, "%s wears off.\r\n", paf->from );
                      }
-                     if( paf->type == gsn_possess )
+/*                     if( paf->type == gsn_possess )
                      {
                         ch->desc->character = ch->desc->original;
                         ch->desc->original = NULL;
                         ch->desc->character->desc = ch->desc;
                         ch->desc->character->switched = NULL;
                         ch->desc = NULL;
-                     }
+                     }*/
                      affect_remove( ch, paf );
                   }
                }
