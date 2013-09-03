@@ -1294,21 +1294,21 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          char modifier[MAX_INPUT_LENGTH];
          char duration[MAX_INPUT_LENGTH];
          char bitvector[MAX_INPUT_LENGTH];
-         char aff_type[MAX_INPUT_LENGTH];
+         char app_type[MAX_INPUT_LENGTH];
          int loc, tmpbit, type;
          EXT_BV bit;
          AFFECT_DATA *aff;
 
          if( !argument || argument[0] == '\0' )
          {
-            send_to_char( "Proper usage: sset <sn> affect <location> <modifier> <duration> <affect_type> <aff_flags>\r\n", ch );
+            send_to_char( "Proper usage: sset <sn> affect <location> <modifier> <duration> <apply_type> <aff_flags>\r\n", ch );
             return;
          }
 
          argument = one_argument( argument, location );
          argument = one_argument( argument, modifier );
          argument = one_argument( argument, duration );
-         argument = one_argument( argument, aff_type );
+         argument = one_argument( argument, app_type );
 
          if( location[0] == '!' )
             loc = get_atype( location + 1 ) + REVERSE_APPLY;
@@ -1319,9 +1319,9 @@ void do_sset( CHAR_DATA * ch, const char *argument )
             ch_printf( ch, "Improper Location: %s\r\nUse: %s\r\n", location, array_to_string( a_types, MAX_APPLY_TYPE ) );
             return;
          }
-         if( ( type = get_apply_type( aff_type ) ) == -1 )
+         if( ( type = get_apply_type( app_type ) ) == -1 )
          {
-            ch_printf( ch, "Improper Affect Type: %s \r\nUse: %s\r\n", aff_type, array_to_string( applytypes_type , MAX_APPLYTYPE ) );
+            ch_printf( ch, "Improper Affect Type: %s \r\nUse: %s\r\n", app_type, array_to_string( applytypes_type , MAX_APPLYTYPE ) );
             return;
          }
          xCLEAR_BITS( bit );
@@ -1337,6 +1337,7 @@ void do_sset( CHAR_DATA * ch, const char *argument )
          aff->modifier = atoi( modifier );
          aff->duration = atof( duration );
          aff->location = loc;
+         aff->apply_type = type;
          xSET_BITS( aff->bitvector, bit );
          LINK( aff, skill->first_affect, skill->last_affect, next, prev );
          send_to_char( "Ok.\r\n", ch );

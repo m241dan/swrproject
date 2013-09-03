@@ -4849,6 +4849,14 @@ void set_on_cooldown( CHAR_DATA *ch, SKILLTYPE *skill )
    CD_DATA *cdat;
    double cooldown;
 
+   int sn;
+
+   if( ( sn = skill_lookup( skill->name ) ) == -1 )
+   {
+      bug( "%s: getting bad skill", __FUNCTION__ );
+      return;
+   }
+
    if( IS_NPC( ch ) )
       cooldown = get_skill_cooldown( ch, skill_lookup( skill->name ) );
    else
