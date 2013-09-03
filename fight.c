@@ -240,6 +240,36 @@ void violence_update( void )
          do_shout( ch, "Thoric says, 'Prepare for the worst!'" );
       }
 
+      if( ch->hit < ch->max_hit )
+      {
+         switch( ch->position )
+         {
+            default:
+               break;
+            case POS_STANDING:
+               ch->hit++;
+               break;
+            case POS_RESTING:
+            case POS_SITTING:
+            case POS_SLEEPING:
+               ch->hit += 5;
+               break;
+         }
+      }
+      if( ch->move < ch->max_move )
+      {
+         switch( ch->position )
+         {
+            default:
+               break;
+            case POS_RESTING:
+            case POS_SITTING:
+            case POS_SLEEPING:
+               ch->move++;
+               break;
+         }
+      }
+
       /*
        * See if we got a pointer to someone who recently died...
        * if so, either the pointer is bad... or it's a player who
