@@ -289,6 +289,7 @@ void interpret( CHAR_DATA * ch, const char *argument )
       {
          ch->substate = tempsub;
          extract_timer( ch, timer );
+         bug( "%s: here. command: %s", __FUNCTION__, command );
       }
       else
       {

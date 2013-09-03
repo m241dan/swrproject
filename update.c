@@ -2846,9 +2846,13 @@ void split_timers_update(  )
                            break;
                         ch->substate = tempsub;
                         extract_timer( ch, ptimer );
+                        bug( "%s: here 1", __FUNCTION__ );
                      }
                      else
+                     {
                         extract_timer( ch, ptimer );
+                        bug( "%s: here 2", __FUNCTION__ );
+                     }
                   }
                }
             }

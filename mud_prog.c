@@ -85,6 +85,7 @@ void uphold_supermob( int *curr_serial, int serial, ROOM_INDEX_DATA **supermob_r
 #define FOUNDENDIF   7
 #define IFIGNORED    8
 #define ORIGNORED    9
+#define BRACKET      10
 
 /* Ifstate defines, used to create and access ifstate array
    in mprog_driver. */
@@ -1458,6 +1459,16 @@ void mprog_driver( const char *com_list, CHAR_DATA * mob, CHAR_DATA * actor, OBJ
        */
       switch ( result )
       {
+         case BRACKET:
+#ifdef DEBUG
+            log_string( "BRACKET" );
+#endif
+            /*
+             * support for brackets that won't be sent to mob as a command -Davenge
+             */
+            continue;
+            break;
+           
          case COMMANDOK:
 #ifdef DEBUG
             log_string( "COMMANDOK" );
@@ -1676,6 +1687,9 @@ int mprog_do_command( const char *cmnd, CHAR_DATA * mob, CHAR_DATA * actor,
     * we want to do. 
     */
    ifcheck = one_argument( cmnd, firstword );
+
+   if( !str_cmp( firstword, "{" ) || !str_cmp( firstword, "}" ) )
+      return BRACKET;
 
    if( !str_cmp( firstword, "if" ) )
    {
