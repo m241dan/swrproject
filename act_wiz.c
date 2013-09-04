@@ -1439,7 +1439,7 @@ void do_mstat( CHAR_DATA * ch, const char *argument )
                     "%s: '%s' modifies %s by %d for %d rounds with bits %s.\r\n",
                     skill_tname[skill->type],
                     skill->name,
-                    a_types_pretty[paf->location], paf->modifier, paf->duration, ext_flag_string( &paf->bitvector, a_flags ) );
+                    a_types_pretty[paf->location], paf->modifier, (int)paf->duration, xIS_EMPTY( paf->bitvector) ? "none" : ext_flag_string( &paf->bitvector, a_flags ) );
       }
    }
    return;
