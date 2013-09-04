@@ -160,8 +160,6 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
 {
    SKILLTYPE *skill;
    int sn;
-   int first = 1;
-   int top = gsn_first_tongue - 1;
    struct timeval time_used;
    int mana, move, hit;
 
@@ -170,21 +168,8 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
     */
    if( IS_NPC( ch ) )
    {
-
-      for( ;; )
-      {
-         sn = ( first + top ) >> 1;
-         if( LOWER( command[0] ) == LOWER( skill_table[sn]->name[0] )
-             && !str_prefix( command, skill_table[sn]->name )
-             && ( IS_NPC( ch ) || ( ch->pcdata->learned[sn] > 0 ) ) )
-            break;
-         if( first >= top )
-            return FALSE;
-         if( strcasecmp( command, skill_table[sn]->name ) < 1 )
-            top = sn - 1;
-         else
-            first = sn + 1;
-      }
+      if( ( sn = skill_lookup( command ) ) == -1 )
+         return FALSE;
    }
    else
    {
@@ -192,7 +177,7 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
       {
          if( ch->pc_skills[sn] == NULL )
             continue;
-         if( !str_cmp( command, ch->pc_skills[sn]->name ) )
+         if( !str_cmp( command, ch->pc_skills[sn]->name ) || !str_prefix( command, ch->pc_skills[sn]->name ) )
             break;
       }
       if( sn == MAX_PC_SKILL )
@@ -469,26 +454,12 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
    AFFECT_DATA *saf, *caf;
+   int sn;
 
    if( IS_NPC( ch ) )
    {
-      int sn;
-      int first = 1;
-      int top = gsn_first_tongue - 1;
-      for( ;; )
-      {
-         sn = ( first + top ) >> 1;
-
-         if( LOWER( skill->name[0] ) == LOWER( skill_table[sn]->name[0] )
-             && !str_prefix( skill->name, skill_table[sn]->name ) )
-            break;
-         if( first >= top )
-            return;
-         if( strcasecmp( skill->name, skill_table[sn]->name ) < 1 )
-            top = sn - 1;
-         else
-            first = sn + 1;
-      }
+      if( ( sn = skill_lookup( skill->name ) ) == -1 )
+         return;
       multi_hit( ch, victim, sn );
    }
    else
