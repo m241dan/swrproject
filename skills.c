@@ -296,7 +296,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                }
                break;
             case TAR_CHAR_OFFENSIVE:
-               if( !victim && ch->fighting->who )
+               if( !victim && ch->fighting->who && arg[0] == '\0' )
                   victim = ch->fighting->who;
                else if( !victim )
                {
@@ -315,11 +315,14 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                }
                break;
             case TAR_CHAR_DEFENSIVE:
-               if( !victim )
+               if( !victim && arg[0] != '\0' )
                {
                   ch_printf( ch, "%s on who?\r\n", skill->name );
                   return;
                }
+               else if( arg[0] == '\0' )
+                  victim = ch;
+
                if( !is_same_group( ch, victim ) )
                {
                   send_to_char( "You can only cast this on someone who is grouped with you.\r\n", ch );
