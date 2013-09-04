@@ -5732,7 +5732,7 @@ void execute_skill_affects( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill )
          caf->from = STRALLOC( skill->name );
       else
       {
-         sprintf( buf, "%s's %s", ch->name, skill->name );
+         sprintf( buf, "%s's %s", IS_NPC( ch ) ? ch->short_descr : ch->name,  skill->name );
          caf->from = STRALLOC( buf );
       }
 
