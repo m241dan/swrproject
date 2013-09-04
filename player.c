@@ -721,7 +721,7 @@ void do_equipment( CHAR_DATA * ch, const char *argument )
                      break;
 
                   case ITEM_BACTA:
-                     ch_printf( ch, "%d", obj->value[0] );
+                     ch_printf( ch, " %d", obj->value[0] );
                      break;
 
                   case ITEM_ARMOR:
