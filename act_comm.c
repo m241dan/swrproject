@@ -2113,6 +2113,8 @@ void do_gtell( CHAR_DATA * ch, const char *argument )
  */
 bool is_same_group( CHAR_DATA * ach, CHAR_DATA * bch )
 {
+   if( ach == bch )
+      return TRUE;
    if( ach->in_group == bch->in_group && ach->in_group != NULL && bch->in_group != NULL )
       return TRUE;
    return FALSE;
