@@ -720,6 +720,10 @@ void do_equipment( CHAR_DATA * ch, const char *argument )
                   default:
                      break;
 
+                  case ITEM_BACTA:
+                     ch_printf( ch, "%d", obj->value[0] );
+                     break;
+
                   case ITEM_ARMOR:
                      if( obj->value[1] == 0 )
                         obj->value[1] = obj->value[0];
