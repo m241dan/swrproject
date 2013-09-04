@@ -309,7 +309,7 @@ void start_editing_nolimit( CHAR_DATA *ch, char *old_text, int max_total )
 	if ( ch->substate == SUB_RESTRICTED )
 	   bug( "NOT GOOD: start_editing: ch->substate == SUB_RESTRICTED", 0 );
 
-	set_char_color( AT_GREEN, ch );
+	set_char_color( AT_GREY, ch );
 	send_to_char( "Begin entering your text now (/? = help /s = save /c = clear /l = list)\n\r", ch );
 	send_to_char( "-----------------------------------------------------------------------\n\r", ch );
 	if ( ch->editor )

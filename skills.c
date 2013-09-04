@@ -394,7 +394,6 @@ void do_skill( CHAR_DATA *ch, const char *argument )
 
 void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   AFFECT_DATA *saf, *caf;
    STAT_BOOST *stat_boost;
    int amount;
 
@@ -417,34 +416,7 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    if( skill->type == SKILL_SKILL )
       amount = use_bacta( ch, amount );
 
-   for( saf = skill->first_affect; saf; saf = saf->next )
-   {
-      char buf[MAX_INPUT_LENGTH];
-      caf = copy_affect( saf );
-      if( victim == ch )
-         caf->from = STRALLOC( skill->name );
-      else
-      {
-         sprintf( buf, "%s's %s", ch->name, skill->name );
-         caf->from = STRALLOC( buf );
-      }
-      caf->affect_type = AFFECT_BUFF;
-      switch( caf->apply_type )
-      {
-         case APPLY_JOIN_TARGET:
-            affect_join( victim, caf );
-            break;
-         case APPLY_JOIN_SELF:
-            affect_join( ch, caf );
-            break;
-         case APPLY_OVERRIDE_TARGET:
-            affect_to_char( victim, caf );
-            break;
-         case APPLY_OVERRIDE_SELF:
-            affect_to_char( ch, caf );
-            break;
-      }
-   }
+   execute_skill_affects( ch, victim, skill );
 
    adjust_stat( victim, STAT_HIT, amount );
    generate_buff_threat( ch, victim, (int)( .8 * amount ) );
@@ -453,7 +425,6 @@ void heal_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 }
 void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   AFFECT_DATA *saf, *caf;
    int sn;
 
    if( IS_NPC( ch ) )
@@ -465,41 +436,7 @@ void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
    else
       multi_hit( ch, victim, get_player_skill_sn( ch, skill->name ) );
 
-   for( saf = skill->first_affect; saf; saf = saf->next )
-   {
-      char buf[MAX_INPUT_LENGTH];
-
-      caf = copy_affect( saf );
-      if( victim == ch )
-         caf->from = STRALLOC( skill->name );
-      else
-      {
-         sprintf( buf, "%s's %s", ch->name, skill->name );
-         caf->from = STRALLOC( buf );
-      }
-      switch( caf->apply_type )
-      {
-         case APPLY_JOIN_TARGET:
-            caf->modifier *= -1;
-            caf->affect_type = AFFECT_ENFEEBLE;
-            affect_join( victim, caf );
-            break;
-         case APPLY_JOIN_SELF:
-            caf->affect_type = AFFECT_BUFF;
-            affect_join( ch, caf );
-            break;
-         case APPLY_OVERRIDE_TARGET:
-            caf->modifier *= -1;
-            caf->affect_type = AFFECT_ENFEEBLE;
-            affect_to_char( victim, caf );
-            break;
-         case APPLY_OVERRIDE_SELF:
-            affect_to_char( ch, caf );
-            caf->affect_type = AFFECT_BUFF;
-            break;
-      }
-   }
-
+   execute_skill_affects( ch, victim, skill );
    return;
 }
 void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
