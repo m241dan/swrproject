@@ -183,12 +183,12 @@ void do_score( CHAR_DATA * ch, const char *argument )
          skname = paf->from;
 
          if( paf->modifier == 0 )
-            ch_printf( ch, "&r[&W%-64.64s&r;&W%5d &zrds&r]", skname, (int)paf->duration );
+            ch_printf( ch, "&r[&W%-63.64s&r;&W%5d &zrds&r]", skname, (int)paf->duration );
          else if( paf->modifier > 999 )
-            ch_printf( ch, "&r[&W%-55.55s&r; &W%7.7s&r;&W%5d &zrds&r]",
+            ch_printf( ch, "&r[&W%-54.55s&r; &W%7.7s&r;&W%5d &zrds&r]",
                        skname, tiny_affect_loc_name( paf->location ), (int)paf->duration );
          else
-            ch_printf( ch, "&r[&W%-52.52s&r;&W%+-3.3d %7.7s&r;%5d &zrds&r]",
+            ch_printf( ch, "&r[&W%-51.52s&r;&W%+-3.3d %7.7s&r;%5d &zrds&r]",
                        skname, paf->modifier, tiny_affect_loc_name( paf->location ), (int)paf->duration );
          if( i == 0 )
             i = 1;
