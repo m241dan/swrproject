@@ -1162,11 +1162,15 @@ void hotboot_recover( void )
       d->host = STRALLOC( host );
       d->port = dport;
       d->idle = idle;
+#ifdef MCCP
+      if( dcompress )
+         write_to_buffer( d, compress2_on_str_2, 0 );
+#endif
       LINK( d, first_descriptor, last_descriptor, next, prev );
       d->connected = CON_COPYOVER_RECOVER;   /* negative so close_socket will cut them off */
-      d->can_compress = dcompress;
-      if( d->can_compress )
-         compressStart( d );
+//      d->can_compress = dcompress;
+//      if( d->can_compress )
+//         compressStart( d );
 
       /*
        * Now, find the pfile 
