@@ -173,7 +173,6 @@ void do_score( CHAR_DATA * ch, const char *argument )
    if( ch->first_affect )
    {
       int i;
-      SKILLTYPE *sktmp;
       const char *skname;
 
       i = 0;
@@ -181,14 +180,7 @@ void do_score( CHAR_DATA * ch, const char *argument )
       send_to_char( "&zAFFECT DATA&r:                            ", ch );
       for( paf = ch->first_affect; paf; paf = paf->next )
       {
-         if( paf->type >= 0 && paf->type < top_sn )
-         {
-            if( ( sktmp = get_skilltype( paf->type ) ) == NULL )
-               continue;
-            skname = sktmp->name;
-         }
-         else
-            skname = paf->from;
+         skname = paf->from;
 
          if( paf->modifier == 0 )
             ch_printf( ch, "&r[&W%-24.24s&r;&W%5d &zrds&r]    ", skname, (int)paf->duration );

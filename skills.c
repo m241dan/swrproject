@@ -533,104 +533,12 @@ void damage_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 }
 void buff_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   AFFECT_DATA *saf, *caf;
-
-   for( saf = skill->first_affect; saf; saf = saf->next )
-   {
-      char buf[MAX_INPUT_LENGTH];
-      caf = copy_affect( saf );
-      if( victim == ch )
-         caf->from = STRALLOC( skill->name );
-      else
-      {
-         sprintf( buf, "%s's %s", ch->name, skill->name );
-         caf->from = STRALLOC( buf );
-      }
-      caf->duration = charge_boost( skill, (int)caf->duration );
-      if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
-         caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
-      caf->affect_type = AFFECT_BUFF;
-
-      switch( caf->apply_type )
-      {
-         case APPLY_JOIN_TARGET:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier /= 2;
-            affect_join( victim, caf );
-            break;
-         case APPLY_JOIN_SELF:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier /= 2;
-            affect_join( ch, caf );
-            break;
-         case APPLY_OVERRIDE_TARGET:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier *= 4;
-            affect_to_char( victim, caf );
-            break;
-         case APPLY_OVERRIDE_SELF:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier *= 4;
-            affect_to_char( ch, caf );
-            break;
-      }
-   }
-   generate_buff_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
-   free_affect( caf );
+   execute_skill_affects( ch, victim, skill );
    return;
 }
 void enfeeble_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )
 {
-   AFFECT_DATA *saf, *caf;
-
-   for( saf = skill->first_affect; saf; saf = saf->next )
-   {
-      char buf[MAX_INPUT_LENGTH];
-
-      caf = copy_affect( saf );
-      if( victim == ch )
-         caf->from = STRALLOC( skill->name );
-      else
-      {
-         sprintf( buf, "%s's %s", ch->name, skill->name );
-         caf->from = STRALLOC( buf );
-      }
-      caf->duration = charge_boost( skill, (int)caf->duration );
-      caf->affect_type = AFFECT_ENFEEBLE;
-      if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
-      {
-         caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
-         caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
-      }
-      caf->modifier *= -1;
-
-      if( caf->location != APPLY_AFFECT )
-      switch( saf->apply_type )
-      {
-         case APPLY_JOIN_TARGET:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier = (int)( caf->modifier * 1.5 );
-            affect_join( victim, saf );
-            break;
-         case APPLY_JOIN_SELF:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier = (int)( caf->modifier * 1.5 );
-            affect_join( ch, saf );
-            break;
-         case APPLY_OVERRIDE_TARGET:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier = (int)( caf->modifier * 3 );
-            affect_to_char( victim, saf );
-            break;
-         case APPLY_OVERRIDE_SELF:
-            if( caf->location != APPLY_AFFECT )
-               caf->modifier = (int)( caf->modifier * 3 );
-            affect_to_char( ch, saf );
-            break;
-      }
-   }
-   generate_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
-   free_affect( caf );
+   execute_skill_affects( ch, victim, skill );
    return;
 }
 void redirect_skill( CHAR_DATA *ch, SKILLTYPE *skill, CHAR_DATA *victim )

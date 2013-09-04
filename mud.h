@@ -5188,6 +5188,7 @@ MOB_ATTACK *copy_mob_attack( MOB_ATTACK *attack );
 void add_mob_attack( CHAR_DATA *ch, MOB_ATTACK *attack );
 void free_attack( MOB_ATTACK *attack );
 const char *get_quest_name_from_id( int id );
+void execute_skill_affects( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill );
 
 /* interp.c */
 bool check_pos( CHAR_DATA * ch, short position );

@@ -5715,3 +5715,107 @@ const char *get_quest_name_from_id( int id )
 
    return quest->name;
 }
+
+void execute_skill_affects( CHAR_DATA *ch, CHAR_DATA *victim, SKILLTYPE *skill )
+{
+   AFFECT_DATA *saf, *caf;
+   char buf[MAX_INPUT_LENGTH];
+
+   for( saf = skill->first_affect; saf; saf = saf->next )
+   {
+      caf = copy_affect( saf );
+
+      if( IS_NPC( ch ) )
+         caf->type = skill_lookup( skill->name );
+
+      if( victim == ch )
+         caf->from = STRALLOC( skill->name );
+      else
+      {
+         sprintf( buf, "%s's %s", ch->name, skill->name );
+         caf->from = STRALLOC( buf );
+      }
+
+      if( skill->style == STYLE_BUFF || skill->style == STYLE_ENFEEBLE )
+         caf->duration = charge_boost( skill, (int)caf->duration );
+
+      switch( skill->style )
+      {
+         default:
+            return;
+         case STYLE_BUFF:
+            if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
+               caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
+            if( caf->location != APPLY_AFFECT )
+            {
+               switch( caf->apply_type )
+               {
+                  case APPLY_JOIN_TARGET:
+                  case APPLY_JOIN_SELF:
+                     caf->modifier /= 2;
+                     break;
+                  case APPLY_OVERRIDE_TARGET:
+                  case APPLY_OVERRIDE_SELF:
+                     caf->modifier *= 4;
+                     break;
+               }
+            }
+         case STYLE_HEALING:
+            caf->affect_type = AFFECT_BUFF;
+            break;
+         case STYLE_ENFEEBLE:
+            if( caf->location != APPLY_AFFECT && !xIS_EMPTY( skill->damtype ) )
+            {
+               caf->modifier = dtype_potency( ch, caf->modifier, skill->damtype );
+               caf->modifier = res_pen( ch, victim, caf->modifier, skill->damtype );
+            }
+            if( caf->location != APPLY_AFFECT )
+            {
+               switch( caf->apply_type )
+               {
+                  case APPLY_JOIN_TARGET:
+                  case APPLY_JOIN_SELF:
+                     caf->modifier = (int)( caf->modifier * 1.5 );
+                     break;
+                  case APPLY_OVERRIDE_TARGET:
+                  case APPLY_OVERRIDE_SELF:
+                     caf->modifier *= 3;
+                     break;
+               }
+            }
+         case STYLE_DAMAGE:
+            switch( caf->apply_type )
+            {
+               case APPLY_JOIN_TARGET:
+               case APPLY_OVERRIDE_TARGET:
+                  caf->modifier *= -1;
+                  caf->affect_type = AFFECT_ENFEEBLE;
+                  break;
+               case APPLY_JOIN_SELF:
+               case APPLY_OVERRIDE_SELF:
+                  caf->affect_type = AFFECT_BUFF;
+                  break;
+            }
+            break;
+
+      }
+      switch( caf->apply_type )
+      {
+         case APPLY_JOIN_TARGET:
+            affect_join( victim, caf );
+            break;
+         case APPLY_JOIN_SELF:
+            affect_join( ch, caf );
+            break;
+         case APPLY_OVERRIDE_TARGET:
+            affect_to_char( victim, caf );
+            break;
+         case APPLY_OVERRIDE_SELF:
+            affect_to_char( ch, caf );
+            break;
+      }
+      generate_buff_threat( ch, victim, ( skill->threat * ch->skill_level[COMBAT_ABILITY] ) );
+      free_affect( caf );
+   }
+   return;
+}
