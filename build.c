@@ -4159,7 +4159,8 @@ void do_oset( CHAR_DATA * ch, const char *argument )
       paf->location = loc;
       paf->modifier = value;
       xCLEAR_BITS( paf->bitvector );
-      xSET_BITS( paf->bitvector, bitv );
+      if( loc == APPLY_AFFECT )
+         xSET_BITS( paf->bitvector, bitv );
       paf->next = NULL;
       if( IS_OBJ_STAT( obj, ITEM_PROTOTYPE ) )
       {
