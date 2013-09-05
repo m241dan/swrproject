@@ -1915,9 +1915,8 @@ void mpsleep_update()
 
           tmpMpsleep = mpsleep;
           mpsleep = mpsleep->next;
-          STRFREE(tmpMpsleep->com_list);
           UNLINK(tmpMpsleep, first_mpsleep, last_mpsleep, next, prev);
-          DISPOSE(tmpMpsleep);
+          free_mpsleep(tmpMpsleep);
           continue;
       }
       mpsleep = mpsleep->next;
@@ -1941,9 +1940,8 @@ void mpsleep_update()
 
          tmpMpsleep = mpsleep;
          mpsleep = mpsleep->next;
-         STRFREE(tmpMpsleep->com_list);
          UNLINK(tmpMpsleep, first_mpsleep, last_mpsleep, next, prev);
-         DISPOSE(tmpMpsleep);
+         free_mpsleep(tmpMpsleep);
          continue;
       }
       mpsleep = mpsleep->next;
@@ -3366,3 +3364,16 @@ void obj_act_update( void )
    }
    return;
 }
+
+void free_mpsleep( MPSLEEP_DATA *sleep )
+{
+   sleep->room = NULL;
+   STRFREE( sleep->com_list );
+   sleep->mob = NULL;
+   sleep->actor = NULL;
+   sleep->obj = NULL;
+   sleep->vo = NULL;
+   DISPOSE( sleep );
+   return;
+}
+
