@@ -5442,3 +5442,4 @@ extern MPSLEEP_DATA * first_mpwait; /* Storing sleeping mud progs */
 extern MPSLEEP_DATA * last_mpwait; /* - */
 extern MPSLEEP_DATA * current_mpwait; /* - */
 
+void free_mpsleep( MPSLEEP_DATA *sleep );
