@@ -612,7 +612,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       else
          dam = number_range( wield->value[1], wield->value[2] ) + ch->wepplus;
 
-      ch_printf( ch, "Base Weapon Roll: %d\r\n", dam );
+//      ch_printf( ch, "Base Weapon Roll: %d\r\n", dam );
 
       if( !wield )
          dam += get_curr_str( ch ) - get_curr_con( victim );
@@ -623,7 +623,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       else
          dam += get_curr_str( ch ) - get_curr_con( victim );
 
-      ch_printf( ch, "Damage After Native Stat v. Con Rolls: %d\r\n", dam );
+//      ch_printf( ch, "Damage After Native Stat v. Con Rolls: %d\r\n", dam );
 
    }
    else
@@ -639,7 +639,7 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
    if( dt < TYPE_HIT && skill->base_roll_boost > 0 )
       dam = (int)( dam * ( 1 + skill->base_roll_boost ) );
 
-   ch_printf( ch, "Damage After Base Roll Mod: %d\r\n", dam );
+//   ch_printf( ch, "Damage After Base Roll Mod: %d\r\n", dam );
 
 
 
@@ -662,42 +662,42 @@ ch_ret one_hit( CHAR_DATA * ch, CHAR_DATA * victim, int dt )
       }
    }
 
-   ch_printf( ch, "Damage after Damroll, AC and Temper: %d\r\n", dam );
+//   ch_printf( ch, "Damage after Damroll, AC and Temper: %d\r\n", dam );
 
    if( skill && skill->name && skill->name[0] != '\0' )
    {
       for( stat_boost = skill->first_statboost; stat_boost; stat_boost = stat_boost->next )
          dam += (int)( get_stat_value( ch, stat_boost->location ) * stat_boost->modifier );
-      ch_printf( ch, "Damage after Stat Boosts: %d\r\n", dam );
+//      ch_printf( ch, "Damage after Stat Boosts: %d\r\n", dam );
    }
 
    /* Handle DType Potency */
    dam = dtype_potency( ch, dam, damtype );
 
-   ch_printf( ch, "Damage after Dtype Potency: %d\r\n", dam );
+//   ch_printf( ch, "Damage after Dtype Potency: %d\r\n", dam );
 
    if( skill )
    {
       dam = (int)( dam * ( 1 + ( .25 * get_num_cost_types( skill ) ) ) );
-      ch_printf( ch, "Damage after Num_Cost_Types: %d\r\n", dam );
+//      ch_printf( ch, "Damage after Num_Cost_Types: %d\r\n", dam );
    }
 
    /* Handle Res_Pen */
    dam = res_pen( ch, victim, dam, damtype );
-   ch_printf( ch, "Damage after Res_pen: %d\r\n", dam );
+//   ch_printf( ch, "Damage after Res_pen: %d\r\n", dam );
 
    /* Charge */
    if( skill )
    {
       dam = charge_boost( skill, dam );
-      ch_printf( ch, "Damage after Charge Boost: %d\r\n", dam );
+//      ch_printf( ch, "Damage after Charge Boost: %d\r\n", dam );
    }
 
    /* Is skill an opener */
    if( skill && skill->minimum_position == POS_STANDING )
    {
       dam = (int)( dam * 1.5 );
-      ch_printf( ch, "Damage after Init Calc: %d\r\n", dam );
+//      ch_printf( ch, "Damage after Init Calc: %d\r\n", dam );
    }
 
    if( !IS_AWAKE( victim ) )
