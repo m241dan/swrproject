@@ -146,10 +146,6 @@ void fwrite_skill( FILE * fpout, SKILLTYPE * skill )
       fprintf( fpout, "Charge       %f\n", skill->charge );
    if( skill->guild != -1 )
       fprintf( fpout, "Guild        %d\n", skill->guild );
-   if( skill->skill_fun )
-      fprintf( fpout, "Code         %s\n", skill->skill_fun_name );
-   else if( skill->spell_fun )
-      fprintf( fpout, "Code         %s\n", skill->spell_fun_name );
    fprintf( fpout, "Dammsg       %s~\n", skill->noun_damage );
    if( skill->msg_off && skill->msg_off[0] != '\0' )
       fprintf( fpout, "Wearoff      %s~\n", skill->msg_off );
