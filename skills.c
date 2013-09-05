@@ -281,7 +281,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                }
                break;
             case TAR_CHAR_OFFENSIVE:
-               if( !victim && ch->fighting->who && arg && arg[0] == '\0' )
+               if( !victim && ch->fighting->who )
                   victim = ch->fighting->who;
                else if( !victim )
                {
@@ -300,7 +300,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                }
                break;
             case TAR_CHAR_DEFENSIVE:
-               if( !victim && arg && arg[0] != '\0' )
+               if( !victim )
                {
                   ch_printf( ch, "%s on who?\r\n", skill->name );
                   return;
