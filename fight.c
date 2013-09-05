@@ -1182,6 +1182,11 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
          break;
 
       case POS_DEAD:
+         if( !IS_NPC( victim ) )
+         {
+            victim->hit = -1;
+            update_pos( victim );
+         }
          if( dt >= 0 && dt < top_sn )
          {
             SKILLTYPE *skill = skill_table[dt];
@@ -1199,7 +1204,7 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
             act( AT_DEAD, "$n EXPLODES into many small pieces!", victim, 0, 0, TO_ROOM );
          else
             act( AT_DEAD, "$n is DEAD!", victim, 0, 0, TO_ROOM );
-         send_to_char( "&WYou have been KILLED!\r\n", victim );
+         send_to_char( "&WYou have been KILLED!\r\n", victim );  
          break;
 
       default:
@@ -1236,57 +1241,11 @@ ch_ret damage( CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt )
 
    if( victim->hit <= 0 && !IS_NPC( victim ) )
    {
-      OBJ_DATA *obj;
-      OBJ_DATA *obj_next;
-      int cnt = 0;
-
       REMOVE_BIT( victim->act, PLR_ATTACKER );
 
       stop_fighting( victim, TRUE );
 
-      if( ( obj = get_eq_char( victim, WEAR_DUAL_WIELD ) ) != NULL )
-         unequip_char( victim, obj );
-      if( ( obj = get_eq_char( victim, WEAR_WIELD ) ) != NULL )
-         unequip_char( victim, obj );
-      if( ( obj = get_eq_char( victim, WEAR_HOLD ) ) != NULL )
-         unequip_char( victim, obj );
-      if( ( obj = get_eq_char( victim, WEAR_MISSILE_WIELD ) ) != NULL )
-         unequip_char( victim, obj );
-      if( ( obj = get_eq_char( victim, WEAR_LIGHT ) ) != NULL )
-         unequip_char( victim, obj );
-
-      for( obj = victim->first_carrying; obj; obj = obj_next )
-      {
-         obj_next = obj->next_content;
-
-         if( obj->wear_loc == WEAR_NONE )
-         {
-            if( xIS_SET( obj->pIndexData->progtypes, DROP_PROG ) && obj->count > 1 )
-            {
-               ++cnt;
-               separate_obj( obj );
-               obj_from_char( obj );
-               if( !obj_next )
-                  obj_next = victim->first_carrying;
-            }
-            else
-            {
-               cnt += obj->count;
-               obj_from_char( obj );
-            }
-            act( AT_ACTION, "$n drops $p.", victim, obj, NULL, TO_ROOM );
-            act( AT_ACTION, "You drop $p.", victim, obj, NULL, TO_CHAR );
-            obj = obj_to_room( obj, victim->in_room );
-         }
-      }
-
-      if( IS_NPC( ch ) && !IS_NPC( victim ) )
-      {
-         long lose_exp;
-         lose_exp = UMAX( ( victim->experience[COMBAT_ABILITY] - exp_level( victim->skill_level[COMBAT_ABILITY] ) ), 0 );
-         ch_printf( victim, "You lose %ld experience.\r\n", lose_exp );
-         victim->experience[COMBAT_ABILITY] -= lose_exp;
-      }
+      /* dropping inventory and weapons code used to be here */
 
       add_timer( victim, TIMER_RECENTFIGHT, 100, NULL, 0 );
 
