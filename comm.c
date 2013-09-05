@@ -2245,8 +2245,12 @@ void nanny_read_motd( DESCRIPTOR_DATA *d, const char *argument )
 	    bug( "Nanny: cannot find racial language." );
 	  else
 	    {
+              ch->pcdata->learned[LANG_COMMON] = 100;
 	      ch->pcdata->learned[iLang] = 100;
-	      ch->speaking = race_table[ch->race].language;
+              if( ch->race != RACE_WOOKIEE )
+                 ch->speaking = LANG_COMMON;
+              else
+                 ch->speaking = LANG_WOOKIEE;
 	      if( ch->race == RACE_QUARREN && ( iLang = skill_lookup( "quarren" ) ) >= 0 )
 		{
 		  ch->pcdata->learned[iLang] = 100;
