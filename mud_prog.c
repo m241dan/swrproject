@@ -1459,26 +1459,21 @@ void mprog_driver( const char *com_list, CHAR_DATA * mob, CHAR_DATA * actor, OBJ
       one_argument( cmnd, arg );
       if (!str_prefix("mpsleep", cmnd) )
       {
-         if ( (ifstate[iflevel][IN_IF] == ifstate[iflevel][DO_IF]) &&
-              (ifstate[iflevel][IN_ELSE] == ifstate[iflevel][DO_ELSE]) )
-         {
-            CREATE(mpsleep, MPSLEEP_DATA, 1);
+         CREATE(mpsleep, MPSLEEP_DATA, 1);
 
-            /* State variables */
-            mpsleep->ignorelevel = ignorelevel;
-            mpsleep->iflevel = iflevel;
-            for (count = 0; count < MAX_IFS; count++)
+         /* State variables */
+         mpsleep->ignorelevel = ignorelevel;
+         mpsleep->iflevel = iflevel;
+         for (count = 0; count < MAX_IFS; count++)
+         {
+            for (count2 = 0; count2 < DO_ELSE; count2++)
             {
-               for (count2 = 0; count2 < DO_ELSE; count2++)
-               {
-                  mpsleep->ifstate[count][count2] =
-                  ifstate[count][count2];
-               }
+               mpsleep->ifstate[count][count2] = ifstate[count][count2];
             }
          }
 
          /* Driver arguments */
-         mpsleep->com_list = STRALLOC(command_list);
+         mpsleep->com_list = STRALLOC( command_list );    
          mpsleep->mob = mob;
          mpsleep->actor = actor;
          mpsleep->obj = obj;
