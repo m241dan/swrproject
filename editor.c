@@ -803,7 +803,7 @@ void editor_list( CHAR_DATA *ch, EDITOR_DATA *edd, char *argument )
 		to = atoi(arg1);
 	else
 		to = edd->line_count;
-
+        set_char_color( AT_DGREY, ch );
 	send_to_pager( "------------------\n\r", ch );
 	line_num = 1;
 	eline = edd->first_line;
