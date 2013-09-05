@@ -8777,6 +8777,8 @@ QUEST_DATA *fread_quest( FILE *fp )
                 CREATE( prequest, PRE_QUEST, 1 );
                 prequest->quest = fread_number( fp );
                 LINK( prequest, quest->first_prequest, quest->last_prequest, next, prev );
+                fMatch = TRUE;
+                break;
              }
              break;
           case 'T':
