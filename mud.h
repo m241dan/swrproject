@@ -4668,6 +4668,7 @@ const char *array_to_string( const char *const array[], int max );
 void show_quest_log_to_ch( CHAR_DATA *ch, CHAR_DATA *victim );
 const char *get_status_color( CHAR_DATA *ch, QUEST_DATA *quest );
 int get_colortype( const char *color );
+void show_thought_to_char( CHAR_DATA *ch, AI_THOUGHT *thought );
 
 /* clans.c */
 CL *get_clan( const char *name );

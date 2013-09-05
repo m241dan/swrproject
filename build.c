@@ -10735,7 +10735,7 @@ void do_thought( CHAR_DATA *ch, const char *argument )
       send_to_char( "Proper usage: thought create <name>\r\n", ch );
       send_to_char( "              thought edit <name> <parameter> <value>\r\n", ch );
       send_to_char( "              thought list\r\n", ch );
-      send_to_char( "Parameters: fom, minhp, maxhp, name, script\r\n", ch );
+      send_to_char( "Parameters: fom, minhp, maxhp, name, script, show\r\n", ch );
       return;
    }
 
@@ -10755,6 +10755,17 @@ void do_thought( CHAR_DATA *ch, const char *argument )
    if( !str_cmp( arg, "list" ) )
    {
       list_thoughts( ch );
+      return;
+   }
+   if( !str_cmp( arg, "show" ) )
+   {
+      argument = one_argument( argument, arg2 );
+      if( ( thought = get_thought( arg2 ) ) == NULL )
+      {
+         send_to_char( "No such thought exists.\r\n", ch );
+         return;
+      }
+      show_thought_to_char( ch, thought );
       return;
    }
    if( !str_cmp( arg, "edit" ) )
@@ -10789,6 +10800,22 @@ void do_thought( CHAR_DATA *ch, const char *argument )
    }
    do_thought( ch, "" );
    return;
+}
+
+void show_thought_to_char( CHAR_DATA *ch, AI_THOUGHT *thought )
+{
+   if( !thought )
+   {
+      bug( "%s: passed a NULL thought", __FUNCTION__ );
+      return;
+   }
+   ch_printf( ch, "%-30.30s ID: %-4d MinHP: %-3d MaxHP: %-3d FoM: %s\r\n",
+              thought->name, thought->id, thought->minhp, thought->maxhp, frames_of_mind[thought->fom] );
+   send_to_char( "------------------------------------------------------------------\r\n\r\n", ch );
+   send_to_char( thought->script, ch );
+   send_to_char( "\r\n", ch );
+   return;
+
 }
 
 void list_thoughts( CHAR_DATA *ch )
