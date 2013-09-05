@@ -5430,7 +5430,7 @@ struct mpsleep_data
  bool ifstate[MAX_IFS][DO_ELSE+1];
 
  /* mprog_driver arguments */
- char * com_list;
+ const char * com_list;
  CHAR_DATA * mob;
  CHAR_DATA * actor;
  OBJ_DATA * obj;

@@ -1478,7 +1478,7 @@ void mprog_driver( const char *com_list, CHAR_DATA * mob, CHAR_DATA * actor, OBJ
          }
 
          /* Driver arguments */
-         mpsleep->com_list = str_dup(command_list);
+         mpsleep->com_list = STRALLOC(command_list);
          mpsleep->mob = mob;
          mpsleep->actor = actor;
          mpsleep->obj = obj;
