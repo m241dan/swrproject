@@ -388,7 +388,7 @@ void gain_exp( CHAR_DATA * ch, int gain, int ability )
          ch->experience[ability] = ( exp_level( ch->skill_level[ability] + 1 ) - 1 );
          return;
       }
-      set_char_color( AT_WHITE + AT_BLINK, ch );
+      set_char_color( AT_WHITE, ch );
       ch_printf( ch, "You have now obtained %s level %d!\r\n", ability_name[ability], ++ch->skill_level[ability] );
       advance_level( ch, ability );
    }
