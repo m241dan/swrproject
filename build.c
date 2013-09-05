@@ -10809,6 +10809,7 @@ void show_thought_to_char( CHAR_DATA *ch, AI_THOUGHT *thought )
       bug( "%s: passed a NULL thought", __FUNCTION__ );
       return;
    }
+   set_char_color( AT_GREY, ch );
    ch_printf( ch, "%-30.30s ID: %-4d MinHP: %-3d MaxHP: %-3d FoM: %s\r\n",
               thought->name, thought->id, thought->minhp, thought->maxhp, frames_of_mind[thought->fom] );
    send_to_char( "------------------------------------------------------------------\r\n\r\n", ch );

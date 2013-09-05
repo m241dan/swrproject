@@ -3996,6 +3996,7 @@ void do_skillcraft( CHAR_DATA *ch, const char *argument )
       skill->name = STRALLOC( argument );
       skill->noun_damage = STRALLOC( "" );
       skill->msg_off = STRALLOC( "" );
+      skill->skill_fun = NULL;
       skill->spell_fun = spell_null;
       skill->type = SKILL_UNSET;
       skill->style = STYLE_UNSET;
