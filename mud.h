@@ -5387,6 +5387,8 @@ void rprog_random_trigger( CHAR_DATA * ch );
 void rprog_time_trigger( CHAR_DATA * ch );
 void rprog_hour_trigger( CHAR_DATA * ch );
 char *rprog_type_to_name( int type );
+void mpsleep_update args( ( ) );
+
 
 #define OPROG_ACT_TRIGGER
 #ifdef OPROG_ACT_TRIGGER
@@ -5396,3 +5398,47 @@ void oprog_act_trigger( const char *buf, OBJ_DATA * mobj, CHAR_DATA * ch, OBJ_DA
 #ifdef RPROG_ACT_TRIGGER
 void rprog_act_trigger( const char *buf, ROOM_INDEX_DATA * room, CHAR_DATA * ch, OBJ_DATA * obj, void *vo );
 #endif
+
+/* Start MPsleep snippet */
+
+typedef struct mpsleep_data MPSLEEP_DATA;
+
+/* Ifstate defines, used to create and access ifstate array
+   in mprog_driver. */
+#define MAX_IFS     20  /* should always be generous */
+#define IN_IF        0
+#define IN_ELSE      1
+#define DO_IF        2
+#define DO_ELSE      3
+
+#define MAX_PROG_NEST   20
+
+/* Used to store sleeping mud progs. -rkb */
+typedef enum {MP_MOB, MP_ROOM, MP_OBJ} mp_types;
+struct mpsleep_data
+{
+ MPSLEEP_DATA * next;
+ MPSLEEP_DATA * prev;
+
+ int timer; /* Pulses to sleep */
+ mp_types type; /* Mob, Room or Obj prog */
+ ROOM_INDEX_DATA*room; /* Room when type is MP_ROOM */
+
+ /* mprog_driver state variables */
+ int ignorelevel;
+ int iflevel;
+ bool ifstate[MAX_IFS][DO_ELSE+1];
+
+ /* mprog_driver arguments */
+ char * com_list;
+ CHAR_DATA * mob;
+ CHAR_DATA * actor;
+ OBJ_DATA * obj;
+ void * vo;
+ bool single_step;
+};
+
+extern MPSLEEP_DATA * first_mpwait; /* Storing sleeping mud progs */
+extern MPSLEEP_DATA * last_mpwait; /* - */
+extern MPSLEEP_DATA * current_mpwait; /* - */
+

@@ -2258,7 +2258,7 @@ void update_handler( void )
       auction->pulse = PULSE_AUCTION;
       auction_update(  );
    }
-
+   mpsleep_update(  );
    tele_update(  );
    aggr_update(  );
    obj_act_update(  );
