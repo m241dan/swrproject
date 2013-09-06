@@ -183,14 +183,19 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
       if( sn == MAX_PC_SKILL )
          return FALSE;
    }
-
-   if( is_on_cooldown( ch, sn ) )
-      return TRUE;
-
    if( IS_NPC( ch ) )
       skill = skill_table[sn];
    else
       skill = ch->pc_skills[sn];
+
+   if( !is_skill_set( ch, skill ) )
+   {
+      send_to_char( "That skill is not set.\r\n", ch );
+      return TRUE;
+   }
+
+   if( is_on_cooldown( ch, sn ) )
+      return TRUE;
 
    if( !check_pos( ch, skill->minimum_position ) )
       return TRUE;
@@ -242,7 +247,8 @@ bool check_skill( CHAR_DATA * ch, const char *command, const char *argument )
    start_timer( &time_used );
    do_skill( ch, argument );
    end_timer( &time_used );
-   update_userec( &time_used, &skill_table[sn]->userec );
+   if( IS_NPC( ch ) )
+      update_userec( &time_used, &skill_table[sn]->userec );
 
    tail_chain(  );
    return TRUE;
@@ -281,7 +287,7 @@ void do_skill( CHAR_DATA *ch, const char *argument )
                }
                break;
             case TAR_CHAR_OFFENSIVE:
-               if( !victim && ch->fighting->who )
+               if( !victim && ch->fighting && ch->fighting->who )
                   victim = ch->fighting->who;
                else if( !victim )
                {
