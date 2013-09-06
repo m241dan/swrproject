@@ -1451,7 +1451,7 @@ void char_update( void )
             {
                if( ch->in_room )
                   char_from_room( ch );
-               char_to_room( ch, get_room_index( ROOM_PLUOGUS_QUIT ) );
+               char_to_room( ch, get_room_index( 483 ) );
                ch->position = POS_RESTING;
                ch->hit = UMAX( 1, ch->hit );
                save_char_obj( ch );
