@@ -151,6 +151,7 @@ void do_mpstat( CHAR_DATA * ch, const char *argument )
    ch_printf( ch,
               "Lv: %d.  Align: %d.  Evasion: %d.  Credits: %d.\r\n",
               victim->top_level, victim->alignment, GET_EVASION( victim ), victim->gold );
+   set_char_color( AT_DGREY, ch );
 
    for( mprg = victim->pIndexData->mudprogs; mprg; mprg = mprg->next )
       ch_printf( ch, "%s>%s %s\r\n%s\r\n", ( mprg->fileprog ? "(FILEPROG) " : "" ),
@@ -189,6 +190,8 @@ void do_opstat( CHAR_DATA * ch, const char *argument )
 
    ch_printf( ch, "Short description: %s.\r\n", obj->short_descr );
 
+   set_char_color( AT_DGREY, ch );
+
    for( mprg = obj->pIndexData->mudprogs; mprg; mprg = mprg->next )
       ch_printf( ch, ">%s %s\r\n%s\r\n", mprog_type_to_name( mprg->type ), mprg->arglist, mprg->comlist );
 
@@ -208,6 +211,8 @@ void do_rpstat( CHAR_DATA * ch, const char *argument )
    }
 
    ch_printf( ch, "Name: %s.  Vnum: %d.\r\n", ch->in_room->name, ch->in_room->vnum );
+
+   set_char_color( AT_DGREY, ch );
 
    for( mprg = ch->in_room->mudprogs; mprg; mprg = mprg->next )
       ch_printf( ch, ">%s %s\r\n%s\r\n", mprog_type_to_name( mprg->type ), mprg->arglist, mprg->comlist );
